@@ -3,4 +3,16 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
     $message = h($message);
 }
 ?>
-<div class="message success" onclick="this.classList.add('hidden')"><?= $message ?></div>
+<script type="text/javascript">
+$(document).ready(function() {
+    PNotify.desktop.permission();
+    (new PNotify({
+        title: 'Success',
+        text: '<?= $message ?>',
+        type: 'success',
+        desktop: {
+            desktop: true
+        }
+    }))
+});
+</script>

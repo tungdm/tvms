@@ -16,6 +16,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\Event;
+use clsTinyButStrong;
 
 /**
  * Application Controller
@@ -49,6 +50,64 @@ class AppController extends Controller
          * see https://book.cakephp.org/3.0/en/controllers/components/security.html
          */
         //$this->loadComponent('Security');
-        //$this->loadComponent('Csrf');
+        $this->loadComponent('Csrf');
+        $this->loadComponent('Auth', [
+            'authorize' => ['Controller'],
+            // 'authenticate' => [
+                // 'RememberMe.Cookie' => [
+                //     'userModel' => 'Users',
+                //     'fields' => ['username' => 'username'],
+                //     'cookie' => [
+                //         'name' => 'rememberMe',
+                //         'expires' => '+30 days',
+                //         'secure' => false,
+                //         'httpOnly' => true,
+                //     ],
+                // ],
+
+                // 'Form' => [
+                //     'field' => [
+                //         'username' => 'username',
+                //         'password' => 'password'
+                //     ],
+                //     'finder' => 'auth'
+                // ]
+            // ],
+            'authenticate' => [
+                'Cookie' => [
+                    'finder' => 'auth'
+                ]
+            ],
+            'loginAction' => [
+                'controller' => 'Users',
+                'action' => 'login'
+            ],
+            // If unauthorized, return them to page they were just on
+            'unauthorizedRedirect' => $this->referer()
+        ]);
+
+        //Init TBS
+        require_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_class.php';
+        require_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_plugin_opentbs.php';
+        $this->tbs = new clsTinyButStrong;
+        $this->tbs->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
+    }
+
+    public function isAuthorized($user)
+    {
+        // Admin can access every action
+        if (isset($user['role']) && $user['role']['name'] === 'admin') {
+            return true;
+        }
+
+        // Default deny
+        return false;
+    }
+
+    public function jsonResponse($data)
+    {
+        $response = $this->response;
+        $response = $response->withType('application/json')->withStringBody(json_encode($data));
+        return $response;
     }
 }

@@ -29,6 +29,16 @@ use Cake\View\Exception\MissingTemplateException;
 class PagesController extends AppController
 {
 
+    public function isAuthorized($user) 
+    {
+        $controller = $this->request->getParam('controller');
+        $action = $this->request->getParam('action');
+        $session = $this->request->session();
+        if (isset($user['role'])) {
+            return true;
+        }
+        return parent::isAuthorized($user);
+    }
     /**
      * Displays a view
      *

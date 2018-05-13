@@ -1,0 +1,33 @@
+#user-birthday {
+    margin-bottom: 0px;
+}
+
+td {
+    vertical-align: middle !important;
+}
+th {
+    text-align: center
+}
+.action-btn {
+    text-align: center;
+}
+.action-btn > i {
+    cursor: pointer;
+}
+.switchery {
+    margin-right: 5px;
+}
+.permission-group {
+    display: none;
+}
+/* #permission-container {
+    margin-top: 10px;
+} */
+.btn-permission {
+    float: right;
+    margin: 5px 0 5px 0 !important;
+}
+/* #add-permission-top, #cancel-permission {
+    float: right;
+    
+} */

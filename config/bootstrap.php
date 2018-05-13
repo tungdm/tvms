@@ -68,6 +68,7 @@ use Cake\Utility\Security;
 try {
     Configure::config('default', new PhpConfig());
     Configure::load('app', 'default', false);
+    Configure::load('constants', 'default');
 } catch (\Exception $e) {
     exit($e->getMessage() . "\n");
 }
@@ -106,6 +107,13 @@ mb_internal_encoding(Configure::read('App.encoding'));
  */
 ini_set('intl.default_locale', Configure::read('App.defaultLocale'));
 
+Cake\I18n\Date::setToStringFormat('YYYY-MM-dd');
+Cake\I18n\FrozenDate::setToStringFormat('YYYY-MM-dd');
+
+\Cake\Database\Type::build('date')
+    ->useImmutable()
+    ->useLocaleParser()
+    ->setLocaleFormat('YYYY-MM-dd');
 /*
  * Register application error and exception handlers.
  */
