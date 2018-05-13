@@ -136,8 +136,13 @@ class CookieAuthenticate extends BaseAuthenticate {
     {
         if (!$this->checkFields($request)) {
             Log::write('debug', 'Cookie do not exists, first-time login');
-            $user = $this->_findUser($request->data['username'], $request->data['password']);
-            return $user;
+            Log::write('debug', isset($request->data['username']));
+            if (isset($request->data['username']) && isset($request->data['password'])) {
+                $user = $this->_findUser($request->data['username'], $request->data['password']);
+                return $user;
+            } else {
+                return false;
+            }
         }
         $cookieParams = $this->decodeCookie($this->getCookie($request));
         $user = $this->findUserAndTokenBySeries($cookieParams['username'], $cookieParams['series']);
