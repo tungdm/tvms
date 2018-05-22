@@ -13,7 +13,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 use Cake\Core\Configure;
-$cakeDescription = 'CakePHP: the rapid development php framework';
+$cakeDescription = 'TVMS';
 ?>
 <!DOCTYPE html>
 <html>
@@ -50,20 +50,52 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
             <div class="col-md-3 left_col">
                 <div class="left_col scroll-view">
                     <div class="navbar nav_title" style="border: 0;">
-                        <a href="#" class="site_title"><i class="fa fa-paw"></i> <span>Gentelella Alela!</span></a>
+                        <a href="#" class="site_title"><i class="fa fa-paw"></i> <span>TMVS</span></a>
                     </div>
                     <div class="clearfix"></div>
                     <!-- sidebar menu -->
                     <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                         <div class="menu_section">
                             <ul class="nav side-menu">
-                                <li><a><i class="fa fa-home"></i> <?= __('Trang chủ') ?> </a></li>
-                                <li><a><i class="fa fa-edit"></i> <?= __('Quản lý nhân sự') ?> <span class="fa fa-chevron-down"></span></a>
+                                <li><a><i class="fa fa-home"></i> <?= __('MÀN HÌNH CHÍNH') ?> </a></li>
+                                <li><a><i class="fa fa-edit"></i> <?= __('NHÂN SỰ') ?> <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
-                                        <li><a href="#">Dang sach lao dong</a></li>
-                                        <li><?= $this->Html->link(__('Danh sách nhân viên'), ['controller' => 'Users', 'action' => 'index']) ?></li>
+                                        <li><a href="#">QUẢN LÝ LAO ĐỘNG</a></li>
+                                        <li><?= $this->Html->link(__('QUAN LÝ NHÂN VIÊN'), ['controller' => 'Users', 'action' => 'index']) ?></li>
                                     </ul>
                                 </li>
+                                <li><a><i class="fa fa-desktop"></i> LỊCH CÔNG TÁC <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="general_elements.html">LỊCH HÔM NAY</a></li>
+                                        <li><a href="media_gallery.html">BẢNG LỊCH THÁNG</a></li>
+                                        <li><a href="typography.html">THÔNG BÁO CHUNG</a></li>
+                                    </ul>
+                                </li>
+                                <li><a><i class="fa fa-table"></i> ĐƠN HÀNG <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                <li><a href="tables.html">Tables</a></li>
+                                <li><a href="tables_dynamic.html">Table Dynamic</a></li>
+                                </ul>
+                            </li>
+                            <li><a><i class="fa fa-bar-chart-o"></i> ĐÀO TẠO <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                <li><a href="chartjs.html">Chart JS</a></li>
+                                <li><a href="chartjs2.html">Chart JS2</a></li>
+                                </ul>
+                            </li>
+                            <li><a><i class="fa fa-clone"></i>ĐỐI TÁC <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                <li><a href="fixed_sidebar.html">NGHIỆP ĐOÀN, MÔI GIỚI</a></li>
+                                <li><a href="fixed_footer.html">XÍ NGHIỆP TIẾP NHẬN</a></li>
+                                <li><a href="fixed_footer.html">CÔNG TY QUẢN LÝ</a></li>
+                                </ul>
+                            </li>
+                            <li><a><i class="fa fa-clone"></i>TÀI CHÍNH <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                <li><a href="fixed_sidebar.html">NGHIỆP ĐOÀN, MÔI GIỚI</a></li>
+                                <li><a href="fixed_footer.html">Fixed Footer</a></li>
+                                </ul>
+                            </li>
                             </ul>
                         </div>
                     </div>
@@ -137,7 +169,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
             <!-- page content -->
             <!-- footer -->
             <footer>
-                <div class="pull-right">TVMS - A Project By M2Group </div>
+                <div class="pull-right">TVMS - Proudly a Project By M2Group </div>
                 <div class="clearfix"></div>
             </footer>
             <!-- footer -->
