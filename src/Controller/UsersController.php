@@ -7,6 +7,8 @@ use Cake\Routing\Router;
 use Cake\Core\Configure;
 use App\Controller\AppController;    
 use Cake\Log\Log;
+use Cake\Database\Expression\QueryExpression;
+use Cake\ORM\Query;
 
 
 /**
@@ -22,6 +24,7 @@ class UsersController extends AppController
     public function initialize()
     {
         parent::initialize();
+
         Log::write('debug', 'initialize usercontroller');
         
         $this->Auth->allow(['login', 'logout']);
@@ -87,12 +90,63 @@ class UsersController extends AppController
      */
     public function index()
     {
+        $query = $this->request->getQuery();
+        
         $this->paginate = [
-            'contain' => ['Roles', 'Profiles']
+            'contain' => ['Roles', 'Profiles', 'Profiles.Jobs'],
+            'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'job_id', 'role_id'],
+            'limit' => 3
         ];
-        // $users = $this->paginate($this->Users);
-        $users = $this->Users->find()->contain(['Profiles', 'Roles']);
-        $this->set(compact('users'));
+        $allUsers = $this->Users->find();
+        if (!empty($query)) {
+            $condition = [];
+            if (isset($query['username']) && !empty($query['username'])) {
+                $allUsers->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('username', '%'.$query['username'].'%');
+                });
+            }
+            
+            if (isset($query['email']) && !empty($query['email'])) {
+                $allUsers->matching('Profiles', function(Query $q) use ($query) {
+                    return $q->where(['Profiles.email LIKE' => '%'.$query['email'].'%']);
+                });
+            }
+
+            if (isset($query['gender']) && !empty($query['gender'])) {
+                $allUsers->matching('Profiles', function(Query $q) use ($query) {
+                    return $q->where(['Profiles.gender' => $query['gender']]);
+                });
+            }
+
+            if (isset($query['job_id']) && !empty($query['job_id'])) {
+                $allUsers->matching('Profiles', function(Query $q) use ($query) {
+                    return $q->where(['Profiles.job_id' => $query['job_id']]);
+                });
+            }
+
+            if (isset($query['phone']) && !empty($query['phone'])) {
+                $allUsers->matching('Profiles', function(Query $q) use ($query) {
+                    return $q->where(['Profiles.phone LIKE' => '%'.$query['phone'].'%']);
+                });
+            }
+
+            if (isset($query['fullname']) && !empty($query['fullname'])) {
+                $allUsers->matching('Profiles', function(Query $q) use ($query) {
+                    return $q->where(['Profiles.fullname LIKE' => '%'.$query['fullname'].'%']);
+                });
+            }
+
+            if (isset($query['role_id']) && !empty($query['role_id'])) {
+                $allUsers->matching('Profiles', function(Query $q) use ($query) {
+                    return $q->where(['role_id' => $query['role_id']]);
+                });
+            }
+        }
+
+        $users = $this->paginate($allUsers);
+        $roles = $this->Users->Roles->find('list');
+        $jobs = TableRegistry::get('Jobs')->find('list');
+        $this->set(compact('users', 'roles', 'jobs', 'query'));
     }
 
     /**
@@ -107,7 +161,6 @@ class UsersController extends AppController
         $user = $this->Users->get($id, [
             'contain' => ['Roles']
         ]);
-
         $this->set('user', $user);
     }
 

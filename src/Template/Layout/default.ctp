@@ -34,6 +34,7 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->css('mCustomScrollbar/jquery.mCustomScrollbar.min.css') ?>
     <?= $this->Html->css('pnotify.custom.min.css') ?>
     <?= $this->Html->css('datatables.min.css') ?>
+    <?= $this->Html->css('base.css') ?>
     <?= $this->Html->css('custom.min.css') ?>
     <?= $this->Html->script('jquery.min.js') ?>
     

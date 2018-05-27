@@ -63,13 +63,15 @@ function removePermission(delEl, sendAjax) {
 $(document).ready(function() {
     // add.html
     var birthday = $('#profile-birthday').val();
-    $('#user-birthday').datetimepicker({
-        useCurrent: false,
-        date: birthday,
-        format: 'YYYY-MM-DD',
-        locale: 'vi'
-    });
-
+    if (birthday) {
+        $('#user-birthday').datetimepicker({
+            useCurrent: false,
+            date: birthday,
+            format: 'YYYY-MM-DD',
+            locale: 'vi'
+        });
+    }
+    
     if ($('#permission-template')[0]){
         var permission_template = Handlebars.compile($('#permission-template').html());
     }
@@ -133,6 +135,28 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+    
+    // select display fields
+    $('#settings-submit-btn').click(function() {
+        var elems = Array.prototype.slice.call($('#setting-form').find('input[type="checkbox"]'));
+        elems.forEach(function (ele) {
+            if (ele.checked) {
+                $('.' + ele.name).removeClass('hidden');
+            } else {
+                $('.' + ele.name).addClass('hidden');
+            }
+        });
+        $('#setting-modal').modal('hide');
+    });
+
+    $('#setting-close-btn').click(function() {
+        // reset form before close
+        $('#setting-form')[0].reset();
+    });
+
+    $('#filter-refresh-btn').click(function() {
+        $('#filter-form')[0].reset();
     });
 
     $('body').on('change', '.select-scope', function() {

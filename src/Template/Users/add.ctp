@@ -28,7 +28,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
         <?= $this->Form->create($user, [
             'class' => 'form-horizontal form-label-left', 
             'id' => 'create-user-form', 
-            'data-parsley-validate' => '', 
+            'data-parsley-validate' => '',
             'templates' => [
                 'inputContainer' => '{{content}}'
                 ]
