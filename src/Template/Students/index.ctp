@@ -250,31 +250,52 @@ $this->Paginator->setTemplates([
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Họ tên') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('fullname', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'required' => true]) ?>
+                        <?= $this->Form->control('fullname', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'required' => true
+                            ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('gender', ['options' => $gender, 'empty' => true, 'required' => true, 'label' => false, 'class' => 'form-control col-md-7 col-xs-12']) ?>
+                        <?= $this->Form->control('gender', [
+                            'options' => $gender, 
+                            'empty' => true, 
+                            'required' => true, 
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'data-parsley-errors-container' => '#error-gender',
+                            'data-parsley-class-handler' => '#select2-gender',
+                            ]) ?>
+                        <span id="error-gender"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('phone', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12']) ?>
+                        <?= $this->Form->control('phone', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12'
+                            ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email"><?= __('Email') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('email', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12']) ?>
+                        <?= $this->Form->control('email', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12'
+                            ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="input-group date" id="candidate-birthday">
+                        <div class="input-group date input-picker" id="candidate-birthday">
                             <?= $this->Form->control('birthday', [
                                 'type' => 'text',
                                 'label' => false, 
@@ -294,13 +315,31 @@ $this->Paginator->setTemplates([
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Quê quán') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('address.city', ['options' => $city, 'empty' => __('Chọn tỉnh - thành'), 'required' => true, 'label' => false, 'class' => 'form-control col-md-7 col-xs-12']) ?>
+                        <?= $this->Form->control('address.city', [
+                            'options' => $city, 
+                            'empty' => true, 
+                            'required' => true, 
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'data-parsley-errors-container' => '#error-address',
+                            'data-parsley-class-handler' => '#select2-address-city',
+                            ]) ?>
+                        <span id="error-address"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Trình độ học vấn') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('educational_level', ['options' => $eduLevel, 'empty' => true, 'required' => true, 'label' => false, 'class' => 'form-control col-md-7 col-xs-12']) ?>
+                        <?= $this->Form->control('educational_level', [
+                            'options' => $eduLevel, 
+                            'empty' => true, 
+                            'required' => true, 
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'data-parsley-errors-container' => '#error-edu-level',
+                            'data-parsley-class-handler' => '#select2-educational-level',
+                            ]) ?>
+                        <span id="error-edu-level"></span>
                     </div>
                 </div>
             </div>
