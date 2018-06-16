@@ -9,6 +9,10 @@ use Cake\Validation\Validator;
 /**
  * Students Model
  *
+ * @property \App\Model\Table\JobsTable|\Cake\ORM\Association\BelongsTo $Jobs
+ * @property \App\Model\Table\PresentersTable|\Cake\ORM\Association\BelongsTo $Presenters
+ * @property \App\Model\Table\AddressesTable|\Cake\ORM\Association\HasMany $Addresses
+ *
  * @method \App\Model\Entity\Student get($primaryKey, $options = [])
  * @method \App\Model\Entity\Student newEntity($data = null, array $options = [])
  * @method \App\Model\Entity\Student[] newEntities(array $data, array $options = [])
@@ -33,10 +37,32 @@ class StudentsTable extends Table
         parent::initialize($config);
 
         $this->setTable('students');
-        $this->setDisplayField('human_id');
-        $this->setPrimaryKey('human_id');
+        $this->setDisplayField('fullname');
+        $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Author');        
+
+        $this->belongsTo('Jobs', [
+            'foreignKey' => 'job_id'
+        ]);
+        $this->hasMany('Addresses', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,            
+        ]);
+        $this->hasMany('Cards', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
+        $this->hasMany('Families', [
+            'foreignKey' => 'student_id',
+        ]);
+        $this->hasMany('Educations', [
+            'foreignKey' => 'student_id'
+        ]);
+        $this->hasMany('Experiences', [
+            'foreignKey' => 'student_id'
+        ]);
     }
 
     /**
@@ -48,18 +74,52 @@ class StudentsTable extends Table
     public function validationDefault(Validator $validator)
     {
         $validator
-            ->integer('human_id')
-            ->allowEmpty('human_id', 'create');
+            ->integer('id')
+            ->allowEmpty('id', 'create');
+
+        $validator
+            ->scalar('code')
+            ->maxLength('code', 255)
+            ->allowEmpty('code');
+
+        $validator
+            ->scalar('fullname')
+            ->maxLength('fullname', 255)
+            ->allowEmpty('fullname');
 
         $validator
             ->scalar('fullname_kata')
             ->maxLength('fullname_kata', 255)
-            ->requirePresence('fullname_kata', 'create')
-            ->notEmpty('fullname_kata');
+            ->allowEmpty('fullname_kata');
 
         $validator
-            ->boolean('is_marrired')
-            ->allowEmpty('is_marrired');
+            ->email('email')
+            ->allowEmpty('email');
+
+        $validator
+            ->scalar('phone')
+            ->maxLength('phone', 11)
+            ->allowEmpty('phone');
+
+        $validator
+            ->scalar('gender')
+            ->maxLength('gender', 2)
+            ->allowEmpty('gender');
+
+        $validator
+            ->allowEmpty('image');
+
+        $validator
+            ->date('birthday')
+            ->allowEmpty('birthday');
+
+        $validator
+            ->integer('marital_status')
+            ->allowEmpty('marital_status');
+
+        $validator
+            ->integer('subject')
+            ->allowEmpty('subject');
 
         $validator
             ->numeric('height')
@@ -85,6 +145,27 @@ class StudentsTable extends Table
             ->allowEmpty('preferred_hand');
 
         $validator
+            ->integer('left_eye_sight')
+            ->allowEmpty('left_eye_sight');
+
+        $validator
+            ->integer('right_eye_sight')
+            ->allowEmpty('right_eye_sight');
+
+        $validator
+            ->integer('left_eye_sight_hospital')
+            ->allowEmpty('left_eye_sight_hospital');
+
+        $validator
+            ->integer('right_eye_sight_hospital')
+            ->allowEmpty('right_eye_sight_hospital');
+
+        $validator
+            ->scalar('color_blind')
+            ->maxLength('color_blind', 255)
+            ->allowEmpty('color_blind');
+
+        $validator
             ->scalar('educational_level')
             ->maxLength('educational_level', 255)
             ->allowEmpty('educational_level');
@@ -95,42 +176,43 @@ class StudentsTable extends Table
             ->allowEmpty('nation');
 
         $validator
-            ->integer('presenter')
-            ->allowEmpty('presenter');
-
-        $validator
-            ->scalar('work_experience')
-            ->allowEmpty('work_experience');
-
-        $validator
             ->boolean('is_lived_in_japan')
             ->allowEmpty('is_lived_in_japan');
 
         $validator
-            ->scalar('expectation')
-            ->maxLength('expectation', 255)
             ->allowEmpty('expectation');
 
         $validator
-            ->scalar('purpose_before')
-            ->allowEmpty('purpose_before');
-
-        $validator
-            ->scalar('purpose_after')
-            ->allowEmpty('purpose_after');
+            ->integer('status')
+            ->allowEmpty('status');
 
         $validator
             ->integer('created_by')
             ->allowEmpty('created_by');
 
         $validator
-            ->dateTime('modifed')
-            ->allowEmpty('modifed');
+            ->dateTime('modified')
+            ->allowEmpty('modified');
 
         $validator
-            ->integer('modifed_by')
-            ->allowEmpty('modifed_by');
+            ->integer('modified_by')
+            ->allowEmpty('modified_by');
 
         return $validator;
+    }
+
+    /**
+     * Returns a rules checker object that will be used for validating
+     * application integrity.
+     *
+     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+     * @return \Cake\ORM\RulesChecker
+     */
+    public function buildRules(RulesChecker $rules)
+    {
+        $rules->add($rules->isUnique(['email']));
+        $rules->add($rules->existsIn(['job_id'], 'Jobs'));
+
+        return $rules;
     }
 }

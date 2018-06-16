@@ -5,13 +5,21 @@
  */
 use Cake\Core\Configure;
 $gender = Configure::read('gender');
+$recordsDisplay = Configure::read('recordsDisplay');
+$scope = Configure::read('scope');
+$confPermission = Configure::read('permission');
+
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller);
-$counter = 0;
 $currentUser = $this->request->session()->read('Auth.User');
+$counter = 0;
+
+$this->Html->css('user.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
+$this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
+$this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('user.js', ['block' => 'scriptBottom']);
 
 $this->Paginator->setTemplates([
@@ -21,189 +29,200 @@ $this->Paginator->setTemplates([
 ]);
 ?>
 
-<div class="x_panel">
-    <div class="x_title">
-        <h2><?= __('Users') ?></h2>
-        <ul class="nav navbar-right panel_toolbox">
-            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-            <li><?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['escape' => false]) ?></li>
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                <ul class="dropdown-menu" role="menu">
-                    <li><a data-toggle="modal" data-target="#setting-modal" href="#">Settings</a>
-                    </li>
-                    <li><a href="#">Settings 2</a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <div class="clearfix"></div>        
-    </div>
-    <div class="x_content table-responsive">
-        <table class="table table-bordered custom-table">
-            <thead>
-                <tr>
-                    <th scope="col" class="col-num"><?= __('No.') ?></th>
-                    <th scope="col" class="usernameCol">
-                        <?= $this->Paginator->sort('username', 'Tên đăng nhập')?>
-                    </th>
-                    <th scope="col" class="emailCol hidden">
-                        <?= $this->Paginator->sort('email') ?>
-                    </th>
-                    <th scope="col" class="genderCol">
-                        <?= $this->Paginator->sort('gender', 'Giới tính') ?>
-                    </th>
-                    <th scope="col" class="jobCol">
-                        <?= $this->Paginator->sort('job_id', 'Nghề nghiệp') ?>
-                    </th>
-                    <th scope="col" class="phoneCol">
-                        <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
-                    </th>
-                    <th scope="col" class="fullnameCol">
-                        <?= $this->Paginator->sort('fullname', 'Họ và tên') ?>
-                    </th>
-                    <th scope="col" class="roleCol">
-                        <?= $this->Paginator->sort('role_id', 'Chức vụ') ?>
-                    </th>
-                    <th scope="col" class="actions"><?= __('Actions') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                <?= $this->Form->create(null, [
-                        'url' => ['controller' => 'Users', 'action' => 'index'],
-                        'type' => 'get',
-                        'id' => 'filter-form'
-                        ]) ?>
-                    <td></td>
-                    <td class="col-md-1 usernameCol" style="width: 12.499999995%;">
-                        <?= $this->Form->control('username', [
-                            'label' => false,
-                            'class' => 'form-control col-md-7 col-xs-12',
-                            'value' => $query['username'] ?? ''
-                            ]) 
-                        ?>
-                    </td>
-                    <td class="col-md-2 emailCol hidden">
-                        <?= $this->Form->control('email', [
-                            'label' => false, 
-                            'type' => 'text',
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'value' => $query['email'] ?? ''
-                            ])
-                        ?>
-                    </td>
-                    <td class="col-md-1 genderCol" style="width: 12.499999995%;">
-                        <?= $this->Form->control('gender', [
-                            'options' => $gender, 
+<?php $this->start('content-header'); ?>
+<h1><?= __('Danh sách nhân viên') ?></h1>
+<ol class="breadcrumb">
+    <li>
+        <?= $this->Html->link(
+            '<i class="fa fa-home"></i> Home',
+            '/',
+            ['escape' => false]) ?>
+    </li>
+    <li class="active">Users</li>
+</ol>
+<?php $this->end(); ?>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title"><?= __('Users') ?></h3>
+                <div class="box-tools pull-right">
+                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a data-toggle="modal" data-target="#setting-modal" href="#">Setting Show/Hide field</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <?= $this->Form->create(null, [
+                'class' => 'form-horizontal',
+                'url' => ['controller' => 'Users', 'action' => 'index'],
+                'type' => 'get',
+                'id' => 'filter-form'
+                ]) ?>
+            <div class="box-body table-responsive">
+                <div class="form-group col-md-4 col-sm-6 col-xs-12 records-per-page">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-3"><?= __('Hiển thị') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <?= $this->Form->control('records', [
+                            'options' => $recordsDisplay, 
                             'empty' => true,
                             'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'value' => $query['gender'] ?? ''
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                            'value' => $query['records'] ?? ''
                             ])
                         ?>
-                    </td>
-                    <td class="col-md-1 jobCol" style="width: 12.499999995%;">
-                        <?= $this->Form->control('job_id', [
-                            'options' => $jobs, 
-                            'empty' => true,
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'value' => $query['job_id'] ?? ''
-                            ])
-                        ?>
-                    </td>
-                    <td class="col-md-2 phoneCol">
-                        <?= $this->Form->control('phone', [
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'value' => $query['phone'] ?? ''
-                            ])
-                        ?>
-                    </td>
-                    <td class="col-md-2 fullnameCol">
-                        <?= $this->Form->control('fullname', [
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12',
-                            'value' => $query['fullname'] ?? ''
-                            ]) 
-                        ?>
-                    </td>
-                    <td class="col-md-1 roleCol" style="width: 12.499999995%;">
-                        <?= $this->Form->control('role_id', [
-                            'options' => $roles, 
-                            'empty' => true, 
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12',
-                            'value' => $query['role_id'] ?? ''
-                            ])
-                        ?>
-                    </td>
-                    <td>
-                        <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
-                        <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
-                    </td>
-                <?= $this->Form->end() ?>
-                </tr>
-                <?php if (($users)->isEmpty()): ?>
-                <tr>
-                    <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
-                </tr>
-                <?php else: ?>
-                <?php foreach ($users as $user): ?>
-                <?php $counter++ ?>
-                <tr>
-                    <td class="cell"><?= h($counter) ?></td>
-                    <td class="cell usernameCol"><?= h($user->username) ?></td>
-                    <td class="cell emailCol hidden"><?= h($user->profile->email) ?></td>
-                    <td class="cell genderCol"><?= h($gender[$user->profile->gender]) ?></td>
-                    <td class="cell jobCol"><?= h($user->profile->job->job_name) ?></td>
-                    <td class="cell phoneCol"><?= h($user->profile->phone) ?></td>
-                    <td class="cell fullnameCol"><?= h($user->profile->fullname) ?></td>
-                    <td class="cell roleCol"><?= h($user->role->name) ?></td>
-                    
-                    <td class="actions cell">
-                        <!-- <?= $this->Html->link('<i class="fa fa-folder"></i> View ', ['action' => 'view', $user->id], ['escape' => false, 'class' => 'btn btn-primary btn-xs']) ?> -->
-                        <?php if (($permission == 0 && $user->role->name != 'admin') || $user->id == $currentUser['id']): ?>
-                        <?= $this->Html->link('<i class="fa fa-pencil"></i> Edit ', ['action' => 'edit', $user->id], ['escape' => false, 'class' => 'btn btn-info btn-xs']) ?>
-                        <?php endif; ?>
-                        
-                        <?php if ( ($permission == 0 || $currentUser['role']['name'] == 'admin') && $user->role->name !== 'admin'): ?>
-                        <?= $this->Form->postLink('<i class="fa fa-trash-o"></i> Delete ', ['action' => 'delete', $user->id], ['escape' => false, 'class' => 'btn btn-danger btn-xs', 'confirm' => __('Are you sure you want to delete {0}?', $user->username)]) ?>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                <?php endif; ?>                
-            </tbody>
-        </table>
-        <div class="paginator">
-            <ul class="pagination">
-                <?= $this->Paginator->first('<< ' . __('first')) ?>
-                <?= $this->Paginator->prev('< ' . __('previous')) ?>
-                <?= $this->Paginator->numbers() ?>
-                <?= $this->Paginator->next(__('next') . ' >') ?>
-                <?= $this->Paginator->last(__('last') . ' >>') ?>
-            </ul>
-            <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    </div>
+                </div>
+                <table class="table table-bordered custom-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="col-num"><?= __('No.') ?></th>
+                            <th scope="col" class="usernameCol">
+                                <?= $this->Paginator->sort('username', 'Tên đăng nhập')?>
+                            </th>
+                            <th scope="col" class="emailCol hidden">
+                                <?= $this->Paginator->sort('email') ?>
+                            </th>
+                            <th scope="col" class="genderCol">
+                                <?= $this->Paginator->sort('gender', 'Giới tính') ?>
+                            </th>
+                            <th scope="col" class="phoneCol">
+                                <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
+                            </th>
+                            <th scope="col" class="fullnameCol">
+                                <?= $this->Paginator->sort('fullname', 'Họ và tên') ?>
+                            </th>
+                            <th scope="col" class="roleCol">
+                                <?= $this->Paginator->sort('role_id', 'Chức vụ') ?>
+                            </th>
+                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td class="col-md-2 usernameCol">
+                                <?= $this->Form->control('username', [
+                                    'label' => false,
+                                    'class' => 'form-control col-md-7 col-xs-12',
+                                    'value' => $query['username'] ?? ''
+                                    ]) 
+                                ?>
+                            </td>
+                            <td class="col-md-2 emailCol hidden">
+                                <?= $this->Form->control('email', [
+                                    'label' => false, 
+                                    'type' => 'text',
+                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'value' => $query['email'] ?? ''
+                                    ])
+                                ?>
+                            </td>
+                            <td class="col-md-1 genderCol">
+                                <?= $this->Form->control('gender', [
+                                    'options' => $gender, 
+                                    'empty' => true,
+                                    'label' => false, 
+                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                    'value' => $query['gender'] ?? ''
+                                    ])
+                                ?>
+                            </td>
+                            <td class="col-md-2 phoneCol">
+                                <?= $this->Form->control('phone', [
+                                    'label' => false, 
+                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'value' => $query['phone'] ?? ''
+                                    ])
+                                ?>
+                            </td>
+                            <td class="col-md-2 fullnameCol">
+                                <?= $this->Form->control('fullname', [
+                                    'label' => false, 
+                                    'class' => 'form-control col-md-7 col-xs-12',
+                                    'value' => $query['fullname'] ?? ''
+                                    ]) 
+                                ?>
+                            </td>
+                            <td class="col-md-1 roleCol" style="width: 12.499999995%;">
+                                <?= $this->Form->control('role', [
+                                    'options' => $roles, 
+                                    'empty' => true, 
+                                    'label' => false, 
+                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                    'value' => $query['role'] ?? ''
+                                    ])
+                                ?>
+                            </td>
+                            <td class="filter-group-btn">
+                                <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
+                                <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
+                            </td>
+                        <?= $this->Form->end() ?>
+                        </tr>
+                        <?php if (($users)->isEmpty()): ?>
+                        <tr>
+                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                        </tr>
+                        <?php else: ?>
+                        <?php foreach ($users as $user): ?>
+                        <?php $counter++ ?>
+                        <tr>
+                            <td class="cell"><?= h($counter) ?></td>
+                            <td class="cell usernameCol"><?= h($user->username) ?></td>
+                            <td class="cell emailCol hidden"><?= h($user->email) ?></td>
+                            <td class="cell genderCol"><?= h($gender[$user->gender]) ?></td>
+                            <td class="cell phoneCol"><?= h($user->phone) ?></td>
+                            <td class="cell fullnameCol"><?= h($user->fullname) ?></td>
+                            <td class="cell roleCol"><?= h($user->role->name) ?></td>
+                            
+                            <td class="actions cell">
+                                <?php if (($currentUser['role']['name'] || $permission == 0) == 'admin' && $user->role->name != 'admin' && $user->id != $currentUser['id']): ?>
+                                <div class="btn-group">
+                                    <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
+                                    <ul role="menu" class="dropdown-menu">
+                                        <li>
+                                            <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'><?= __('Update Permission') ?></a>
+                                        </li>
+                                        <li>
+                                            <?= $this->Form->postLink('Delete', 
+                                                ['action' => 'delete', $user->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Are you sure you want to delete {0}?', $user->username)
+                                                ]) ?>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <?php endif; ?>                
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php endif; ?>                
+                    </tbody>
+                </table>
+                <div class="paginator">
+                    <ul class="pagination">
+                        <?= $this->Paginator->first('<< ' . __('first')) ?>
+                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                        <?= $this->Paginator->numbers() ?>
+                        <?= $this->Paginator->next(__('next') . ' >') ?>
+                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                    </ul>
+                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $('.cell').on('mouseenter', function() {
-            $(this).attr('id', 'current-cell');
-            $(this).closest('tr').addClass('highlight');
-            $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').addClass('highlight');
-        });
-        $('.cell').on('mouseout', function() {
-            $(this).removeAttr('id');
-            $(this).closest('tr').removeClass('highlight');
-            $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').removeClass('highlight');
-        });
-    });
-</script>
 
 
 <div class="modal fade" id="setting-modal" role="dialog">
@@ -232,9 +251,6 @@ $this->Paginator->setTemplates([
                             <label><input type="checkbox" name="genderCol" value checked> <?= __('Gender') ?></label>
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label><input type="checkbox" name="jobCol" value checked> <?= __('Nghề nghiệp') ?></label>
-                        </div>
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
                             <label><input type="checkbox" name="phoneCol" value checked> <?= __('Phone') ?></label>
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
@@ -245,7 +261,7 @@ $this->Paginator->setTemplates([
                         </div>
                     </div>
                 </div>
-                <?= $this->Form->end() ?>                
+                <?= $this->Form->end() ?>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="settings-submit-btn">Submit</button>
@@ -254,3 +270,136 @@ $this->Paginator->setTemplates([
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="edit-permission-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+            <?= $this->Form->create(null, [
+                'url' => ['controller' => 'Users', 'action' => 'editPermission'],
+                'type' => 'post',
+                'id' => 'edit-permission-form',
+                'class' => 'form-horizontal form-label-left',
+                ]) ?>
+                <?= $this->Form->hidden('id') ?>
+                
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Role') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <?= $this->Form->control('role_id', [
+                            'options' => $roles4Edit, 
+                            'empty' => true, 
+                            'required' => true,
+                            'label' => false, 
+                            'data-parsley-errors-container' => '#error-role',
+                            'data-parsley-class-handler' => '#select2-role-id',
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme select-group edit-role',
+                            ]) ?>
+                        <span id="error-role"></span>
+                    </div>
+                </div>
+                <div class="form-group permission-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="permission"><?= __('Permission') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12 table-responsive">
+                        <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Add new permission') ?></button>
+                        <table class="table table-bordered custom-table permission-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="col-md-5"><?= __('Scope') ?></th>
+                                    <th scope="col" class="col-md-5"><?= __('Permission') ?></th>
+                                    <th scope="col" class="actions"><?= __('Actions') ?></th>
+                                </tr>
+                            </thead>
+                            <tbody id="permission-container">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <?= $this->Form->end() ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="edit-permission-btn">Submit</button>
+                <button type="button" class="btn btn-default" id="setting-close-btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="edit-permissions-template" type="text/x-handlebars-template">
+{{#each this}}
+<tr class="row-permission">
+    <?= $this->Form->hidden('permissions.{{@index}}.id', ['value' => '{{id}}']) ?>
+    <td>
+        <?= $this->Form->control('permissions.{{@index}}.scope', [
+            'options' => $scope,
+            'empty' => __('Choose one'),
+            'required' => true,
+            'data-parsley-not-duplicate-scope' => '',
+            'label' => false,
+            'class' => 'select-scope form-control col-md-7 col-xs-12',
+            ])
+        ?>
+    </td>
+    <td>
+        <?= $this->Form->control('permissions.{{@index}}.action', [
+            'options' => $confPermission,
+            'empty' => __('Choose one'),
+            'required' => true,
+            'label' => false,
+            'class' => 'form-control col-md-7 col-xs-12',
+            ])
+        ?>
+    </td>
+    <td class="action-btn">
+        <?= $this->Html->link(
+            '<i class="fa fa-2x fa-remove"></i>',
+            'javascript:;',
+            ['escape' => false, 
+            'class' => 'remove-permission',
+            'onClick' => 'removePermission(this, true)'
+            ]
+        )?>
+    </td>
+</tr>
+{{/each}}
+</script>
+
+<script id="permission-template" type="text/x-handlebars-template">    
+    <tr class="row-permission" class="row-permission-{{counter}}">
+        <td>
+            <?= $this->Form->control('{{scope}}', [
+                'options' => $scope, 
+                'empty' => true,
+                'required' => true, 
+                'data-parsley-not-duplicate-scope' => '', 
+                'label' => false, 
+                'id' => 'scope-{{counter}}',
+                'class' => 'select-scope form-control col-md-7 col-xs-12 select-group',
+                ]) ?>
+        </td>
+        <td>
+            <?= $this->Form->control('{{permission}}', [
+                'options' => $confPermission, 
+                'empty' => true, 
+                'required' => true, 
+                'label' => false, 
+                'id' => 'permission-{{counter}}',
+                'class' => 'select-action form-control col-md-7 col-xs-12 select-group',
+                ]) ?>
+        </td>
+        <td class="action-btn">
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-remove"></i>',
+                'javascript:;',
+                ['escape' => false, 
+                'class' => 'remove-permission',
+                'onClick' => 'removePermission(this)'
+                ]
+            )?>
+        </td>
+    </tr>
+</script>

@@ -27,7 +27,18 @@ th {
     float: right;
     margin: 5px 0 5px 0 !important;
 }
-/* #add-permission-top, #cancel-permission {
+
+@media screen and (max-width: 767px) {
+    .table-responsive {
+        border: 0px !important;
+    }
+    .permission-group {
+        padding: 5px;
+    }
+}
+
+
+#user-tabs>li:last-child {
     float: right;
-    
-} */
+    margin: 4px;
+}

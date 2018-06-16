@@ -9,6 +9,8 @@ use App\Controller\AppController;
 use Cake\Log\Log;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
+use Cake\Utility\Text;
+use Cake\Auth\DefaultPasswordHasher;
 
 
 /**
@@ -35,30 +37,37 @@ class UsersController extends AppController
         $controller = $this->request->getParam('controller');
         $action = $this->request->getParam('action');
         $session = $this->request->session();
-        Log::write('debug', $user);
         
-        if (isset($user['permissions'])) {
-            foreach ($user['permissions'] as $key => $value) {
-                if ($controller == $value['scope']) {
-                    // Check if user try to edit admin info
-                    if (in_array($action, ['edit', 'delete'])) {
-                        $target_id = $this->request->getParam('pass')[0];
-                        $target_user = $this->Users->get($target_id, ['contain' => 'Roles']);
-                        if ($target_user->role->name == 'admin') {
-                            Log::write('alert', 'User "' . $user['username'] . '" try to modify user "' . $target_user->username . '" with admin role');
-                            return false;
-                        }
-                    }
+        // case: allow user update their profile
+        $target_id = $this->request->getParam('pass');
+        if (!empty($target_id)) {
+            $target_id = $target_id[0];
+        }
+        if ($action === 'edit' && ($target_id == $this->Auth->user('id'))) {
+            return true;
+        }
+        
+        $permissionsTable = TableRegistry::get('Permissions');
+        $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
-                    if ($value['action'] == 0 || ($value['action'] == 1 && in_array($action, ['index', 'view']))) {
-                        $session->write($controller, $value['action']);
-                        return true;
-                    }
+        // case: check permission on specific scope
+        if (!empty($userPermission)) {
+            // Check if user try to edit admin info
+            if (in_array($action, ['edit', 'delete'])) {
+                $target_user = $this->Users->get($target_id, ['contain' => 'Roles']);
+                if ($target_user->role->name == 'admin') {
+                    // TODO: Blacklist user
+                    Log::write('warning', 'User "' . $user['username'] . '" try to modify user "' . $target_user->username . '" with admin role');
                     return false;
                 }
             }
+
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+                $session->write($controller, $userPermission->action);
+                return true;
+            }
+            return false;
         }
-        
         return parent::isAuthorized($user);
     }
 
@@ -92,14 +101,16 @@ class UsersController extends AppController
     {
         $query = $this->request->getQuery();
         
-        $this->paginate = [
-            'contain' => ['Roles', 'Profiles', 'Profiles.Jobs'],
-            'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'job_id', 'role_id'],
-            'limit' => 3
-        ];
         $allUsers = $this->Users->find();
         if (!empty($query)) {
-            $condition = [];
+            if (!isset($query['records']) || empty($query['records'])) {
+                $query['records'] = 10;
+            }
+            $this->paginate = [
+                'contain' => ['Roles'],
+                'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'role_id'],
+                'limit' => $query['records']
+            ];
             if (isset($query['username']) && !empty($query['username'])) {
                 $allUsers->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('username', '%'.$query['username'].'%');
@@ -107,62 +118,52 @@ class UsersController extends AppController
             }
             
             if (isset($query['email']) && !empty($query['email'])) {
-                $allUsers->matching('Profiles', function(Query $q) use ($query) {
-                    return $q->where(['Profiles.email LIKE' => '%'.$query['email'].'%']);
+                $allUsers->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('email', '%'.$query['email'].'%');
                 });
             }
 
             if (isset($query['gender']) && !empty($query['gender'])) {
-                $allUsers->matching('Profiles', function(Query $q) use ($query) {
-                    return $q->where(['Profiles.gender' => $query['gender']]);
-                });
-            }
-
-            if (isset($query['job_id']) && !empty($query['job_id'])) {
-                $allUsers->matching('Profiles', function(Query $q) use ($query) {
-                    return $q->where(['Profiles.job_id' => $query['job_id']]);
-                });
+                $allUsers->where(['gender' => $query['gender']]);
             }
 
             if (isset($query['phone']) && !empty($query['phone'])) {
-                $allUsers->matching('Profiles', function(Query $q) use ($query) {
-                    return $q->where(['Profiles.phone LIKE' => '%'.$query['phone'].'%']);
+                $allUsers->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('phone', '%'.$query['phone'].'%');
                 });
             }
 
             if (isset($query['fullname']) && !empty($query['fullname'])) {
-                $allUsers->matching('Profiles', function(Query $q) use ($query) {
-                    return $q->where(['Profiles.fullname LIKE' => '%'.$query['fullname'].'%']);
+                $allUsers->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('fullname', '%'.$query['fullname'].'%');
                 });
             }
 
-            if (isset($query['role_id']) && !empty($query['role_id'])) {
-                $allUsers->matching('Profiles', function(Query $q) use ($query) {
-                    return $q->where(['role_id' => $query['role_id']]);
-                });
+            if (isset($query['role']) && !empty($query['role'])) {
+                $allUsers->where(['role_id' => $query['role']]);
             }
+        } else {
+            $query['records'] = 10;
+            $this->paginate = [
+                'contain' => ['Roles'],
+                'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'role_id'],
+                'limit' => $query['records']
+            ];
         }
 
         $users = $this->paginate($allUsers);
         $roles = $this->Users->Roles->find('list');
-        $jobs = TableRegistry::get('Jobs')->find('list');
-        $this->set(compact('users', 'roles', 'jobs', 'query'));
+
+        // get role for edit permission
+        $currentUser = $this->Auth->user();
+        if ($currentUser['role_id'] == 1) {
+            $roles4Edit = $roles;
+        } else {
+            $roles4Edit = $roles->where(['name !=' => 'admin'])->all();
+        }
+        $this->set(compact('users', 'roles', 'roles4Edit', 'query'));
     }
 
-    /**
-     * View method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Http\Response|void
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $user = $this->Users->get($id, [
-            'contain' => ['Roles']
-        ]);
-        $this->set('user', $user);
-    }
 
     /**
      * Add method
@@ -206,10 +207,37 @@ class UsersController extends AppController
         // $this->tbs->Show(OPENTBS_FILE, $output_file_name);
         // $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
         // exit();
-
+        $currentUser = $this->Auth->user();
+        $currentUserRole = $currentUser['role']['name'];
         $user = $this->Users->newEntity();
+
         if ($this->request->is('ajax')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData(), ['associated' => ['Profiles', 'Permissions']]);
+            $resp = [
+                'status' => 'error',
+                'flash' => [
+                    'title' => 'Error',
+                    'type' => 'error',
+                    'message' => __('The user could not be saved. Please, try again.')
+                ]
+            ];
+
+            $data = $this->request->getData();
+            // finalcheck: only admin can create an admin
+            if ($data['role_id'] == '1' && $currentUserRole != 'admin') {
+                //TODO: Blacklist current user
+                $msgTemplate = Configure::read('blackListTemplate');
+                $msg = Text::insert($msgTemplate, [
+                    'username' => $currentUser['username'], 
+                    'error' => 'try to create an admin'
+                    ]);
+                Log::write('warning', $msg);
+                return $this->jsonResponse($resp);
+            }
+            $user = $this->Users->patchEntity($user, $data, ['associated' => ['Permissions']]);
+
+            // set password
+            $user->password = Configure::read('passwordDefault');
+            
             $user = $this->Users->setAuthor($user, $this->Auth->user('id'), $this->request->getParam('action'));
             if ($this->Users->save($user)) {
                 $resp = [
@@ -222,31 +250,91 @@ class UsersController extends AppController
                     ]
                 ];
                 $this->Flash->success(__('The user has been saved.'));
-                // return $this->redirect(['action' => 'index']);
-            } else {
-                $resp = [
-                    'status' => 'error',
-                    'flash' => [
-                        'title' => 'Error',
-                        'type' => 'error',
-                        'message' => __('The user could not be saved. Please, try again.')
-                    ]
-                ];
             }
-            
-            // $this->Flash->error(__('The user could not be saved. Please, try again.'));
+
             return $this->jsonResponse($resp);
         }
-        // get role
-        $userRole = $this->Auth->user('role')['name'];
-        if ($userRole == 'admin') {
+        // get role for display
+        if ($currentUserRole == 'admin') {
             $roles = $this->Users->Roles->find('list');
         } else {
             $roles = $this->Users->Roles->find('list')->where(['name !=' => 'admin'])->all();
         }
-        $jobs = $this->Users->Profiles->Jobs->find('list');
         
-        $this->set(compact('user', 'roles', 'jobs'));
+        $this->set(compact('user', 'roles'));
+    }
+
+    public function editPermission()
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [];
+        
+        if ($this->request->is('get')) {
+            $id = $this->request->getQuery('id');
+            $permissionsTable = TableRegistry::get('Permissions');
+            $permissions = $permissionsTable->find()->where(['user_id' => $id])->toArray();
+
+            $resp = [
+                'permissions' => $permissions
+            ];
+        } else if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            Log::write('debug', $data);
+            $resp = [
+                'status' => 'error',
+                'flash' => [
+                    'title' => 'Error',
+                    'type' => 'error',
+                    'message' => __('The permission could not be changed. Please, try again.')
+                ]
+            ];
+
+            $currentUser = $this->Auth->user();
+            $currentUserRole = $currentUser['role_id'];
+            // finalcheck: only admin can create an admin
+            if ($data['role_id'] == '1' && $currentUserRole != 1) {
+                //TODO: Blacklist current user
+                $msgTemplate = Configure::read('blackListTemplate');
+                $msg = Text::insert($msgTemplate, [
+                    'username' => $currentUser['username'], 
+                    'error' => 'try to change user role to admin'
+                    ]);
+                Log::write('warning', $msg);
+                return $this->jsonResponse($resp);
+            }
+
+            if (isset($data['id']) && !empty($data['id'])) {
+                $targetId = $data['id'];
+                $user = $this->Users->get($targetId);
+                
+                // case: manager update user permission
+                $user = $this->Users->patchEntity($user, $data, [
+                    'fieldList' => ['role_id', 'permissions'],
+                    'associated' => [
+                        'Permissions' => [
+                            'fieldList' => ['id', 'scope', 'action']
+                        ]
+                    ]
+                ]);
+                Log::write('debug', $user);
+                
+                $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
+                
+                if ($this->Users->save($user)) {
+                    $resp = [
+                        'status' => 'success',
+                        'redirect' => Router::url(['action' => 'index']),
+                        'flash' => [
+                            'title' => 'Success',
+                            'type' => 'success',
+                            'message' => __('The user has been saved.')
+                        ]
+                    ];
+                    $this->Flash->success(__('The permission has been changed.'));
+                }
+            }
+        }
+        return $this->jsonResponse($resp);
     }
 
     public function deletePermission()
@@ -286,32 +374,43 @@ class UsersController extends AppController
     public function edit($id = null)
     {
         $user = $this->Users->get($id, [
-            'contain' => ['Profiles', 'Profiles.Jobs', 'Permissions']
+            'contain' => ['Permissions', 'Roles']
         ]);
+        $prevImage = $user->image;
         if ($this->request->is(['patch', 'post', 'put'])) {
-            debug($this->request->getData());
-            $user = $this->Users->patchEntity($user, $this->request->getData(), [
-                'fieldList' => ['role_id', 'permissions'],
-                'associated' => [
-                    'Profiles' => [
-                        'fieldList' => ['fullname', 'email', 'job_id', 'phone']
-                    ], 
-                    'Permissions' => [
-                        'fieldList' => ['scope', 'action']
-                    ]
-                ]
-            ]);
-            // $user = $this->Users->patchEntity($user, $this->request->getData(), ['associated' => ['Profiles', 'Permissions']]);
-            debug($user);
-            $user = $this->Users->setAuthor($user, $this->Auth->user('id'), $this->request->getParam('action'));
-            // debug($user->errors());
-
-            //TODO: Blacklist user
+            $data = $this->request->getData();
             
+            if ($this->Auth->user('id') == $id) {
+                // case: user update their profile
+                $user = $this->Users->patchEntity($user, $data, [
+                    'fieldList' => ['phone', 'fullname', 'email', 'birthday'],
+                ]);
+            }
+            
+            // save image
+            $b64code = $data['b64code'];
+            if (!empty($b64code)) {
+                $img = explode(',', $b64code);
+                $imgData = base64_decode($img[1]);
+                $filename = uniqid() . '.png';
+                $file_dir = WWW_ROOT . 'img' . DS . 'users' . DS . $filename;
+                file_put_contents($file_dir, $imgData);
+                $image_path = 'users/' . $filename;
+                $user->image = $image_path;
+            } else {
+                $user->image = $prevImage;
+            }
+
+            $user = $this->Users->setAuthor($user, $this->Auth->user('id'), $this->request->getParam('action'));
+
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
+                
+                if ($this->Auth->user('id') == $id) {
+                    $this->Auth->setUser($user);
+                }
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'edit', $user->id]);
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
@@ -322,9 +421,8 @@ class UsersController extends AppController
         } else {
             $roles = $this->Users->Roles->find('list')->where(['name !=' => 'admin'])->all();
         }
-        $jobs = $this->Users->Profiles->Jobs->find('list');
 
-        $this->set(compact('user', 'roles', 'jobs'));
+        $this->set(compact('user', 'roles'));
     }
 
     /**
@@ -347,4 +445,41 @@ class UsersController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    public function changePassword() {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Error',
+                'type' => 'error',
+                'message' => __('The password could not be updated. Please, try again.')
+            ]
+        ];
+
+        $data = $this->request->getData();
+        $currentPassword = $this->Users->find('password', ['userId' => $this->Auth->user('id')])->first();
+
+        // check confirm password
+        $hasher = new DefaultPasswordHasher();
+        if ($hasher->check($data['current-password'], $currentPassword->password)) {
+            // update password
+            $user = $this->Users->get($this->Auth->user('id'));
+            $user->password = $data['new-password'];
+            
+            if ($this->Users->save($user)) {
+                // logout user
+                $resp = [
+                    'status' => 'success',
+                    'redirect' => Router::url(['action' => 'logout']),
+                    'flash' => [
+                        'title' => 'Success',
+                        'type' => 'success',
+                        'message' => __('The password has been updated. Please, login again.')
+                    ]
+                ];
+                $this->Flash->success(__('The password has been updated. Please, login again.'));
+            }
+        }
+        return $this->jsonResponse($resp);
+    }
 }

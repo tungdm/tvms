@@ -1,0 +1,19 @@
+
+#household, #current-address {
+    padding-top: 10px;
+}
+
+.seperate-from-to {
+    text-align: center;
+    margin-top: 5px;
+}
+
+.group-picker {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#student-tabs>li:last-child {
+    float: right;
+    margin: 4px;
+}

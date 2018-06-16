@@ -5,6 +5,9 @@
 /logs/*
 /tmp/*
 /vendor/*
+/webroot/img/students/*
+/webroot/img/users/*
+/webroot/document/*
 
 # OS generated files #
 ######################
@@ -38,3 +41,8 @@ nbproject/*
 .vscode
 # Sass preprocessor
 .sass-cache/
+tests/*
+
+*.sql
+*_bk.*
+

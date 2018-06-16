@@ -12,14 +12,20 @@ use Cake\Auth\DefaultPasswordHasher;
  * @property string $username
  * @property string $password
  * @property int $role_id
- * @property string $avatar
+ * @property string $image
+ * @property string $gender
+ * @property \Cake\I18n\FrozenDate $birthday
+ * @property string $email
+ * @property string $phone
+ * @property string $fullname
+ * @property int $status
  * @property \Cake\I18n\FrozenTime $created
  * @property int $created_by
  * @property \Cake\I18n\FrozenTime $modified
  * @property int $modified_by
  *
  * @property \App\Model\Entity\Role $role
- * @property \App\Model\Entity\Profile $profile
+ * @property \App\Model\Entity\RememberMeToken[] $remember_me_tokens
  * @property \App\Model\Entity\Permission[] $permissions
  */
 class User extends Entity
@@ -38,14 +44,20 @@ class User extends Entity
         'username' => true,
         'password' => true,
         'role_id' => true,
-        'avatar' => true,
+        'image' => true,
+        'gender' => true,
+        'birthday' => true,
+        'email' => true,
+        'phone' => true,
+        'fullname' => true,
+        'status' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
         'role' => true,
-        'profile' => true,
-        'permissions' => true
+        'permissions' => true,
+        'remember_me_tokens' => true
     ];
 
     /**

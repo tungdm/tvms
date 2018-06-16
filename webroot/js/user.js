@@ -13,13 +13,17 @@ function removePermissionRow(delEl) {
 
     selectFields = $('#permission-container').find('select');
     for (var i = 0; i < selectFields.length; i++) {
+        var counter = Math.floor(i/2);
         if (i % 2 == 0) {
-            selectFields[i].name = 'permissions[' + Math.floor(i/2) + '][scope]';
+            selectFields[i].name = 'permissions[' + counter + '][scope]';
+            selectFields[i].id = 'scope-' + counter;
         } else {
-            selectFields[i].name = 'permissions[' + Math.floor(i/2) + '][action]';
+            selectFields[i].name = 'permissions[' + counter + '][action]';
+            selectFields[i].id = 'permissions-' + counter;
         }
     }
 }
+
 function removePermission(delEl, sendAjax) {
     if (sendAjax) {
         swal({
@@ -33,6 +37,8 @@ function removePermission(delEl, sendAjax) {
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
+                var rowIdArr = $(delEl).closest('tr.row-permission').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length-1];
                 $.ajax({
                     type: 'POST',
                     url: '/tvms/users/deletePermission',
@@ -61,16 +67,17 @@ function removePermission(delEl, sendAjax) {
 }
 
 $(document).ready(function() {
-    // add.html
-    var birthday = $('#profile-birthday').val();
-    if (birthday) {
-        $('#user-birthday').datetimepicker({
-            useCurrent: false,
-            date: birthday,
-            format: 'YYYY-MM-DD',
-            locale: 'vi'
-        });
-    }
+    // init datetime picker
+    var birthday = $('#birthday').val();
+    $('#user-birthday').datetimepicker({
+        useCurrent: false,
+        date: birthday,
+        format: 'YYYY-MM-DD',
+        locale: 'vi'
+    });
+    $('#user-birthday').on('dp.change', function(e) {
+        $('#user-birthday input').parsley().validate();
+    });
     
     if ($('#permission-template')[0]){
         var permission_template = Handlebars.compile($('#permission-template').html());
@@ -79,32 +86,31 @@ $(document).ready(function() {
 
     // add new row
     $('body').on('click', '#add-permission-top', function (e) {
-        $('#add-permission-top').remove();
         var permission_html = permission_template({
             'scope': 'permissions[' + perData.counter + '][scope]',
             'permission': 'permissions[' + perData.counter + '][action]',
+            'counter': perData.counter
         });
 
         $('#permission-container').append(permission_html);
-        $('<button type="button" class="btn btn-primary btn-permission" id="add-variants-bottom">Add new permission</button>').insertAfter('.permission-table');
-        perData.counter++;
-    });
-    
-    $('body').on('click', '#add-variants-bottom', function() {
-        var permission_html = permission_template({
-            'scope': 'permissions[' + perData.counter + '][scope]',
-            'permission': 'permissions[' + perData.counter + '][action]',
-        });
-        $('#permission-container').find('#add-variants-bottom').before(permission_html);
-        $(permission_html).insertAfter('.permission-table tbody>tr:last');
         perData.counter++;
     });
 
+    $('body').on('change', '.select-group', function(e) {
+        $(this).parsley().validate();
+    });
+    
     $('select[name=role_id]').change(function () {
         var role_id = $(this).val();
         if (role_id == 1 || role_id == '') {
-            // admin user, hide permission group
+            // user with admin role, hide permission group
             $('.permission-group').hide();
+
+            if ($(this).hasClass('add-role')) {
+                // add mode, remove all permission data
+                $('#permission-container').empty();
+            }
+            
         } else  if (role_id == 2) {
             $('.permission-group').show();
         }
@@ -159,31 +165,112 @@ $(document).ready(function() {
         $('#filter-form')[0].reset();
     });
 
-    $('body').on('change', '.select-scope', function() {
-        var elems = Array.prototype.slice.call($('#permission-container').find('.select-scope'));
-        elems.forEach(function (ele) {
-            if (ele.name !== $(this).name && ele.className.indexOf('parsley') > 0) {
-                $('select[name="'+ ele.name +'"]').parsley().validate();
-            }
-        });
+    $('#change-password-btn').click(function() {
+        var validateResult = $('#change-password-form').parsley().validate();
+        if (validateResult) {
+            $.ajax({
+                type: "POST",
+                url: $('#change-password-form').attr('action'),
+                data: $('#change-password-form').serialize(),
+        
+                success: function(resp){
+                    if (resp.status == 'success') {
+                        window.location = resp.redirect; 
+                    } else {
+                        PNotify.desktop.permission();
+                        (new PNotify({
+                            title: resp.flash.title,
+                            text: resp.flash.message,
+                            type: resp.flash.type,
+                            desktop: {
+                                desktop: true
+                            }
+                        }))
+                    }
+                }
+            });
+        }
+    });
+
+    $('#edit-permission-btn').click(function() {
+        var validateResult = $('#edit-permission-form').parsley().validate();
+        if (validateResult) {
+            $.ajax({
+                type: "POST",
+                url: $('#edit-permission-form').attr('action'),
+                data: $('#edit-permission-form').serialize(),
+                success: function (resp){
+                    if (resp.status == 'success') {
+                        window.location = resp.redirect; 
+                    } else {
+                        PNotify.desktop.permission();
+                        (new PNotify({
+                            title: resp.flash.title,
+                            text: resp.flash.message,
+                            type: resp.flash.type,
+                            desktop: {
+                                desktop: true
+                            }
+                        }))
+                    }
+                }
+            });
+        }
+    });
+
+    // custom validator for select2
+    window.Parsley.addValidator('notDuplicateScope', {
+        validateString: function(value, requirement , parsleyField) {
+            var currentClass = parsleyField.$element[0].className.split(' ')[0];
+            var elems = Array.prototype.slice.call($('#permission-container').find('.' + currentClass));
+            var selectedValues = [];
+            elems.forEach(function (ele) {
+                if (ele.name !== parsleyField.$element[0].name) {
+                    var selected = $('select[name="'+ ele.name +'"] :selected').val();
+                    selectedValues.push(selected);
+                }
+            });
+            return selectedValues.indexOf(value) < 0;
+        },
+        messages: {
+            en: 'Duplicate scope',
+        }
     });
 });
 
-window.Parsley.addValidator('notDuplicateScope', {
-    validateString: function(value, requirement , parsleyField) {
-        var currentClass = parsleyField.$element[0].className.split(' ')[0];
-        var elems = Array.prototype.slice.call($('#permission-container').find('.' + currentClass));
-        var selectedValues = [];
-        elems.forEach(function (ele) {
-            if (ele.name !== parsleyField.$element[0].name) {
-                var selected = $('select[name="'+ ele.name +'"] :selected').val();
-                selectedValues.push(selected);
+function showEditPerModal(userId, userRole) {
+    if (userId) {
+        $.ajax({
+            type: "GET",
+            url: $('#edit-permission-form').attr('action'),
+            data: {
+                id: userId
+            },
+            success: function(resp){
+                var allPermissions = resp.permissions;
+
+                $('input[name="id"]').val(userId);
+                $('select[name="role_id"]').val(userRole).trigger('change');
+
+                var source = $("#edit-permissions-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(allPermissions);
+                $('#permission-container').html(html);
+                
+                // set value for selectbox
+                for (var index = 0; index < allPermissions.length; index++) {
+                    var obj = allPermissions[index];
+                    $('select[name="permissions['+index+'][scope]"]').val(obj.scope);
+                    $('select[name="permissions['+index+'][action]"]').val(obj.action);
+                }
+
+                perData.counter = allPermissions.length;
+
+                $('#edit-permission-modal').modal('toggle');
             }
         });
-        return selectedValues.indexOf(value) < 0;
-    },
-    messages: {
-        en: 'Duplicate scope',
     }
-});
+}
+
+
 

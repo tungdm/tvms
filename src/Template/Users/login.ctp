@@ -11,7 +11,7 @@
     <?= $this->Html->css('font-awesome/font-awesome.min.css') ?>
     <?= $this->Html->css('nprogress/nprogress.css') ?>
     <?= $this->Html->css('pnotify.custom.min.css') ?>
-    <?= $this->Html->css('custom.min.css') ?>
+    <?= $this->Html->css('admin.css') ?>
     <?= $this->Html->script('jquery.min.js') ?>
 </head>
 <body class="login">

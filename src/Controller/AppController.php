@@ -16,6 +16,7 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\Event;
+use Cake\Routing\Router;
 use clsTinyButStrong;
 
 /**
@@ -49,7 +50,9 @@ class AppController extends Controller
          * Enable the following components for recommended CakePHP security settings.
          * see https://book.cakephp.org/3.0/en/controllers/components/security.html
          */
-        //$this->loadComponent('Security');
+        if (!$this->request->is('ajax')) {
+            $this->loadComponent('Security');
+        }
         $this->loadComponent('Csrf');
         $this->loadComponent('Auth', [
             'authorize' => ['Controller'],
@@ -83,7 +86,7 @@ class AppController extends Controller
                 'action' => 'login'
             ],
             // If unauthorized, return them to page they were just on
-            'unauthorizedRedirect' => $this->referer()
+            // 'unauthorizedRedirect' => $this->referer()
         ]);
 
         //Init TBS
@@ -96,7 +99,7 @@ class AppController extends Controller
     public function isAuthorized($user)
     {
         // Admin can access every action
-        if (isset($user['role']) && $user['role']['name'] === 'admin') {
+        if (isset($user['role']) && $user['role_id'] == 1) {
             return true;
         }
 

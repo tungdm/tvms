@@ -33,11 +33,13 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->css('nprogress/nprogress.css') ?>
     <?= $this->Html->css('mCustomScrollbar/jquery.mCustomScrollbar.min.css') ?>
     <?= $this->Html->css('pnotify.custom.min.css') ?>
-    <?= $this->Html->css('datatables.min.css') ?>
+    <?= $this->Html->css('select2.min.css'); ?>
+    <?= $this->Html->css('select2-bootstrap.css'); ?>
+
+    <?= $this->Html->css('admin.css') ?>
+    <?= $this->Html->css('skin-blue.css') ?>
     <?= $this->Html->css('base.css') ?>
-    <?= $this->Html->css('custom.min.css') ?>
     <?= $this->Html->script('jquery.min.js') ?>
-    
     
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
@@ -45,145 +47,159 @@ $cakeDescription = 'TVMS';
     <?= $this->fetch('styleTop') ?>
     <?= $this->fetch('scriptTop') ?>
 </head>
-<body class="nav-md">
-    <div class="container body">
-        <div class="main_container">
-            <div class="col-md-3 left_col">
-                <div class="left_col scroll-view">
-                    <div class="navbar nav_title" style="border: 0;">
-                        <a href="#" class="site_title"><i class="fa fa-paw"></i> <span>TMVS</span></a>
-                    </div>
-                    <div class="clearfix"></div>
-                    <!-- sidebar menu -->
-                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-                        <div class="menu_section">
-                            <ul class="nav side-menu">
-                                <li><a><i class="fa fa-home"></i> <?= __('MÀN HÌNH CHÍNH') ?> </a></li>
-                                <li><a><i class="fa fa-edit"></i> <?= __('NHÂN SỰ') ?> <span class="fa fa-chevron-down"></span></a>
-                                    <ul class="nav child_menu">
-                                        <li><a href="#">QUẢN LÝ LAO ĐỘNG</a></li>
-                                        <li><?= $this->Html->link(__('QUAN LÝ NHÂN VIÊN'), ['controller' => 'Users', 'action' => 'index']) ?></li>
-                                    </ul>
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="#" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini"><b>TV</b></span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg"><b>TVMS</b></span>
+            </a>
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown user user-menu">
+                            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+                                <?php if (empty($this->request->session()->read('Auth.User.image'))): ?>
+                                    <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'user-image']) ?>
+                                <?php else: ?>
+                                    <?= $this->Html->image($this->request->session()->read('Auth.User.image'), ['class' => 'user-image']) ?>
+                                <?php endif; ?>
+                                <?= $this->request->session()->read('Auth.User.username') ?>
+                                <span class="fa fa-angle-down"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                <li>
+                                    <?= $this->Html->link(
+                                        __('Update Profile'), 
+                                        ['controller' => 'Users', 'action' => 'edit', $this->request->session()->read('Auth.User.id')]
+                                        ) 
+                                    ?>
                                 </li>
-                                <li><a><i class="fa fa-desktop"></i> LỊCH CÔNG TÁC <span class="fa fa-chevron-down"></span></a>
-                                    <ul class="nav child_menu">
-                                        <li><a href="general_elements.html">LỊCH HÔM NAY</a></li>
-                                        <li><a href="media_gallery.html">BẢNG LỊCH THÁNG</a></li>
-                                        <li><a href="typography.html">THÔNG BÁO CHUNG</a></li>
-                                    </ul>
+                                <li>
+                                    <a href="javascript:;">
+                                    <span class="badge bg-red pull-right">50%</span>
+                                    <span>Settings</span>
+                                    </a>
                                 </li>
-                                <li><a><i class="fa fa-table"></i> ĐƠN HÀNG <span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                <li><a href="tables.html">Tables</a></li>
-                                <li><a href="tables_dynamic.html">Table Dynamic</a></li>
-                                </ul>
-                            </li>
-                            <li><a><i class="fa fa-bar-chart-o"></i> ĐÀO TẠO <span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                <li><a href="chartjs.html">Chart JS</a></li>
-                                <li><a href="chartjs2.html">Chart JS2</a></li>
-                                </ul>
-                            </li>
-                            <li><a><i class="fa fa-clone"></i>ĐỐI TÁC <span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                <li><a href="fixed_sidebar.html">NGHIỆP ĐOÀN, MÔI GIỚI</a></li>
-                                <li><a href="fixed_footer.html">XÍ NGHIỆP TIẾP NHẬN</a></li>
-                                <li><a href="fixed_footer.html">CÔNG TY QUẢN LÝ</a></li>
-                                </ul>
-                            </li>
-                            <li><a><i class="fa fa-clone"></i>TÀI CHÍNH <span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                <li><a href="fixed_sidebar.html">NGHIỆP ĐOÀN, MÔI GIỚI</a></li>
-                                <li><a href="fixed_footer.html">Fixed Footer</a></li>
-                                </ul>
-                            </li>
+                                <li><a href="javascript:;">Help</a></li>
+                                <li>
+                                    <?=
+                                        $this->Html->link(
+                                            '<i class="fa fa-sign-out pull-right"></i> Log Out',
+                                            ['controller' => 'Users', 'action' => 'logout'],
+                                            ['escape' => false]
+                                        )
+                                    ?>
+                                </li>
                             </ul>
-                        </div>
-                    </div>
-                    <!-- sidebar menu -->
+                        </li>
+                    </ul>
                 </div>
-            </div>
-            <!-- top navigation -->
-            <div class="top_nav">
-                <div class="nav_menu">
-                    <nav>
-                        <div class="nav toggle">
-                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-                        </div>
-                        <ul class="nav navbar-nav navbar-right">
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <!-- sidebar menu -->
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li>
+                        <?= $this->Html->link('<i class="fa fa-home"></i> <span>MÀN HÌNH CHÍNH</span>', 
+                            '/',
+                            ['escape' => false]) ?>
+                    </li>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-edit"></i>
+                            <span><?= __('NHÂN SỰ') ?></span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
                             <li>
-                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <!-- <img src="images/img.jpg" alt=""> -->
-                                    <?php if (empty($this->request->session()->read('Auth.User.avatar'))): ?>
-                                        <?= $this->Html->image(Configure::read('noAvatar')) ?>
-                                    <?php else: ?>
-                                        <?= $this->Html->image($this->request->session()->read('Auth.User.avatar')) ?>
-                                    <?php endif; ?>
-                                    <?= $this->request->session()->read('Auth.User.username') ?>
-                                    <span class="fa fa-angle-down"></span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-usermenu pull-right">
-                                    <li>
-                                        <?= $this->Html->link(
-                                            __('Update Profile'), 
-                                            ['controller' => 'Users', 'action' => 'edit', $this->request->session()->read('Auth.User.id')]
-                                            ) 
-                                        ?>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:;">
-                                        <span class="badge bg-red pull-right">50%</span>
-                                        <span>Settings</span>
-                                        </a>
-                                    </li>
-                                    <li><a href="javascript:;">Help</a></li>
-                                    <li>
-                                        <?=
-                                            $this->Html->link(
-                                                '<i class="fa fa-sign-out pull-right"></i> Log Out',
-                                                ['controller' => 'Users', 'action' => 'logout'],
-                                                ['escape' => false]
-                                            )
-                                        ?>
-                                        <!-- <i class="fa fa-sign-out pull-right"></i> Log Out</a> -->
-                                    </li>
-                                </ul>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản Lý Lao Động', 
+                                    ['controller' => 'Students', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản Lý Nhân Viên', 
+                                    ['controller' => 'Users', 'action' => 'index'],
+                                    ['escape' => false]) ?>
                             </li>
                         </ul>
-                    </nav>
-                </div>
-            </div>
-            <!-- top navigation -->
-            <!-- page content -->
-            <div class="right_col" role="main">
-                <div class="">
-                    <div class="page-title">
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <?= $this->Flash->render() ?>
-                                <?= $this->fetch('content') ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- page content -->
-            <!-- footer -->
-            <footer>
-                <div class="pull-right">TVMS - Proudly a Project By M2Group </div>
-                <div class="clearfix"></div>
-            </footer>
-            <!-- footer -->
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-calendar"></i>
+                            <span><?= __('LỊCH CÔNG TÁC') ?></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-table"></i>
+                            <span><?= __('ĐƠN HÀNG') ?></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-bar-chart-o"></i>
+                            <span><?= __('ĐÀO TẠO') ?></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-folder"></i>
+                            <span><?= __('ĐỐI TÁC') ?></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-th"></i>
+                            <span><?= __('TÀI CHÍNH') ?></span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>
+                    <?= $this->fetch('content-header') ?>
+                </h1>
+            </section>
+            <!-- Main content -->
+            <section class="content">
+                <?= $this->Flash->render() ?>
+                <?= $this->fetch('content') ?>
+            </section>
+            <div class="clearfix"></div>
         </div>
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> 0.1
+            </div>
+            <strong>Copyright &copy; 2018-2020 <a href="#">M2Group</a>.</strong> All rights reserved.
+        </footer>
     </div>
+
     <?= $this->Html->script('bootstrap.min.js') ?>
     <?= $this->Html->script('fastclick.js') ?>
     <?= $this->Html->script('nprogress.js') ?>
     <?= $this->Html->script('pnotify.custom.min.js') ?>
-    <?= $this->Html->script('datatables.min.js') ?>
-    <?= $this->Html->script('mCustomScrollbar/jquery.mCustomScrollbar.concat.min.js') ?>
-
+    <?= $this->Html->script('select2.full.js', ['block' => 'scriptBottom']); ?>
+    
     <?= $this->fetch('scriptBottom') ?>
-    <?= $this->Html->script('base.js') ?>
+
+    <?= $this->Html->script('admin.js') ?>
 </body>
 </html>

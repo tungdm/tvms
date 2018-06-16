@@ -21,6 +21,7 @@
     <fieldset>
         <legend><?= __('Edit Student') ?></legend>
         <?php
+            echo $this->Form->control('id');
             echo $this->Form->control('fullname_kata');
             echo $this->Form->control('is_marrired');
             echo $this->Form->control('height');
@@ -30,15 +31,12 @@
             echo $this->Form->control('preferred_hand');
             echo $this->Form->control('educational_level');
             echo $this->Form->control('nation');
-            echo $this->Form->control('presenter');
-            echo $this->Form->control('work_experience');
+            echo $this->Form->control('presenter_id');
             echo $this->Form->control('is_lived_in_japan');
             echo $this->Form->control('expectation');
-            echo $this->Form->control('purpose_before');
-            echo $this->Form->control('purpose_after');
             echo $this->Form->control('created_by');
-            echo $this->Form->control('modifed', ['empty' => true]);
-            echo $this->Form->control('modifed_by');
+            echo $this->Form->control('modified', ['empty' => true]);
+            echo $this->Form->control('modified_by');
         ?>
     </fieldset>
     <?= $this->Form->button(__('Submit')) ?>

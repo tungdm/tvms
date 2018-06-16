@@ -48,11 +48,6 @@ class UsersTable extends Table
             'foreignKey' => 'role_id',
             'joinType' => 'INNER'
         ]);
-        $this->hasOne('Profiles', [
-            'foreignKey' => 'user_id',
-            'propertyName' => 'profile',
-            'dependent' => true
-        ]);
         $this->hasMany('Permissions', [
             'foreignKey' => 'user_id',
             'propertyName' => 'permissions',
@@ -85,16 +80,40 @@ class UsersTable extends Table
         $validator
             ->scalar('password')
             ->maxLength('password', 255)
-            ->requirePresence('password', 'create')
-            ->notEmpty('password');
+            ->allowEmpty('password');
 
         $validator
             ->allowEmpty('scope');
 
         $validator
-            ->scalar('avatar')
-            ->maxLength('avatar', 255)
-            ->allowEmpty('avatar');
+            ->allowEmpty('image');
+
+        $validator
+            ->scalar('gender')
+            ->maxLength('gender', 2)
+            ->allowEmpty('gender');
+
+        $validator
+            ->date('birthday')
+            ->allowEmpty('birthday');
+
+        $validator
+            ->email('email')
+            ->allowEmpty('email');
+
+        $validator
+            ->scalar('phone')
+            ->maxLength('phone', 11)
+            ->allowEmpty('phone');
+
+        $validator
+            ->scalar('fullname')
+            ->maxLength('fullname', 255)
+            ->allowEmpty('fullname');
+
+        $validator
+            ->integer('status')
+            ->allowEmpty('status');
 
         $validator
             ->integer('created_by')
@@ -125,14 +144,15 @@ class UsersTable extends Table
     public function findAuth(Query $query, array $options)
     {
         $query
-            ->select(['id', 'username', 'password', 'avatar', 'Roles.name', 'Profiles.email'])
-            ->contain(['Profiles', 'Roles', 'Permissions']);
+            ->select(['id', 'username', 'password', 'image', 'role_id', 'Roles.name', 'email'])
+            ->contain(['Roles', 'Permissions']);
 
         return $query;
     }
 
-    // public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options) 
-    // {
-    //     $entity->created_by = 1;
-    // }
+    public function findPassword(Query $query, array $options)
+    {
+        $userId = $options['userId'];
+        return $query->where(['id' => $userId])->select(['password']);
+    }
 }

@@ -1,0 +1,848 @@
+var perData = {};
+perData.familyCounter = 0;
+perData.eduCounter = 0;
+perData.expCounter = 0;
+
+// init handlebars
+if ($('#family-template')[0]){
+    var family_template = Handlebars.compile($('#family-template').html());
+}
+if ($('#edu-template')[0]){
+    var edu_template = Handlebars.compile($('#edu-template').html());
+}
+if ($('#exp-template')[0]){
+    var exp_template = Handlebars.compile($('#exp-template').html());
+}
+
+$(document).ready(function() {
+    // init dynamic data
+    perData.familyCounter = $('#family-container > tr').length;
+    perData.eduCounter = $('#edu-container > tr').length;
+    perData.expCounter = $('#exp-container > tr').length;
+
+    // init datetime picker
+    var elems = Array.prototype.slice.call($('.input-picker'));
+    elems.forEach(function (ele) {
+        var inputDate = $('#' + ele.id + ' input').val();
+        if ($(ele).hasClass('month-mode')) {
+            $('#' + ele.id).datetimepicker({
+                useCurrent: false,
+                viewMode: 'months',
+                date: inputDate,
+                format: 'YYYY-MM',
+                locale: 'vi'
+            });
+        } else {
+            $('#' + ele.id).datetimepicker({
+                useCurrent: false,
+                date: inputDate,
+                format: 'YYYY-MM-DD',
+                locale: 'vi'
+            });
+        }
+        
+
+        // re-validate when user change picker
+        $('#' + ele.id).on('dp.change', function(e) {
+            $('#' + ele.id + ' input').parsley().validate();
+
+            // validate relation input when current input pass the validation
+            if ($('#' + ele.id + ' input').parsley().isValid()) {
+                var relationEleId;
+                if ($('#' + ele.id + ' input').hasClass('from-date-picker')) {
+                    relationEleId = $('#' + ele.id + ' input').attr('data-parsley-before-date');
+                } else if ($('#' + ele.id + ' input').hasClass('to-date-picker')) {
+                    relationEleId = $('#' + ele.id + ' input').attr('data-parsley-after-date');
+                }
+    
+                if (relationEleId) {
+                    if ($(relationEleId).hasClass('to-date-picker')) {
+                        $(relationEleId).parent().data('DateTimePicker').minDate(e.date);
+                    } else if ($(relationEleId).hasClass('from-date-picker')) {
+                        $(relationEleId).parent().data('DateTimePicker').maxDate(e.date);
+                    }
+                    $(relationEleId).parsley().validate();
+                }
+            }
+        });
+    });
+
+    //custom validator
+    window.Parsley.addValidator('beforeDate', {
+        validateString: function(value, requirement, parsleyField) {
+            var srcDate = new Date(value);
+            var dstValue = $(requirement).val();
+            if (dstValue === '') {
+                return true;
+            }
+            var dstDate = new Date(dstValue);
+            return srcDate <= dstDate;
+        },
+        messages: {
+            en: 'Before end date',
+        }
+    });
+
+    window.Parsley.addValidator('afterDate', {
+        validateString: function(value, requirement, parsleyField) {
+            if (value === '') {
+                return true;
+            }
+            var srcDate = new Date(value);
+            var dstValue = $(requirement).val();
+            if (dstValue === '') {
+                return true;
+            }
+            var dstDate = new Date(dstValue);
+            return srcDate >= dstDate;
+        },
+        messages: {
+            en: 'After from date',
+        }
+    });
+
+    window.Parsley.addValidator('checkEmpty', {
+        validateString: function(value, requirement, parsleyField) {
+            if (value === '') {
+                var currentId = parsleyField.$element[0].id;
+                var otherEles = $(requirement).not('#' + currentId);
+                for (var index = 0; index < otherEles.length; index++) {
+                    if (otherEles[index].value !== '') {
+                        return false
+                    }
+                }
+            }
+            return true;
+        },
+        messages: {
+            en: 'This value is required.',
+        }
+    });
+
+    $('#student-tabs').tabCollapse();
+
+    $('.select2-theme').change(function(e) {
+        $('#' + e.target.id).parsley().validate();
+    });
+
+    $('.select-city').change(function(e) {
+        var token = getToken(this);
+        if (this.value == null || this.value == '') {
+            $('#addresses-'+token+'-district').empty().append('<option value=""></option>');
+            $('#addresses-'+token+'-district').prop('disabled', true);
+        } else {
+            $.ajax({
+                type: 'GET',
+                url: '/tvms/students/getDistrict',
+                data: {
+                    city: this.value
+                },
+                success: function(resp) {
+                    var processedOptions = $.map(resp, function(obj, index) {
+                        return {id: index, text: obj};
+                    });
+    
+                    // init select2-district with response data
+                    if ($('#addresses-'+token+'-district').hasClass('select2-hidden-accessible')) {
+                        $('#addresses-'+token+'-district').select2('destroy').empty().append('<option value=""></option>');
+                    }
+    
+                    // enable select2
+                    $('#addresses-'+token+'-district').prop('disabled', false);
+    
+                    // reset validation
+                    $('#addresses-'+token+'-district').parsley().reset();
+                    $('#addresses-'+token+'-district').select2({
+                        placeholder: 'Select a value',
+                        data: processedOptions,
+                        allowClear: true,
+                        theme: "bootstrap",
+                        language: {
+                            noResults: function() {
+                                return "Không tìm thấy kết quả";
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // clear select2-ward, street input data
+        $('#addresses-'+token+'-ward').empty().append('<option value=""></option>');
+        $('#addresses-'+token+'-ward').prop('disabled', true);
+        $('#addresses-'+token+'-street').val('');
+    });
+
+    $('.select-district').change(function(e) {
+        var token = getToken(this);
+        // re-validate input
+        $('#addresses-'+token+'-district').parsley().validate();
+        if ($('#addresses-'+token+'-district').hasClass('parsley-success')) {
+            $('#select2-addresses-'+token+'-district').removeClass('parsley-error');
+        } else if ($('#addresses-'+token+'-district').hasClass('parsley-error')) {
+            $('#select2-addresses-'+token+'-district').addClass('parsley-error');
+        }
+
+        if (this.value == null || this.value == '') {
+            $('#addresses-'+token+'-ward').empty().append('<option value=""></option>');
+            $('#addresses-'+token+'-ward').prop('disabled', true);
+        } else {
+            // Send ajax get ward options
+            $.ajax({
+                type: 'GET',
+                url: '/tvms/students/getWard',
+                data: {
+                    district: this.value
+                },
+                success: function(resp) {
+                    var processedOptions = $.map(resp, function(obj, index) {
+                        return {id: index, text: obj};
+                    });
+
+                    // init select2 with response data
+                    if ($('#addresses-'+token+'-ward').hasClass('select2-hidden-accessible')) {
+                        $('#addresses-'+token+'-ward').select2('destroy').empty().append('<option value=""></option>');
+                    }
+
+                    // enable select2
+                    $('#addresses-'+token+'-ward').prop('disabled', false);
+
+                    // reset validation
+                    $('#addresses-'+token+'-ward').parsley().reset();
+                    $('#addresses-'+token+'-ward').select2({
+                        placeholder: 'Select a value',
+                        data: processedOptions,
+                        allowClear: true,
+                        theme: "bootstrap",
+                        language: {
+                            noResults: function() {
+                                return "Không tìm thấy kết quả";
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        // clear street input data
+        $('#addresses-'+token+'-street').val('');
+    });
+
+
+    $('.select-ward').change(function(e) {
+        var token = getToken(this);
+        // re-validate input
+        $('#addresses-'+token+'-ward').parsley().validate();
+        if ($('#addresses-'+token+'-ward').hasClass('parsley-success')) {
+            $('#select2-addresses-'+token+'-ward').removeClass('parsley-error');
+        } else if ($('#addresses-'+token+'-ward').hasClass('parsley-error')) {
+            $('#select2-addresses-'+token+'-ward').addClass('parsley-error');
+        }
+        // clear street input data
+        $('#addresses-'+token+'-street').val('');
+    });
+
+
+    $('.create-student-btn').click(function() {        
+        var validateResult = $('#create-student-form').parsley().validate();
+
+        // check parsley error exists
+        for (var i=0; i < 2; i++) {
+            if ($('#addresses-'+i+'-district').hasClass('parsley-error')) {
+                $('#select2-addresses-'+i+'-district').addClass('parsley-error');
+            }
+            if ($('#addresses-'+i+'-ward').hasClass('parsley-error')) {
+                $('#select2-addresses-'+i+'-ward').addClass('parsley-error');
+            }
+        }
+        
+        if (validateResult) {
+            // submit form
+            $('#create-student-form').submit();
+        } else {
+            var closestTab = $('.parsley-error')[0].closest('.root-tab-pane');
+
+            if (closestTab) {
+                var firstEleErrorId = closestTab.id;
+                // focus to first tab-pane contain error
+                $('#student-tabs a[href="#' + firstEleErrorId + '"]').tab('show');
+
+                var tmpTab = $('.parsley-error')[0].closest('.tab-pane');
+                if (tmpTab && (tmpTab.id === 'household' || tmpTab.id === 'current-address')) {
+                    $('#addresses-tabs a[href="#' + tmpTab.id + '"]').tab('show');
+                }
+            } else {
+                closestTab = $('.parsley-error')[0].closest('.panel-collapse');
+                var firstEleErrorId = closestTab.id;
+                // focus to first tab-collapse contain error
+                $('#' + firstEleErrorId).collapse('show');
+                $('#student-tabs-accordion .panel-collapse').not('#' + firstEleErrorId).collapse('hide');
+            }
+
+            setTimeout(function() {
+                $('.parsley-error')[0].focus();
+            }, 500);
+        }
+    });
+
+    $('#create-student-form :input').change(function() {
+        $('.create-student-btn').prop('disabled', false);
+    });
+})
+
+function getToken(thisEle) {
+    var token = 0;
+    if (thisEle.closest('.tab-pane').id === 'current-address') {
+        token = 1;
+    }
+    return token;
+}
+
+
+
+// Family Manager
+function createMemberTemplate(counter) {
+    var member_html = family_template({
+        'row': counter + 1,
+        'counter': counter,
+
+        'fullname': 'families[' + counter + '][fullname]',
+        'fullnameVal': $('#modal-fullname').val(),
+
+        'birthday': 'families[' + counter + '][birthday]',
+        'birthdayVal': $('#modal-birthday').val(),
+
+        'relationship': 'families[' + counter + '][relationship]',
+        'relationshipText': $('#modal-relationship option:selected').html(),
+
+        'job': 'families[' + counter + '][job_id]',
+        'jobText': $('#modal-job option:selected').html(),
+
+        'address': 'families[' + counter + '][address]',
+        'addressVal': $('#modal-address').val(),
+
+        'bankNum': 'families[' + counter + '][bank_num]',
+        'bankNumVal': $('#modal-bank-num').val(),
+       
+        'cmndNum': 'families[' + counter + '][cmnd_num]',
+        'cmndNumVal': $('#modal-cmnd-num').val(),
+
+        'phone': 'families[' + counter + '][phone]',
+        'phoneVal': $('#modal-phone').val(),
+    });
+    return member_html;
+}
+
+function showAddMemberModal() {
+    // renew add-btn
+    $('#add-member-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="addMember()">Submit</button>').insertBefore('#close-modal-btn');
+    // reset form in modal
+    resetFamilyModal();
+    // show modal
+    $('#add-member-modal').modal('toggle');
+}
+
+function addMember() {
+    //validate form
+    var validateResult = $('#add-member-form').parsley().validate();
+    if (validateResult) {
+        var member_html = createMemberTemplate(perData.familyCounter);
+
+        $('#family-container').append(member_html);
+
+        // set value for select box
+        $('select[name="families['+perData.familyCounter+'][relationship]"]').val($('#modal-relationship').val());
+        $('select[name="families['+perData.familyCounter+'][job_id]"]').val($('#modal-job').val());
+
+        // close modal
+        $('#add-member-modal').modal('toggle');
+        
+        // reset form in modal
+        resetFamilyModal();
+
+        perData.familyCounter++;
+    }
+}
+
+function showEditMemberModal(ele) {
+    // fill data to modal form
+    $('#modal-fullname').val($(ele).closest('.row-member').find('.fullname').val());
+    $('#modal-birthday').val($(ele).closest('.row-member').find('.birthday').val()).trigger('change');
+    $('#modal-relationship').val($(ele).closest('.row-member').find('.relationship').val()).trigger('change');
+    $('#modal-job').val($(ele).closest('.row-member').find('.job_id').val()).trigger('change');
+    $('#modal-address').val($(ele).closest('.row-member').find('.address').val()).trigger('change');
+    $('#modal-bank-num').val($(ele).closest('.row-member').find('.bank_num').val());
+    $('#modal-cmnd-num').val($(ele).closest('.row-member').find('.cmnd_num').val());
+    $('#modal-phone').val($(ele).closest('.row-member').find('.phone').val());
+    var rowIdArr = $(ele).closest('.row-member').attr('id').split('-');
+
+    // replace add-btn with edit-btn
+    $('#add-member-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="editMember('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-modal-btn');
+    
+    // show modal
+    $('#add-member-modal').modal('toggle');
+}
+
+function editMember(rowId) {
+    //validate form
+    var validateResult = $('#add-member-form').parsley().validate();
+    if (validateResult) {
+        var member_html = createMemberTemplate(rowId);
+
+        $('#row-member-'+rowId).replaceWith(member_html);
+
+        // set value for select box
+        $('select[name="families['+rowId+'][relationship]"]').val($('#modal-relationship').val());
+        $('select[name="families['+rowId+'][job_id]"]').val($('#modal-job').val());
+
+        // close modal
+        $('#add-member-modal').modal('toggle');
+
+        // reset form in modal
+        resetFamilyModal();
+    }
+}
+
+function removeMember(delEl, sendAjax) {
+    if (sendAjax) {
+        swal({
+            title: 'Remove family member',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.value) {
+                // send ajax delete request to server
+                var rowIdArr = $(delEl).closest('.row-member').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length-1];
+                $.ajax({
+                    type: 'POST',
+                    url: '/tvms/students/deleteFamilyMember',
+                    data: {
+                        'id': $('#member-' + rowId + '-id').find('input').val()
+                    },
+                    beforeSend: function(xhr){
+                        xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
+                    },
+                    success: function(resp){
+                        swal({
+                            title: resp.alert.title,
+                            text: resp.alert.message,
+                            type: resp.alert.type
+                        })
+                        if (resp.status == 'success') {
+                            deleteMemberRow(delEl, rowId);
+                        }
+                    }
+                });
+            }
+        })
+    } else {
+        deleteMemberRow(delEl);
+    }
+}
+
+function deleteMemberRow(delEl, hiddenId) {
+    // remove DOM
+    $(delEl).closest('tr.row-member').remove();
+    if (hiddenId) {
+        // case: remove hidden id fiedl of record exists in database
+        $('#member-'+hiddenId+'-id').remove();
+    }
+    perData.familyCounter--;
+
+    var trows = $('#family-container > tr');
+    var idField = $('.member-id').find('input');
+    var inputField = $('#family-container').find('input');
+    var selectField = $('#family-container').find('select');
+    var sttField = $('#family-container').find('.stt-col');
+
+    for (var i = 0; i < sttField.length; i++) {
+        sttField[i].innerText = i + 1;
+        trows[i].id = 'row-member-' + i;
+        if (hiddenId) {
+            $('.member-id')[i].id = 'member-' + i + '-id';
+            idField[i].name = 'families[' + i + '][id]';
+        }
+    }
+
+    for (var i = 0; i < inputField.length; i++) {
+        var classArr = inputField[i].className.split(' ');
+        inputField[i].name = 'families[' + Math.floor(i/6) + '][' + classArr[classArr.length-1] + ']';
+    }
+
+    for (var i = 0; i < selectField.length; i++) {
+        var classArr = selectField[i].className.split(' ');
+        selectField[i].name = 'families[' + Math.floor(i/2) + '][' + classArr[classArr.length-1] + ']';
+    }
+}
+
+function resetFamilyModal() {
+    $('#add-member-form')[0].reset();
+    $('#modal-relationship').val(null).trigger('change');
+    $('#modal-job').val(null).trigger('change');
+    $('#add-member-form').parsley().reset();
+}
+
+// Education Manager
+function createEduHisTemplate(counter) {
+    var edu_html = edu_template({
+        'row': counter + 1,
+        'counter': counter,
+        
+        'fromdate': 'educations[' + counter + '][from_date]',
+        'fromdateVal': $('#edu-from-date').val(),
+        
+        'todate': 'educations[' + counter + '][to_date]',        
+        'todateVal': $('#edu-to-date').val(),
+
+        'degree': 'educations[' + counter + '][degree]',
+        'degreeText': $('#modal-edu-level option:selected').html(),
+        
+        'school': 'educations[' + counter + '][school]',
+        'schoolVal': $('#edu-school').val(),
+
+        'address': 'educations[' + counter + '][address]',
+        'addressVal': $('#edu-address').val(),
+
+        'specialized': 'educations[' + counter + '][specialized]',
+        'specializedVal': $('#edu-specialized').val(),
+    });
+    return edu_html;
+}
+
+function showAddEduHisModal() {
+    // renew add-btn
+    $('#add-edu-his-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="addEduHis()">Submit</button>').insertBefore('#close-edu-modal-btn');
+    // reset form in modal
+    resetEduHisModal();
+    // show modal
+    $('#add-edu-his-modal').modal('toggle');
+}
+
+function showEditEduHisModal(ele) {
+    // fill data to modal form
+    $('#edu-from-date').val($(ele).closest('.row-edu-his').find('.from_date').val()).trigger('change');
+    $('#edu-to-date').val($(ele).closest('.row-edu-his').find('.to_date').val()).trigger('change');
+    $('#modal-edu-level').val($(ele).closest('.row-edu-his').find('.degree').val()).trigger('change');
+    $('#edu-school').val($(ele).closest('.row-edu-his').find('.school').val());
+    $('#edu-address').val($(ele).closest('.row-edu-his').find('.address').val());
+    $('#edu-specialized').val($(ele).closest('.row-edu-his').find('.specialized').val());
+    var rowIdArr = $(ele).closest('.row-edu-his').attr('id').split('-');
+
+    // replace add-btn with edit-btn
+    $('#add-edu-his-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="editEduHis('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-edu-modal-btn');
+    
+    // show modal
+    $('#add-edu-his-modal').modal('toggle');
+}
+
+function addEduHis() {
+    //validate form
+    var validateResult = $('#add-edu-his-form').parsley().validate();
+    if (validateResult) {
+        var edu_html = createEduHisTemplate(perData.eduCounter);
+
+        $('#edu-container').append(edu_html);
+
+        // set value for select box
+        $('select[name="educations['+perData.eduCounter+'][degree]"]').val($('#modal-edu-level').val());
+
+        // close modal
+        $('#add-edu-his-modal').modal('toggle');
+
+        // reset form in modal
+        resetEduHisModal();
+
+        perData.eduCounter++;
+    }
+}
+
+function editEduHis(rowId) {
+    //validate form
+    var validateResult = $('#add-edu-his-form').parsley().validate();
+    if (validateResult) {
+        var edu_html = createEduHisTemplate(rowId);
+
+        $('#row-edu-his-'+rowId).replaceWith(edu_html);
+
+        // set value for select box
+        $('select[name="educations['+rowId+'][degree]"]').val($('#modal-edu-level').val());
+
+        // close modal
+        $('#add-edu-his-modal').modal('toggle');
+
+        // reset form in modal
+        resetEduHisModal();
+    }
+}
+
+function removeEduHis(delEl, sendAjax) {
+    if (sendAjax) {
+        swal({
+            title: 'Remove education history',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.value) {
+                // send ajax delete request to server
+                var rowIdArr = $(delEl).closest('.row-edu-his').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length-1];
+                $.ajax({
+                    type: 'POST',
+                    url: '/tvms/students/deleteEducations',
+                    data: {
+                        'id': $('#edu-his-'+rowId+'-id').find('input').val()
+                    },
+                    beforeSend: function(xhr){
+                        xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
+                    },
+                    success: function(resp){
+                        swal({
+                            title: resp.alert.title,
+                            text: resp.alert.message,
+                            type: resp.alert.type
+                        })
+                        if (resp.status == 'success') {
+                            deleteEduHisRow(delEl, rowId);
+                        }
+                    }
+                });
+            }
+        })
+    } else {
+        deleteEduHisRow(delEl);
+    }
+}
+
+function deleteEduHisRow(delEl, hiddenId) {
+    // remove DOM
+    $(delEl).closest('tr.row-edu-his').remove();
+    if (hiddenId) {
+        // case: remove record exists in database
+        $('#edu-his-'+hiddenId+'-id').remove();
+    }
+    perData.eduCounter--;
+
+    var trows = $('#edu-container > tr');
+    var idField = $('.edu-id').find('input');
+    var inputField = $('#edu-container').find('input');
+    var selectField = $('#edu-container').find('select');
+    var sttField = $('#edu-container').find('.stt-col');
+
+    for (var i = 0; i < sttField.length; i++) {
+        sttField[i].innerText = i + 1;
+        trows[i].id = 'row-edu-his-' + i;
+        if (hiddenId) {
+            $('.edu-id')[i].id = 'edu-his-' + i + '-id';
+            idField[i].name = 'educations[' + i + '][id]';
+        }
+    }
+
+    for (var i = 0; i < inputField.length; i++) {
+        var classArr = inputField[i].className.split(' ');
+        inputField[i].name = 'educations[' + Math.floor(i/5) + '][' + classArr[classArr.length-1] + ']';
+    }
+
+    for (var i = 0; i < selectField.length; i++) {
+        selectField[i].name = 'educations[' + i + '][' + selectField[i].id + ']';
+    }    
+}
+
+function resetEduHisModal() {
+    $('#add-edu-his-form')[0].reset();
+    $('#modal-edu-level').val(null).trigger('change');
+    $('#add-edu-his-form').parsley().reset();
+}
+
+// Experience Manager
+function createExpTemplate(counter) {
+    var exp_html = exp_template({
+        'row': counter + 1,
+        'counter': counter,
+        
+        'fromdate': 'experiences[' + counter + '][from_date]',
+        'fromdateVal': $('#exp-from-date').val(),
+        
+        'todate': 'experiences[' + counter + '][to_date]',        
+        'todateVal': $('#exp-to-date').val(),
+
+        'job': 'experiences[' + counter + '][job_id]',
+        'jobText': $('#exp-job option:selected').html(),
+
+        'company': 'experiences[' + counter + '][company]',
+        'companyVal': $('#exp-company').val(),
+
+        'salary': 'experiences[' + counter + '][salary]',
+        'salaryVal': $('#exp-salary').val(),
+
+        'address': 'experiences[' + counter + '][address]',
+        'addressVal': $('#exp-address').val()
+    });
+    return exp_html;
+}
+
+function showAddExpModal() {
+    // renew add-btn
+    $('#add-exp-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="addExp()">Submit</button>').insertBefore('#close-exp-modal-btn');
+    // reset form in modal
+    resetExpModal();
+    // show modal
+    $('#add-exp-modal').modal('toggle');
+}
+
+function addExp() {
+    //validate form
+    var validateResult = $('#add-exp-form').parsley().validate();
+    if (validateResult) {
+        var exp_html = createExpTemplate(perData.expCounter);
+
+        $('#exp-container').append(exp_html);
+
+        // set value for select box
+        $('select[name="experiences['+perData.expCounter+'][job_id]"]').val($('#exp-job').val());
+
+        // close modal
+        $('#add-exp-modal').modal('toggle');
+
+        // reset form in modal
+        resetExpModal();
+
+        perData.expCounter++;
+    }
+}
+
+function showEditExpModal(ele) {
+    // fill data to modal form
+    $('#exp-from-date').val($(ele).closest('.row-exp').find('.from_date').val()).trigger('change');
+    $('#exp-to-date').val($(ele).closest('.row-exp').find('.to_date').val()).trigger('change');
+    $('#exp-job').val($(ele).closest('.row-exp').find('.job_id').val()).trigger('change');
+    $('#exp-company').val($(ele).closest('.row-exp').find('.company').val());
+    $('#exp-salary').val($(ele).closest('.row-exp').find('.salary').val());
+    $('#exp-address').val($(ele).closest('.row-exp').find('.address').val());
+    var rowIdArr = $(ele).closest('.row-exp').attr('id').split('-');
+
+    // replace add-btn with edit-btn
+    $('#add-exp-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="editExp('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-exp-modal-btn');
+    
+    // show modal
+    $('#add-exp-modal').modal('toggle');
+}
+
+function editExp(rowId) {
+    //validate form
+    var validateResult = $('#add-exp-form').parsley().validate();
+    if (validateResult) {
+        var exp_html = createExpTemplate(rowId);
+
+        $('#row-exp-'+rowId).replaceWith(exp_html);
+
+        // set value for select box
+        $('select[name="experiences['+rowId+'][job_id]"]').val($('#exp-job').val());
+
+        // close modal
+        $('#add-exp-modal').modal('toggle');
+
+        // reset form in modal
+        resetEduHisModal();
+    }
+}
+
+function removeExp(delEl, sendAjax) {
+    if (sendAjax) {
+        swal({
+            title: 'Remove working experience',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.value) {
+                // send ajax delete request to server
+                var rowIdArr = $(delEl).closest('.row-exp').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length-1];
+                $.ajax({
+                    type: 'POST',
+                    url: '/tvms/students/deleteExperience',
+                    data: {
+                        'id': $('#exp-'+rowId+'-id').find('input').val()
+                    },
+                    beforeSend: function(xhr){
+                        xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
+                    },
+                    success: function(resp){
+                        swal({
+                            title: resp.alert.title,
+                            text: resp.alert.message,
+                            type: resp.alert.type
+                        })
+                        if (resp.status == 'success') {
+                            deleteExpRow(delEl, rowId);
+                        }
+                    }
+                });
+            }
+        })
+    } else {
+        deleteExpRow(delEl);
+    }
+}
+
+function deleteExpRow(delEl, hiddenId) {
+    // remove DOM
+    $(delEl).closest('tr.row-exp').remove();
+    if (hiddenId) {
+        // case: remove record exists in database
+        $('#exp-'+hiddenId+'-id').remove();
+    }
+    perData.expCounter--;
+
+    var trows = $('#exp-container > tr');
+    var idField = $('.exp-id').find('input');
+    var inputField = $('#exp-container').find('input');
+    var selectField = $('#exp-container').find('select');
+    var sttField = $('#exp-container').find('.stt-col');
+
+    for (var i = 0; i < sttField.length; i++) {
+        sttField[i].innerText = i + 1;
+        trows[i].id = 'row-exp-' + i;
+        if (hiddenId) {
+            $('.exp-id')[i].id = 'exp-' + i + '-id';
+            idField[i].name = 'experiences[' + i + '][id]';
+        }
+    }
+
+    for (var i = 0; i < inputField.length; i++) {
+        var classArr = inputField[i].className.split(' ');
+        inputField[i].name = 'experiences[' + Math.floor(i/5) + '][' + classArr[classArr.length-1] + ']';
+    }
+
+    for (var i = 0; i < selectField.length; i++) {
+        selectField[i].name = 'experiences[' + i + '][' + selectField[i].id + ']';
+    }    
+}
+
+function resetExpModal() {
+    $('#add-exp-form')[0].reset();
+    $('#exp-job').val(null).trigger('change');
+    $('#add-exp-form').parsley().reset();
+}
+
+function getCsrfToken() {
+    var token = $('input[name="_csrfToken"]').val();
+    return token;
+}
