@@ -3,10 +3,23 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 
 $gender = Configure::read('gender');
+$yesNoQuestion = Configure::read('yesNoQuestion');
+
 $city = Configure::read('city');
+$city = array_map('array_shift', $city);
+
+$country = Configure::read('country');
+$country = array_map('array_shift', $country);
+
 $district = Configure::read('district');
 $ward = Configure::read('ward');
+
 $eduLevel = Configure::read('eduLevel');
+$eduLevel = array_map('array_shift', $eduLevel);
+
+$language = Configure::read('language');
+$language = array_map('array_shift', $language);
+
 $studentStatus = Configure::read('studentStatus');
 $maritalStatus = Configure::read('maritalStatus');
 $studentSubject = Configure::read('studentSubject');
@@ -29,6 +42,7 @@ $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
 $this->Html->script('cropper.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('student.js', ['block' => 'scriptBottom']);
+
 ?>
 
 <?= $this->Form->create($student, [
@@ -48,6 +62,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('families') ?>
 <?= $this->Form->unlockField('educations') ?>
 <?= $this->Form->unlockField('experiences') ?>
+<?= $this->Form->unlockField('language_abilities') ?>
 
 <?php $this->start('content-header'); ?>
 <h1><?= __('Thông tin thực tập sinh') ?></h1>
@@ -71,7 +86,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
     'class' => 'btn btn-round btn-success mobile-only create-student-btn', 
     'type' => 'button', 
     'id' => 'create-student-mobile-btn',
-    'disabled' => 'disabled'
     ]) ?>
 
 <div class="clearfix"></div>
@@ -93,7 +107,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     'class' => 'btn btn-round btn-success create-student-btn', 
                     'type' => 'button', 
                     'id' => 'create-student-desktop-btn',
-                    'disabled' => 'disabled'
                     ]) ?>
             </li>
         </ul>
@@ -107,7 +120,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname"><?= __('Họ tên') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname"><?= __('Họ tên (VN)') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('fullname', [
                                             'label' => false, 
@@ -117,7 +130,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname_kata"><?= __('Họ tên (katakana)') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname_kata"><?= __('Họ tên (JP)') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('fullname_kata', [
                                             'label' => false, 
@@ -239,7 +252,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Trình độ học vấn') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="edu_level"><?= __('Trình độ học vấn') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('educational_level', [
                                             'options' => $eduLevel, 
@@ -254,7 +267,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Dân tộc') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="nation"><?= __('Dân tộc') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('nation', [
                                             'options' => $nation, 
@@ -269,7 +282,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Tôn giáo') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="religion"><?= __('Tôn giáo') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('religion', [
                                             'options' => $religion, 
@@ -281,6 +294,21 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'class' => 'form-control col-md-7 col-xs-12 select2-theme'
                                             ]) ?>
                                         <span id="error-religion"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="country"><?= __('Quốc tịch') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('country', [
+                                            'options' => $country, 
+                                            'required' => true, 
+                                            'label' => false, 
+                                            'empty' => true,
+                                            'data-parsley-errors-container' => '#error-country',
+                                            'data-parsley-class-handler' => '#select2-country',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                            ]) ?>
+                                        <span id="error-country"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -350,8 +378,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?php if (!empty($student->addresses[0]->district)): ?>
+                                                <?php
+                                                    $district0 = $district[$student->addresses[0]->city];
+                                                    $district0 = array_map('array_shift', $district0);
+                                                ?>
                                                 <?= $this->Form->control('addresses.0.district', [
-                                                    'options' => $district[$student->addresses[0]->city], 
+                                                    'options' => $district0, 
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
@@ -376,8 +408,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?php if (!empty($student->addresses[0]->ward)): ?>
+                                                <?php 
+                                                    $ward0 = $ward[$student->addresses[0]->district];
+                                                    $ward0 = array_map('array_shift', $ward0);
+                                                ?>
                                                 <?= $this->Form->control('addresses.0.ward', [
-                                                    'options' => $ward[$student->addresses[0]->district], 
+                                                    'options' => $ward0, 
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
@@ -433,8 +469,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                             <?php if (!empty($student->addresses[1]->district)): ?>
+                                                <?php
+                                                    $district1 = $district[$student->addresses[1]->city];
+                                                    $district1 = array_map('array_shift', $district1);
+                                                ?>
                                                 <?= $this->Form->control('addresses.1.district', [
-                                                    'options' => $district[$student->addresses[1]->city], 
+                                                    'options' => $district1, 
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
@@ -459,8 +499,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                             <?php if (!empty($student->addresses[1]->ward)): ?>
+                                                <?php 
+                                                    $ward1 = $ward[$student->addresses[1]->district];
+                                                    $ward1 = array_map('array_shift', $ward1);
+                                                ?>
                                                 <?= $this->Form->control('addresses.1.ward', [
-                                                    'options' => $ward[$student->addresses[1]->district], 
+                                                    'options' => $ward1, 
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
@@ -608,6 +652,72 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'class' => 'form-control col-md-7 col-xs-12 select2-theme'
                                             ]) ?>
                                         <span id="error-preferred-hand"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xs-12 right-col">
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
+                            </div>
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="is_lived_in_japan"><?= __('Đã từng đi nhật') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('is_lived_in_japan', [
+                                            'options' => $yesNoQuestion, 
+                                            'required' => true, 
+                                            'empty' => true, 
+                                            'label' => false, 
+                                            'data-parsley-errors-container' => '#error-lived-japan',
+                                            'data-parsley-class-handler' => '#select2-is-lived-in-japan',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => $student->is_lived_in_japan ?? 'N'
+                                            ]) ?>
+                                        <span id="error-lived-japan"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group time-lived-jp<?php if (empty($student->is_lived_in_japan) || $student->is_lived_in_japan !== 'Y'): ?> hidden <?php endif; ?>">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="time_lived_in_japan"><?= __('Thời gian') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="time-lived">
+                                            <?php if($student->is_lived_in_japan === 'Y'): ?>
+                                            <?= $student->lived_from ?> ～ <?= $student->lived_to ?>
+                                            <?php endif;?>
+                                        </div>
+                                        <div class="hidden">
+                                            <?= $this->Form->control('lived_from', [
+                                                'type' => 'text',
+                                                'label' => false,
+                                                'class' => 'form-control',
+                                                ])?>
+                                            <?= $this->Form->control('lived_to', [
+                                                'type' => 'text',
+                                                'label' => false,
+                                                'class' => 'form-control',
+                                                ])?>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ln_solid"></div>
+                                
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="reject"><?= __('Từng bị từ chối lưu trú') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('reject_stay', [
+                                            'options' => $yesNoQuestion, 
+                                            'required' => true, 
+                                            'empty' => true, 
+                                            'label' => false, 
+                                            'data-parsley-errors-container' => '#error-reject-stay',
+                                            'data-parsley-class-handler' => '#select2-reject-stay',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => $student->reject_stay ?? 'N'
+                                            ]) ?>
+                                        <span id="error-reject-stay"></span>
                                     </div>
                                 </div>
                             </div>
@@ -1070,6 +1180,100 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                 </div>
+                <divclass="rows">
+                    <div class="col-md-12 col-xs-12 no-padding">
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"><?= __('Năng lực ngôn ngữ') ?></h3>
+                            </div>
+                            <div class="box-body table-responsive">
+                                <button type="button" class="btn btn-primary btn-languages" id="add-language-top" onclick="showAddLangModal();">
+                                    <?= __('Thêm ngôn ngữ') ?>
+                                </button>
+                                <table class="table table-bordered custom-table languages-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col"><?= __('STT') ?></th>
+                                            <th scope="col"><?= __('Ngôn ngữ') ?></th>
+                                            <th scope="col"><?= __('Bằng cấp') ?></th>
+                                            <th scope="col"><?= __('Thời hạn hiệu lực') ?></th>
+                                            <th scope="col" class="actions"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lang-container">
+                                        <?php if (!empty($student->language_abilities)): ?>
+                                        <?php $counter = 0 ?>
+                                        <?php foreach ($student->language_abilities as $key => $value): ?>
+                                        <div class="hidden lang-id" id="lang-<?=$counter?>-id">
+                                            <?= $this->Form->hidden('language_abilities.'  . $key . '.id', ['value' => $value->id]) ?>
+                                        <div>
+                                        <tr class="row-lang" id="row-lang-<?=$counter?>">
+                                            <td class="cell col-md-1 stt-col">
+                                                <?php echo $counter + 1; ?>
+                                            </td>
+                                            <td class="cell col-md-2">
+                                                <?= $language[$value->lang_code]?>
+                                                <div class="hidden">
+                                                    <?= $this->Form->control('language_abilities.' . $key . '.lang_code', [
+                                                        'options' => $language,
+                                                        'label' => false,
+                                                        'class' => 'form-control lang_code',
+                                                        ]) ?>
+                                                </div>
+                                                <td class="cell col-md-3">
+                                                    <?= $value->certificate ?>
+                                                    <div class="hidden">
+                                                        <?= $this->Form->control('language_abilities.' . $key . '.certificate', [
+                                                            'type' => 'text',
+                                                            'label' => false, 
+                                                            'class' => 'form-control certificate',
+                                                            ]) ?>
+                                                    </div>
+                                                </td>
+                                                <td class="cell col-md-3">
+                                                    <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                    <div class="hidden">
+                                                        <?= $this->Form->control('language_abilities.' . $key . '.from_date', [
+                                                            'type' => 'text',
+                                                            'label' => false,
+                                                            'class' => 'form-control from_date',
+                                                            ])?>
+                                                        <?= $this->Form->control('language_abilities.' . $key . '.to_date', [
+                                                            'type' => 'text',
+                                                            'label' => false,
+                                                            'class' => 'form-control to_date',
+                                                            ])?>
+                                                    </div>
+                                                </td>
+                                                <td class="cell action-btn">
+                                                    <?= $this->Html->link(
+                                                        '<i class="fa fa-2x fa-pencil"></i>', 
+                                                        'javascript:;',
+                                                        [
+                                                            'escape' => false,
+                                                            'onClick' => "showEditLangModal(this)"
+                                                        ]) 
+                                                    ?>
+                                                    <?= $this->Html->link(
+                                                        '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                                                        'javascript:;',
+                                                        [
+                                                            'escape' => false, 
+                                                            'onClick' => "removeLang(this, true)"
+                                                        ]
+                                                    )?>
+                                                    <?php $counter++; ?>
+                                                </td>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="rows">
                     <div class="col-md-12 col-xs-12 no-padding">
                         <div class="box">
@@ -1137,6 +1341,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         ]) ?>
                                                 </div>
                                             </td>
+                                            <td class="hidden">
+                                                <?= $this->Form->control('experiences.' . $key . '.company_jp', [
+                                                    'type' => 'text',
+                                                    'label' => false, 
+                                                    'class' => 'form-control company_jp',
+                                                    ]) ?>
+                                            </td>
                                             <td class="cell col-md-3">
                                                 <?= $value->salary ?>
                                                 <div class="hidden">
@@ -1173,6 +1384,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     ]
                                                 )?>
                                             </td>
+                                            <?php $counter++; ?>
                                         </tr>
                                         <?php endforeach; ?> 
                                         <?php endif; ?>
@@ -1706,7 +1918,15 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <?= $this->Form->control('exp.company', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="company_jp"><?= __('Công ty (JP)') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('exp.company_jp', [
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12',
                                 ]) ?>
                         </div>
                     </div>
@@ -1785,6 +2005,14 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </div>
         </td>
+        <td class="hidden">
+            <?= $this->Form->control('{{company_jp}}', [
+                'type' => 'text',
+                'label' => false,
+                'class' => 'form-control company_jp',
+                'value' => '{{companyJPVal}}'
+                ]) ?>
+        </td>
         <td class="cell col-md-3">
             {{salaryVal}}
             <div class="hidden">
@@ -1820,6 +2048,234 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 [
                     'escape' => false, 
                     'onClick' => 'removeExp(this, false)'
+                ]
+            )?>
+        </td>
+    </tr>
+</script>
+
+<div id="lived-japan-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                    <?= $this->Form->create(null, [
+                        'class' => 'form-horizontal form-label-left', 
+                        'id' => 'set-lived-japan-form', 
+                        'data-parsley-validate' => '',
+                        'templates' => [
+                            'inputContainer' => '{{content}}'
+                            ]
+                        ]) ?>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="from_date"><?= __('Thời gian') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                <div class="input-group date input-picker month-mode" id="jp-lived-from">
+                                    <?= $this->Form->control('jp.from_date', [
+                                        'type' => 'text',
+                                        'label' => false, 
+                                        'class' => 'form-control from-date-picker',
+                                        'placeholder' => 'yyyy-mm',
+                                        'required' => true,
+                                        'data-parsley-errors-container' => '#error-lived-from',
+                                        'data-parsley-before-date' => '#jp-to-date'
+                                        ])?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span id="error-lived-from"></span>
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
+                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                <div class="input-group date input-picker month-mode" id="jp-lived-to">
+                                    <?= $this->Form->control('jp.to_date', [
+                                        'type' => 'text',
+                                        'label' => false, 
+                                        'class' => 'form-control to-date-picker',
+                                        'placeholder' => 'yyyy-mm',
+                                        'required' => true,
+                                        'data-parsley-errors-container' => '#error-lived-to',
+                                        'data-parsley-after-date' => '#jp-from-date'
+                                        ])?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span id="error-lived-to"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <?= $this->Form->end(); ?>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="set-lived-japan-btn" onclick="setTimeLived()">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="add-lang-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                <?= $this->Form->create(null, [
+                    'class' => 'form-horizontal form-label-left', 
+                    'id' => 'add-lang-form', 
+                    'data-parsley-validate' => '',
+                    'templates' => [
+                        'inputContainer' => '{{content}}'
+                        ]
+                    ]) ?>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="lang"><?= __('Ngôn ngữ') ?></label>
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+                        <?= $this->Form->control('lang.name', [
+                            'options' => $language, 
+                            'required' => true, 
+                            'label' => false, 
+                            'empty' => true,
+                            'data-parsley-errors-container' => '#error-lang-name',
+                            'data-parsley-class-handler' => '#select2-lang-name',
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                            ]) ?>
+                        <span id="error-lang-name"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="certificate"><?= __('Bằng cắp') ?></label>
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+                        <?= $this->Form->control('lang.certificate', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'required' => true
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="valid-time"><?= __('Thời gian') ?></label>
+                    <div class="col-md-9 col-sm-9 col-xs-12">
+                        <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                            <div class="input-group date input-picker month-mode" id="lang-from">
+                                <?= $this->Form->control('lang.from_date', [
+                                    'type' => 'text',
+                                    'label' => false, 
+                                    'class' => 'form-control from-date-picker',
+                                    'placeholder' => 'yyyy-mm',
+                                    'required' => true,
+                                    'data-parsley-errors-container' => '#error-lang-from',
+                                    'data-parsley-before-date' => '#lang-to-date'
+                                    ])?>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            <span id="error-lang-from"></span>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
+                        <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                            <div class="input-group date input-picker month-mode" id="lang-to">
+                                <?= $this->Form->control('lang.to_date', [
+                                    'type' => 'text',
+                                    'label' => false, 
+                                    'class' => 'form-control to-date-picker',
+                                    'placeholder' => 'yyyy-mm',
+                                    'required' => true,
+                                    'data-parsley-errors-container' => '#error-lang-to',
+                                    'data-parsley-after-date' => '#lang-from-date'
+                                    ])?>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            <span id="error-lang-to"></span>
+                        </div>
+                    </div>
+                </div>
+                <?= $this->Form->end(); ?>                
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add-lang-btn">Submit</button>
+                <button type="button" class="btn btn-default" id="close-lang-modal-btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="lang-template" type="text/x-handlebars-template">
+    <tr class="row-lang" id="row-lang-{{counter}}">
+        <td class="cell col-md-1 stt-col">
+            {{row}}
+        </td>
+        <td class="cell col-md-2">
+            {{languageText}}
+            <div class="hidden">
+                <?= $this->Form->control('{{language}}', [
+                    'options' => $jobs,
+                    'label' => false,
+                    'class' => 'form-control lang_code',
+                    ]) ?>
+            </div>
+        </td>
+        <td class="cell col-md-3">
+            {{certVal}}
+            <div class="hidden">
+                <?= $this->Form->control('{{cert}}', [
+                    'type' => 'text',
+                    'label' => false, 
+                    'class' => 'form-control certificate',
+                    'value' => '{{certVal}}'
+                    ]) ?>
+            </div>
+        </td>
+        <td class="cell col-md-3">
+            {{fromdateVal}} ～ {{todateVal}}
+            <div class="hidden">
+                <?= $this->Form->control('{{fromdate}}', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control from_date',
+                    'value' => '{{fromdateVal}}'
+                    ])?>
+                <?= $this->Form->control('{{todate}}', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control to_date',
+                    'value' => '{{todateVal}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell action-btn">
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-pencil"></i>', 
+                'javascript:;',
+                [
+                    'escape' => false,
+                    'onClick' => "showEditLangModal(this)"
+                ]) 
+            ?>
+            
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                'javascript:;',
+                [
+                    'escape' => false, 
+                    'onClick' => 'removeLang(this, false)'
                 ]
             )?>
         </td>

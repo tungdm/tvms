@@ -2,6 +2,7 @@ var perData = {};
 perData.familyCounter = 0;
 perData.eduCounter = 0;
 perData.expCounter = 0;
+perData.langCounter = 0;
 
 // init handlebars
 if ($('#family-template')[0]){
@@ -13,12 +14,16 @@ if ($('#edu-template')[0]){
 if ($('#exp-template')[0]){
     var exp_template = Handlebars.compile($('#exp-template').html());
 }
+if ($('#exp-template')[0]){
+    var lang_template = Handlebars.compile($('#lang-template').html());
+}
 
 $(document).ready(function() {
     // init dynamic data
     perData.familyCounter = $('#family-container > tr').length;
     perData.eduCounter = $('#edu-container > tr').length;
     perData.expCounter = $('#exp-container > tr').length;
+    perData.langCounter = $('#lang-container > tr').length;
 
     // init datetime picker
     var elems = Array.prototype.slice.call($('.input-picker'));
@@ -241,6 +246,25 @@ $(document).ready(function() {
         $('#addresses-'+token+'-street').val('');
     });
 
+    $('select[name="is_lived_in_japan"]').change(function () {
+        if ($(this).val() == 'Y') {
+            // fill data
+            if ($('#lived-from').val()) {
+                $('#jp-from-date').val($('#lived-from').val()).trigger('change');
+            }
+            if ($('#lived-to').val()) {
+                $('#jp-to-date').val($('#lived-to').val()).trigger('change');
+            }
+            // show modal
+            $('#lived-japan-modal').modal('toggle');
+        } else {
+            // remove data
+            $('.time-lived-jp').addClass('hidden');
+            $('.time-lived').empty();
+            $('#lived-from').val('');
+            $('#lived-to').val('');
+        }
+    });
 
     $('.create-student-btn').click(function() {        
         var validateResult = $('#create-student-form').parsley().validate();
@@ -283,11 +307,27 @@ $(document).ready(function() {
             }, 500);
         }
     });
-
-    $('#create-student-form :input').change(function() {
-        $('.create-student-btn').prop('disabled', false);
-    });
 })
+
+function setTimeLived() {
+    // validate form
+    var validateResult = $('#set-lived-japan-form').parsley().validate();
+    if (validateResult) {
+        var timeInterval = $('#jp-from-date').val() + ' ～ ' + $('#jp-to-date').val();
+        $('.time-lived-jp').removeClass('hidden');
+        $('.time-lived').append(timeInterval);
+        
+        // set value
+        $('#lived-from').val($('#jp-from-date').val());
+        $('#lived-to').val($('#jp-to-date').val());
+
+        // close modal
+        $('#lived-japan-modal').modal('toggle');
+    }
+
+    // reset form
+    $('#set-lived-japan-form')[0].reset();
+}
 
 function getToken(thisEle) {
     var token = 0;
@@ -296,8 +336,6 @@ function getToken(thisEle) {
     }
     return token;
 }
-
-
 
 // Family Manager
 function createMemberTemplate(counter) {
@@ -343,7 +381,7 @@ function showAddMemberModal() {
 }
 
 function addMember() {
-    //validate form
+    // validate form
     var validateResult = $('#add-member-form').parsley().validate();
     if (validateResult) {
         var member_html = createMemberTemplate(perData.familyCounter);
@@ -674,7 +712,7 @@ function createExpTemplate(counter) {
         'fromdate': 'experiences[' + counter + '][from_date]',
         'fromdateVal': $('#exp-from-date').val(),
         
-        'todate': 'experiences[' + counter + '][to_date]',        
+        'todate': 'experiences[' + counter + '][to_date]',
         'todateVal': $('#exp-to-date').val(),
 
         'job': 'experiences[' + counter + '][job_id]',
@@ -682,6 +720,9 @@ function createExpTemplate(counter) {
 
         'company': 'experiences[' + counter + '][company]',
         'companyVal': $('#exp-company').val(),
+
+        'company_jp': 'experiences[' + counter + '][company_jp]',
+        'companyJPVal': $('#exp-company-jp').val(),
 
         'salary': 'experiences[' + counter + '][salary]',
         'salaryVal': $('#exp-salary').val(),
@@ -703,7 +744,7 @@ function showAddExpModal() {
 }
 
 function addExp() {
-    //validate form
+    // validate form
     var validateResult = $('#add-exp-form').parsley().validate();
     if (validateResult) {
         var exp_html = createExpTemplate(perData.expCounter);
@@ -729,6 +770,7 @@ function showEditExpModal(ele) {
     $('#exp-to-date').val($(ele).closest('.row-exp').find('.to_date').val()).trigger('change');
     $('#exp-job').val($(ele).closest('.row-exp').find('.job_id').val()).trigger('change');
     $('#exp-company').val($(ele).closest('.row-exp').find('.company').val());
+    $('#exp-company-jp').val($(ele).closest('.row-exp').find('.company_jp').val());
     $('#exp-salary').val($(ele).closest('.row-exp').find('.salary').val());
     $('#exp-address').val($(ele).closest('.row-exp').find('.address').val());
     var rowIdArr = $(ele).closest('.row-exp').attr('id').split('-');
@@ -840,6 +882,177 @@ function resetExpModal() {
     $('#add-exp-form')[0].reset();
     $('#exp-job').val(null).trigger('change');
     $('#add-exp-form').parsley().reset();
+}
+
+// Language Manager
+function createLangTemplate(counter) {
+    var lang_html = lang_template({
+        'row': counter + 1,
+        'counter': counter,
+
+        'language': 'language_abilities[' + counter + '][lang_code]',
+        'languageText': $('#lang-name option:selected').html(),
+
+        'cert': 'language_abilities[' + counter + '][certificate]',
+        'certVal': $('#lang-certificate').val(),
+
+        'fromdate': 'language_abilities[' + counter + '][from_date]',
+        'fromdateVal': $('#lang-from-date').val(),
+        
+        'todate': 'language_abilities[' + counter + '][to_date]',
+        'todateVal': $('#lang-to-date').val(),
+
+    });
+    return lang_html;
+}
+
+function showAddLangModal() {
+    // renew add-btn
+    $('#add-lang-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="addLang()">Submit</button>').insertBefore('#close-lang-modal-btn');
+    // reset form in modal
+    resetLangModal();
+    // show modal
+    $('#add-lang-modal').modal('toggle');
+}
+
+function addLang() {
+    // validate form
+    var validateResult = $('#add-lang-form').parsley().validate();
+    if (validateResult) {
+        var lang_html = createLangTemplate(perData.langCounter);
+
+        $('#lang-container').append(lang_html);
+
+        // set value for select box
+        $('select[name="language_abilities['+perData.langCounter+'][lang_code]"]').val($('#lang-name').val());
+
+        // close modal
+        $('#add-lang-modal').modal('toggle');
+
+        // reset form in modal
+        resetLangModal();
+
+        perData.langCounter++;
+    }
+}
+
+function showEditLangModal(ele) {
+    // fill data to modal form
+    $('#lang-from-date').val($(ele).closest('.row-lang').find('.from_date').val()).trigger('change');
+    $('#lang-to-date').val($(ele).closest('.row-lang').find('.to_date').val()).trigger('change');
+    $('#lang-name').val($(ele).closest('.row-lang').find('.lang_code').val()).trigger('change');
+    $('#lang-certificate').val($(ele).closest('.row-lang').find('.certificate').val());
+    var rowIdArr = $(ele).closest('.row-lang').attr('id').split('-');
+
+    // replace add-btn with edit-btn
+    $('#add-lang-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="editLang('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-lang-modal-btn');
+    
+    // show modal
+    $('#add-lang-modal').modal('toggle');
+}
+
+function editLang(rowId) {
+    //validate form
+    var validateResult = $('#add-lang-form').parsley().validate();
+    if (validateResult) {
+        var lang_html = createLangTemplate(rowId);
+
+        $('#row-lang-'+rowId).replaceWith(lang_html);
+
+        // set value for select box
+        $('select[name="language_abilities['+rowId+'][lang_code]"]').val($('#lang-name').val());
+
+        // close modal
+        $('#add-lang-modal').modal('toggle');
+
+        // reset form in modal
+        resetLangModal();
+    }   
+}
+
+function removeLang(delEl, sendAjax) {
+    if (sendAjax) {
+        swal({
+            title: 'Remove language ability',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.value) {
+                // send ajax delete request to server
+                var rowIdArr = $(delEl).closest('.row-lang').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length-1];
+                $.ajax({
+                    type: 'POST',
+                    url: '/tvms/students/deleteLang',
+                    data: {
+                        'id': $('#lang-'+rowId+'-id').find('input').val()
+                    },
+                    beforeSend: function(xhr){
+                        xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
+                    },
+                    success: function(resp){
+                        swal({
+                            title: resp.alert.title,
+                            text: resp.alert.message,
+                            type: resp.alert.type
+                        })
+                        if (resp.status == 'success') {
+                            deleteLangRow(delEl, rowId);
+                        }
+                    }
+                });
+            }
+        })
+    } else {
+        deleteLangRow(delEl);
+    }
+}
+
+function deleteLangRow(delEl, hiddenId) {
+    // remove DOM
+    $(delEl).closest('tr.row-lang').remove();
+    if (hiddenId) {
+        // case: remove record exists in database
+        $('#lang-'+hiddenId+'-id').remove();
+    }
+    perData.langCounter--;
+
+    var trows = $('#lang-container > tr');
+    var idField = $('.lang-id').find('input');
+    var inputField = $('#lang-container').find('input');
+    var selectField = $('#lang-container').find('select');
+    var sttField = $('#lang-container').find('.stt-col');
+
+    for (var i = 0; i < sttField.length; i++) {
+        sttField[i].innerText = i + 1;
+        trows[i].id = 'row-lang-' + i;
+        if (hiddenId) {
+            $('.lang-id')[i].id = 'lang-' + i + '-id';
+            idField[i].name = 'language_abilities[' + i + '][id]';
+        }
+    }
+
+    for (var i = 0; i < inputField.length; i++) {
+        var classArr = inputField[i].className.split(' ');
+        inputField[i].name = 'language_abilities[' + Math.floor(i/5) + '][' + classArr[classArr.length-1] + ']';
+    }
+
+    for (var i = 0; i < selectField.length; i++) {
+        selectField[i].name = 'expelanguage_abilitiesriences[' + i + '][' + selectField[i].id + ']';
+    }    
+}
+
+function resetLangModal() {
+    $('#add-lang-form')[0].reset();
+    $('#lang-name').val(null).trigger('change');
+    
+    $('#add-lang-form').parsley().reset();
 }
 
 function getCsrfToken() {

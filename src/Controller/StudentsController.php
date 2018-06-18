@@ -31,7 +31,6 @@ class StudentsController extends AppController
 
         $permissionsTable = TableRegistry::get('Permissions');
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
-        Log::write('debug', $userPermission);
 
         if (!empty($userPermission)) {
             if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
@@ -162,7 +161,8 @@ class StudentsController extends AppController
                     'Families.Jobs',
                     'Educations',
                     'Experiences',
-                    'Experiences.Jobs'
+                    'Experiences.Jobs',
+                    'LanguageAbilities'                
                     ]
                 ]);
             $action = 'edit';
@@ -179,7 +179,8 @@ class StudentsController extends AppController
                 'Families', 
                 'Cards', 
                 'Educations',
-                'Experiences'
+                'Experiences',
+                'LanguageAbilities'
                 ]]);
             
             // save image
@@ -258,6 +259,7 @@ class StudentsController extends AppController
                 $district = Configure::read('district');
                 if (array_key_exists($query['city'], $district)) {
                     $resp = $district[$query['city']];
+                    $resp = array_map('array_shift', $resp);
                 } else {
                     //TODO: Blacklist current user
                 }
@@ -275,36 +277,13 @@ class StudentsController extends AppController
                 $ward = Configure::read('ward');
                 if (array_key_exists($query['district'], $ward)) {
                     $resp = $ward[$query['district']];
+                    $resp = array_map('array_shift', $resp);
                 } else {
                     //TODO: Blacklist current user
                 }
             }
             return $this->jsonResponse($resp);
         }
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Student id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $student = $this->Students->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $student = $this->Students->patchEntity($student, $this->request->getData());
-            if ($this->Students->save($student)) {
-                $this->Flash->success(__('The student has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The student could not be saved. Please, try again.'));
-        }
-        $this->set(compact('student'));
     }
 
     /**
@@ -430,5 +409,250 @@ class StudentsController extends AppController
         }
         
         return $this->jsonResponse($resp);
+    }
+
+    public function deleteLang()
+    {
+        $this->request->allowMethod('ajax');
+        $langId = $this->request->getData('id');
+        $langAblTbl = TableRegistry::get('LanguageAbilities');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Error',
+                'type' => 'error',
+                'message' => __('The ability could not be deleted. Please, try again.')
+            ]
+        ];
+        
+        try {
+            $langAbl = $langAblTbl->get($langId);
+            if (!empty($langAbl) && $langAblTbl->delete($langAbl)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Success',
+                        'type' => 'success',
+                        'message' => __('The ability has been deleted.')
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        
+        return $this->jsonResponse($resp);
+    }
+
+    public function exportResume($id = null)
+    {
+        // Load config
+        $resumeConfig = Configure::read('resume');
+        $country = Configure::read('country');
+        $city = Configure::read('city');
+        $district = Configure::read('district');
+        $ward = Configure::read('ward');
+        $currentAddressTemplate = Configure::read('currentAddressTemplate');
+        $schoolTemplate = Configure::read('schoolTemplate');
+        $eduLevel = Configure::read('eduLevel');
+        $folderImgTemplate = Configure::read('folderImgTemplate');
+        $language = Configure::read('language');
+
+        $student = $this->Students->get($id, [
+            'contain' => [
+                'Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '2']);
+                },
+                'Educations',
+                'Experiences',
+                'Experiences.Jobs',
+                'LanguageAbilities'
+                ]
+            ]);
+
+        // $template = WWW_ROOT . 'document' . DS . 'resume_template.docx';
+        $template = WWW_ROOT . 'document' . DS . 'resume.docx';
+        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+        
+        // Prepare data
+        $now = Time::now();
+        $studentName_VN = mb_strtoupper($student->fullname);
+        $studentName_EN = $this->convertV2E($studentName_VN);
+        $studentName = explode(' ', $studentName_EN);
+        $studentFirstName = array_pop($studentName);
+        $output_file_name = Text::insert($resumeConfig['filename'], [
+            'firstName' => $studentFirstName, 
+            ]);
+
+        $nation_VN = $country[$student->country]['vn'];
+        $nation_JP = $country[$student->country]['jp'];
+        
+        $male = $female = $folderImgTemplate . DS . 'circle.png';
+        if ($student->gender == 'M') {
+            $female = $folderImgTemplate . DS . 'blank.png';
+        } else {
+            $male = $folderImgTemplate . DS . 'blank.png';
+        }
+
+        $marital_y = $marital_n = $folderImgTemplate . DS . 'circle.png';
+        if ($student->marital_status == '2') {
+            $marital_n = $folderImgTemplate . DS . 'blank.png';
+        } else {
+            $marital_y = $folderImgTemplate . DS . 'blank.png';
+        }
+
+        $currentCity = $city[$student->addresses[0]->city];
+        $currentDistrict = ($district[$student->addresses[0]->city])[$student->addresses[0]->district];
+        $currentWard = ($ward[$student->addresses[0]->district])[$student->addresses[0]->ward];
+
+        $jplevel_JP = $jplevel_VN = $enlevel_JP = $enlevel_VN = "            ";
+        if (!empty($student->language_abilities)) {
+            foreach ($student->language_abilities as $key => $value) {
+                switch ($value->lang_code) {
+                    case '1':
+                        // japan
+                        $jplevel_JP = $value->certificate . '相当';
+                        $jplevel_VN = 'Tương đương ' . $value->certificate;
+                        break;
+                    case '2':
+                        // english
+                        $enlevel_JP = $value->certificate . '相当';
+                        $enlevel_VN = 'Tương đương ' . $value->certificate;
+                        break;
+                }
+            }
+        }
+        $jplang = $enlang = $folderImgTemplate . DS . 'circle.png';
+        if (empty(str_replace(" ", "", $jplevel_JP))) {
+            $jplang = $folderImgTemplate . DS . 'blank.png';
+        }
+        if (empty(str_replace(" ", "", $enlevel_JP))) {
+            $enlang = $folderImgTemplate . DS . 'blank.png';
+        }
+        
+        $this->tbs->VarRef['y'] = $now->year;
+        $this->tbs->VarRef['m'] = $now->month;
+        $this->tbs->VarRef['d'] = $now->day;
+        $this->tbs->VarRef['studentname_en'] = $studentName_EN;
+        $this->tbs->VarRef['studentname_vn'] = $studentName_VN;
+
+        $this->tbs->VarRef['nation_jp'] = $nation_JP;
+        $this->tbs->VarRef['nation_vn'] = $nation_VN;
+        
+        $this->tbs->VarRef['male'] = $male;
+        $this->tbs->VarRef['female'] = $female;
+
+        $this->tbs->VarRef['maritalyes'] = $marital_y;  
+        $this->tbs->VarRef['maritalno'] = $marital_n;
+
+        $this->tbs->VarRef['jplevel_jp'] = $jplevel_JP;
+        $this->tbs->VarRef['jplevel_vn'] = $jplevel_JP;
+        $this->tbs->VarRef['enlevel_jp'] = $enlevel_JP;
+        $this->tbs->VarRef['enlevel_vn'] = $enlevel_VN;
+        $this->tbs->VarRef['jplang'] = $jplang;
+        $this->tbs->VarRef['enlang'] = $enlang;
+            
+        $this->tbs->VarRef['bd_y'] = $student->birthday->year;
+        $this->tbs->VarRef['bd_m'] = $student->birthday->month;
+        $this->tbs->VarRef['bd_d'] = $student->birthday->day;
+
+        $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
+
+        $this->tbs->VarRef['currentaddress_en'] = Text::insert($currentAddressTemplate, [
+            'ward' => $currentWard['en'],
+            'district' => $currentDistrict['en'],
+            'city' => $currentCity['en'],
+        ]);
+        $this->tbs->VarRef['currentaddress_vn'] = Text::insert($currentAddressTemplate, [
+            'ward' => $currentWard['vn'],
+            'district' => $currentDistrict['vn'],
+            'city' => $currentCity['vn'],
+        ]);
+
+        $lived_from = $lived_to = "";
+        $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
+        if ($student->is_lived_in_japan === 'Y') {
+            $livedJapan_n = $folderImgTemplate . DS . 'blank.png';
+            $livedfrom = $student->lived_from;
+            $livedto = $student->lived_to;
+        } else {
+            $livedJapan_y = $folderImgTemplate . DS . 'blank.png';
+        }
+
+        $this->tbs->VarRef['lived_from'] = '     ' . $livedfrom . '     ';
+        $this->tbs->VarRef['lived_to'] = '     ' . $livedto . '     ';
+        $this->tbs->VarRef['livedjapanyes'] = $livedJapan_y;
+        $this->tbs->VarRef['livedjapanno'] = $livedJapan_n;
+
+        $reject_y = $reject_n = $folderImgTemplate . DS . 'circle.png';
+        if ($student->reject_stay === 'N') {
+            $reject_y = $folderImgTemplate . DS . 'blank.png';
+        } else {
+            $reject_n = $folderImgTemplate . DS . 'blank.png';
+        }
+
+        $this->tbs->VarRef['reject_y'] = $reject_y;
+        $this->tbs->VarRef['reject_n'] = $reject_n;
+        
+        $eduHis = [];
+        foreach ($student->educations as $key => $value) {
+            $history = [
+                'title' => 'Quá trình học tập',
+                'time' => $value->from_date . ' ～ ' . $value->to_date,
+                'school' => Text::insert($schoolTemplate, [
+                    'schoolNameEN' => $this->convertV2E($value->school),
+                    'eduLevelJP' => $eduLevel[$value->degree]['jp'],
+                    'schoolNameVN' => $value->school,
+                    'eduLevelVN' => $eduLevel[$value->degree]['vn']
+                ])
+            ];
+            array_push($eduHis, $history);
+        }
+        $this->tbs->MergeBlock('a', $eduHis);
+        
+        $expHis = [];
+        foreach ($student->experiences as $key => $value) {
+            $companyStr = '';
+            if (!empty($value->company_jp)) {
+                $companyStr = $value->company_jp . "\n";
+            } elseif (!empty($value->company)) {
+                $companyStr = $value->company . "\n";
+            }
+            $companyStr .= !empty($value->job->job_name_jp) ? "（" . $value->job->job_name_jp . "）\n" : "";
+
+            if (!empty($value->company_jp) && !empty($value->company)) {
+                $companyStr .= $value->company . "\n";
+            }
+            $companyStr .= !empty($value->job->job_name) ? "(" . $value->job->job_name . ")" : "";
+
+            $history = [
+                'title' => 'Quá trình công tác',
+                'time' => $value->from_date . ' ～ ' . $value->to_date,
+                'company' => $companyStr
+            ];
+            array_push($expHis, $history);
+        }
+        $this->tbs->MergeBlock('b', $expHis);
+
+        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        exit;
+    }
+
+    public function convertV2E ($str)
+    {
+        if (!$str) {
+            return false;
+        }
+        $str = mb_strtoupper($str);
+        $str = preg_replace("/(À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ)/", "A", $str);
+        $str = preg_replace("/(È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ)/", "E", $str);
+        $str = preg_replace("/(Ì|Í|Ị|Ỉ|Ĩ)/", "I", $str);
+        $str = preg_replace("/(Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ)/", "O", $str);
+        $str = preg_replace("/(Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ)/", "U", $str);
+        $str = preg_replace("/(Ỳ|Ý|Ỵ|Ỷ|Ỹ)/", "Y", $str);
+        $str = preg_replace("/(Đ)/", "D", $str);
+        return $str;
     }
 }

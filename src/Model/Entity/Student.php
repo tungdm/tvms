@@ -74,8 +74,12 @@ class Student extends Entity
         'color_blind' => true,
         'educational_level' => true,
         'nation' => true,
+        'country' => true,
         'presenter_id' => true,
         'is_lived_in_japan' => true,
+        'reject_stay' => true,
+        'lived_from' => true,
+        'lived_to' => true,
         'expectation' => true,
         'status' => true,
         'created' => true,
@@ -89,5 +93,6 @@ class Student extends Entity
         'families' => true,
         'educations' => true,
         'experiences' => true,
+        'language_abilities' => true,
     ];
 }

@@ -1,6 +1,10 @@
 <?php
 return [
     // general
+    'yesNoQuestion' => [
+        'Y' => 'Có',
+        'N' => 'Không'
+    ],
     'recordsDisplay' => [
         '10' => '10',
         '25' => '25',
@@ -37,14 +41,30 @@ return [
         '3' => 'Hai tay',
     ],
     'eduLevel' => [
-        '1' => 'Tiểu học',
-        '2' => 'Cấp 2',
-        '3' => 'Cấp 3',
-        '4' => 'Trung cấp',
-        '5' => 'Cao đẳng',
-        '6' => 'Đại học',
-        '7' => 'Thạc sĩ',        
-        '8' => 'Tiến sĩ',        
+        '1' => [
+            'vn' => 'Tiểu học',
+            'jp' => '小学校'
+        ],
+        '2' => [
+            'vn' => 'Trung học cơ sở',
+            'jp' => '中学校'
+        ],
+        '3' => [
+            'vn' => 'Trung học phổ thông',
+            'jp' => '高校'
+        ],
+        '4' => [
+            'vn' => 'Trung cấp',
+            'jp' => '専門高等学校'
+        ],
+        '5' => [
+            'vn' => 'Cao đẳng',
+            'jp' => 'カレッジ'
+        ],
+        '6' => [
+            'vn' => 'Đại học',
+            'jp' => '大学'
+        ],      
     ],
     'maritalStatus' => [
         '1' => 'Độc thân',
@@ -116,10 +136,30 @@ return [
         '53' => 'Phù Lá',
         '54' => 'Si La',
     ],
+    'country' => [
+        '01' => [
+            'vn' => 'Việt Nam',
+            'jp' => 'ベトナム'
+        ],
+        '02' => [
+            'vn' => 'Nhật Bản',
+            'jp' => '日本'
+        ]
+    ],
     'cardType' => [
         '1' => 'CMND',
         '2' => 'PASSPORT',
         '3' => 'VISA',
+    ],
+    'language' => [
+        '1' => [
+            'vn' => 'Tiếng Nhật',
+            'jp' => '英語',
+        ],
+        '2' => [
+            'vn' => 'Tiếng Anh',
+            'jp' => '日本語',
+        ]
     ],
     'noAvatar' => 'no_avatar.png',
     
@@ -134,42 +174,94 @@ return [
     ],
     'passwordDefault' => '123456789',
 
-    // address
+    // address    
     'city' => [
-        '01' => 'Thành phố Hà Nội',
-        '02' => 'Tỉnh Hà Giang'
-    ],
-    'district' => [
         '01' => [
-            '001' => 'Quận Ba Đình',
-            '002' => 'Quận Hoàn Kiếm',
-            '003' => 'Quận Tây Hồ'
+            'vn' => 'Thành phố Hà Nội',
+            'en' => 'Ha Noi City'
         ],
         '02' => [
-            '024' => 'Thành phố Hà Giang',
-            '026' => 'Huyện Đồng Văn'
+            'vn' => 'Tỉnh Hà Giang',
+            'en' => 'Ha Giang Province'
+        ]
+    ],
+
+    'district' => [
+        '01' => [
+            '001' => [
+                'vn' => 'Quận Ba Đình',
+                'en' => 'Ba Dinh District'
+            ],
+            '002' => [
+                'vn' => 'Quận Hoàn Kiếm',
+                'en' => 'Hoan Kiem District'
+            ],
+            '003' => [
+                'vn' => 'Quận Tây Hồ',
+                'en' => 'Tay Ho District'
+            ]
+        ],
+        '02' => [
+            '024' => [
+                'vn' => 'Thành phố Hà Giang',
+                'en' => 'Ha Giang City'
+            ],
+            '026' => [
+                'vn' => 'Huyện Đồng Văn',
+                'en' => 'Dong Van District'
+            ]
         ]
     ],
     'ward' => [
         '001' => [
-            '00001' => 'Phường Phúc Xá',
-            '00004' => 'Phường Phúc Trạch'
+            '00001' => [
+                'vn' => 'Phường Phúc Xá',
+                'en' => 'Phuc Xa Ward'   
+            ],
+            '00004' => [
+                'vn' => 'Phường Phúc Trạch',
+                'en' => 'Phuc Trach Ward'
+            ]
         ],
         '002' => [
-            '00037' => 'Phường Phúc Tân',
-            '00040' => 'Phường Đồng Xuân',
+            '00037' => [
+                'vn' => 'Phường Phúc Tân',
+                'en' => 'Phuc Tan Ward'
+            ],
+            '00040' => [
+                'vn' => 'Phường Đồng Xuân',
+                'en' => 'Dong Xuan Ward'
+            ],
         ],
         '003' => [
-            '00091' => 'Phường Phúc Tân',
-            '00094' => 'Phường Nhật Tân',
+            '00091' => [
+                'vn' => 'Phường Phúc Tân',
+                'en' => 'Phuc Tan Ward'
+            ],
+            '00094' => [
+                'vn' => 'Phường Nhật Tân',
+                'en' => 'Nhat Tan Ward'
+            ],
         ],
         '024' => [
-            '00688' => 'Phường Quang Trung',
-            '00094' => 'Phường Trần Phú',
+            '00688' => [
+                'vn' => 'Phường Quang Trung',
+                'en' => 'Quang Trung Ward'
+            ],
+            '00094' => [
+                'vn' => 'Phường Trần Phú',
+                'en' => 'Tran Phu Ward'
+            ],
         ],
         '026' => [
-            '00712' => 'Thị trấn Phó Bảng',
-            '00715' => 'Xã Lũng Cú',
+            '00712' => [
+                'vn' => 'Thị trấn Phó Bảng',
+                'en' => 'Pho Bang Town'
+            ],
+            '00715' => [
+                'vn' => 'Xã Lũng Cú',
+                'en' => 'Lung Cu Commune'
+            ],
         ]
     ],
     'addressType' => [
@@ -195,4 +287,10 @@ return [
     // template
     'studentCodeTemplate' => 'LD-:date-:counter',
     'blackListTemplate' => 'Blacklist user :username, for :error',
+    'currentAddressTemplate' => ':ward, :district, :city',
+    'schoolTemplate' => ":schoolNameEN:eduLevelJP校卒業\nTốt nghiệp trường :eduLevelVN :schoolNameVN",
+    'folderImgTemplate' =>  ROOT . DS . 'webroot' . DS . 'img' . DS . 'templates',
+    'resume' => [
+        'filename' => '履歴書-:firstName.docx'
+    ]
 ];

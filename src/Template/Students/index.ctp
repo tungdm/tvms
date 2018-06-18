@@ -8,7 +8,11 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller);
 $gender = Configure::read('gender');
 $city = Configure::read('city');
+$city = array_map('array_shift', $city);
+
 $eduLevel = Configure::read('eduLevel');
+$eduLevel = array_map('array_shift', $eduLevel);
+
 $studentStatus = Configure::read('studentStatus');
 $recordsDisplay = Configure::read('recordsDisplay');
 
@@ -191,7 +195,7 @@ $this->Paginator->setTemplates([
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                            <?= $this->Html->link(__('Edit'), ['action' => 'info', $student->id], ['escape' => false]) ?>
+                                            <?= $this->Html->link(__('Edit'), ['action' => 'info', $student->id]) ?>
                                         </li>
                                         <li>
                                             <?= $this->Form->postLink(__('Delete'), 
@@ -203,7 +207,8 @@ $this->Paginator->setTemplates([
                                         </li>
                                         <li><a href="#">Something else here</a></li>
                                         <li class="divider"></li>
-                                        <li><a href="#">Separated link</a>
+                                        <li>
+                                            <?= $this->Html->link(__('Export Resume'), ['action' => 'exportResume', $student->id ]) ?>
                                         </li>
                                     </ul>
                                 </div>

@@ -63,6 +63,9 @@ class StudentsTable extends Table
         $this->hasMany('Experiences', [
             'foreignKey' => 'student_id'
         ]);
+        $this->hasMany('LanguageAbilities', [
+            'foreignKey' => 'student_id'
+        ]);
     }
 
     /**
@@ -174,10 +177,31 @@ class StudentsTable extends Table
             ->scalar('nation')
             ->maxLength('nation', 255)
             ->allowEmpty('nation');
+        
+        $validator
+            ->scalar('country')
+            ->maxLength('country', 255)
+            ->allowEmpty('country');
 
         $validator
-            ->boolean('is_lived_in_japan')
+            ->scalar('is_lived_in_japan')
+            ->maxLength('is_lived_in_japan', 2)
             ->allowEmpty('is_lived_in_japan');
+        
+        $validator
+            ->scalar('reject_stay')
+            ->maxLength('reject_stay', 2)
+            ->allowEmpty('reject_stay');
+
+        $validator
+            ->scalar('lived_from')
+            ->maxLength('lived_from', 255)
+            ->allowEmpty('lived_from');
+
+        $validator
+            ->scalar('lived_to')
+            ->maxLength('lived_to', 255)
+            ->allowEmpty('lived_to');
 
         $validator
             ->allowEmpty('expectation');

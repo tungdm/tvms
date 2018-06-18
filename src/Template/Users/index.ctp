@@ -184,7 +184,7 @@ $this->Paginator->setTemplates([
                             <td class="cell roleCol"><?= h($user->role->name) ?></td>
                             
                             <td class="actions cell">
-                                <?php if (($currentUser['role']['name'] || $permission == 0) == 'admin' && $user->role->name != 'admin' && $user->id != $currentUser['id']): ?>
+                                <?php if (($currentUser['role']['name'] == 'admin' || $permission == 0)  && $user->role->name != 'admin' && $user->id != $currentUser['id']): ?>
                                 <div class="btn-group">
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">

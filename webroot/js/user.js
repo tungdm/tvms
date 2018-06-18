@@ -37,8 +37,6 @@ function removePermission(delEl, sendAjax) {
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
-                var rowIdArr = $(delEl).closest('tr.row-permission').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
                 $.ajax({
                     type: 'POST',
                     url: '/tvms/users/deletePermission',
@@ -246,7 +244,7 @@ function showEditPerModal(userId, userRole) {
             data: {
                 id: userId
             },
-            success: function(resp){
+            success: function(resp) {
                 var allPermissions = resp.permissions;
 
                 $('input[name="id"]').val(userId);

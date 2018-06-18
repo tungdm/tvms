@@ -7,21 +7,21 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Educations Model
+ * LanguageAbilities Model
  *
  * @property \App\Model\Table\StudentsTable|\Cake\ORM\Association\BelongsTo $Students
  *
- * @method \App\Model\Entity\Education get($primaryKey, $options = [])
- * @method \App\Model\Entity\Education newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\Education[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Education|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Education patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Education[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\Education findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\LanguageAbility get($primaryKey, $options = [])
+ * @method \App\Model\Entity\LanguageAbility newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\LanguageAbility[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\LanguageAbility|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\LanguageAbility patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\LanguageAbility[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\LanguageAbility findOrCreate($search, callable $callback = null, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
-class EducationsTable extends Table
+class LanguageAbilitiesTable extends Table
 {
 
     /**
@@ -34,7 +34,7 @@ class EducationsTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('educations');
+        $this->setTable('language_abilities');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
@@ -59,37 +59,25 @@ class EducationsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
+            ->scalar('lang_code')
+            ->maxLength('lang_code', 2)
+            ->requirePresence('lang_code', 'create')
+            ->notEmpty('lang_code');
+
+        $validator
+            ->scalar('certificate')
+            ->maxLength('certificate', 255)
+            ->allowEmpty('certificate');
+
+        $validator
             ->scalar('from_date')
-            ->requirePresence('from_date', 'create')
-            ->notEmpty('from_date');
+            ->maxLength('from_date', 255)
+            ->allowEmpty('from_date');
 
         $validator
             ->scalar('to_date')
-            ->requirePresence('to_date', 'create')
-            ->notEmpty('to_date');
-
-        $validator
-            ->scalar('degree')
-            ->maxLength('degree', 255)
-            ->requirePresence('degree', 'create')
-            ->notEmpty('degree');
-
-        $validator
-            ->scalar('school')
-            ->maxLength('school', 255)
-            ->requirePresence('school', 'create')
-            ->notEmpty('school');
-
-        $validator
-            ->scalar('specialized')
-            ->maxLength('specialized', 255)
-            ->allowEmpty('specialized');
-
-        $validator
-            ->scalar('address')
-            ->maxLength('address', 255)
-            ->requirePresence('address', 'create')
-            ->notEmpty('address');
+            ->maxLength('to_date', 255)
+            ->allowEmpty('to_date');
 
         $validator
             ->integer('created_by')

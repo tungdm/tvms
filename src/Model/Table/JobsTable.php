@@ -62,6 +62,12 @@ class JobsTable extends Table
             ->maxLength('job_name', 255)
             ->requirePresence('job_name', 'create')
             ->notEmpty('job_name');
+        
+        $validator
+            ->scalar('job_name_jp')
+            ->maxLength('job_name_jp', 255)
+            ->requirePresence('job_name_jp', 'create')
+            ->notEmpty('job_name_jp');
 
         $validator
             ->scalar('description')

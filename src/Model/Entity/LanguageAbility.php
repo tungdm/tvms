@@ -4,25 +4,22 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Experience Entity
+ * LanguageAbility Entity
  *
  * @property int $id
  * @property int $student_id
+ * @property string $lang_code
+ * @property string $certificate
  * @property string $from_date
  * @property string $to_date
- * @property int $job_id
- * @property string $salary
- * @property string $company
- * @property string $address
- * @property \Cake\I18n\FrozenTime $created
+ * @property \Cake\I18n\FrozenDate $created
  * @property int $created_by
- * @property \Cake\I18n\FrozenTime $modified
+ * @property \Cake\I18n\FrozenDate $modified
  * @property int $modified_by
  *
  * @property \App\Model\Entity\Student $student
- * @property \App\Model\Entity\Job $job
  */
-class Experience extends Entity
+class LanguageAbility extends Entity
 {
 
     /**
@@ -36,18 +33,14 @@ class Experience extends Entity
      */
     protected $_accessible = [
         'student_id' => true,
+        'lang_code' => true,
+        'certificate' => true,
         'from_date' => true,
         'to_date' => true,
-        'job_id' => true,
-        'salary' => true,
-        'company' => true,
-        'company_jp' => true,
-        'address' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'student' => true,
-        'job' => true
+        'student' => true
     ];
 }

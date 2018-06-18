@@ -30,6 +30,7 @@ class Job extends Entity
      */
     protected $_accessible = [
         'job_name' => true,
+        'job_name_jp' => true,
         'description' => true,
         'created' => true,
         'created_by' => true,

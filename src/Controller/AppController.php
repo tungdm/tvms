@@ -67,14 +67,6 @@ class AppController extends Controller
                 //         'httpOnly' => true,
                 //     ],
                 // ],
-
-                // 'Form' => [
-                //     'field' => [
-                //         'username' => 'username',
-                //         'password' => 'password'
-                //     ],
-                //     'finder' => 'auth'
-                // ]
             // ],
             'authenticate' => [
                 'Cookie' => [
@@ -90,8 +82,8 @@ class AppController extends Controller
         ]);
 
         //Init TBS
-        require_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_class.php';
-        require_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_plugin_opentbs.php';
+        include_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_class.php';
+        include_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_plugin_opentbs.php';
         $this->tbs = new clsTinyButStrong;
         $this->tbs->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
     }

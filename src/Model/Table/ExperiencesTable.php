@@ -87,6 +87,11 @@ class ExperiencesTable extends Table
             ->notEmpty('company');
 
         $validator
+            ->scalar('company_jp')
+            ->maxLength('company_jp', 255)
+            ->allowEmpty('company_jp');
+
+        $validator
             ->scalar('address')
             ->maxLength('address', 255)
             ->requirePresence('address', 'create')

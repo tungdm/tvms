@@ -91,7 +91,6 @@ class UsersController extends AppController
         return $this->redirect($this->Auth->logout());
     }
 
-
     /**
      * Index method
      *
@@ -164,7 +163,6 @@ class UsersController extends AppController
         $this->set(compact('users', 'roles', 'roles4Edit', 'query'));
     }
 
-
     /**
      * Add method
      *
@@ -172,41 +170,6 @@ class UsersController extends AppController
      */
     public function add()
     {
-        // $template = ROOT . DS . 'webroot' . DS . 'document' . DS . 'demo.docx';
-        // $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-        // $output_file_name = 'output.docx';
-
-        // $username = $this->Auth->user('username');
-        // $now = Time::now()->i18nFormat('yyyy 年 MM 月 dd 日');
-        // $fullname = 'Dang Minh Tung';
-        // $fullname_vn = 'Đặng Minh Tùng';
-        // $nation_jp = 'ベトナム';
-        // $nation_vn = 'Việt Nam';
-        // $male_cb = '&#9745;'; //check
-        // $female_cb = '&#9744;'; //non-check
-        // $notfa_cb = '&#x25A0;'; //check
-        // $fa_cb = '&#9744;'; //non-check
-        // $language_jp = 'ベトナム語';
-        // $language_vn = 'Tiếng Việt';
-        
-        
-        // $this->tbs->VarRef['now'] = $now;
-        // $this->tbs->VarRef['yourname'] = $username;
-        // $this->tbs->VarRef['username'] = strtoupper($fullname);
-        // $this->tbs->VarRef['username_vn'] = strtoupper($fullname_vn);
-        // $this->tbs->VarRef['nation_jp'] = $nation_jp;
-        // $this->tbs->VarRef['nation_vn'] = $nation_vn;
-        // $this->tbs->VarRef['male_cb'] = html_entity_decode($male_cb);
-        // $this->tbs->VarRef['female_cb'] = html_entity_decode($female_cb);
-        // $this->tbs->VarRef['notfa_cb'] = html_entity_decode($notfa_cb);
-        // $this->tbs->VarRef['fa_cb'] = html_entity_decode($fa_cb);
-        // $this->tbs->VarRef['language_jp'] = $language_jp;
-        // $this->tbs->VarRef['language_vn'] = $language_vn;
-        // $this->tbs->VarRef['imgpath'] = ROOT . DS . 'webroot' . DS . 'img' . DS . 'admin.jpg';
-
-        // $this->tbs->Show(OPENTBS_FILE, $output_file_name);
-        // $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
-        // exit();
         $currentUser = $this->Auth->user();
         $currentUserRole = $currentUser['role']['name'];
         $user = $this->Users->newEntity();
@@ -279,7 +242,6 @@ class UsersController extends AppController
             ];
         } else if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            Log::write('debug', $data);
             $resp = [
                 'status' => 'error',
                 'flash' => [
@@ -305,32 +267,37 @@ class UsersController extends AppController
 
             if (isset($data['id']) && !empty($data['id'])) {
                 $targetId = $data['id'];
-                $user = $this->Users->get($targetId);
+
+                try {
+                    $user = $this->Users->get($targetId);
                 
-                // case: manager update user permission
-                $user = $this->Users->patchEntity($user, $data, [
-                    'fieldList' => ['role_id', 'permissions'],
-                    'associated' => [
-                        'Permissions' => [
-                            'fieldList' => ['id', 'scope', 'action']
+                    // case: manager update user permission
+                    $user = $this->Users->patchEntity($user, $data, [
+                        'fieldList' => ['role_id', 'permissions'],
+                        'associated' => [
+                            'Permissions' => [
+                                'fieldList' => ['id', 'scope', 'action']
+                            ]
                         ]
-                    ]
-                ]);
-                Log::write('debug', $user);
-                
-                $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
-                
-                if ($this->Users->save($user)) {
-                    $resp = [
-                        'status' => 'success',
-                        'redirect' => Router::url(['action' => 'index']),
-                        'flash' => [
-                            'title' => 'Success',
-                            'type' => 'success',
-                            'message' => __('The user has been saved.')
-                        ]
-                    ];
-                    $this->Flash->success(__('The permission has been changed.'));
+                    ]);
+                    
+                    $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
+                    
+                    if ($this->Users->save($user)) {
+                        $resp = [
+                            'status' => 'success',
+                            'redirect' => Router::url(['action' => 'index']),
+                            'flash' => [
+                                'title' => 'Success',
+                                'type' => 'success',
+                                'message' => __('The user has been saved.')
+                            ]
+                        ];
+                        $this->Flash->success(__('The permission has been changed.'));
+                    }
+                } catch (Exception $e) {
+                    //TODO: blacklist user
+                    Log::write('debug', $e);
                 }
             }
         }
@@ -342,25 +309,29 @@ class UsersController extends AppController
         $this->request->allowMethod('ajax');
         $id = $this->request->getData('id');
         $permissions = TableRegistry::get('Permissions');
-        $permission = $permissions->get($id);
-        if ($permissions->delete($permission)) {
-            $resp = [
-                'status' => 'success',
-                'alert' => [
-                    'title' => 'Success',
-                    'type' => 'success',
-                    'message' => __('The permission has been deleted.')
-                ]
-            ];
-        } else {
-            $resp = [
-                'status' => 'error',
-                'alert' => [
-                    'title' => 'Error',
-                    'type' => 'error',
-                    'message' => __('The permission could not be deleted. Please, try again.')
-                ]
-            ];
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Error',
+                'type' => 'error',
+                'message' => __('The permission could not be deleted. Please, try again.')
+            ]
+        ];
+        try {
+            $permission = $permissions->get($id);
+            if ($permissions->delete($permission)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Success',
+                        'type' => 'success',
+                        'message' => __('The permission has been deleted.')
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
         }
         return $this->jsonResponse($resp);
     }
