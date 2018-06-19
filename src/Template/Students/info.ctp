@@ -2144,9 +2144,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="lang"><?= __('Ngôn ngữ') ?></label>
                     <div class="col-md-9 col-sm-9 col-xs-12">
                         <?= $this->Form->control('lang.name', [
-                            'options' => $language, 
+                            'options' => $language,
                             'required' => true, 
-                            'label' => false, 
+                            'label' => false,
                             'empty' => true,
                             'data-parsley-errors-container' => '#error-lang-name',
                             'data-parsley-class-handler' => '#select2-lang-name',
@@ -2205,7 +2205,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                 </div>
-                <?= $this->Form->end(); ?>                
+                <?= $this->Form->end(); ?>
                 </div>
                 <div class="clearfix"></div>
             </div>

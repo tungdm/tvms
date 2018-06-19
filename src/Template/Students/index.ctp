@@ -61,7 +61,7 @@ $this->Paginator->setTemplates([
                             <li><a href="#">Another action</a></li>
                             <li><a href="#">Something else here</a></li>
                             <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
+                            <li><a href="javascript:;">Export File</a></li>
                         </ul>
                     </div>
                 </div>
@@ -144,6 +144,7 @@ $this->Paginator->setTemplates([
                                     'empty' => true,
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                    'id' => 'filter-gender',
                                     'value' => $query['gender'] ?? ''
                                     ])
                                 ?>

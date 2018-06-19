@@ -284,6 +284,12 @@ return [
         '3' => 'Dân tộc thiểu số',
     ],
 
+    // event
+    'eventScope' => [
+        '1' => 'Only me',
+        '2' => 'Global'
+    ],
+
     // template
     'studentCodeTemplate' => 'LD-:date-:counter',
     'blackListTemplate' => 'Blacklist user :username, for :error',

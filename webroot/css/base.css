@@ -192,3 +192,7 @@ input.parsley-error,select.parsley-error,textarea.parsley-error{
     width: 100%;
     height: auto;
 }
+
+textarea {
+    resize: vertical;
+}

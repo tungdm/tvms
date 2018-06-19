@@ -232,7 +232,6 @@ $(document).ready(function() {
         $('#addresses-'+token+'-street').val('');
     });
 
-
     $('.select-ward').change(function(e) {
         var token = getToken(this);
         // re-validate input

@@ -1,0 +1,17 @@
+.fc-toolbar {
+    padding: 10px;
+    margin: 0;
+}
+
+.input-group {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.input-group button {
+    border-radius: 0px;
+}
+
+.input-group-btn {
+    vertical-align: top !important;
+}

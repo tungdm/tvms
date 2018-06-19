@@ -5293,6 +5293,9 @@ table.text-center th {
 .text-purple {
   color: #605ca8 !important;
 }
+.text-magenta {
+  color: magenta !important;
+}
 .text-maroon {
   color: #d81b60 !important;
 }

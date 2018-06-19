@@ -52,8 +52,8 @@ class AppController extends Controller
          */
         if (!$this->request->is('ajax')) {
             $this->loadComponent('Security');
+            $this->loadComponent('Csrf');
         }
-        $this->loadComponent('Csrf');
         $this->loadComponent('Auth', [
             'authorize' => ['Controller'],
             // 'authenticate' => [

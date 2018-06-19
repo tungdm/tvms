@@ -139,10 +139,9 @@ $cakeDescription = 'TVMS';
                         </ul>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="fa fa-calendar"></i>
-                            <span><?= __('LỊCH CÔNG TÁC') ?></span>
-                        </a>
+                        <?= $this->Html->link('<i class="fa fa-calendar"></i> <span>LỊCH CÔNG TÁC</span>', 
+                            ['controller' => 'Events', 'action' => 'index'],
+                            ['escape' => false]) ?>
                     </li>
                     <li>
                         <a href="#">

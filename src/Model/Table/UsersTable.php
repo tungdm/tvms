@@ -57,6 +57,10 @@ class UsersTable extends Table
             'foreignKey' => 'user_id',
             'dependent' => true,
         ]);
+        $this->hasMany('Events', [
+            'foreignKey' => 'user_id',
+            'dependent' => true,
+        ]);
     }
 
     /**
