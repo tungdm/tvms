@@ -13,6 +13,8 @@ use Cake\Utility\Text;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
 
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 /**
  * Students Controller
@@ -39,6 +41,12 @@ class StudentsController extends AppController
             }
         }
         return parent::isAuthorized($user);
+    }
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('ExportFile');
     }
 
     // public function beforeFilter(Event $event)
@@ -147,7 +155,6 @@ class StudentsController extends AppController
             throw new NotFoundException(__('Page not found'));
         }
     }
-
 
     public function info($id = null)
     {
@@ -571,18 +578,17 @@ class StudentsController extends AppController
             'city' => $currentCity['vn'],
         ]);
 
-        $lived_from = $lived_to = "";
         $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
         if ($student->is_lived_in_japan === 'Y') {
             $livedJapan_n = $folderImgTemplate . DS . 'blank.png';
-            $livedfrom = $student->lived_from;
-            $livedto = $student->lived_to;
+            $this->tbs->VarRef['lived_from'] = '     ' . $student->lived_from . '     ';
+            $this->tbs->VarRef['lived_to'] = '     ' . $student->lived_to . '     ';
         } else {
             $livedJapan_y = $folderImgTemplate . DS . 'blank.png';
+            $this->tbs->VarRef['lived_from'] = "                ";
+            $this->tbs->VarRef['lived_to'] = "                ";
         }
 
-        $this->tbs->VarRef['lived_from'] = '     ' . $livedfrom . '     ';
-        $this->tbs->VarRef['lived_to'] = '     ' . $livedto . '     ';
         $this->tbs->VarRef['livedjapanyes'] = $livedJapan_y;
         $this->tbs->VarRef['livedjapanno'] = $livedJapan_n;
 
@@ -597,22 +603,40 @@ class StudentsController extends AppController
         $this->tbs->VarRef['reject_n'] = $reject_n;
         
         $eduHis = [];
-        foreach ($student->educations as $key => $value) {
+        if (empty($student->educations)) {
             $history = [
                 'title' => 'Quá trình học tập',
-                'time' => $value->from_date . ' ～ ' . $value->to_date,
-                'school' => Text::insert($schoolTemplate, [
-                    'schoolNameEN' => $this->convertV2E($value->school),
-                    'eduLevelJP' => $eduLevel[$value->degree]['jp'],
-                    'schoolNameVN' => $value->school,
-                    'eduLevelVN' => $eduLevel[$value->degree]['vn']
-                ])
+                'time' => "",
+                'school' => ""
             ];
             array_push($eduHis, $history);
+        } else {
+            foreach ($student->educations as $key => $value) {
+                $history = [
+                    'title' => 'Quá trình học tập',
+                    'time' => $value->from_date . ' ～ ' . $value->to_date,
+                    'school' => Text::insert($schoolTemplate, [
+                        'schoolNameEN' => $this->convertV2E($value->school),
+                        'eduLevelJP' => $eduLevel[$value->degree]['jp'],
+                        'schoolNameVN' => $value->school,
+                        'eduLevelVN' => $eduLevel[$value->degree]['vn']
+                    ])
+                ];
+                array_push($eduHis, $history);
+            }
         }
+        
         $this->tbs->MergeBlock('a', $eduHis);
         
         $expHis = [];
+        if (empty($student->experiences)) {
+            $history = [
+                'title' => "Quá trình công tác",
+                'time' => "",
+                'company' => ""
+            ];
+            array_push($expHis, $history);
+        }
         foreach ($student->experiences as $key => $value) {
             $companyStr = '';
             if (!empty($value->company_jp)) {
@@ -637,6 +661,57 @@ class StudentsController extends AppController
         $this->tbs->MergeBlock('b', $expHis);
 
         $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        exit;
+    }
+
+    public function exportXlsx() {
+        $this->autoRender = false;
+        
+        // prepare data
+        $students = $this->Students->find();
+        $exportData = [];
+        foreach ($students as $key => $student) {
+            $birthday = Time::parse($student->birthday);
+            $data = [
+                $student->id, 
+                $student->code, 
+                $student->fullname, 
+                Date::formattedPHPToExcel($birthday->year, $birthday->month, $birthday->day)
+            ];
+            array_push($exportData, $data);
+        }
+
+        // init worksheet
+        $spreadsheet = $this->ExportFile->setXlsxProperties();
+        // set table header
+        $header = ['Id', 'Code', 'Fullname', 'Birthday'];
+        $spreadsheet->setActiveSheetIndex(0)->fromArray($header, NULL, 'A1');
+        // add some data
+        $spreadsheet->getActiveSheet()->fromArray($exportData, NULL, 'A2');
+        // set filter
+        $spreadsheet->getActiveSheet()->setAutoFilter($spreadsheet->getActiveSheet()->calculateWorksheetDimension());
+        $autoFilter = $spreadsheet->getActiveSheet()->getAutoFilter();
+
+        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setAutoSize(true);
+        $spreadsheet->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);
+        $spreadsheet->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);
+        $spreadsheet->getActiveSheet()->freezePane('A2');
+        
+        // set style
+        $headerStyle = Configure::read('headerStyle');
+        $tableStyle = Configure::read('tableStyle');
+        $spreadsheet->getActiveSheet()->getStyle('A1:D1')->applyFromArray($headerStyle);
+        $spreadsheet->getActiveSheet()->getStyle('A1:D4')->applyFromArray($tableStyle);
+        $spreadsheet->getActiveSheet()->getStyle('D2:D4')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_YYYYMMDD2);
+
+        // rename worksheet
+        $spreadsheet->getActiveSheet()->setTitle('Sample');
+
+        // set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // export XLSX file for download
+        $this->ExportFile->export($spreadsheet);
         exit;
     }
 

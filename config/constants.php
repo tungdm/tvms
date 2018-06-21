@@ -1,4 +1,6 @@
 <?php
+use PhpOffice\PhpSpreadsheet\Style;
+
 return [
     // general
     'yesNoQuestion' => [
@@ -290,7 +292,7 @@ return [
         '2' => 'Global'
     ],
 
-    // template
+    // .docx template
     'studentCodeTemplate' => 'LD-:date-:counter',
     'blackListTemplate' => 'Blacklist user :username, for :error',
     'currentAddressTemplate' => ':ward, :district, :city',
@@ -298,5 +300,34 @@ return [
     'folderImgTemplate' =>  ROOT . DS . 'webroot' . DS . 'img' . DS . 'templates',
     'resume' => [
         'filename' => '履歴書-:firstName.docx'
+    ],
+
+    // .xlsx template
+    'headerStyle' => [
+        'font' => [
+            'bold' => true,
+            'color' => [
+                'rgb' => 'FFFFFF'
+            ]
+        ],
+        'alignment' => [
+            'horizontal' => Style\Alignment::HORIZONTAL_CENTER
+        ],
+        'fill' => [
+            'fillType' => Style\Fill::FILL_SOLID,
+            'color' => [
+                'rgb' => '3c8dbc'
+            ]
+        ]
+    ],
+    'tableStyle' => [
+        'borders' => [
+            'allBorders' => [
+                'borderStyle' => Style\Border::BORDER_THIN,
+                'color' => [
+                    'rgb' => '3c8dbc'
+                ]
+            ]
+        ]
     ]
 ];

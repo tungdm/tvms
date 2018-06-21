@@ -61,7 +61,11 @@ $this->Paginator->setTemplates([
                             <li><a href="#">Another action</a></li>
                             <li><a href="#">Something else here</a></li>
                             <li class="divider"></li>
-                            <li><a href="javascript:;">Export File</a></li>
+                            <li>
+                                <?= $this->Html->link('Export Xlsx', [
+                                    'action' => 'exportXlsx'
+                                ]) ?>
+                            </li>
                         </ul>
                     </div>
                 </div>

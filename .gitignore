@@ -7,7 +7,7 @@
 /vendor/*
 /webroot/img/students/*
 /webroot/img/users/*
-/webroot/document/*
+
 
 # OS generated files #
 ######################

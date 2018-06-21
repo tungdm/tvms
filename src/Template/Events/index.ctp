@@ -1,13 +1,12 @@
 <?php
-
 $this->Html->css('fullcalendar.css', ['block' => 'styleTop']);
 $this->Html->css('calendar.css', ['block' => 'styleTop']);
 $this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('fullcalendar.js', ['block' => 'scriptBottom']);
-$this->Html->script('calendar.js', ['block' => 'scriptBottom']);
-
-
+$this->Html->script('fullcalendar-vi.js', ['block' => 'scriptBottom']);
+$this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
+$this->Html->script('event.js', ['block' => 'scriptBottom']);
 ?>
 
 <?php $this->start('content-header'); ?>
@@ -38,7 +37,7 @@ $this->Html->script('calendar.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">New Calendar Entry</h4>
+                <h4 class="modal-title">Event Information</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -67,6 +66,21 @@ $this->Html->script('calendar.js', ['block' => 'scriptBottom']);
                             ])?>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="scope"><?= __('Scope') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('scope', [
+                                'options' => $eventScope, 
+                                'required' => true,
+                                'label' => false,
+                                'empty' => true,
+                                'data-parsley-errors-container' => '#error-event-scope',
+                                'data-parsley-class-handler' => '#select2-scope',
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                            <span id="error-event-scope"></span>
+                        </div>
+                    </div>
+                    <div class="form-group color-chooser-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="class"><?= __('Color') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
@@ -110,21 +124,6 @@ $this->Html->script('calendar.js', ['block' => 'scriptBottom']);
                                 ]) ?>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="scope"><?= __('Scope') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                            <?= $this->Form->control('scope', [
-                                'options' => $eventScope, 
-                                'required' => true,
-                                'label' => false,
-                                'empty' => true,
-                                'data-parsley-errors-container' => '#error-event-scope',
-                                'data-parsley-class-handler' => '#select2-scope',
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                ]) ?>
-                            <span id="error-event-scope"></span>
-                        </div>
-                    </div>
                 <?= $this->Form->end(); ?>
                 </div>
                 <div class="clearfix"></div>
@@ -132,6 +131,29 @@ $this->Html->script('calendar.js', ['block' => 'scriptBottom']);
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" id="submit-event-btn">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" id="close-event-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="event-info-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="event-title">Event Information</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                    <blockquote>
+                        <p id="event-description"></p>
+                        <small id="event-owner"></small>
+                    </blockquote>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

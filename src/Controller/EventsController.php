@@ -18,6 +18,7 @@ class EventsController extends AppController
 {
     public function isAuthorized($user)
     {
+        // all authorized user can access event
         return true;
     }
     /**
@@ -45,24 +46,35 @@ class EventsController extends AppController
         $this->request->allowMethod('ajax');
         $query = $this->request->getQuery();
         $currentUserId = $this->Auth->user('id');
-        Log::write('debug', $currentUserId);
-        
         $resp = [];
         try {
-            $events = $this->Events->find()->where([
+            $events = $this->Events->find()
+            ->where([
                 'start >=' => $query['start'],
                 'end <=' => $query['end'],
-                'user_id' => $currentUserId
-            ])->toArray();
-            foreach ($events as $value) {
+            ])
+            ->where(function ($exp) use ($currentUserId) {
+                $orCondition = $exp->or_(['user_id' => $currentUserId])->eq('scope', '2');
+                return $exp->add($orCondition);
+            });
+            Log::write('debug', $events);
+            $events = $events->toArray();
+            foreach ($events as $event) {
+                $editable = false;
+                if ($event->scope === "1" || $event->user_id == $currentUserId) {
+                    $editable = true;
+                }
                 $data = [
-                    'id' => $value->id,
-                    'title' => $value->title,
-                    'start' => $value->start,
-                    'end' => $value->end,
-                    'allDay' => $value->all_day == 1 ? true: false,
-                    'backgroundColor' => $value->color,
-                    'borderColor' => $value->color,
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->description,
+                    'start' => $event->start,
+                    'end' => $event->end,
+                    'allDay' => $event->all_day === "true" ? true : false,
+                    'scope' => $event->scope,
+                    'backgroundColor' => $event->color,
+                    'borderColor' => $event->color,
+                    'editable' => $editable
                 ];
                 array_push($resp, $data);
             }
@@ -82,17 +94,19 @@ class EventsController extends AppController
 
         $resp = [];
         try {
-            $event = $this->Events->get($id);
+            $event = $this->Events->get($id, ['contain' => 'Users']);
+            Log::write('debug', $event);
             $resp = [
                 'id' => $event->id,
                 'title' => $event->title,
                 'description' => $event->description,
-                'allDay' => $event->all_day == 1 ? true: false,
+                'allDay' => $event->all_day == "true" ? true: false,
                 'scope' => $event->scope,
                 'start' => $event->start,
                 'end' => $event->end,
                 'backgroundColor' => $event->color,
                 'borderColor' => $event->color,
+                'owner' => $event->user->fullname
             ];
         } catch (Exception $e) {
             //TODO: blacklist user
@@ -111,8 +125,25 @@ class EventsController extends AppController
         $this->request->allowMethod('ajax');
         $resp = [];
         if ($this->request->is('post')) {
+            $resp = [
+                'status' => 'error',
+            ];
             $event = $this->Events->newEntity();
             $data = $this->request->getData();
+            Log::write('debug', $data);
+            
+            $currentUser = $this->Auth->user();
+            $currentUserRole = $currentUser['role_id'];
+            if ($data['scope'] === "2" && $currentUserRole != 1) {
+                //TODO: Blacklist current user
+                $msgTemplate = Configure::read('blackListTemplate');
+                $msg = Text::insert($msgTemplate, [
+                    'username' => $currentUser['username'], 
+                    'error' => 'try to create global eventn'
+                    ]);
+                Log::write('warning', $msg);
+                return $this->jsonResponse($resp); 
+            }
             $data['user_id'] = $this->Auth->user('id');            
             $data['start'] = new Time($data['start']);
             $data['end'] = new Time($data['end']);
@@ -127,13 +158,9 @@ class EventsController extends AppController
                     'title' => $event->title,
                     'start' => $event->start,
                     'end' => $event->end,
-                    'allDay' => $event->all_day == 1 ? true: false,
+                    'allDay' => $event->all_day == "true" ? true: false,
                     'backgroundColor' => $event->color,
                     'borderColor' => $event->color,
-                ];
-            } else {
-                $resp = [
-                    'status' => 'error',
                 ];
             }
         }
@@ -149,20 +176,80 @@ class EventsController extends AppController
      */
     public function edit($id = null)
     {
-        $event = $this->Events->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $event = $this->Events->patchEntity($event, $this->request->getData());
-            if ($this->Events->save($event)) {
-                $this->Flash->success(__('The event has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+        ];
+        try {
+            $event = $this->Events->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $data = $this->request->getData();
+                Log::write('debug', $data);
+                
+                $data['start'] = new Time($data['start']);
+                $data['end'] = new Time($data['end']);
+    
+                $event = $this->Events->patchEntity($event, $data);
+                $event = $this->Events->setAuthor($event, $this->Auth->user('id'), $this->request->getParam('action'));
+                
+                if ($this->Events->save($event)) {
+                    $resp = [
+                        'status' => 'success',
+                        'id' => $event->id,
+                        'title' => $event->title,
+                        'start' => $event->start,
+                        'end' => $event->end,
+                        'allDay' => $event->all_day === "true" ? true: false,
+                        'backgroundColor' => $event->color,
+                        'borderColor' => $event->color,
+                    ];
+                }
             }
-            $this->Flash->error(__('The event could not be saved. Please, try again.'));
+        }  catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
         }
-        $users = $this->Events->Users->find('list', ['limit' => 200]);
-        $this->set(compact('event', 'users'));
+        return $this->jsonResponse($resp);
+    }
+
+    public function editDuration($id = null)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+        ];
+        try {
+            $event = $this->Events->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $data = $this->request->getData();
+                Log::write('debug', $data);
+                $data['start'] = new Time($data['start']);
+                $data['end'] = new Time($data['end']);
+    
+                $event = $this->Events->patchEntity($event, $data);
+                $event = $this->Events->setAuthor($event, $this->Auth->user('id'), 'edit');
+                if ($this->Events->save($event)) {
+                    $resp = [
+                        'status' => 'success',
+                        'id' => $event->id,
+                        'title' => $event->title,
+                        'start' => $event->start,
+                        'end' => $event->end,
+                        'allDay' => $event->all_day == "true" ? true: false,
+                        'backgroundColor' => $event->color,
+                        'borderColor' => $event->color,
+                    ];
+                }
+            }
+        }  catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
     }
 
     /**
@@ -174,14 +261,35 @@ class EventsController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $event = $this->Events->get($id);
-        if ($this->Events->delete($event)) {
-            $this->Flash->success(__('The event has been deleted.'));
-        } else {
-            $this->Flash->error(__('The event could not be deleted. Please, try again.'));
-        }
+        $this->request->allowMethod('ajax');
+        $resp = [];
 
-        return $this->redirect(['action' => 'index']);
+        if ($this->request->is(['post', 'delete'])) {
+            $resp = [
+                'status' => 'error',
+                'alert' => [
+                    'title' => 'Error',
+                    'type' => 'error',
+                    'message' => __('The event could not be deleted. Please, try again.')
+                ]
+            ];
+            try {
+                $event = $this->Events->get($id);
+                if (!empty($event) && $this->Events->delete($event)) {
+                    $resp = [
+                        'status' => 'success',
+                        'alert' => [
+                            'title' => 'Success',
+                            'type' => 'success',
+                            'message' => __('The event has been deleted.')
+                        ]
+                    ];
+                }
+            } catch (Exception $e) {
+                //TODO: blacklist user
+                Log::write('debug', $e);
+            }
+        }
+        return $this->jsonResponse($resp);
     }
 }

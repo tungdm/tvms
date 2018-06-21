@@ -196,3 +196,7 @@ input.parsley-error,select.parsley-error,textarea.parsley-error{
 textarea {
     resize: vertical;
 }
+
+blockquote {
+    border-left: 5px solid #3c8dbc !important;
+}

@@ -42,7 +42,6 @@ $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
 $this->Html->script('cropper.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('student.js', ['block' => 'scriptBottom']);
-
 ?>
 
 <?= $this->Form->create($student, [
@@ -367,11 +366,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-city',
+                                                    'data-parsley-errors-container' => '#error-city-0',
                                                     'data-parsley-class-handler' => '#select2-addresses-0-city',
                                                     'class' => 'form-control col-md-7 col-xs-12 select2-theme select-city'
                                                     ]) ?>
-                                                <span id="error-city"></span>
+                                                <span id="error-city-0"></span>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -387,7 +386,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-district',
+                                                    'data-parsley-errors-container' => '#error-district-0',
                                                     'class' => 'form-control col-md-7 col-xs-12 select-district select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
@@ -397,11 +396,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'empty' => true, 
                                                     'disabled' => true,
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-district',
+                                                    'data-parsley-errors-container' => '#error-district-0',
                                                     'class' => 'form-control col-md-7 col-xs-12 select-district'
                                                     ]) ?>
                                                 <?php endif; ?>
-                                                <span id="error-district"></span>
+                                                <span id="error-district-0"></span>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -417,7 +416,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-ward',
+                                                    'data-parsley-errors-container' => '#error-ward-0',
                                                     'class' => 'form-control col-md-7 col-xs-12 select-ward select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
@@ -427,11 +426,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'empty' => true, 
                                                     'disabled' => true,
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-ward',
+                                                    'data-parsley-errors-container' => '#error-ward-0',
                                                     'class' => 'form-control col-md-7 col-xs-12 select-ward'
                                                     ]) ?>
                                                 <?php endif; ?>
-                                                <span id="error-ward"></span>
+                                                <span id="error-ward-0"></span>
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -478,7 +477,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-district',
+                                                    'data-parsley-errors-container' => '#error-district-1',
                                                     'class' => 'form-control col-md-7 col-xs-12 select-district select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
@@ -508,7 +507,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
-                                                    'data-parsley-errors-container' => '#error-ward',
+                                                    'data-parsley-errors-container' => '#error-ward-1',
                                                     'class' => 'form-control col-md-7 col-xs-12 select-ward select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
@@ -1180,7 +1179,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                 </div>
-                <divclass="rows">
+                <div class="rows">
                     <div class="col-md-12 col-xs-12 no-padding">
                         <div class="box">
                             <div class="box-header with-border">

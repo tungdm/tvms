@@ -1,3 +1,4 @@
+var ajaxing = false;
 var perData = {};
 perData.familyCounter = 0;
 perData.eduCounter = 0;
@@ -279,6 +280,41 @@ $(document).ready(function() {
         }
         
         if (validateResult) {
+            // check family not empty
+            if (perData.familyCounter == 0) {
+                swal({
+                    title: 'Family area is empty',
+                    text: "Please fill those!",
+                    type: 'error',
+                }).then((result) => {
+                    $('#student-tabs a[href="#tab_content1"]').tab('show');
+                })
+                return;
+            }
+            // check education not empty
+            if (perData.eduCounter == 0) {
+                swal({
+                    title: 'Education area is empty',
+                    text: "Please fill those!",
+                    type: 'error',
+                }).then((result) => {
+                    $('#student-tabs a[href="#tab_content3"]').tab('show');
+                })
+                return;
+            }
+            // check experiences not empty
+            if (perData.expCounter == 0) {
+                swal({
+                    title: 'Experiences area is empty',
+                    text: "Please fill those!",
+                    type: 'error',
+                }).then((result) => {
+                    $('#student-tabs a[href="#tab_content3"]').tab('show'); 
+                })
+                              
+                return;
+            }
+            
             // submit form
             $('#create-student-form').submit();
         } else {
