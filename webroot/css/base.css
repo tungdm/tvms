@@ -211,3 +211,7 @@ blockquote {
     text-align: center;
     margin-top: 5px;
 }
+
+.optional {
+    font-weight: 500;
+}

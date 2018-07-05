@@ -313,7 +313,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="height"><?= __('Chiều cao') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="height"><?= __('Chiều cao') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('height', [
                             'label' => false, 
