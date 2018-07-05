@@ -18,7 +18,6 @@ $this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('cropper.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
-$this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('user.js', ['block' => 'scriptBottom']);
 ?>
 

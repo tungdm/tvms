@@ -16,7 +16,6 @@ $counter = 0;
 
 $this->Html->css('user.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
-$this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -91,7 +90,7 @@ $this->Paginator->setTemplates([
                                 <?= $this->Paginator->sort('email') ?>
                             </th>
                             <th scope="col" class="genderCol">
-                                <?= $this->Paginator->sort('gender', 'Giới tính') ?>
+                                <?= __('Giới tính') ?>
                             </th>
                             <th scope="col" class="phoneCol">
                                 <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
@@ -100,7 +99,7 @@ $this->Paginator->setTemplates([
                                 <?= $this->Paginator->sort('fullname', 'Họ và tên') ?>
                             </th>
                             <th scope="col" class="roleCol">
-                                <?= $this->Paginator->sort('role_id', 'Chức vụ') ?>
+                                <?= __('Chức vụ') ?>
                             </th>
                             <th scope="col" class="actions"><?= __('Actions') ?></th>
                         </tr>
@@ -184,7 +183,11 @@ $this->Paginator->setTemplates([
                             <td class="cell roleCol"><?= h($user->role->name) ?></td>
                             
                             <td class="actions cell">
-                                <?php if (($currentUser['role']['name'] == 'admin' || $permission == 0)  && $user->role->name != 'admin' && $user->id != $currentUser['id']): ?>
+                                <?php 
+                                    if (($currentUser['role']['name'] == 'admin' || $permission == 0)  
+                                        && $user->role->name != 'admin' 
+                                        && $user->id != $currentUser['id']): 
+                                    ?>
                                 <div class="btn-group">
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">
@@ -201,7 +204,6 @@ $this->Paginator->setTemplates([
                                         </li>
                                     </ul>
                                 </div>
-
                                 <?php endif; ?>                
                             </td>
                         </tr>

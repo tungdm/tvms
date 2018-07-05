@@ -25,6 +25,7 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
  */
 class StudentsController extends AppController
 {
+
     public function isAuthorized($user)
     {
         $controller = $this->request->getParam('controller');
@@ -48,11 +49,6 @@ class StudentsController extends AppController
         parent::initialize();
         $this->loadComponent('ExportFile');
     }
-
-    // public function beforeFilter(Event $event)
-    // {
-    //     $this->Security->setConfig('unlockedActions', ['info']);
-    // }
 
     /**
      * Index method
@@ -107,7 +103,6 @@ class StudentsController extends AppController
                 'limit' => $query['records']
             ];
         }
-        // $students = $this->paginate($this->Students->find()->order(['id' => 'DESC']));
         $students = $this->paginate($allStudents);
         $this->set(compact('students', 'query'));
     }
@@ -122,10 +117,20 @@ class StudentsController extends AppController
     public function view($id = null)
     {
         $student = $this->Students->get($id, [
-            'contain' => []
+            'contain' => [
+                'Addresses' => ['sort' => ['Addresses.type' => 'ASC']],
+                'Cards' => ['sort' => ['Cards.type' => 'ASC']], 
+                'Families', 
+                'Families.Jobs',
+                'Educations',
+                'Experiences',
+                'Experiences.Jobs',
+                'LanguageAbilities',
+                'Documents'
+            ]
         ]);
-
-        $this->set('student', $student);
+        $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
+        $this->set(compact(['student', 'jobs']));
     }
 
     /**
@@ -169,7 +174,8 @@ class StudentsController extends AppController
                     'Educations',
                     'Experiences',
                     'Experiences.Jobs',
-                    'LanguageAbilities'                
+                    'LanguageAbilities',
+                    'Documents'
                     ]
                 ]);
             $action = 'edit';
@@ -187,7 +193,8 @@ class StudentsController extends AppController
                 'Cards', 
                 'Educations',
                 'Experiences',
-                'LanguageAbilities'
+                'LanguageAbilities',
+                'Documents'
                 ]]);
             
             // save image

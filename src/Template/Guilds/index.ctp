@@ -11,7 +11,6 @@ $counter = 0;
 //$currentUser = $this->request->session()->read('Auth.User');
 //$this->Html->css('guild.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
-$this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -43,7 +42,7 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('CỘNG TÁC VIÊN') ?></h3>
                 <div class="box-tools pull-right">  
-                    <a data-toggle="modal" data-target="#add-guild-modal" href="#"><i class="fa fa-plus"></i></a>
+                    <a class="btn btn-box-tool" data-toggle="modal" data-target="#add-guild-modal" href="#"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">

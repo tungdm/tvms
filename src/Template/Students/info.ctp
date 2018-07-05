@@ -20,6 +20,8 @@ $eduLevel = array_map('array_shift', $eduLevel);
 $language = Configure::read('language');
 $language = array_map('array_shift', $language);
 
+$document = Configure::read('document');
+
 $studentStatus = Configure::read('studentStatus');
 $maritalStatus = Configure::read('maritalStatus');
 $studentSubject = Configure::read('studentSubject');
@@ -32,15 +34,16 @@ $preferredHand = Configure::read('preferredHand');
 $relationship = Configure::read('relationship');
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
 $this->Html->css('cropper.css', ['block' => 'styleTop']);
 $this->Html->css('student.css', ['block' => 'styleTop']);
 $this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
-$this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
 $this->Html->script('cropper.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('student.js', ['block' => 'scriptBottom']);
 ?>
 
@@ -62,6 +65,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('educations') ?>
 <?= $this->Form->unlockField('experiences') ?>
 <?= $this->Form->unlockField('language_abilities') ?>
+<?= $this->Form->unlockField('documents') ?>
 
 <?php $this->start('content-header'); ?>
 <h1><?= __('Thông tin thực tập sinh') ?></h1>
@@ -100,6 +104,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
             </li>
             <li role="presentation" class="">
                 <a href="#tab_content3" role="tab" id="experience-tab" data-toggle="tab" aria-expanded="false"><?= __('Học tập - Làm việc') ?></a>
+            </li>
+            <li role="presentation" class="">
+                <a href="#tab_content4" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
             </li>
             <li>
                 <?= $this->Form->button('Lưu lại', [
@@ -764,6 +771,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         'required' => true,
                                                         'class' => 'form-control fullname',
                                                         ]) ?>
+                                                </div>
                                             </td>
                                             <td class="cell col-md-2">
                                                 <?= $value->birthday ?>
@@ -1066,7 +1074,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane fade" id="tab_content3">
+            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content3">
                 <div class="rows">
                     <div class="col-md-12 col-xs-12 no-padding">
                         <div class="box">
@@ -1219,50 +1227,50 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         'class' => 'form-control lang_code',
                                                         ]) ?>
                                                 </div>
-                                                <td class="cell col-md-3">
-                                                    <?= $value->certificate ?>
-                                                    <div class="hidden">
-                                                        <?= $this->Form->control('language_abilities.' . $key . '.certificate', [
-                                                            'type' => 'text',
-                                                            'label' => false, 
-                                                            'class' => 'form-control certificate',
-                                                            ]) ?>
-                                                    </div>
-                                                </td>
-                                                <td class="cell col-md-3">
-                                                    <?= $value->from_date ?> ～ <?= $value->to_date ?>
-                                                    <div class="hidden">
-                                                        <?= $this->Form->control('language_abilities.' . $key . '.from_date', [
-                                                            'type' => 'text',
-                                                            'label' => false,
-                                                            'class' => 'form-control from_date',
-                                                            ])?>
-                                                        <?= $this->Form->control('language_abilities.' . $key . '.to_date', [
-                                                            'type' => 'text',
-                                                            'label' => false,
-                                                            'class' => 'form-control to_date',
-                                                            ])?>
-                                                    </div>
-                                                </td>
-                                                <td class="cell action-btn">
-                                                    <?= $this->Html->link(
-                                                        '<i class="fa fa-2x fa-pencil"></i>', 
-                                                        'javascript:;',
-                                                        [
-                                                            'escape' => false,
-                                                            'onClick' => "showEditLangModal(this)"
-                                                        ]) 
-                                                    ?>
-                                                    <?= $this->Html->link(
-                                                        '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
-                                                        'javascript:;',
-                                                        [
-                                                            'escape' => false, 
-                                                            'onClick' => "removeLang(this, true)"
-                                                        ]
-                                                    )?>
-                                                    <?php $counter++; ?>
-                                                </td>
+                                            </td>
+                                            <td class="cell col-md-3">
+                                                <?= $value->certificate ?>
+                                                <div class="hidden">
+                                                    <?= $this->Form->control('language_abilities.' . $key . '.certificate', [
+                                                        'type' => 'text',
+                                                        'label' => false, 
+                                                        'class' => 'form-control certificate',
+                                                        ]) ?>
+                                                </div>
+                                            </td>
+                                            <td class="cell col-md-3">
+                                                <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                <div class="hidden">
+                                                    <?= $this->Form->control('language_abilities.' . $key . '.from_date', [
+                                                        'type' => 'text',
+                                                        'label' => false,
+                                                        'class' => 'form-control from_date',
+                                                        ])?>
+                                                    <?= $this->Form->control('language_abilities.' . $key . '.to_date', [
+                                                        'type' => 'text',
+                                                        'label' => false,
+                                                        'class' => 'form-control to_date',
+                                                        ])?>
+                                                </div>
+                                            </td>
+                                            <td class="cell action-btn">
+                                                <?= $this->Html->link(
+                                                    '<i class="fa fa-2x fa-pencil"></i>', 
+                                                    'javascript:;',
+                                                    [
+                                                        'escape' => false,
+                                                        'onClick' => "showEditLangModal(this)"
+                                                    ]) 
+                                                ?>
+                                                <?= $this->Html->link(
+                                                    '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                                                    'javascript:;',
+                                                    [
+                                                        'escape' => false, 
+                                                        'onClick' => "removeLang(this, true)"
+                                                    ]
+                                                )?>
+                                                <?php $counter++; ?>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -1387,6 +1395,111 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         </tr>
                                         <?php endforeach; ?> 
                                         <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content4">
+                <div class="rows">
+                    <div class="col-md-12 col-xs-12 no-padding">
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"><?= __('Danh sách hồ sơ') ?></h3>
+                            </div>
+                            <div class="box-body table-responsive">
+                                <table class="table table-bordered custom-table document-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col"><?= __('STT') ?></th>
+                                            <th scope="col"><?= __('Loại hồ sơ') ?></th>
+                                            <th scope="col"><?= __('Số lượng') ?></th>
+                                            <th scope="col"><?= __('Hoàn thành') ?></th>
+                                            <th scope="col"><?= __('Ngày nộp') ?></th>
+                                            <th scope="col" class="actions"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php $counter = 0; ?>
+                                    <?php if (!empty($student->documents)): ?>
+                                    <div class="hidden">
+                                    <?php foreach($student->documents as $key => $value): ?>
+                                        <?= $this->Form->control('documents.'. $key .'.id') ?>
+                                    <?php endforeach; ?> 
+                                    </div>
+                                    <?php endif;?>
+                                    <?php foreach($document as $key => $value): ?>
+                                    <tr class="row-document" id="row-document-<?=$counter?>">
+                                        <td class="cell col-md-1 stt-col">
+                                            <?php echo $counter + 1; ?>
+                                            <div class="hidden">
+                                                <?= $this->Form->control('documents.' . $counter . '.type', [
+                                                    'type' => 'text',
+                                                    'label' => false,
+                                                    'class' => 'form-control',
+                                                    'value' => $key
+                                                    ]) ?>
+                                            </div>
+                                        </td>
+                                        <td class="cell col-md-4">
+                                            <?= $value['type'] ?>
+                                        </td>
+                                        <td class="cell col-md-1" style="width: 12.499999995%;">
+                                            <?= $value['quantity'] ?>
+                                        </td>
+                                        <td class="cell col-md-1" style="width: 12.499999995%;">
+                                            <?php 
+                                                if (empty($student->documents) || $student->documents[$counter]->status == '0') {
+                                                    $checked = false;
+                                                } else {
+                                                    $checked = true;
+                                                }
+                                            ?>
+                                            <?= $this->Form->checkbox('documents.'. $counter .'.status', [
+                                                'class' => 'js-switch js-check-change', 
+                                                // 'hiddenField' => false,
+                                                'checked' => $checked
+                                                ]) ?>
+                                        </td>
+                                        <td class="cell col-md-2">
+                                            <span class="submit-date-txt">
+                                                <?php 
+                                                    if(empty($student->documents) || empty($student->documents[$counter]->submit_date)) {
+                                                        echo '-';
+                                                    } else {
+                                                        echo $student->documents[$counter]->submit_date;
+                                                    }
+                                                ?>
+                                            </span>
+                                            <div class="hidden">
+                                                <?= $this->Form->control('documents.' . $counter . '.submit_date', [
+                                                    'type' => 'text',
+                                                    'label' => false,
+                                                    'class' => 'form-control submit_date',
+                                                    ]) ?>
+                                            </div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control('documents.' . $counter . '.note', [
+                                                    'type' => 'textarea',
+                                                    'class' => 'form-control submit_note',
+                                                    ]) ?>
+                                            </div>
+                                        </td>
+                                        <td class="cell action-btn">
+                                            <?= $this->Html->link(
+                                                '<i class="fa fa-2x fa-pencil"></i>', 
+                                                'javascript:;',
+                                                [
+                                                    'escape' => false,
+                                                    'onClick' => "showEditDocModal(this)"
+                                                ]) 
+                                            ?>
+                                        </td>
+                                        <?php $counter++; ?>
+                                    </tr>
+                                    <?php endforeach; ?> 
                                     </tbody>
                                 </table>
                             </div>
@@ -2280,3 +2393,61 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         </td>
     </tr>
 </script>
+
+<div id="document-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                    <?= $this->Form->create(null, [
+                        'class' => 'form-horizontal form-label-left', 
+                        'id' => 'document-form', 
+                        'data-parsley-validate' => '',
+                        'templates' => [
+                            'inputContainer' => '{{content}}'
+                            ]
+                        ]) ?>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="submit_date"><?= __('Ngày nộp') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <div class="input-group date input-picker" id="document-submit-date">
+                                <?= $this->Form->control('modal.submit_date', [
+                                    'type' => 'text',
+                                    'label' => false, 
+                                    'class' => 'form-control',
+                                    'placeholder' => 'yyyy-mm-dd',
+                                    'required' => true,
+                                    'data-parsley-errors-container' => '#error-submit-date'
+                                    ])?>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            <span id="error-submit-date"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="note"><?= __('Ghi chú') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('modal.note', [
+                                'label' => false, 
+                                'type' => 'textarea',
+                                'class' => 'form-control col-md-7 col-xs-12', 
+                                ]) ?>
+                        </div>
+                    </div>
+                    <?= $this->Form->end() ?>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="submit-document-btn">Submit</button>
+                <button type="button" class="btn btn-default" id="close-document-modal-btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

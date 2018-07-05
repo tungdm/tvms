@@ -26,110 +26,32 @@ $(document).ready(function() {
     perData.expCounter = $('#exp-container > tr').length;
     perData.langCounter = $('#lang-container > tr').length;
 
-    // init datetime picker
-    var elems = Array.prototype.slice.call($('.input-picker'));
-    elems.forEach(function (ele) {
-        var inputDate = $('#' + ele.id + ' input').val();
-        if ($(ele).hasClass('month-mode')) {
-            $('#' + ele.id).datetimepicker({
-                useCurrent: false,
-                viewMode: 'months',
-                date: inputDate,
-                format: 'YYYY-MM',
-                locale: 'vi'
-            });
-        } else {
-            $('#' + ele.id).datetimepicker({
-                useCurrent: false,
-                date: inputDate,
-                format: 'YYYY-MM-DD',
-                locale: 'vi'
-            });
-        }
-        
-
-        // re-validate when user change picker
-        $('#' + ele.id).on('dp.change', function(e) {
-            $('#' + ele.id + ' input').parsley().validate();
-
-            // validate relation input when current input pass the validation
-            if ($('#' + ele.id + ' input').parsley().isValid()) {
-                var relationEleId;
-                if ($('#' + ele.id + ' input').hasClass('from-date-picker')) {
-                    relationEleId = $('#' + ele.id + ' input').attr('data-parsley-before-date');
-                } else if ($('#' + ele.id + ' input').hasClass('to-date-picker')) {
-                    relationEleId = $('#' + ele.id + ' input').attr('data-parsley-after-date');
-                }
-    
-                if (relationEleId) {
-                    if ($(relationEleId).hasClass('to-date-picker')) {
-                        $(relationEleId).parent().data('DateTimePicker').minDate(e.date);
-                    } else if ($(relationEleId).hasClass('from-date-picker')) {
-                        $(relationEleId).parent().data('DateTimePicker').maxDate(e.date);
-                    }
-                    $(relationEleId).parsley().validate();
-                }
-            }
+    // init switchery
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html, {
+            size: 'small'
         });
     });
-
-    //custom validator
-    window.Parsley.addValidator('beforeDate', {
-        validateString: function(value, requirement, parsleyField) {
-            var srcDate = new Date(value);
-            var dstValue = $(requirement).val();
-            if (dstValue === '') {
-                return true;
+    var changeCheckbox = document.getElementsByClassName('js-check-change');
+    for(var i=0; i < changeCheckbox.length; i++) {
+        changeCheckbox[i].onchange = function() {
+            console.log(this);
+            if (this.checked) {
+                $('input[name="'+this.name+'"]').val('1');
+            } else {
+                $('input[name="'+this.name+'"]').val('0');
             }
-            var dstDate = new Date(dstValue);
-            return srcDate <= dstDate;
-        },
-        messages: {
-            en: 'Before end date',
-        }
-    });
-
-    window.Parsley.addValidator('afterDate', {
-        validateString: function(value, requirement, parsleyField) {
-            if (value === '') {
-                return true;
-            }
-            var srcDate = new Date(value);
-            var dstValue = $(requirement).val();
-            if (dstValue === '') {
-                return true;
-            }
-            var dstDate = new Date(dstValue);
-            return srcDate >= dstDate;
-        },
-        messages: {
-            en: 'After from date',
-        }
-    });
-
-    window.Parsley.addValidator('checkEmpty', {
-        validateString: function(value, requirement, parsleyField) {
-            if (value === '') {
-                var currentId = parsleyField.$element[0].id;
-                var otherEles = $(requirement).not('#' + currentId);
-                for (var index = 0; index < otherEles.length; index++) {
-                    if (otherEles[index].value !== '') {
-                        return false
-                    }
-                }
-            }
-            return true;
-        },
-        messages: {
-            en: 'This value is required.',
-        }
-    });
+        };
+    }
+    
 
     $('#student-tabs').tabCollapse();
 
-    $('.select2-theme').change(function(e) {
-        $('#' + e.target.id).parsley().validate();
-    });
+    var focusTab = window.location.hash;
+    if (focusTab) {
+        $('#student-tabs a[href="' + focusTab + '"]').tab('show');
+    }
 
     $('.select-city').change(function(e) {
         var token = getToken(this);
@@ -560,7 +482,19 @@ function resetFamilyModal() {
     $('#modal-job').val(null).trigger('change');
     $('#add-member-form').parsley().reset();
 }
-
+// for read-only
+function showMemberModal(ele) {
+    $('.modal-fullname').html($(ele).closest('.row-member').find('.family-fullname').html());
+    $('.modal-birthday').html($(ele).closest('.row-member').find('.family-birthday').html());
+    $('.modal-relationship').html($(ele).closest('.row-member').find('.family-relationship').html());
+    $('.modal-job').html($(ele).closest('.row-member').find('.family-job-name').html());
+    $('.modal-address').html($(ele).closest('.row-member').find('.family-address').html());
+    $('.modal-bank-num').html($(ele).closest('.row-member').find('.family-bank-num').html());
+    $('.modal-cmnd-num').html($(ele).closest('.row-member').find('.family-cmnd-num').html());
+    $('.modal-phone').html($(ele).closest('.row-member').find('.family-phone').html());
+    // show modal
+    $('#member-modal').modal('toggle');
+}
 // Education Manager
 function createEduHisTemplate(counter) {
     var edu_html = edu_template({
@@ -736,6 +670,16 @@ function resetEduHisModal() {
     $('#add-edu-his-form')[0].reset();
     $('#modal-edu-level').val(null).trigger('change');
     $('#add-edu-his-form').parsley().reset();
+}
+// for read-only
+function showEduHisModal(ele) {
+    $('.modal-edu-from-to').html($(ele).closest('.row-edu-his').find('.edu-from-to').html());
+    $('.modal-edu-level').html($(ele).closest('.row-edu-his').find('.edu-level').html());
+    $('.modal-edu-school').html($(ele).closest('.row-edu-his').find('.edu-school').html());
+    $('.modal-edu-address').html($(ele).closest('.row-edu-his').find('.edu-address').html());
+    $('.modal-edu-specialized').html($(ele).closest('.row-edu-his').find('.edu-specialized').html());
+    // show modal
+    $('#edu-his-modal').modal('toggle');
 }
 
 // Experience Manager
@@ -1093,4 +1037,31 @@ function resetLangModal() {
 function getCsrfToken() {
     var token = $('input[name="_csrfToken"]').val();
     return token;
+}
+
+function showEditDocModal(ele) {
+    // reset modal
+    $('#document-form')[0].reset();
+    // set value for input
+    $('#modal-submit-date').val($(ele).closest('.row-document').find('.submit_date').val()).trigger('change');
+    $('#modal-note').val($(ele).closest('.row-document').find('.submit_note').val());
+    $('#document-form').parsley().reset();
+    var rowIdArr = $(ele).closest('.row-document').attr('id').split('-');
+
+    $('#submit-document-btn').remove();
+    $('<button type="button" class="btn btn-success" id="submit-document-btn" onclick="editDoc('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-document-modal-btn');
+
+    // show modal
+    $('#document-modal').modal('toggle');
+}
+
+function editDoc(rowId) {
+    var validateResult = $('#document-form').parsley().validate();
+    if (validateResult) {
+        $('#row-document-'+rowId).find('.submit_date').val($('#modal-submit-date').val());
+        $('#row-document-'+rowId).find('.submit-date-txt').html($('#modal-submit-date').val());
+        $('#row-document-'+rowId).find('.submit_note').val($('#modal-note').val());
+
+        $('#document-modal').modal('toggle');
+    }
 }

@@ -4,8 +4,10 @@
  * @var \App\Model\Entity\Student[]|\Cake\Collection\CollectionInterface $students
  */
 use Cake\Core\Configure;
+
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller);
+
 $gender = Configure::read('gender');
 $city = Configure::read('city');
 $city = array_map('array_shift', $city);
@@ -22,7 +24,6 @@ $currentUser = $this->request->session()->read('Auth.User');
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
-$this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('student.js', ['block' => 'scriptBottom']);
@@ -104,13 +105,13 @@ $this->Paginator->setTemplates([
                                 <?= $this->Paginator->sort('email') ?>
                             </th>
                             <th scope="col" class="genderCol">
-                                <?= $this->Paginator->sort('gender', 'Giới tính') ?>
+                                <?= __('Giới tính') ?>
                             </th>
                             <th scope="col" class="phoneCol">
                                 <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
                             </th>
                             <th scope="col" class="statusCol">
-                                <?= $this->Paginator->sort('status', 'Trạng thái') ?>
+                                <?= __('Trạng thái') ?>
                             </th>
                             <th scope="col" class="actions"><?= __('Actions') ?></th>
                         </tr>
@@ -194,11 +195,11 @@ $this->Paginator->setTemplates([
                             <td class="cell statusCol"><?= h($studentStatus[$student->status]) ?></td>
                             
                             <td class="actions cell">
-                                <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                 <div class="btn-group">
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
+                                        <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
                                             <?= $this->Html->link(__('Edit'), ['action' => 'info', $student->id]) ?>
                                         </li>
@@ -210,14 +211,18 @@ $this->Paginator->setTemplates([
                                                 'confirm' => __('Are you sure you want to delete {0}?', $student->fullname)
                                             ]) ?>
                                         </li>
-                                        <li><a href="#">Something else here</a></li>
                                         <li class="divider"></li>
                                         <li>
                                             <?= $this->Html->link(__('Export Resume'), ['action' => 'exportResume', $student->id ]) ?>
                                         </li>
+                                        <?php else: ?>
+                                        <li>
+                                            <?= $this->Html->link(__('View'), ['action' => 'view', $student->id]) ?>
+                                        </li>
+                                        <?php endif; ?>
+
                                     </ul>
                                 </div>
-                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -357,7 +362,7 @@ $this->Paginator->setTemplates([
                 <?= $this->Form->button(__('Submit'), ['class' => 'btn btn-primary']) ?>
                 <button type="button" class="btn btn-default" id="add-candidate-close-btn" data-dismiss="modal">Close</button>
             </div>
-            <?= $this->Form->end() ?>                
+            <?= $this->Form->end() ?>
         </div>
     </div>
 </div>

@@ -66,6 +66,12 @@ class StudentsTable extends Table
         $this->hasMany('LanguageAbilities', [
             'foreignKey' => 'student_id'
         ]);
+        $this->hasMany('Documents', [
+            'foreignKey' => 'student_id'
+        ]);
+        $this->belongsToMany('Orders', [
+            'through' => 'OrdersStudents'
+        ]);
     }
 
     /**

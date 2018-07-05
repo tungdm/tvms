@@ -164,11 +164,83 @@ return [
         ]
     ],
     'noAvatar' => 'no_avatar.png',
-    
+
+    // order
+    'interviewType' => [
+        '1' => 'Skype',
+        '2' => 'Trực tiếp',
+    ],
+    'interviewStatus' => [
+        '1' => 'Chưa phỏng vấn',
+        '2' => 'Đang phỏng vấn',
+        '3' => 'Đã phỏng vấn',
+    ],
+    'interviewResult' => [
+        '0' => '-',
+        '1' => 'Pass',
+        '2' => 'Fail',
+    ],
+    'workTime' => [
+        '3' => '3 năm',
+        '5' => '5 năm'
+    ],
+
+    //document
+    'document' => [
+        '1' => [
+            'type' => 'Bằng cấp 2/cấp 3/Trung cấp/Cao đẳng/Đại học (Nộp cả bằng gốc)',
+            'quantity' => '3 bản'
+        ],
+        '2' => [
+            'type' => 'Chứng minh nhân dân/Thẻ căn cước',
+            'quantity' => '6 bản'
+        ],
+        '3' => [
+            'type' => 'Hộ chiếu (Passport) _ Nộp cả hộ chiếu gốc',
+            'quantity' => '3 bản'
+        ],
+        '4' => [
+            'type' => 'Số hộ khẩu (Photo công chứng)',
+            'quantity' => '2 bản'
+        ],
+        '5' => [
+            'type' => 'Giấy khai sinh (Bản sao)',
+            'quantity' => '4 bản'
+        ],
+        '6' => [
+            'type' => 'Sơ yếu lý lịch (Mẫu Công ty)',
+            'quantity' => '1 bản'
+        ],
+        '7' => [
+            'type' => 'Đơn xác nhận phụng dưỡng (Mẫu Công ty)',
+            'quantity' => '3 bản'
+        ],
+        '8' => [
+            'type' => 'Giấy đăng ký kết hôn (nếu có)',
+            'quantity' => '3 bản'
+        ],
+        '9' => [
+            'type' => 'Chứng minh nhân dân photo công chứng của những người trong đơn phụng dưỡng',
+            'quantity' => '3 bản/người'
+        ],
+        '10' => [
+            'type' => 'Hình 4 x 6 (Áo trắng, nền trắng)',
+            'quantity' => '15 tấm'
+        ],
+        '11' => [
+            'type' => 'Hình 3 x 4 (Áo trắng, nền trắng)',
+            'quantity' => '15 tấm'
+        ],
+        '12' => [
+            'type' => 'Hình 4,5 x 4,5 (Áo trắng, nền trắng)',
+            'quantity' => '2 tấm'
+        ],
+    ],
     // user
     'scope' => [
         'Users' => 'Users scope',
-        'Students' => 'Students scope'
+        'Students' => 'Students scope',
+        'Orders' => 'Orders scope'
     ],
     'permission' => [
         '0' => 'Full access',
@@ -176,7 +248,7 @@ return [
     ],
     'passwordDefault' => '123456789',
 
-    // address    
+    // address vn
     'city' => [
         '01' => [
             'vn' => 'Thành phố Hà Nội',
@@ -271,6 +343,17 @@ return [
         '2' => 'currentAddress'
     ],
 
+    // address jp
+    'cityJP' => [
+        '1' => [
+            'rmj' => 'TOKYO',
+            'kj' => 'TOKYO'
+        ],
+        '2' => [
+            'rmj' => 'OSAKA',
+            'kj' => 'OSAKA'
+        ]
+    ],
     // student
     'studentStatus' => [
         '1' => 'Lịch hẹn',

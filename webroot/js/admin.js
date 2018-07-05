@@ -857,6 +857,58 @@ function initSelect2() {
     });
 }
 
+function initDatetimePicker() {
+    // init datetime picker
+    var elems = Array.prototype.slice.call($('.input-picker'));
+    var now = new Date();
+    elems.forEach(function (ele) {
+        var inputDate = $('#' + ele.id + ' input').val();
+        if ($(ele).hasClass('month-mode')) {
+            $('#' + ele.id).datetimepicker({
+                useCurrent: false,
+                viewMode: 'months',
+                date: inputDate,
+                format: 'YYYY-MM',
+                locale: 'vi'
+            });
+        } else {
+            $('#' + ele.id).datetimepicker({
+                useCurrent: false,
+                date: inputDate,
+                format: 'YYYY-MM-DD',
+                locale: 'vi'
+            });
+        }
+        if ($(ele).hasClass('gt-now')) {
+            $('#' + ele.id).data('DateTimePicker').minDate(now);
+        }
+
+        // re-validate when user change picker
+        $('#' + ele.id).on('dp.change', function(e) {
+            $('#' + ele.id + ' input').parsley().validate();
+
+            // validate relation input when current input pass the validation
+            if ($('#' + ele.id + ' input').parsley().isValid()) {
+                var relationEleId;
+                if ($('#' + ele.id + ' input').hasClass('from-date-picker')) {
+                    relationEleId = $('#' + ele.id + ' input').attr('data-parsley-before-date');
+                } else if ($('#' + ele.id + ' input').hasClass('to-date-picker')) {
+                    relationEleId = $('#' + ele.id + ' input').attr('data-parsley-after-date');
+                }
+    
+                if (relationEleId) {
+                    if ($(relationEleId).hasClass('to-date-picker')) {
+                        $(relationEleId).parent().data('DateTimePicker').minDate(e.date);
+                    } else if ($(relationEleId).hasClass('from-date-picker')) {
+                        $(relationEleId).parent().data('DateTimePicker').maxDate(e.date);
+                    }
+                    $(relationEleId).parsley().validate();
+                }
+            }
+        });
+    });
+}
+
 function readURL(input) {
     if (input.files && input.files[0]) {
         var file = input.files[0];
@@ -917,8 +969,65 @@ $(document).ready(function() {
     init_sidebar();
     tableHover();
     initSelect2();
+    initDatetimePicker();
+
     $('#filter-refresh-btn').click(function() {
         $('#filter-form')[0].reset();
+    });
+
+    $('.select2-theme').change(function(e) {
+        $('#' + e.target.id).parsley().validate();
+    });
+    //custom validator
+    window.Parsley.addValidator('beforeDate', {
+        validateString: function(value, requirement, parsleyField) {
+            var srcDate = new Date(value);
+            var dstValue = $(requirement).val();
+            if (dstValue === '') {
+                return true;
+            }
+            var dstDate = new Date(dstValue);
+            return srcDate <= dstDate;
+        },
+        messages: {
+            en: 'Before end date',
+        }
+    });
+
+    window.Parsley.addValidator('afterDate', {
+        validateString: function(value, requirement, parsleyField) {
+            if (value === '') {
+                return true;
+            }
+            var srcDate = new Date(value);
+            var dstValue = $(requirement).val();
+            if (dstValue === '') {
+                return true;
+            }
+            var dstDate = new Date(dstValue);
+            return srcDate >= dstDate;
+        },
+        messages: {
+            en: 'After from date',
+        }
+    });
+
+    window.Parsley.addValidator('checkEmpty', {
+        validateString: function(value, requirement, parsleyField) {
+            if (value === '') {
+                var currentId = parsleyField.$element[0].id;
+                var otherEles = $(requirement).not('#' + currentId);
+                for (var index = 0; index < otherEles.length; index++) {
+                    if (otherEles[index].value !== '') {
+                        return false
+                    }
+                }
+            }
+            return true;
+        },
+        messages: {
+            en: 'This value is required.',
+        }
     });
 });
 

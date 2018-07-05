@@ -15,6 +15,7 @@
 }
 .custom-table>thead>tr>th, .custom-table>thead>tr>th>a, .custom-table>thead>tr>th.col-num, .custom-table>thead>tr>th.actions {
     color: #dde4ea;
+    vertical-align: middle !important;
 }
 .custom-table > thead > tr > th {
     vertical-align: bottom;
@@ -199,4 +200,14 @@ textarea {
 
 blockquote {
     border-left: 5px solid #3c8dbc !important;
+}
+
+.group-picker {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.seperate-from-to {
+    text-align: center;
+    margin-top: 5px;
 }

@@ -308,6 +308,11 @@ a:focus {
 .content-header > h1 {
   margin: 0;
   font-size: 24px;
+  display: inline-block;
+}
+.content-header > button {
+  margin-bottom: 5px;
+  margin-left: 5px;
 }
 .content-header > h1 > small {
   font-size: 15px;
@@ -920,6 +925,8 @@ a:focus {
 .dropdown-menu {
   box-shadow: none;
   border-color: #eee;
+  right: 0;
+  left: unset;
 }
 .dropdown-menu > li > a {
   color: #777;
@@ -1274,10 +1281,6 @@ a:focus {
   box-shadow: none;
   border-color: #d2d6de;
 }
-.form-control:focus {
-  border-color: #3c8dbc;
-  box-shadow: none;
-}
 .form-control::-moz-placeholder,
 .form-control:-ms-input-placeholder,
 .form-control::-webkit-input-placeholder {
@@ -1288,6 +1291,12 @@ a:focus {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+}
+.form-control-view {
+  border-color: #fff !important;
+}
+.textarea-view {
+  display: inline-table;
 }
 .form-group.has-success label {
   color: #00a65a;
@@ -5762,4 +5771,8 @@ table.text-center th {
   margin-top:13px!important;
   margin-right:39px;
   float:right
+}
+
+.green-color {
+  color: green;
 }

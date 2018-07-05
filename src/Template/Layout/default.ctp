@@ -47,7 +47,7 @@ $cakeDescription = 'TVMS';
     <?= $this->fetch('styleTop') ?>
     <?= $this->fetch('scriptTop') ?>
 </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini fixed">
     <div class="wrapper">
         <header class="main-header">
             <!-- Logo -->
@@ -144,10 +144,9 @@ $cakeDescription = 'TVMS';
                             ['escape' => false]) ?>
                     </li>
                     <li>
-                        <a href="#">
-                            <i class="fa fa-table"></i>
-                            <span><?= __('ĐƠN HÀNG') ?></span>
-                        </a>
+                        <?= $this->Html->link('<i class="fa fa-table"></i> <span>ĐƠN HÀNG</span>',
+                            ['controller' => 'Orders', 'action' => 'index'],
+                            ['escape' => false]) ?>
                     </li>
                     <li>
                         <a href="#">
@@ -155,11 +154,31 @@ $cakeDescription = 'TVMS';
                             <span><?= __('ĐÀO TẠO') ?></span>
                         </a>
                     </li>
-                    <li>
+                    <li class="treeview">
                         <a href="#">
                             <i class="fa fa-folder"></i>
                             <span><?= __('ĐỐI TÁC') ?></span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
                         </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty tiếp nhận', 
+                                    ['controller' => 'Companies', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghiệp đoàn', 
+                                    ['controller' => 'Guilds', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Người giới thiệu', 
+                                    ['controller' => 'Presenters', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                        </ul>
                     </li>
                     <li>
                         <a href="#">
@@ -172,9 +191,7 @@ $cakeDescription = 'TVMS';
         </aside>
         <div class="content-wrapper">
             <section class="content-header">
-                <h1>
-                    <?= $this->fetch('content-header') ?>
-                </h1>
+                <?= $this->fetch('content-header') ?>
             </section>
             <!-- Main content -->
             <section class="content">
@@ -196,9 +213,10 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->script('nprogress.js') ?>
     <?= $this->Html->script('pnotify.custom.min.js') ?>
     <?= $this->Html->script('select2.full.js', ['block' => 'scriptBottom']); ?>
+    <?= $this->Html->script('parsley.min.js', ['block' => 'scriptBottom']); ?>
     
     <?= $this->fetch('scriptBottom') ?>
-
+    
     <?= $this->Html->script('admin.js') ?>
 </body>
 </html>

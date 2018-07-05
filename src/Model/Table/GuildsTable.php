@@ -33,7 +33,7 @@ class GuildsTable extends Table
         parent::initialize($config);
 
         $this->setTable('guilds');
-        $this->setDisplayField('name');
+        $this->setDisplayField('name_romaji');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');

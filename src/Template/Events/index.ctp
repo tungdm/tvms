@@ -1,7 +1,6 @@
 <?php
 $this->Html->css('fullcalendar.css', ['block' => 'styleTop']);
 $this->Html->css('calendar.css', ['block' => 'styleTop']);
-$this->Html->script('parsley.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('fullcalendar.js', ['block' => 'scriptBottom']);
 $this->Html->script('fullcalendar-vi.js', ['block' => 'scriptBottom']);

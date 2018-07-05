@@ -94,5 +94,6 @@ class Student extends Entity
         'educations' => true,
         'experiences' => true,
         'language_abilities' => true,
+        'documents' => true
     ];
 }
