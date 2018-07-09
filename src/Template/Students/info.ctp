@@ -34,7 +34,6 @@ $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
 $this->Html->css('cropper.css', ['block' => 'styleTop']);
 $this->Html->css('student.css', ['block' => 'styleTop']);
-$this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);

@@ -229,6 +229,7 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->script('pnotify.custom.min.js') ?>
     <?= $this->Html->script('select2.full.js', ['block' => 'scriptBottom']); ?>
     <?= $this->Html->script('parsley.min.js', ['block' => 'scriptBottom']); ?>
+    <?= $this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']); ?>
     
     <?= $this->fetch('scriptBottom') ?>
     

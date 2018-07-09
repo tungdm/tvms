@@ -12,7 +12,6 @@ $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
-$this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('class.js', ['block' => 'scriptBottom']);
 ?>

@@ -21,7 +21,6 @@ $workTime = Configure::read('workTime');
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
 $this->Html->css('order.css', ['block' => 'styleTop']);
-$this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
