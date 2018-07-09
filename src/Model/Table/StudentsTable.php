@@ -48,7 +48,7 @@ class StudentsTable extends Table
         ]);
         $this->hasMany('Addresses', [
             'foreignKey' => 'student_id',
-            'dependent' => true,            
+            'dependent' => true,
         ]);
         $this->hasMany('Cards', [
             'foreignKey' => 'student_id',
@@ -56,21 +56,31 @@ class StudentsTable extends Table
         ]);
         $this->hasMany('Families', [
             'foreignKey' => 'student_id',
+            'dependent' => true,
         ]);
         $this->hasMany('Educations', [
-            'foreignKey' => 'student_id'
+            'foreignKey' => 'student_id',
+            'dependent' => true,
         ]);
         $this->hasMany('Experiences', [
-            'foreignKey' => 'student_id'
+            'foreignKey' => 'student_id',
+            'dependent' => true,
         ]);
         $this->hasMany('LanguageAbilities', [
-            'foreignKey' => 'student_id'
+            'foreignKey' => 'student_id',
+            'dependent' => true,
         ]);
         $this->hasMany('Documents', [
-            'foreignKey' => 'student_id'
+            'foreignKey' => 'student_id',
+            'dependent' => true,
         ]);
         $this->belongsToMany('Orders', [
-            'through' => 'OrdersStudents'
+            'through' => 'OrdersStudents',
+            'dependent' => true,
+        ]);
+        $this->belongsToMany('Jclasses', [
+            'through' => 'JclassesStudents',
+            'dependent' => true,
         ]);
     }
 
@@ -215,6 +225,10 @@ class StudentsTable extends Table
         $validator
             ->integer('status')
             ->allowEmpty('status');
+        
+        $validator
+            ->date('enrolled_date')
+            ->allowEmpty('enrolled_date');
 
         $validator
             ->integer('created_by')

@@ -662,8 +662,8 @@ if (typeof jQuery === 'undefined') {
         animationSpeed: 500,
         collapseTrigger: '[data-widget="collapse"]',
         removeTrigger: '[data-widget="remove"]',
-        collapseIcon: 'fa-minus',
-        expandIcon: 'fa-plus',
+        collapseIcon: 'fa-chevron-up',
+        expandIcon: 'fa-chevron-down',
         removeIcon: 'fa-times'
     }
 
@@ -1031,6 +1031,23 @@ $(document).ready(function() {
     });
 });
 
+Handlebars.registerHelper("inc", function (value, options) {
+    return parseInt(value) + 1;
+});
 
+Handlebars.registerHelper("trans", function (value, options) {
+    if (value == 'M') {
+        return "Nam";
+    }
+    return "Nữ";
+});
 
-
+Handlebars.registerHelper("phoneFormat", function (value, options) {
+    if (value.length == 10) {
+        return value.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+    } else if (value.length == 11) {
+        return value.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+    } else {
+        return value;
+    }
+});

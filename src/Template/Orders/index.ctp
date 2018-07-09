@@ -50,6 +50,7 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Orders') ?></h3>
                 <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                     <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
@@ -124,8 +125,8 @@ $this->Paginator->setTemplates([
                                     ]) 
                                 ?>
                             </td>
-                            <td class="col-md-2 nameCol">
-                                <div class="input-group date input-picker gt-now" id="interview-date">
+                            <td class="col-md-2 interviewDateCol">
+                                <div class="input-group date input-picker" id="interview-date">
                                     <?= $this->Form->control('interview_date', [
                                         'type' => 'text',
                                         'label' => false,
@@ -220,7 +221,9 @@ $this->Paginator->setTemplates([
                                 <?php endif; ?>
                             </td>
                             <td class="cell statusCol">
-                                <?php if ($now < $order->interview_date): ?>
+                                <?php if ($order->status == "4"): ?>
+                                    <?= h($interviewStatus["4"]) ?>
+                                <?php elseif ($now < $order->interview_date): ?>
                                     <?= h($interviewStatus["1"]) ?>
                                 <?php elseif ($now == $order->interview_date) :?>
                                     <?= h($interviewStatus["2"]) ?>
@@ -245,10 +248,17 @@ $this->Paginator->setTemplates([
                                                 'confirm' => __('Are you sure you want to delete {0}?', $order->name)
                                             ]) ?>
                                         </li>
-                                        <li class="divider"></li>
-                                        <li>
-                                            <?= $this->Html->link(__('Close'), ['action' => 'close', $order->id]) ?>
-                                        </li>
+                                            <?php if ($order->status !== "4"): ?>
+                                                <li class="divider"></li>
+                                                <li>
+                                                    <?= $this->Form->postLink(__('Close'), 
+                                                    ['action' => 'close', $order->id], 
+                                                    [
+                                                        'escape' => false, 
+                                                        'confirm' => __('Are you sure you want to close {0}?', $order->name)
+                                                    ]) ?>
+                                                </li>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                         <li>
                                             <?= $this->Html->link(__('View'), ['action' => 'view', $order->id]) ?>

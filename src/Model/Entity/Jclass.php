@@ -4,24 +4,22 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Address Entity
+ * Jclass Entity
  *
  * @property int $id
- * @property int $student_id
- * @property int $type
- * @property string $street
- * @property string $ward_id
- * @property string $district_id
- * @property string $city_id
+ * @property string $name
+ * @property int $user_id
+ * @property \Cake\I18n\FrozenDate $start
+ * @property int $num_students
+ * @property int $current_lesson
  * @property \Cake\I18n\FrozenTime $created
  * @property int $created_by
  * @property \Cake\I18n\FrozenTime $modified
  * @property int $modified_by
  *
- * @property \App\Model\Entity\Student $student
- * @property \App\Model\Entity\City $city
+ * @property \App\Model\Entity\User $user
  */
-class Address extends Entity
+class Jclass extends Entity
 {
 
     /**
@@ -34,17 +32,15 @@ class Address extends Entity
      * @var array
      */
     protected $_accessible = [
-        'student_id' => true,
-        'type' => true,
-        'street' => true,
-        'ward_id' => true,
-        'district_id' => true,
-        'city_id' => true,
+        'name' => true,
+        'user_id' => true,
+        'start' => true,
+        'current_lesson' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'student' => true,
-        'city' => true
+        'user' => true,
+        'students' => true
     ];
 }

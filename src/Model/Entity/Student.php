@@ -82,6 +82,7 @@ class Student extends Entity
         'lived_to' => true,
         'expectation' => true,
         'status' => true,
+        'enrolled_date' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,

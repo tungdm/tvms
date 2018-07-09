@@ -74,6 +74,8 @@ function showAddCandidateModal() {
         return;
     }
     ajaxing = true;
+    $('#list-candidate-overlay').removeClass('hidden');
+
     $.ajax({
         type: 'GET',
         url: '/tvms/orders/recommendCandidate',
@@ -114,6 +116,7 @@ function showAddCandidateModal() {
         }, 
         complete: function() {
             ajaxing = false;
+            $('#list-candidate-overlay').addClass('hidden');
         }
     });
 }
@@ -146,6 +149,8 @@ function addCandidate() {
         return;
     }
     ajaxing = true;
+    $('#add-candidate-modal-overlay').removeClass('hidden');
+
     $.ajax({
         type: 'GET',
         url: '/tvms/orders/getCandidate',
@@ -175,6 +180,7 @@ function addCandidate() {
         },
         complete: function() {
             ajaxing = false;
+            $('#add-candidate-modal-overlay').addClass('hidden');
         }
     });
 }
@@ -236,9 +242,9 @@ function setInterviewResult(rowId) {
 
         // show edit doc button when pass interview
         if ($('#result').val() == '1') {
-            $('#row-candidate-'+rowId).find('.actions').append($('<a href="javascript:;" class="edit-doc" onclick="editDoc(this)"><i class="fa fa-2x fa-folder"></i></a>'));
+            $('#row-candidate-'+rowId).find('.edit-doc').removeClass('hidden');
         } else {
-            $('#row-candidate-'+rowId).find('.edit-doc').remove();
+            $('#row-candidate-'+rowId).find('.edit-doc').addClass('hidden');
         }
         $('#set-pass-modal').modal('toggle');
     }
@@ -278,9 +284,6 @@ function deleteCandidate(delEl, sendAjax) {
                 });
             }
         });
-        
-        
-
     } else {
         deleteRow(delEl);
     }
@@ -334,10 +337,7 @@ function deleteRow(delEl, hiddenId) {
     }
 }
 
-function editDoc(ele, permission) {
-    var rowId = $(ele).closest('.row-rec').attr('id').split('-');
-    var id = rowId[rowId.length-1];
-    var candidateId = $('#candidate-'+id+'-id').find('input').val();
+function editDoc(candidateId, permission) {
     if (permission == 1) {
         // read-only
         window.open('/tvms/students/view/' + candidateId + '#tab_content4', '_blank');
@@ -345,14 +345,3 @@ function editDoc(ele, permission) {
         window.open('/tvms/students/info/' + candidateId + '#tab_content4', '_blank');
     }
 }
-
-Handlebars.registerHelper("inc", function (value, options) {
-    return parseInt(value) + 1;
-});
-
-Handlebars.registerHelper("trans", function (value, options) {
-    if (value == 'M') {
-        return "Nam";
-    }
-    return "Nữ";
-});

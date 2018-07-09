@@ -8,9 +8,9 @@ use Cake\Core\Configure;
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller);
 
+$addressType = array_keys(Configure::read('addressType'));
+
 $gender = Configure::read('gender');
-$city = Configure::read('city');
-$city = array_map('array_shift', $city);
 
 $eduLevel = Configure::read('eduLevel');
 $eduLevel = array_map('array_shift', $eduLevel);
@@ -211,16 +211,15 @@ $this->Paginator->setTemplates([
                                                 'confirm' => __('Are you sure you want to delete {0}?', $student->fullname)
                                             ]) ?>
                                         </li>
-                                        <li class="divider"></li>
-                                        <li>
-                                            <?= $this->Html->link(__('Export Resume'), ['action' => 'exportResume', $student->id ]) ?>
-                                        </li>
                                         <?php else: ?>
                                         <li>
                                             <?= $this->Html->link(__('View'), ['action' => 'view', $student->id]) ?>
                                         </li>
                                         <?php endif; ?>
-
+                                        <li class="divider"></li>
+                                        <li>
+                                            <?= $this->Html->link(__('Export Resume'), ['action' => 'exportResume', $student->id ]) ?>
+                                        </li>
                                     </ul>
                                 </div>
                             </td>
@@ -293,7 +292,8 @@ $this->Paginator->setTemplates([
                         <?= $this->Form->control('phone', [
                             'label' => false, 
                             'required' => true, 
-                            'class' => 'form-control col-md-7 col-xs-12'
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$'
                             ]) ?>
                     </div>
                 </div>
@@ -330,8 +330,9 @@ $this->Paginator->setTemplates([
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Quê quán') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('address.city', [
-                            'options' => $city, 
+                        <?= $this->Form->hidden('addresses.0.type', ['value' => $addressType[0]]) ?>
+                        <?= $this->Form->control('addresses.0.city', [
+                            'options' => $cities, 
                             'empty' => true, 
                             'required' => true, 
                             'label' => false, 

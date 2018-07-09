@@ -51,7 +51,7 @@ $cakeDescription = 'TVMS';
     <div class="wrapper">
         <header class="main-header">
             <!-- Logo -->
-            <a href="#" class="logo">
+            <a href="/tvms/" class="logo">
                 <!-- mini logo for sidebar mini 50x50 pixels -->
                 <span class="logo-mini"><b>TV</b></span>
                 <!-- logo for regular state and mobile devices -->
@@ -119,7 +119,7 @@ $cakeDescription = 'TVMS';
                     </li>
                     <li class="treeview">
                         <a href="#">
-                            <i class="fa fa-edit"></i>
+                            <i class="fa fa-users"></i>
                             <span><?= __('NHÂN SỰ') ?></span>
                             <span class="pull-right-container">
                                 <i class="fa fa-angle-left pull-right"></i>
@@ -148,11 +148,26 @@ $cakeDescription = 'TVMS';
                             ['controller' => 'Orders', 'action' => 'index'],
                             ['escape' => false]) ?>
                     </li>
-                    <li>
+                    <li class="treeview">
                         <a href="#">
                             <i class="fa fa-bar-chart-o"></i>
                             <span><?= __('ĐÀO TẠO') ?></span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
                         </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản lý lớp học', 
+                                    ['controller' => 'Jclasses', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản lý kì thi', 
+                                    ['controller' => 'Test', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                        </ul>
                     </li>
                     <li class="treeview">
                         <a href="#">

@@ -58,7 +58,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="salary"><?= __('Mức lương') ?></label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $order->salary_from ?> ～ <?= $order->salary_to ?> (¥/tháng)
+                                <?= $this->Number->format($order->salary_from, ['locale' => 'vn_VN']) ?> ～ <?= $this->Number->format($order->salary_to, ['locale' => 'vn_VN']) ?> (¥/tháng)
                             </div>
                         </div>
                     </div>
@@ -209,7 +209,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                         <?= $gender[$value->gender]?>
                                     </td>
                                     <td class="cell col-md-3">
-                                        <?= $value->phone ?>
+                                        <?= $this->Phone->makeEdit($value->phone) ?>
                                     </td>
                                     <td class="cell col-md-1">
                                         <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>

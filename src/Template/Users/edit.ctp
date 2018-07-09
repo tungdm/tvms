@@ -92,7 +92,8 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('phone', [
                             'label' => false, 
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12'
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$'
                             ]) ?>
                     </div>
                 </div>

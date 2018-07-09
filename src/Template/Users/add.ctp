@@ -106,6 +106,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('phone', [
                             'required' => true,
                             'label' => false, 
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                             'class' => 'form-control col-md-7 col-xs-12'
                             ]) ?>
                     </div>

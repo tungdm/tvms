@@ -4,14 +4,8 @@ use Cake\Core\Configure;
 $gender = Configure::read('gender');
 $yesNoQuestion = Configure::read('yesNoQuestion');
 
-$city = Configure::read('city');
-$city = array_map('array_shift', $city);
-
 $country = Configure::read('country');
 $country = array_map('array_shift', $country);
-
-$district = Configure::read('district');
-$ward = Configure::read('ward');
 
 $eduLevel = Configure::read('eduLevel');
 $eduLevel = array_map('array_shift', $eduLevel);
@@ -121,6 +115,14 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="enrolled_date"><?= __('Ngày nhập học') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->enrolled_date ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="image"><?= __('Hình ảnh') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div id="cropped_result" class="col-md-7 col-xs-12">
@@ -150,7 +152,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $student->phone ?>
+                                                <?= $this->Phone->makeEdit($student->phone) ?>
                                             </div>
                                         </div>
                                     </div>
@@ -238,7 +240,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="city"><?= __('Tỉnh/Thành phố') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $city[$student->addresses[0]->city] ?>
+                                                        <?= $student->addresses[0]->city->name ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -246,12 +248,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                     <?php if (!empty($student->addresses[0]->district)): ?>
-                                                    <?php
-                                                        $district0 = $district[$student->addresses[0]->city];
-                                                        $district0 = array_map('array_shift', $district0);
-                                                    ?>
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $district0[$student->addresses[0]->district] ?>
+                                                        <?= $student->addresses[0]->district->name ?>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -260,12 +258,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                     <?php if (!empty($student->addresses[0]->ward)): ?>
-                                                    <?php 
-                                                        $ward0 = $ward[$student->addresses[0]->district];
-                                                        $ward0 = array_map('array_shift', $ward0);
-                                                    ?>
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $ward0[$student->addresses[0]->ward] ?>
+                                                        <?= $student->addresses[0]->ward->name ?>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -284,7 +278,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="city"><?= __('Tỉnh/Thành phố') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $city[$student->addresses[1]->city] ?>
+                                                        <?= $student->addresses[1]->city->name ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -292,12 +286,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?php if (!empty($student->addresses[1]->district)): ?>
-                                                    <?php
-                                                        $district1 = $district[$student->addresses[1]->city];
-                                                        $district1 = array_map('array_shift', $district1);
-                                                    ?>
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $district1[$student->addresses[1]->district] ?>
+                                                        <?= $student->addresses[1]->district->name ?>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -306,12 +296,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?php if (!empty($student->addresses[1]->ward)): ?>
-                                                    <?php 
-                                                        $ward1 = $ward[$student->addresses[1]->district];
-                                                        $ward1 = array_map('array_shift', $ward1);
-                                                    ?>
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $ward1[$student->addresses[1]->ward] ?>
+                                                        <?= $student->addresses[1]->ward->name ?>
                                                     </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -501,7 +487,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     <?= $value->cmnd_num ?>
                                                 </td>
                                                 <td class="cell col-md-2 family-phone">
-                                                    <?= $value->phone ?>
+                                                    <?= $this->Phone->makeEdit($value->phone) ?>
                                                 </td>
                                                 <td class="cell action-btn">
                                                     <?= $this->Html->link(

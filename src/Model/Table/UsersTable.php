@@ -38,7 +38,7 @@ class UsersTable extends Table
         parent::initialize($config);
 
         $this->setTable('users');
-        $this->setDisplayField('username');
+        $this->setDisplayField('fullname');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
@@ -60,6 +60,9 @@ class UsersTable extends Table
         $this->hasMany('Events', [
             'foreignKey' => 'user_id',
             'dependent' => true,
+        ]);
+        $this->hasMany('Jclasses', [
+            'foreignKey' => 'user_id',
         ]);
     }
 

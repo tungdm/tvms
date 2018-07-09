@@ -30,41 +30,41 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 ?>
 
 <?php $this->start('content-header'); ?>
-<?php if ($action === 'add'): ?>
-<h1><?= __('Add New Order') ?></h1>
-<button class="btn btn-success submit-order-btn" type="button">Submit</button>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li>
-        <?= $this->Html->link(__('Orders'), [
-            'controller' => 'Orders',
-            'action' => 'index']) ?>
-    </li>
-    <li class="active">New Order</li>
-</ol>
-<?php else: ?>
-<h1><?= __('Update Order') ?></h1>
-<button class="btn btn-success submit-order-btn" type="button">Submit</button>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li>
-        <?= $this->Html->link(__('Orders'), [
-            'controller' => 'Orders',
-            'action' => 'index']) ?>
-    </li>
-    <li class="active">Update Order</li>
-</ol>
-<?php endif; ?>
+    <?php if ($action === 'add'): ?>
+    <h1><?= __('Add New Order') ?></h1>
+    <button class="btn btn-success submit-order-btn" type="button">Submit</button>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Home',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li>
+            <?= $this->Html->link(__('Orders'), [
+                'controller' => 'Orders',
+                'action' => 'index']) ?>
+        </li>
+        <li class="active">New Order</li>
+    </ol>
+    <?php else: ?>
+    <h1><?= __('Update Order') ?></h1>
+    <button class="btn btn-success submit-order-btn" type="button">Submit</button>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Home',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li>
+            <?= $this->Html->link(__('Orders'), [
+                'controller' => 'Orders',
+                'action' => 'index']) ?>
+        </li>
+        <li class="active">Update Order</li>
+    </ol>
+    <?php endif; ?>
 <?php $this->end(); ?>
 
 <?= $this->Form->create($order, [
@@ -82,6 +82,9 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Thông tin cơ bản') ?></h3>
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">
@@ -253,6 +256,9 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Yêu cầu tuyển chọn') ?></h3>
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">
@@ -351,8 +357,14 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Danh sách ứng viên') ?></h3>
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                </div>
             </div>
             <div class="box-body table-responsive">
+                <div class="overlay hidden" id="list-candidate-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
                 <button type="button" class="btn btn-primary btn-candidate" id="add-candidate" onclick="showAddCandidateModal();">
                     <?= __('Thêm ứng viên') ?>
                 </button>
@@ -393,7 +405,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                     <?= $gender[$value->gender]?>
                                 </td>
                                 <td class="cell col-md-3">
-                                    <?= $value->phone ?>
+                                    <?= $this->Phone->makeEdit($value->phone) ?>
                                 </td>
                                 <td class="cell col-md-1">
                                     <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>
@@ -429,17 +441,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                             'onClick' => "deleteCandidate(this, true)"
                                         ]
                                     )?>
-                                    <?php if ($value->_joinData->result == 1): ?>
+                                    <?php $isHidden = $value->_joinData->result != 1 ? " hidden" : "";  ?>
                                     <?= $this->Html->link(
                                         '<i class="fa fa-2x fa-folder"></i>',
                                         'javascript:;',
                                         [
-                                            'class' => 'edit-doc',
+                                            'class' => 'edit-doc' . $isHidden,
                                             'escape' => false,
-                                            'onClick' => "editDoc(this)"
+                                            'onClick' => "editDoc($value->id)"
                                         ])
                                     ?>
-                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php $counter++; ?>
@@ -460,8 +471,11 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Modal Header</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body box">
                 <div class="col-md-12 col-xs-12">
+                    <div class="overlay hidden" id="add-candidate-modal-overlay">
+                        <i class="fa fa-refresh fa-spin"></i>
+                    </div>
                     <?= $this->Form->create(null, [
                         'class' => 'form-horizontal form-label-left', 
                         'id' => 'add-candidate-form', 
@@ -471,7 +485,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             ]
                         ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name"><?= __('Tên TTS') ?></label>
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12" for="name"><?= __('Tên TTS') ?></label>
                         <div class="col-md-6 col-sm-9 col-xs-12">
                             <div class="input-group">
                                 <?= $this->Form->control('candidate.name', [
@@ -491,7 +505,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="recommend"><?= __('Recommend') ?></label>
+                        <label class="control-label col-md-2 col-sm-2 col-xs-12" for="recommend"><?= __('Recommend') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12 table-responsive">
                             <table class="table table-bordered custom-table">
                                 <thead>
@@ -599,7 +613,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             {{trans gender}}
         </td>
         <td class="cell col-md-3">
-            {{phone}}
+            {{phoneFormat phone}}
         </td>
         <td class="cell col-md-1">
             <span class="result-text">-</span>
@@ -635,6 +649,15 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     'onClick' => "deleteCandidate(this)"
                 ]
             )?>
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-folder"></i>',
+                'javascript:;',
+                [
+                    'class' => 'edit-doc hidden',
+                    'escape' => false,
+                    'onClick' => "editDoc({{id}})"
+                ])
+            ?>
         </td>
     </tr>
     {{/each}}
@@ -689,7 +712,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             </div>
         </td>
         <td class="cell col-md-3">
-            {{phone}}
+            {{phoneFormat phone}}
             <div class="hidden">
                 <?= $this->Form->control('phone', [
                     'type' => 'text',
@@ -753,7 +776,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             </div>
         </td>
         <td class="cell col-md-3">
-            {{phone}}
+            {{phoneFormat phone}}
             <div class="hidden">
                 <?= $this->Form->control('phone', [
                     'type' => 'text',

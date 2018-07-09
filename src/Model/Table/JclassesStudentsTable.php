@@ -7,24 +7,22 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Addresses Model
+ * JclassesStudents Model
  *
+ * @property \App\Model\Table\JclassesTable|\Cake\ORM\Association\BelongsTo $Jclasses
  * @property \App\Model\Table\StudentsTable|\Cake\ORM\Association\BelongsTo $Students
- * @property |\Cake\ORM\Association\BelongsTo $Wards
- * @property |\Cake\ORM\Association\BelongsTo $Districts
- * @property \App\Model\Table\CitiesTable|\Cake\ORM\Association\BelongsTo $Cities
  *
- * @method \App\Model\Entity\Address get($primaryKey, $options = [])
- * @method \App\Model\Entity\Address newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\Address[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Address|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Address patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Address[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\Address findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\JclassesStudent get($primaryKey, $options = [])
+ * @method \App\Model\Entity\JclassesStudent newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\JclassesStudent[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\JclassesStudent|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\JclassesStudent patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\JclassesStudent[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\JclassesStudent findOrCreate($search, callable $callback = null, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
-class AddressesTable extends Table
+class JclassesStudentsTable extends Table
 {
 
     /**
@@ -37,24 +35,19 @@ class AddressesTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('addresses');
+        $this->setTable('jclasses_students');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
 
+        $this->belongsTo('Jclasses', [
+            'foreignKey' => 'jclass_id',
+            'joinType' => 'INNER'
+        ]);
         $this->belongsTo('Students', [
             'foreignKey' => 'student_id',
             'joinType' => 'INNER'
-        ]);
-        $this->belongsTo('Wards', [
-            'foreignKey' => 'ward_id'
-        ]);
-        $this->belongsTo('Districts', [
-            'foreignKey' => 'district_id'
-        ]);
-        $this->belongsTo('Cities', [
-            'foreignKey' => 'city_id'
         ]);
     }
 
@@ -69,15 +62,6 @@ class AddressesTable extends Table
         $validator
             ->integer('id')
             ->allowEmpty('id', 'create');
-
-        $validator
-            ->integer('type')
-            ->allowEmpty('type');
-
-        $validator
-            ->scalar('street')
-            ->maxLength('street', 255)
-            ->allowEmpty('street');
 
         $validator
             ->integer('created_by')
@@ -99,10 +83,8 @@ class AddressesTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
+        $rules->add($rules->existsIn(['jclass_id'], 'Jclasses'));
         $rules->add($rules->existsIn(['student_id'], 'Students'));
-        $rules->add($rules->existsIn(['ward_id'], 'Wards'));
-        $rules->add($rules->existsIn(['district_id'], 'Districts'));
-        $rules->add($rules->existsIn(['city_id'], 'Cities'));
 
         return $rules;
     }

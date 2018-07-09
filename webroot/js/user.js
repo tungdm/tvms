@@ -1,3 +1,4 @@
+var ajaxing = false;
 var perData = {};
 perData.counter = 0;
 
@@ -109,7 +110,7 @@ $(document).ready(function() {
                 $('#permission-container').empty();
             }
             
-        } else  if (role_id == 2) {
+        } else {
             $('.permission-group').show();
         }
     });
@@ -238,6 +239,13 @@ $(document).ready(function() {
 
 function showEditPerModal(userId, userRole) {
     if (userId) {
+        if (ajaxing) {
+            // still requesting
+            return;
+        }
+        ajaxing = true;
+        $('.overlay').removeClass('hidden');
+        
         $.ajax({
             type: "GET",
             url: $('#edit-permission-form').attr('action'),
@@ -265,6 +273,10 @@ function showEditPerModal(userId, userRole) {
                 perData.counter = allPermissions.length;
 
                 $('#edit-permission-modal').modal('toggle');
+            },
+            complete: function() {
+                ajaxing = false;
+                $('.overlay').addClass('hidden');
             }
         });
     }

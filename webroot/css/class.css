@@ -1,0 +1,4 @@
+#class-tabs>li:last-child {
+    float: right;
+    margin: 4px;
+}

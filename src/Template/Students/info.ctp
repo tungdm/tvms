@@ -5,9 +5,6 @@ use Cake\Log\Log;
 $gender = Configure::read('gender');
 $yesNoQuestion = Configure::read('yesNoQuestion');
 
-$city = Configure::read('city');
-$city = array_map('array_shift', $city);
-
 $country = Configure::read('country');
 $country = array_map('array_shift', $country);
 
@@ -123,6 +120,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Sơ yếu lý lịch') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
@@ -182,6 +182,24 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="enrolled_date"><?= __('Ngày nhập học') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="input-group date input-picker" id="enrolled-date">
+                                            <?= $this->Form->control('enrolled_date', [
+                                                'type' => 'text',
+                                                'label' => false,
+                                                'class' => 'form-control',
+                                                'placeholder' => 'yyyy-mm-dd',
+                                                'data-parsley-errors-container' => '#error-enrolled-date'
+                                            ])?>
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        <span id="error-enrolled-date"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="image"><?= __('Hình ảnh') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('image', [
@@ -234,6 +252,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <?= $this->Form->control('phone', [
                                             'label' => false, 
                                             'required' => true, 
+                                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                                             'class' => 'form-control col-md-7 col-xs-12'
                                             ]) ?>
                                     </div>
@@ -353,6 +372,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Địa chỉ cư trú') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <ul id="address-tabs" class="nav nav-tabs">
@@ -368,13 +390,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="city"><?= __('Tỉnh/Thành phố') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                                <?= $this->Form->control('addresses.0.city', [
-                                                    'options' => $city, 
+                                                <?= $this->Form->control('addresses.0.city_id', [
+                                                    'options' => $cities, 
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
                                                     'data-parsley-errors-container' => '#error-city-0',
-                                                    'data-parsley-class-handler' => '#select2-addresses-0-city',
+                                                    'data-parsley-class-handler' => '#select2-addresses-0-city-id',
                                                     'class' => 'form-control col-md-7 col-xs-12 select2-theme select-city'
                                                     ]) ?>
                                                 <span id="error-city-0"></span>
@@ -383,13 +405,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                                <?php if (!empty($student->addresses[0]->district)): ?>
-                                                <?php
-                                                    $district0 = $district[$student->addresses[0]->city];
-                                                    $district0 = array_map('array_shift', $district0);
-                                                ?>
-                                                <?= $this->Form->control('addresses.0.district', [
-                                                    'options' => $district0, 
+                                                <?php if (!empty($student->addresses[0]->city_id)): ?>
+                                                <?= $this->Form->control('addresses.0.district_id', [
+                                                    'options' => $districts[0], 
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
@@ -397,7 +415,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'class' => 'form-control col-md-7 col-xs-12 select-district select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
-                                                <?= $this->Form->control('addresses.0.district', [
+                                                <?= $this->Form->control('addresses.0.district_id', [
                                                     'options' => [], 
                                                     'required' => true, 
                                                     'empty' => true, 
@@ -413,13 +431,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                                <?php if (!empty($student->addresses[0]->ward)): ?>
-                                                <?php 
-                                                    $ward0 = $ward[$student->addresses[0]->district];
-                                                    $ward0 = array_map('array_shift', $ward0);
-                                                ?>
-                                                <?= $this->Form->control('addresses.0.ward', [
-                                                    'options' => $ward0, 
+                                                <?php if (!empty($student->addresses[0]->district_id)): ?>
+                                                <?= $this->Form->control('addresses.0.ward_id', [
+                                                    'options' => $wards[0], 
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
@@ -427,7 +441,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'class' => 'form-control col-md-7 col-xs-12 select-ward select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
-                                                <?= $this->Form->control('addresses.0.ward', [
+                                                <?= $this->Form->control('addresses.0.ward_id', [
                                                     'options' => [], 
                                                     'required' => true, 
                                                     'empty' => true, 
@@ -452,20 +466,20 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="current-address">
-                                        <?php if (!empty($student->addresses)): ?>
+                                        <?php if (!empty($student->addresses[1])): ?>
                                         <?= $this->Form->hidden('addresses.1.id', ['value' => $student->addresses[1]->id]) ?>
                                         <?php endif; ?>
                                         <?= $this->Form->hidden('addresses.1.type', ['value' => $addressType[1]]) ?>
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="city"><?= __('Tỉnh/Thành phố') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                                <?= $this->Form->control('addresses.1.city', [
-                                                    'options' => $city, 
+                                                <?= $this->Form->control('addresses.1.city_id', [
+                                                    'options' => $cities, 
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
                                                     'data-parsley-errors-container' => '#error-city-1',
-                                                    'data-parsley-class-handler' => '#select2-addresses-1-city',
+                                                    'data-parsley-class-handler' => '#select2-addresses-1-city-id',
                                                     'class' => 'form-control col-md-7 col-xs-12 select2-theme select-city'
                                                     ]) ?>
                                                 <span id="error-city-1"></span>
@@ -474,13 +488,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                            <?php if (!empty($student->addresses[1]->district)): ?>
-                                                <?php
-                                                    $district1 = $district[$student->addresses[1]->city];
-                                                    $district1 = array_map('array_shift', $district1);
-                                                ?>
-                                                <?= $this->Form->control('addresses.1.district', [
-                                                    'options' => $district1, 
+                                            <?php if (!empty($student->addresses[1]->city_id)): ?>
+                                                <?= $this->Form->control('addresses.1.district_id', [
+                                                    'options' => $districts[1], 
                                                     'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
@@ -488,7 +498,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'class' => 'form-control col-md-7 col-xs-12 select-district select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
-                                                <?= $this->Form->control('addresses.1.district', [
+                                                <?= $this->Form->control('addresses.1.district_id', [
                                                     'options' => [], 
                                                     'required' => true, 
                                                     'empty' => true, 
@@ -504,13 +514,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                            <?php if (!empty($student->addresses[1]->ward)): ?>
-                                                <?php 
-                                                    $ward1 = $ward[$student->addresses[1]->district];
-                                                    $ward1 = array_map('array_shift', $ward1);
-                                                ?>
-                                                <?= $this->Form->control('addresses.1.ward', [
-                                                    'options' => $ward1, 
+                                            <?php if (!empty($student->addresses[1]->district_id)): ?>
+                                                <?= $this->Form->control('addresses.1.ward_id', [
+                                                    'options' => $wards[1], 
                                                     'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
@@ -518,7 +524,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'class' => 'form-control col-md-7 col-xs-12 select-ward select2-theme'
                                                     ]) ?>
                                                 <?php else: ?>
-                                                <?= $this->Form->control('addresses.1.ward', [
+                                                <?= $this->Form->control('addresses.1.ward_id', [
                                                     'options' => [], 
                                                     'required' => true, 
                                                     'empty' => true, 
@@ -550,6 +556,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Tình trạng sức khỏe') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
@@ -667,6 +676,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
@@ -735,6 +747,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Quan hệ gia đình') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-family" id="add-member-top" onclick="showAddMemberModal();">
@@ -866,6 +881,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Chứng minh nhân dân') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards)): ?>
@@ -912,6 +930,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Thị thực (Visa)') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards)): ?>
@@ -999,6 +1020,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Hộ chiếu (Passport)') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards)): ?>
@@ -1080,6 +1104,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Quá trình học tập') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-educations" id="add-eduhis-top" onclick="showAddEduHisModal();">
@@ -1192,6 +1219,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Năng lực ngôn ngữ') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-languages" id="add-language-top" onclick="showAddLangModal();">
@@ -1286,6 +1316,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Kinh nghiệm làm việc') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-work-exp" id="add-exp-top" onclick="showAddExpModal();">
@@ -1408,6 +1441,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Danh sách hồ sơ') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <table class="table table-bordered custom-table document-table">
@@ -1640,7 +1676,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->control('modal.phone', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true
+                                    'required' => true,
+                                    'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                                     ]) ?>
                             </div>
                         </div>

@@ -24,7 +24,6 @@ class OrdersController extends AppController
         $controller = $this->request->getParam('controller');
         $action = $this->request->getParam('action');
         $session = $this->request->session();
-
         $permissionsTable = TableRegistry::get('Permissions');
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
@@ -48,7 +47,7 @@ class OrdersController extends AppController
         // $allOrders = $this->Orders->find()->order(['Orders.created' => 'DESC']);
         // $allOrders = $this->Orders->find();
         
-        if (!empty($query)) {   
+        if (!empty($query)) {
             $allOrders = $this->Orders->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
@@ -191,7 +190,24 @@ class OrdersController extends AppController
         } else {
             $this->Flash->error(__('The order could not be deleted. Please, try again.'));
         }
+        return $this->redirect(['action' => 'index']);
+    }
 
+    public function close($id = null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        try {
+            $order = $this->Orders->get($id);
+            $order->status = '4'; // close constant
+            if ($this->Orders->save($order)) {
+                $this->Flash->success(__('The order has been close.'));
+            } else {
+                $this->Flash->error(__('The order could not be close. Please, try again.'));
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
         return $this->redirect(['action' => 'index']);
     }
 
@@ -210,9 +226,6 @@ class OrdersController extends AppController
         ];
 
         try {
-            $resp = [
-                'interviewId' => $interviewId,
-            ];
             $table = TableRegistry::get('OrdersStudents');
             $interview = $table->get($interviewId);
 

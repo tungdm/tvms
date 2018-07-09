@@ -104,7 +104,8 @@ class StudentsController extends AppController
             ];
         }
         $students = $this->paginate($allStudents);
-        $this->set(compact('students', 'query'));
+        $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
+        $this->set(compact('students', 'query', 'cities'));
     }
 
     /**
@@ -119,6 +120,9 @@ class StudentsController extends AppController
         $student = $this->Students->get($id, [
             'contain' => [
                 'Addresses' => ['sort' => ['Addresses.type' => 'ASC']],
+                'Addresses.Cities',
+                'Addresses.Districts',
+                'Addresses.Wards',
                 'Cards' => ['sort' => ['Cards.type' => 'ASC']], 
                 'Families', 
                 'Families.Jobs',
@@ -130,7 +134,8 @@ class StudentsController extends AppController
             ]
         ]);
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
-        $this->set(compact(['student', 'jobs']));
+        $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
+        $this->set(compact(['student', 'jobs', 'cities']));
     }
 
     /**
@@ -167,7 +172,7 @@ class StudentsController extends AppController
         if (!empty($id)) {
             $student = $this->Students->get($id, [
                 'contain' => [
-                    'Addresses' => ['sort' => ['Addresses.type' => 'ASC']], 
+                    'Addresses' => ['sort' => ['Addresses.type' => 'ASC']],
                     'Cards' => ['sort' => ['Cards.type' => 'ASC']], 
                     'Families', 
                     'Families.Jobs',
@@ -258,10 +263,19 @@ class StudentsController extends AppController
         }
         
         //TODO: get data from db
-        $presenters = [];
+        $presenters = TableRegistry::get('Presenters')->find('list');
         $jobs = TableRegistry::get('Jobs')->find('list');
 
-        $this->set(compact(['student', 'presenters', 'jobs']));
+        $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
+        $districts = [];
+        $wards = [];
+        if (!empty($student->addresses)) {
+            foreach ($student->addresses as $key => $value) {
+                $districts[$key] = TableRegistry::get('Districts')->find('list')->where(['city_id' => $value->city_id])->toArray();
+                $wards[$key] = TableRegistry::get('Wards')->find('list')->where(['district_id' => $value->district_id])->toArray();
+            }
+        }
+        $this->set(compact(['student', 'presenters', 'jobs', 'cities', 'districts', 'wards']));
     }
 
     public function getDistrict()
@@ -270,10 +284,9 @@ class StudentsController extends AppController
             $query = $this->request->getQuery();
             $resp = [];
             if (isset($query['city']) && !empty($query['city'])) {
-                $district = Configure::read('district');
-                if (array_key_exists($query['city'], $district)) {
-                    $resp = $district[$query['city']];
-                    $resp = array_map('array_shift', $resp);
+                $districts = TableRegistry::get('Districts')->find('list')->where(['city_id' => $query['city']])->toArray();
+                if (!empty($districts)) {
+                    $resp = $districts;
                 } else {
                     //TODO: Blacklist current user
                 }
@@ -288,10 +301,9 @@ class StudentsController extends AppController
             $query = $this->request->getQuery();
             $resp = [];
             if (isset($query['district']) && !empty($query['district'])) {
-                $ward = Configure::read('ward');
-                if (array_key_exists($query['district'], $ward)) {
-                    $resp = $ward[$query['district']];
-                    $resp = array_map('array_shift', $resp);
+                $wards = TableRegistry::get('Wards')->find('list')->where(['district_id' => $query['district']])->toArray();
+                if (!empty($wards)) {
+                    $resp = $wards;
                 } else {
                     //TODO: Blacklist current user
                 }
@@ -465,9 +477,7 @@ class StudentsController extends AppController
         // Load config
         $resumeConfig = Configure::read('resume');
         $country = Configure::read('country');
-        $city = Configure::read('city');
-        $district = Configure::read('district');
-        $ward = Configure::read('ward');
+        $addressENLevel = Configure::read('addressENLevel');
         $currentAddressTemplate = Configure::read('currentAddressTemplate');
         $schoolTemplate = Configure::read('schoolTemplate');
         $eduLevel = Configure::read('eduLevel');
@@ -479,6 +489,9 @@ class StudentsController extends AppController
                 'Addresses' => function($q) {
                     return $q->where(['Addresses.type' => '2']);
                 },
+                'Addresses.Cities',
+                'Addresses.Districts',
+                'Addresses.Wards',
                 'Educations',
                 'Experiences',
                 'Experiences.Jobs',
@@ -517,9 +530,21 @@ class StudentsController extends AppController
             $marital_y = $folderImgTemplate . DS . 'blank.png';
         }
 
-        $currentCity = $city[$student->addresses[0]->city];
-        $currentDistrict = ($district[$student->addresses[0]->city])[$student->addresses[0]->district];
-        $currentWard = ($ward[$student->addresses[0]->district])[$student->addresses[0]->ward];
+        $currentCity = $student->addresses[0]->city->name;
+        $cityType = $student->addresses[0]->city->type;
+        if ($cityType == 'Thành phố Trung ương') {
+            $currentCityEN = $this->convertV2E(str_replace("Thành phố", "", $currentCity) . " " . $addressENLevel['Thành phố']);
+        } else {
+            $currentCityEN = $this->convertV2E(str_replace($cityType, "", $currentCity) . " " . $addressENLevel[$cityType]);
+        }
+
+        $currentDistrict = $student->addresses[0]->district->name;
+        $districtType = $student->addresses[0]->district->type;
+        $currentDistrictEN = $this->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressENLevel[$districtType]);
+        
+        $currentWard = $student->addresses[0]->ward->name;
+        $wardType = $student->addresses[0]->ward->type;
+        $currentWardEN = $this->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressENLevel[$wardType]);
 
         $jplevel_JP = $jplevel_VN = $enlevel_JP = $enlevel_VN = "            ";
         if (!empty($student->language_abilities)) {
@@ -575,14 +600,14 @@ class StudentsController extends AppController
         $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
 
         $this->tbs->VarRef['currentaddress_en'] = Text::insert($currentAddressTemplate, [
-            'ward' => $currentWard['en'],
-            'district' => $currentDistrict['en'],
-            'city' => $currentCity['en'],
+            'ward' => $currentWardEN,
+            'district' => $currentDistrictEN,
+            'city' => $currentCityEN,
         ]);
         $this->tbs->VarRef['currentaddress_vn'] = Text::insert($currentAddressTemplate, [
-            'ward' => $currentWard['vn'],
-            'district' => $currentDistrict['vn'],
-            'city' => $currentCity['vn'],
+            'ward' => $currentWard,
+            'district' => $currentDistrict,
+            'city' => $currentCity,
         ]);
 
         $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
@@ -727,6 +752,7 @@ class StudentsController extends AppController
         if (!$str) {
             return false;
         }
+        $str = trim($str);
         $str = mb_strtoupper($str);
         $str = preg_replace("/(À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ)/", "A", $str);
         $str = preg_replace("/(È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ)/", "E", $str);

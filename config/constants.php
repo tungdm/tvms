@@ -174,6 +174,7 @@ return [
         '1' => 'Chưa phỏng vấn',
         '2' => 'Đang phỏng vấn',
         '3' => 'Đã phỏng vấn',
+        '4' => 'Đã đóng'
     ],
     'interviewResult' => [
         '0' => '-',
@@ -185,6 +186,60 @@ return [
         '5' => '5 năm'
     ],
 
+    //education
+    'lessons' => [
+        '0' => 'Bảng chữ cái',
+        '1' => 'Bài 1',
+        '2' => 'Bài 2',
+        '3' => 'Bài 3',
+        '4' => 'Bài 4',
+        '5' => 'Bài 5',
+        '6' => 'Bài 6',
+        '7' => 'Bài 7',
+        '8' => 'Bài 8',
+        '9' => 'Bài 9',
+        '10' => 'Bài 10',
+        '11' => 'Bài 11',
+        '12' => 'Bài 12',
+        '13' => 'Bài 13',
+        '14' => 'Bài 14',
+        '15' => 'Bài 15',
+        '16' => 'Bài 16',
+        '17' => 'Bài 17',
+        '18' => 'Bài 18',
+        '19' => 'Bài 19',
+        '20' => 'Bài 20',
+        '21' => 'Bài 21',
+        '22' => 'Bài 22',
+        '23' => 'Bài 23',
+        '24' => 'Bài 24',
+        '25' => 'Bài 25',
+        '26' => 'Bài 26',
+        '27' => 'Bài 27',
+        '28' => 'Bài 28',
+        '29' => 'Bài 29',
+        '30' => 'Bài 30',
+        '31' => 'Bài 31',
+        '32' => 'Bài 32',
+        '33' => 'Bài 33',
+        '34' => 'Bài 34',
+        '35' => 'Bài 35',
+        '36' => 'Bài 36',
+        '37' => 'Bài 37',
+        '38' => 'Bài 38',
+        '39' => 'Bài 39',
+        '40' => 'Bài 40',
+        '41' => 'Bài 41',
+        '42' => 'Bài 42',
+        '43' => 'Bài 43',
+        '44' => 'Bài 44',
+        '45' => 'Bài 45',
+        '46' => 'Bài 46',
+        '47' => 'Bài 47',
+        '48' => 'Bài 48',
+        '49' => 'Bài 49',
+        '50' => 'Bài 50',
+    ],
     //document
     'document' => [
         '1' => [
@@ -249,98 +304,19 @@ return [
     'passwordDefault' => '123456789',
 
     // address vn
-    'city' => [
-        '01' => [
-            'vn' => 'Thành phố Hà Nội',
-            'en' => 'Ha Noi City'
-        ],
-        '02' => [
-            'vn' => 'Tỉnh Hà Giang',
-            'en' => 'Ha Giang Province'
-        ]
-    ],
-
-    'district' => [
-        '01' => [
-            '001' => [
-                'vn' => 'Quận Ba Đình',
-                'en' => 'Ba Dinh District'
-            ],
-            '002' => [
-                'vn' => 'Quận Hoàn Kiếm',
-                'en' => 'Hoan Kiem District'
-            ],
-            '003' => [
-                'vn' => 'Quận Tây Hồ',
-                'en' => 'Tay Ho District'
-            ]
-        ],
-        '02' => [
-            '024' => [
-                'vn' => 'Thành phố Hà Giang',
-                'en' => 'Ha Giang City'
-            ],
-            '026' => [
-                'vn' => 'Huyện Đồng Văn',
-                'en' => 'Dong Van District'
-            ]
-        ]
-    ],
-    'ward' => [
-        '001' => [
-            '00001' => [
-                'vn' => 'Phường Phúc Xá',
-                'en' => 'Phuc Xa Ward'   
-            ],
-            '00004' => [
-                'vn' => 'Phường Phúc Trạch',
-                'en' => 'Phuc Trach Ward'
-            ]
-        ],
-        '002' => [
-            '00037' => [
-                'vn' => 'Phường Phúc Tân',
-                'en' => 'Phuc Tan Ward'
-            ],
-            '00040' => [
-                'vn' => 'Phường Đồng Xuân',
-                'en' => 'Dong Xuan Ward'
-            ],
-        ],
-        '003' => [
-            '00091' => [
-                'vn' => 'Phường Phúc Tân',
-                'en' => 'Phuc Tan Ward'
-            ],
-            '00094' => [
-                'vn' => 'Phường Nhật Tân',
-                'en' => 'Nhat Tan Ward'
-            ],
-        ],
-        '024' => [
-            '00688' => [
-                'vn' => 'Phường Quang Trung',
-                'en' => 'Quang Trung Ward'
-            ],
-            '00094' => [
-                'vn' => 'Phường Trần Phú',
-                'en' => 'Tran Phu Ward'
-            ],
-        ],
-        '026' => [
-            '00712' => [
-                'vn' => 'Thị trấn Phó Bảng',
-                'en' => 'Pho Bang Town'
-            ],
-            '00715' => [
-                'vn' => 'Xã Lũng Cú',
-                'en' => 'Lung Cu Commune'
-            ],
-        ]
-    ],
     'addressType' => [
         '1' => 'household',
         '2' => 'currentAddress'
+    ],
+
+    'addressENLevel' => [
+        'Thành phố' => 'City',
+        'Tỉnh' => 'Province',
+        'Quận' => 'District',
+        'Huyện' => 'District',
+        'Phường' => 'Ward',
+        'Xã' => 'Commune',
+        'Thị trấn' => 'Town'
     ],
 
     // address jp
