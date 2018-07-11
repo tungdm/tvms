@@ -885,6 +885,8 @@ function initDatetimePicker() {
 
         // re-validate when user change picker
         $('#' + ele.id).on('dp.change', function(e) {
+            // change form state
+            // unsaved = true;
             $('#' + ele.id + ' input').parsley().validate();
 
             // validate relation input when current input pass the validation
@@ -965,6 +967,7 @@ function initCropper(ratio){
     });
 }
 
+// var unsaved = false;
 $(document).ready(function() {
     init_sidebar();
     tableHover();
@@ -1029,7 +1032,19 @@ $(document).ready(function() {
             en: 'This value is required.',
         }
     });
+
+    // check save state
+    // $("input").change(function(){ //trigers change in all input fields including text type
+    //     unsaved = true;
+    // });
 });
+
+// function unloadPage(){ 
+//     if (unsaved){
+//         return "You have unsaved changes on this page. Do you want to leave this page and discard your changes or stay on this page?";
+//     }
+// }
+// window.onbeforeunload = unloadPage;
 
 Handlebars.registerHelper("inc", function (value, options) {
     return parseInt(value) + 1;

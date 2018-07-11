@@ -65,6 +65,7 @@ class Order extends Entity
         'work_time' => true,
         'work_at' => true,
         'departure_date' => true,
+        'status' => true,
         'company_id' => true,
         'job_id' => true,
         'created' => true,

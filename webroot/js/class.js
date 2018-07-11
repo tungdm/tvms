@@ -1,4 +1,5 @@
 var ajaxing = false;
+var testing = false;
 var perData = {};
 perData.selected = [];
 perData.preAddCounter = 0;
@@ -50,6 +51,37 @@ $(document).ready(function() {
         if (validateResult) {
             $('#add-class-form')[0].submit();
         }
+    });
+
+    $('#modal-class').change(function() {
+        var classId = this.value;
+        if (!this.value) {
+            return;
+        }
+        if (ajaxing) {
+            // still requesting
+            return;
+        }
+        ajaxing = true;
+        $('#change-class-modal-overlay').removeClass('hidden');
+        $.ajax({
+            type: 'GET',
+            url: '/tvms/jclasses/getClassTestInfo',
+            data: {
+                id: classId,
+            },
+            success: function(resp) {
+                if (resp.info == "test") {
+                    testing = true;
+                } else {
+                    testing = false;
+                }
+            },
+            complete: function() {
+                ajaxing = false;
+                $('#change-class-modal-overlay').addClass('hidden');
+            }
+        });
     });
 });
 
@@ -180,53 +212,79 @@ function editStudent(rowId) {
 }
 
 function showChangeClassModal(ele) {
-    // reset form
-    $('#modal-class').val(null).trigger('change');
+    if ($('input[name="have_test"]').val() === "true") {
+        swal({
+            title: 'Oopps!',
+            text: "The class will have a japanese test. You can not change class at this time.",
+            type: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ok'
+        });
+    } else {
+        // reset form
+        $('#modal-class').val(null).trigger('change');
 
-    var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
-    var rowId = rowIdArr[rowIdArr.length-1];
-    $('#change-class-btn').remove();
-    $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Submit</button>').insertBefore('#close-change-class-modal-btn');
+        var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
+        var rowId = rowIdArr[rowIdArr.length-1];
+        $('#change-class-btn').remove();
+        $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Submit</button>').insertBefore('#close-change-class-modal-btn');
 
-    $('#change-class-modal').modal('toggle');
+        $('#change-class-modal').modal('toggle');
+    }
 }
 
 function changeClass(rowId) {
     if ($('#modal-class').val()) {
-        if (ajaxing) {
-            // still requesting
-            return;
+        if (testing) {
+            swal({
+                title: 'Oopps!',
+                text: "The class " + $('#modal-class option:selected').html() + " will have a japanese test. You can not change class at this time.",
+                type: 'warning',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ok'
+            });
+        } else {
+            execChangeClass();
         }
-        ajaxing = true;
-        $('#change-class-modal-overlay').removeClass('hidden');
-
-        $.ajax({
-            type: 'POST',
-            url: '/tvms/jclasses/changeClass',
-            data: {
-                'id': $('#class-student-'+rowId+'-id').find('input').val(),
-                'class': $('#modal-class').val()
-            },
-            success: function(resp){
-                if (resp.status == 'success') {
-                    var delEl = $('#row-student-' + rowId);
-                    deleteRow(delEl, rowId);
-                    
-                    $('#change-class-modal').modal('toggle');
-                    
-                    swal({
-                        title: resp.alert.title,
-                        text: resp.alert.message,
-                        type: resp.alert.type
-                    })
-                }
-            },
-            complete: function() {
-                ajaxing = false;
-                $('#change-class-modal-overlay').addClass('hidden');
-            }
-        });
     }
+}
+
+function execChangeClass() {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#change-class-modal-overlay').removeClass('hidden');
+
+    $.ajax({
+        type: 'POST',
+        url: '/tvms/jclasses/changeClass',
+        data: {
+            'id': $('#class-student-'+rowId+'-id').find('input').val(),
+            'class': $('#modal-class').val()
+        },
+        success: function(resp){
+            if (resp.status == 'success') {
+                var delEl = $('#row-student-' + rowId);
+                deleteRow(delEl, rowId);
+                
+                $('#change-class-modal').modal('toggle');
+                
+                swal({
+                    title: resp.alert.title,
+                    text: resp.alert.message,
+                    type: resp.alert.type
+                })
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $('#change-class-modal-overlay').addClass('hidden');
+        }
+    });
 }
 
 function deleteStudent(delEl, sendAjax) {

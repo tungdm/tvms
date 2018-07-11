@@ -7,21 +7,22 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
 /**
- * Jclasses Model
+ * JtestContents Model
  *
+ * @property \App\Model\Table\JtestsTable|\Cake\ORM\Association\BelongsTo $Jtests
  * @property \App\Model\Table\UsersTable|\Cake\ORM\Association\BelongsTo $Users
  *
- * @method \App\Model\Entity\Jclass get($primaryKey, $options = [])
- * @method \App\Model\Entity\Jclass newEntity($data = null, array $options = [])
- * @method \App\Model\Entity\Jclass[] newEntities(array $data, array $options = [])
- * @method \App\Model\Entity\Jclass|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
- * @method \App\Model\Entity\Jclass patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \App\Model\Entity\Jclass[] patchEntities($entities, array $data, array $options = [])
- * @method \App\Model\Entity\Jclass findOrCreate($search, callable $callback = null, $options = [])
+ * @method \App\Model\Entity\JtestContent get($primaryKey, $options = [])
+ * @method \App\Model\Entity\JtestContent newEntity($data = null, array $options = [])
+ * @method \App\Model\Entity\JtestContent[] newEntities(array $data, array $options = [])
+ * @method \App\Model\Entity\JtestContent|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \App\Model\Entity\JtestContent patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \App\Model\Entity\JtestContent[] patchEntities($entities, array $data, array $options = [])
+ * @method \App\Model\Entity\JtestContent findOrCreate($search, callable $callback = null, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
-class JclassesTable extends Table
+class JtestContentsTable extends Table
 {
 
     /**
@@ -34,22 +35,19 @@ class JclassesTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('jclasses');
-        $this->setDisplayField('name');
+        $this->setTable('jtest_contents');
+        $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
-        $this->addBehavior('Author');
 
+        $this->belongsTo('Jtests', [
+            'foreignKey' => 'jtest_id',
+            'joinType' => 'INNER'
+        ]);
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
             'joinType' => 'INNER'
-        ]);
-        $this->belongsToMany('Students', [
-            'through' => 'JclassesStudents'
-        ]);
-        $this->hasMany('Jtests', [
-            'foreignKey' => 'jclass_id'
         ]);
     }
 
@@ -66,20 +64,10 @@ class JclassesTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->scalar('name')
-            ->maxLength('name', 255)
-            ->requirePresence('name', 'create')
-            ->notEmpty('name');
-
-        $validator
-            ->date('start')
-            ->requirePresence('start', 'create')
-            ->notEmpty('start');
-
-        $validator
-            ->integer('current_lesson')
-            ->requirePresence('current_lesson', 'create')
-            ->notEmpty('current_lesson');
+            ->scalar('skill')
+            ->maxLength('skill', 2)
+            ->requirePresence('skill', 'create')
+            ->notEmpty('skill');
 
         $validator
             ->integer('created_by')
@@ -101,6 +89,7 @@ class JclassesTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
+        $rules->add($rules->existsIn(['jtest_id'], 'Jtests'));
         $rules->add($rules->existsIn(['user_id'], 'Users'));
 
         return $rules;

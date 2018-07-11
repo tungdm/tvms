@@ -47,9 +47,9 @@
     margin-bottom: 0px;
 }
 
-.table-responsive {
+/* .table-responsive {
     overflow: visible !important;
-}
+} */
 
 .mobile-only {
     display:none !important;

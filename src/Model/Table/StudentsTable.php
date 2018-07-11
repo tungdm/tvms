@@ -82,6 +82,10 @@ class StudentsTable extends Table
             'through' => 'JclassesStudents',
             'dependent' => true,
         ]);
+        $this->belongsToMany('Jtests', [
+            'through' => 'JtestsStudents',
+            'dependent' => true,
+        ]);
     }
 
     /**

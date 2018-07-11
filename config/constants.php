@@ -240,6 +240,25 @@ return [
         '49' => 'Bài 49',
         '50' => 'Bài 50',
     ],
+    'skills' => [
+        '1' => 'Từ vựng',
+        '2' => 'Ngữ pháp',
+        '3' => 'Nghe hiểu',
+        '4' => 'Đàm thoại'
+    ],
+    'score' => [
+        '1' => 'vocabulary_score',
+        '2' => 'grammar_score',
+        '3' => 'listening_score',
+        '4' => 'conversation_score'
+    ],
+    'testStatus' => [
+        '1' => 'Chưa thi',
+        '2' => 'Đang thi',
+        '3' => 'Đã thi',
+        '4' => 'Đã có kết quả',
+    ],
+
     //document
     'document' => [
         '1' => [
@@ -295,7 +314,9 @@ return [
     'scope' => [
         'Users' => 'Users scope',
         'Students' => 'Students scope',
-        'Orders' => 'Orders scope'
+        'Orders' => 'Orders scope',
+        'Jclasses' => 'Classs scope',
+        'Jtests' => 'Tests scope',
     ],
     'permission' => [
         '0' => 'Full access',

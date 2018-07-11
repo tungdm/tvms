@@ -44,8 +44,6 @@ class OrdersController extends AppController
     {
         $query = $this->request->getQuery();
         $now = Time::now()->i18nFormat('yyyy-MM-dd');
-        // $allOrders = $this->Orders->find()->order(['Orders.created' => 'DESC']);
-        // $allOrders = $this->Orders->find();
         
         if (!empty($query)) {
             $allOrders = $this->Orders->find();

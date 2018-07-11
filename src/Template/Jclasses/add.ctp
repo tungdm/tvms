@@ -1,10 +1,12 @@
 <?php
 use Cake\Core\Configure;
+use Cake\I18n\Time;
 
 $action = $this->request->getParam('action');
 $gender = Configure::read('gender');
 $lessons = Configure::read('lessons');
 
+$now = Time::now()->i18nFormat('yyyy-MM-dd');
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
@@ -35,7 +37,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
         <li class="active">New Class</li>
     </ol>
     <?php else: ?>
-    <h1><?= __('Update Order') ?></h1>
+    <h1><?= __('Update Class') ?></h1>
     <button class="btn btn-success submit-class-btn" type="button">Submit</button>
     <ol class="breadcrumb">
         <li>
@@ -63,6 +65,19 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
         ]
     ]) ?>
 <?= $this->Form->unlockField('students') ?>
+
+<?php 
+    $testing = 'false'; 
+    if (!empty($jclass->jtests)) {
+        foreach ($jclass->jtests as $key => $value) {
+            if ($now <= $value->test_date) {
+                $testing = 'true';
+                break;
+            }
+        }
+    }
+?>
+<?= $this->Form->hidden('have_test', ['value' => $testing])?>
 
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">

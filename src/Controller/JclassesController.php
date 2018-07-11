@@ -44,18 +44,44 @@ class JclassesController extends AppController
     {
         $query = $this->request->getQuery();
         if (!empty($query)) {
-
+            $allClasses = $this->Jclasses->find();
+            if (!isset($query['records']) || empty($query['records'])) {
+                $query['records'] = 10;
+            }
+            if (isset($query['name']) && !empty($query['name'])) {
+                $allClasses->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('name', '%' . $query['name'] . '%');
+                });
+            }
+            if (isset($query['start']) && !empty($query['start'])) {
+                $allClasses->where(['start' => $query['start']]);
+            }
+            if (isset($query['num_students']) && $query['num_students'] != NULL) {
+                $allClasses
+                    ->select($this->Jclasses)
+                    ->select($this->Jclasses->Users)
+                    ->select(['student_count' => 'COUNT(Students.id)'])
+                    ->leftJoinWith('Students')
+                    ->group('Jclasses.id')
+                    ->having(['student_count' => $query['num_students']]);
+            }
+            if (isset($query['user_id']) && !empty($query['user_id'])) {
+                $allClasses->where(['Users.id' => $query['user_id']]);
+            }
+            if (isset($query['current_lesson']) && !empty($query['current_lesson'])) {
+                $allClasses->where(['current_lesson' => $query['current_lesson']]);
+            }
         } else {
             $query['records'] = 10;
-            $allOrders = $this->Jclasses->find()->order(['Jclasses.created' => 'DESC']);
+            $allClasses = $this->Jclasses->find()->order(['Jclasses.created' => 'DESC']);
         }
         
         $this->paginate = [
             'contain' => ['Users', 'Students']
         ];
-        $jclasses = $this->paginate($this->Jclasses);
+        $jclasses = $this->paginate($allClasses);
         $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
-        $this->set(compact('jclasses', 'teachers'));
+        $this->set(compact('jclasses', 'teachers', 'query'));
     }
 
     /**
@@ -109,6 +135,7 @@ class JclassesController extends AppController
         }
         return $this->jsonResponse($resp);
     }
+
     /**
      * Add method
      *
@@ -142,7 +169,7 @@ class JclassesController extends AppController
     public function edit($id = null)
     {
         $jclass = $this->Jclasses->get($id, [
-            'contain' => ['Students']
+            'contain' => ['Students', 'Jtests']
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $jclass = $this->Jclasses->patchEntity($jclass, $this->request->getData());
@@ -249,6 +276,37 @@ class JclassesController extends AppController
             Log::write('debug', $e);
         }
 
+        return $this->jsonResponse($resp);
+    }
+
+    public function getClassTestInfo()
+    {
+        $this->request->allowMethod('ajax');
+        $query = $this->request->getQuery();
+        $resp = [];
+        try {
+            if (isset($query['id']) && !empty($query['id'])) {
+                $now = Time::now()->i18nFormat('yyyy-MM-dd');
+                $testData = $this->Jclasses->Jtests->find()->where([
+                    'jclass_id' => $query['id'],
+                    'test_date >=' => $now 
+                    ])->toArray();
+                Log::write('debug', $testData);
+                
+                if (!empty($testData)) {
+                    $resp = [
+                        'info' => 'test'
+                    ];
+                } else {
+                    $resp = [
+                        'info' => 'not_test'
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
         return $this->jsonResponse($resp);
     }
 }
