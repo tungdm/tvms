@@ -31,6 +31,17 @@ class JclassesController extends AppController
                 $session->write($controller, $userPermission->action);
                 return true;
             }
+
+            // gvcn can access to edit action
+            if ($action == 'edit') {
+                $target_id = $this->request->getParam('pass');
+                if (!empty($target_id)) {
+                    $target_id = $target_id[0];
+                    if ($this->Jclasses->get($target_id)->user_id == $user['id']) {
+                        return true;
+                    }
+                }
+            }
         }
         return parent::isAuthorized($user);
     }
@@ -77,7 +88,8 @@ class JclassesController extends AppController
         }
         
         $this->paginate = [
-            'contain' => ['Users', 'Students']
+            'contain' => ['Users', 'Students'],
+            'limit' => $query['records']
         ];
         $jclasses = $this->paginate($allClasses);
         $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
@@ -94,7 +106,7 @@ class JclassesController extends AppController
     public function view($id = null)
     {
         $jclass = $this->Jclasses->get($id, [
-            'contain' => ['Users']
+            'contain' => ['Students', 'Jtests', 'Users']
         ]);
 
         $this->set('jclass', $jclass);
@@ -169,7 +181,7 @@ class JclassesController extends AppController
     public function edit($id = null)
     {
         $jclass = $this->Jclasses->get($id, [
-            'contain' => ['Students', 'Jtests']
+            'contain' => ['Students', 'Jtests', 'Users']
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $jclass = $this->Jclasses->patchEntity($jclass, $this->request->getData());

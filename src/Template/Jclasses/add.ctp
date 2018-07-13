@@ -3,8 +3,12 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 
 $action = $this->request->getParam('action');
+$controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
+
 $gender = Configure::read('gender');
 $lessons = Configure::read('lessons');
+$currentUser = $this->request->session()->read('Auth.User');
 
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
 
@@ -92,16 +96,27 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name"><?= __('Tên lớp') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
+                        <?php if ($jclass->user_id == $currentUser['id']): ?>
+                        <div class="form-control form-control-view col-md-7 col-xs-12">
+                            <?= h($jclass->name) ?>
+                        </div>
+                        <?php else: ?>
                         <?= $this->Form->control('name', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'required' => true,
                             ]) ?>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="start"><?= __('Ngày bắt đầu') ?></label>
                     <div class="col-md-3 col-sm-6 col-xs-12">
+                        <?php if ($jclass->user_id == $currentUser['id']): ?>
+                        <div class="form-control form-control-view col-md-7 col-xs-12">
+                            <?= h($jclass->start) ?>
+                        </div>
+                        <?php else: ?>
                         <div class="input-group date input-picker" id="class-start">
                             <?= $this->Form->control('start', [
                                 'type' => 'text',
@@ -116,11 +131,17 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             </span>
                         </div>
                         <span id="error-start"></span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_id"><?= __('Giáo viên chủ nhiệm') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
+                        <?php if ($jclass->user_id == $currentUser['id']): ?>
+                        <div class="form-control form-control-view col-md-7 col-xs-12">
+                            <?= h($jclass->user->fullname) ?>
+                        </div>
+                        <?php else: ?>
                         <?= $this->Form->control('user_id', [
                             'options' => $teachers, 
                             'required' => true, 
@@ -131,6 +152,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             'class' => 'form-control col-md-7 col-xs-12 select2-theme'
                             ]) ?>
                         <span id="error-teacher"></span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="form-group">
@@ -162,9 +184,11 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 </div>
             </div>
             <div class="box-body table-responsive">
+                <?php if ($permission == 0): ?>
                 <button type="button" class="btn btn-primary btn-student" id="add-student" onclick="showAddStudentModal();">
                     <?= __('Thêm học sinh') ?>
                 </button>
+                <?php endif; ?>
                 <table class="table table-bordered custom-table students-table">
                     <thead>
                         <tr>
@@ -222,6 +246,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                             'onClick' => "showEditStudentModal(this)"
                                         ]) 
                                     ?>
+                                    <?php if ($permission == 0): ?>
                                     <?= $this->Html->link(
                                         '<i class="fa fa-2x fa-exchange"></i>', 
                                         'javascript:;',
@@ -238,6 +263,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                             'onClick' => "deleteStudent(this, true)"
                                         ]
                                     )?>
+                                    <?php endif; ?>
                                 </td>
                                 <?php $counter++; ?>
                             </tr>

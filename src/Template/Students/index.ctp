@@ -6,7 +6,7 @@
 use Cake\Core\Configure;
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 
 $addressType = array_keys(Configure::read('addressType'));
 

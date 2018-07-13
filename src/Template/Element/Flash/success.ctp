@@ -5,14 +5,22 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 ?>
 <script type="text/javascript">
 $(document).ready(function() {
-    PNotify.desktop.permission();
-    (new PNotify({
+    var notice = new PNotify({
         title: 'Success',
         text: '<?= $message ?>',
         type: 'success',
-        desktop: {
-            desktop: true
+        styling: 'bootstrap3',
+        icon: 'fa fa-check-circle-o',
+        // addclass: 'dark',
+        cornerclass: 'ui-pnotify-sharp',
+        buttons: {
+            closer: false,
+            sticker: false
         }
-    }))
+    });
+
+    notice.get().click(function() {
+        notice.remove();
+    });
 });
 </script>

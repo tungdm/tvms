@@ -3,7 +3,7 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
 
@@ -44,7 +44,9 @@ $this->Paginator->setTemplates([
                 <h3 class="box-title"><?= __('Tests') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
+                    <?php if ($permission == 0): ?>
+                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool', 'escape' => false]) ?>
+                    <?php endif; ?>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -116,7 +118,7 @@ $this->Paginator->setTemplates([
                                     </span>
                                 </div>
                             </td>
-                            <td class="col-md-4 testLessonCol">
+                            <td class="col-md-5 testLessonCol">
                                 <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
                                     <?= $this->Form->control('lesson_from', [
                                         'options' => $lessons, 
@@ -163,6 +165,7 @@ $this->Paginator->setTemplates([
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                             </td>
+                            <?= $this->Form->end() ?>
                         </tr>
                         <?php if (($jtests)->isEmpty()): ?>
                         <tr>
@@ -170,7 +173,16 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php else: ?>
                         <?php foreach ($jtests as $jtest): ?>
-                        <?php $counter++; ?>
+                        <?php 
+                            $counter++;
+                            $supervisory = false;
+                            foreach ($jtest->jtest_contents as $ck => $content) {
+                                if ($content->user_id == $currentUser['id']) {
+                                    // current user only have read access but they are the supervisory
+                                    $supervisory = true;
+                                }
+                            }
+                        ?>
                         <tr>
                             <td class="cell"><?= $counter ?></td>
                             <td class="cell testDateCol">
@@ -206,26 +218,30 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
-                                        <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
-                                        <li>
-                                            <?php if ($status == 3): ?>
-                                            <?= $this->Html->link(__('Nhập điểm'), ['action' => 'setScore', $jtest->id]) ?>
-                                            <?php elseif($status != 4): ?>
-                                            <?= $this->Html->link(__('Edit'), ['action' => 'edit', $jtest->id]) ?>
-                                            <?php endif; ?>
-                                        </li>
-                                        <li>
-                                            <?= $this->Form->postLink(__('Delete'), 
-                                            ['action' => 'delete', $jtest->id], 
-                                            [
-                                                'escape' => false, 
-                                                'confirm' => __('Are you sure you want to delete the test {0}?', $jtest->test_date)
-                                            ]) ?>
-                                        </li>
-                                        <?php else: ?>
                                         <li>
                                             <?= $this->Html->link(__('View'), ['action' => 'view', $jtest->id]) ?>
                                         </li>
+                                        <?php if ($permission == 0): ?>
+                                            <?php if ($status == 1): ?>
+                                            <li>
+                                                <?= $this->Html->link(__('Edit'), ['action' => 'edit', $jtest->id]) ?>
+                                            </li>
+                                            <?php endif; ?>
+                                            <li>
+                                                <?= $this->Form->postLink(__('Delete'), 
+                                                ['action' => 'delete', $jtest->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Are you sure you want to delete the test {0}?', $jtest->test_date)
+                                                ]) ?>
+                                            </li>
+                                        <?php endif; ?>
+
+                                        <?php if (($status == 2 || $status == 3) && $supervisory == true): ?>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <?= $this->Html->link(__('Nhập điểm'), ['action' => 'setScore', $jtest->id]) ?>
+                                            </li>
                                         <?php endif; ?>
                                     </ul>
                                 </div>
@@ -249,64 +265,3 @@ $this->Paginator->setTemplates([
         </div>
     </div>
 </div>
-
-
-<!-- <nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('New Jtest'), ['action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Jclasses'), ['controller' => 'Jclasses', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Jclass'), ['controller' => 'Jclasses', 'action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Students'), ['controller' => 'Students', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Student'), ['controller' => 'Students', 'action' => 'add']) ?></li>
-    </ul>
-</nav>
-<div class="jtests index large-9 medium-8 columns content">
-    <h3><?= __('Jtests') ?></h3>
-    <table cellpadding="0" cellspacing="0">
-        <thead>
-            <tr>
-                <th scope="col"><?= $this->Paginator->sort('id') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('jclass_id') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('test_date') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('lesson_from') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('lesson_to') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('created') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('created_by') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('modified') ?></th>
-                <th scope="col"><?= $this->Paginator->sort('modified_by') ?></th>
-                <th scope="col" class="actions"><?= __('Actions') ?></th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($jtests as $jtest): ?>
-            <tr>
-                <td><?= $this->Number->format($jtest->id) ?></td>
-                <td><?= $jtest->has('jclass') ? $this->Html->link($jtest->jclass->name, ['controller' => 'Jclasses', 'action' => 'view', $jtest->jclass->id]) : '' ?></td>
-                <td><?= h($jtest->test_date) ?></td>
-                <td><?= $this->Number->format($jtest->lesson_from) ?></td>
-                <td><?= $this->Number->format($jtest->lesson_to) ?></td>
-                <td><?= h($jtest->created) ?></td>
-                <td><?= $this->Number->format($jtest->created_by) ?></td>
-                <td><?= h($jtest->modified) ?></td>
-                <td><?= $this->Number->format($jtest->modified_by) ?></td>
-                <td class="actions">
-                    <?= $this->Html->link(__('View'), ['action' => 'view', $jtest->id]) ?>
-                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $jtest->id]) ?>
-                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $jtest->id], ['confirm' => __('Are you sure you want to delete # {0}?', $jtest->id)]) ?>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-    <div class="paginator">
-        <ul class="pagination">
-            <?= $this->Paginator->first('<< ' . __('first')) ?>
-            <?= $this->Paginator->prev('< ' . __('previous')) ?>
-            <?= $this->Paginator->numbers() ?>
-            <?= $this->Paginator->next(__('next') . ' >') ?>
-            <?= $this->Paginator->last(__('last') . ' >>') ?>
-        </ul>
-        <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
-    </div>
-</div> -->

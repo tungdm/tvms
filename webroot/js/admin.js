@@ -835,12 +835,93 @@ function tableHover() {
     $('body').on('mouseenter', '.cell', function (e) {
         $(this).attr('id', 'current-cell');
         $(this).closest('tr').addClass('highlight');
-        $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').addClass('highlight');
+        var currentSpan = 0;
+        if ($(this).closest('tr').attr('span')) {
+            currentSpan = parseInt($(this).closest('tr').attr('span'));
+        }
+        var cellIndex = $(this).index();
+        var table = $(this).closest('table');
+
+        if (table.hasClass('span-table')) {
+            var rows = table.find('tr');
+            for (let index = 0; index < rows.length; index++) {
+                const row = rows[index];
+                
+                if (currentSpan != 0) {
+                    if ($(row).hasClass('span-row')) {
+                        if (cellIndex == 0) {
+                            // first col
+                            continue;
+                        }
+                        $(row).find('.cell:nth-child(' + (cellIndex + 1) + ')').addClass('highlight');
+                    } else {
+                        if (cellIndex == 0) {
+                            // first col
+                            continue;
+                        }
+                        $(row).find('.cell:nth-child(' + (cellIndex+ currentSpan) + ')').addClass('highlight');
+                    }
+                } else {
+                    if ($(row).hasClass('span-row')) {
+                        var spanNum = parseInt(row.getAttribute('span'));
+                        if (cellIndex < spanNum) {
+                            continue;
+                        } else {
+                            $(row).find('.cell:nth-child(' + (cellIndex - spanNum + 2) + ')').addClass('highlight');
+                        }
+                    } else {
+                        $(row).find('.cell:nth-child(' + (cellIndex + 1) + ')').addClass('highlight');
+                    }
+                }
+            }
+        } else {
+            $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').addClass('highlight');
+        }
     });
     $('body').on('mouseout', '.cell', function (e) {
         $(this).removeAttr('id');
         $(this).closest('tr').removeClass('highlight');
-        $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').removeClass('highlight');
+        var currentSpan = 0;
+        if ($(this).closest('tr').attr('span')) {
+            currentSpan = parseInt($(this).closest('tr').attr('span'));
+        }
+        var cellIndex = $(this).index();
+        var table = $(this).closest('table');
+
+        if (table.hasClass('span-table')) {
+            var rows = table.find('tr');
+            for (let index = 0; index < rows.length; index++) {
+                const row = rows[index];
+                if (currentSpan != 0) {
+                    if ($(row).hasClass('span-row')) {
+                        if (cellIndex == 0) {
+                            // first col
+                            continue;
+                        }
+                        $(row).find('.cell:nth-child(' + (cellIndex + 1) + ')').removeClass('highlight');
+                    } else {
+                        if (cellIndex == 0) {
+                            // first col
+                            continue;
+                        }
+                        $(row).find('.cell:nth-child(' + (cellIndex+ currentSpan) + ')').removeClass('highlight');
+                    }
+                } else {
+                    if ($(row).hasClass('span-row')) {
+                        var spanNum = parseInt(row.getAttribute('span'));
+                        if (cellIndex < spanNum) {
+                            continue;
+                        } else {
+                            $(row).find('.cell:nth-child(' + (cellIndex - spanNum + 2) + ')').removeClass('highlight');
+                        }
+                    } else {
+                        $(row).find('.cell:nth-child(' + (cellIndex + 1) + ')').removeClass('highlight');
+                    }
+                }
+            }
+        } else {
+            $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').removeClass('highlight');
+        }
     });
 }
 
@@ -967,6 +1048,13 @@ function initCropper(ratio){
     });
 }
 
+function viewStudent(studentId) {
+    if (!studentId) {
+        studentId = $('#student-name').val();
+    }
+    window.open('/tvms/students/view/' + studentId, '_blank');
+}
+
 // var unsaved = false;
 $(document).ready(function() {
     init_sidebar();
@@ -976,6 +1064,16 @@ $(document).ready(function() {
 
     $('#filter-refresh-btn').click(function() {
         $('#filter-form')[0].reset();
+
+        // reset select2
+        var selectBoxes = $('#filter-form').find('select');
+        for (let index = 0; index < selectBoxes.length; index++) {
+            const ele = selectBoxes[index];
+            if (ele.id == "records") {
+                continue
+            }
+            $('#' + ele.id).val(null).trigger('change');
+        }
     });
 
     $('.select2-theme').change(function(e) {

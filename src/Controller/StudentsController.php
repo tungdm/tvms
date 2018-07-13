@@ -130,7 +130,8 @@ class StudentsController extends AppController
                 'Experiences',
                 'Experiences.Jobs',
                 'LanguageAbilities',
-                'Documents'
+                'Documents',
+                'Presenters'
             ]
         ]);
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();

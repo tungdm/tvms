@@ -9,7 +9,7 @@ use Cake\I18n\Time;
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 
 $recordsDisplay = Configure::read('recordsDisplay');

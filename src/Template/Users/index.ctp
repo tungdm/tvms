@@ -10,7 +10,7 @@ $scope = Configure::read('scope');
 $confPermission = Configure::read('permission');
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
 

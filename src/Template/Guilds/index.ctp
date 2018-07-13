@@ -5,7 +5,7 @@
  */
 use Cake\Core\Configure;
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 $recordsDisplay = Configure::read('recordsDisplay');
 $counter = 0;
 //$currentUser = $this->request->session()->read('Auth.User');

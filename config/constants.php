@@ -254,7 +254,7 @@ return [
     ],
     'testStatus' => [
         '1' => 'Chưa thi',
-        '2' => 'Đang thi',
+        '2' => 'Ngày thi',
         '3' => 'Đã thi',
         '4' => 'Đã có kết quả',
     ],

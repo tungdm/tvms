@@ -6,14 +6,21 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 <!-- <div class="message error" onclick="this.classList.add('hidden');"><?= $message ?></div> -->
 <script type="text/javascript">
 $(document).ready(function() {
-    PNotify.desktop.permission();
-    (new PNotify({
+    var notice = new PNotify({
         title: 'Error',
         text: '<?= $message ?>',
         type: 'error',
-        desktop: {
-            desktop: true
+        styling: 'bootstrap3',
+        icon: 'fa fa-warning',
+        cornerclass: 'ui-pnotify-sharp',
+        buttons: {
+            closer: false,
+            sticker: false
         }
-    }))
+    });
+
+    notice.get().click(function() {
+        notice.remove();
+    });
 });
 </script>

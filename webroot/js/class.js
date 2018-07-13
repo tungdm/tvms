@@ -94,18 +94,6 @@ function showAddStudentModal() {
     $('#add-student-modal').modal('toggle');
 }
 
-function viewStudent(studentId, permission) {
-    if (!studentId) {
-        studentId = $('#student-name').val();
-    }
-    if (permission == 1) {
-        // read-only
-        window.open('/tvms/students/view/' + studentId, '_blank');
-    } else {
-        window.open('/tvms/students/info/' + studentId, '_blank');
-    }
-}
-
 function preAddStudent() {
     var studentId = parseInt($('#student-name').val());
     if (perData.selected.indexOf(studentId) >= 0) {

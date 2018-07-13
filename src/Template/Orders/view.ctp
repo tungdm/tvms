@@ -3,7 +3,7 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 
 $gender = Configure::read('gender');
 $interviewResult = Configure::read('interviewResult');

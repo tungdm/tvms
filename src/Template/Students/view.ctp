@@ -72,6 +72,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Sơ yếu lý lịch') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -86,7 +89,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname_kata"><?= __('Họ tên (JP)') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $student->fullname_kata ?>
+                                                <?= $student->fullname_kata ?? 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -102,7 +105,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="email"><?= __('Email') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $student->email ?>
+                                                <?= $student->email ?? 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -118,7 +121,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="enrolled_date"><?= __('Ngày nhập học') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $student->enrolled_date ?>
+                                                <?= $student->enrolled_date ?? 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -136,7 +139,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="marial"><?= __('Tình trạng hôn nhân') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $maritalStatus[$student->marital_status] ?>
+                                                <?= !empty($student->marital_status) ? $maritalStatus[$student->marital_status] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -144,7 +147,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="subject"><?= __('Đối tượng') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $studentSubject[$student->subject] ?>
+                                                <?= !empty($student->subject) ? $studentSubject[$student->subject] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -152,7 +155,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $this->Phone->makeEdit($student->phone) ?>
+                                                <?= !empty($student->phone) ? $this->Phone->makeEdit($student->phone) : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -168,7 +171,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="edu_level"><?= __('Trình độ học vấn') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $eduLevel[$student->educational_level] ?>
+                                                <?= !empty($student->educational_level) ? $eduLevel[$student->educational_level] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +179,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="nation"><?= __('Dân tộc') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $nation[$student->nation] ?>
+                                                <?= !empty($student->nation) ? $nation[$student->nation] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -184,7 +187,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="religion"><?= __('Tôn giáo') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $religion[$student->religion] ?>
+                                                <?= !empty($student->religion) ? $religion[$student->religion] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +195,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="country"><?= __('Quốc tịch') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $country[$student->country] ?>
+                                                <?= !empty($student->country) ? $country[$student->country] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -200,7 +203,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="presenter"><?= __('Người giới thiệu') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= __('TBD') ?>
+                                                <?= !empty($student->presenter) ? $student->presenter->name : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -213,11 +216,15 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 array_pop($expectArr);
                                             ?>
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?php if (!empty($expectArr)) : ?>
                                                 <ol class="list-unstyled">
                                                 <?php foreach ($expectArr as $key => $value): ?>
                                                 <li><?= $jobs[$value] ?></li>
                                                 <?php endforeach; ?>
                                                 </ol>
+                                                <?php else: ?>
+                                                <?= __('N/A') ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>
@@ -228,6 +235,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Địa chỉ cư trú') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <ul id="address-tabs" class="nav nav-tabs">
@@ -240,7 +250,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <label class="control-label col-md-4 col-sm-4 col-xs-12" for="city"><?= __('Tỉnh/Thành phố') ?></label>
                                                 <div class="col-md-7 col-sm-7 col-xs-12">
                                                     <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                        <?= $student->addresses[0]->city->name ?>
+                                                        <?= !empty($student->addresses[0]->city) ? $student->addresses[0]->city->name : 'N/A' ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -319,13 +329,16 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Tình trạng sức khỏe') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="blood_group"><?= __('Nhóm máu') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $bloodGroup[$student->blood_group] ?>
+                                                <?= !empty($student->blood_group) ? $bloodGroup[$student->blood_group] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -387,7 +400,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="preferred_hand"><?= __('Tay thuận') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $preferredHand[$student->preferred_hand] ?>
+                                                <?= !empty($student->preferred_hand) ? $preferredHand[$student->preferred_hand] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -398,13 +411,16 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="is_lived_in_japan"><?= __('Đã từng đi nhật') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $yesNoQuestion[$student->is_lived_in_japan] ?>
+                                                <?= !empty($student->is_lived_in_japan) ? $yesNoQuestion[$student->is_lived_in_japan] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -427,7 +443,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="reject"><?= __('Từng bị từ chối lưu trú') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $yesNoQuestion[$student->reject_stay] ?>
+                                                <?= !empty($student->reject_stay) ? $yesNoQuestion[$student->reject_stay] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -440,6 +456,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Quan hệ gia đình') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered custom-table family-table">
@@ -516,6 +535,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Chứng minh nhân dân') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -547,6 +569,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Thị thực (Visa)') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -588,6 +613,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Hộ chiếu (Passport)') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -633,6 +661,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Quá trình học tập') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered custom-table educations-table">
@@ -683,6 +714,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Năng lực ngôn ngữ') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered custom-table languages-table">
@@ -726,6 +760,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Kinh nghiệm làm việc') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered custom-table work-exp-table">
@@ -780,6 +817,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Danh sách hồ sơ') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered custom-table document-table">
@@ -794,6 +834,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             </tr>
                                         </thead>
                                         <tbody>
+                                        <?php if (!empty($student->documents)): ?>
                                         <?php $counter = 0; ?>
                                         <?php foreach($document as $key => $value): ?>
                                         <tr class="row-document" id="row-document-<?=$counter?>">
@@ -818,7 +859,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <td class="cell col-md-2">
                                                 <span class="submit-date-txt">
                                                     <?php 
-                                                        if(empty($student->documents) || empty($student->documents[$counter]->submit_date)) {
+                                                        if(empty($student->documents[$counter]->submit_date)) {
                                                             echo '-';
                                                         } else {
                                                             echo $student->documents[$counter]->submit_date;
@@ -832,6 +873,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <?php $counter++; ?>
                                         </tr>
                                         <?php endforeach; ?> 
+                                        <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>

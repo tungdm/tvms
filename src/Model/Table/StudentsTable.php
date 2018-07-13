@@ -74,6 +74,9 @@ class StudentsTable extends Table
             'foreignKey' => 'student_id',
             'dependent' => true,
         ]);
+        $this->belongsTo('Presenters', [
+            'foreignKey' => 'presenter_id',
+        ]);
         $this->belongsToMany('Orders', [
             'through' => 'OrdersStudents',
             'dependent' => true,

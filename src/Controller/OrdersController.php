@@ -79,6 +79,9 @@ class OrdersController extends AppController
                     case "3":
                         $allOrders->where(['interview_date <' => $now]);
                         break;
+                    case "4":
+                        $allOrders->where(['status' => "4"]);
+                        break;
                 }
             }
         } else {

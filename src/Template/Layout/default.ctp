@@ -32,7 +32,9 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->css('font-awesome/font-awesome.min.css') ?>
     <?= $this->Html->css('nprogress/nprogress.css') ?>
     <?= $this->Html->css('mCustomScrollbar/jquery.mCustomScrollbar.min.css') ?>
-    <?= $this->Html->css('pnotify.custom.min.css') ?>
+    <?= $this->Html->css('pnotify.css') ?>
+    <?= $this->Html->css('pnotify.buttons.css') ?>
+    <?= $this->Html->css('pnotify.nonblock.css') ?>
     <?= $this->Html->css('select2.min.css'); ?>
     <?= $this->Html->css('select2-bootstrap.css'); ?>
 
@@ -47,7 +49,7 @@ $cakeDescription = 'TVMS';
     <?= $this->fetch('styleTop') ?>
     <?= $this->fetch('scriptTop') ?>
 </head>
-<body class="hold-transition skin-blue sidebar-mini fixed">
+<body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
         <header class="main-header">
             <!-- Logo -->
@@ -226,7 +228,10 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->script('bootstrap.min.js') ?>
     <?= $this->Html->script('fastclick.js') ?>
     <?= $this->Html->script('nprogress.js') ?>
-    <?= $this->Html->script('pnotify.custom.min.js') ?>
+    <?= $this->Html->script('pnotify.js') ?>
+    <?= $this->Html->script('pnotify.buttons.js') ?>
+    <?= $this->Html->script('pnotify.nonblock.js') ?>
+
     <?= $this->Html->script('select2.full.js'); ?>
     <?= $this->Html->script('parsley.min.js'); ?>
     <?= $this->Html->script('handlebars-v4.0.11.js'); ?>

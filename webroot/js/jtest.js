@@ -24,18 +24,38 @@ $(document).ready(function() {
 
     $('.set-score-btn').click(function () {
         var validateResult = $('#set-score-form').parsley().validate();
-        console.log(validateResult);
-        // if (validateResult) {
-        //     $('#set-score-form')[0].submit();
-        // }
+        if (validateResult) {
+            $('#set-score-form')[0].submit();
+        }
     });
 
     $('.select-lesson-from').change(function() {
+        var lessonTo = parseInt($('.select-lesson-to').val());
+        var lessonFrom = parseInt($(this).val());
+        if (lessonTo !=0 || lessonFrom < lessonTo) {
         $('.select-lesson-to').attr('min', $(this).val());
+            var optionTxt = $('.select-lesson-to option').map(function(e) { 
+                if ($(this).val() == lessonFrom) {
+                    return $(this).html(); 
+                } 
+            });
+            $('.select-lesson-to').attr('data-parsley-min-message', 'Please choose option after ' + optionTxt[0]);
+        }
     });
 
     $('.select-lesson-to').change(function() {
-        $('.select-lesson-from').attr('max', $(this).val());
+        var lessonFrom = parseInt($('.select-lesson-from').val());
+        var fromMax = parseInt($('.select-lesson-from').attr('max'));
+        var lessonTo = parseInt($(this).val());
+        if (lessonFrom < lessonTo && lessonTo < fromMax ) {
+            $('.select-lesson-from').attr('max', lessonTo);
+            var optionTxt = $('.select-lesson-from option').map(function(e) { 
+                if ($(this).val() == lessonTo) {
+                    return $(this).html(); 
+                } 
+    });
+            $('.select-lesson-from').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
+        }
     });
 
     $('#jclass-id').change(function() {
@@ -76,6 +96,39 @@ $(document).ready(function() {
                 var template = Handlebars.compile(source);
                 var html = template(resp.data);
                 $('#student-container').html(html);
+
+                // remove all attribute
+                $('.select-lesson-to').removeAttr('max');
+                $('.select-lesson-to').removeAttr('min');
+                $('.select-lesson-from').removeAttr('max');
+                $('.select-lesson-from').removeAttr('min');
+
+                // set max lesson for testing
+                $('.select-lesson-to').attr('max', resp.currentLesson);
+
+                var max = $('.select-lesson-to').val();
+                if ($('.select-lesson-to').val() == "" || $('.select-lesson-to').val() > resp.currentLesson) {
+                    $('.select-lesson-from').attr('max', resp.currentLesson);
+                    max = resp.currentLesson;
+                } else {
+                    $('.select-lesson-from').attr('max', $('.select-lesson-to').val());
+                }
+
+                var optionTxt = $('.select-lesson-to option').map(function(e) { 
+                    if (parseInt($(this).val()) == max) {
+                        return $(this).html(); 
+                    } 
+                });
+                $('.select-lesson-to').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
+                $('.select-lesson-from').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
+
+                if ($('.select-lesson-from').val()) {
+                    $('.select-lesson-from').parsley().validate();
+                }
+
+                if ($('.select-lesson-to').val()) {
+                    $('.select-lesson-to').parsley().validate();
+                }
             },
             complete: function() {
                 ajaxing = false;
@@ -141,6 +194,9 @@ function addSkill() {
 
         $('#add-skill-modal').modal('toggle');
         perData.skillSelected.push(parseInt($('#modal-skill').val()));
+
+        // edit flag
+        $('input[name="flag"]').val(perData.skillSelected.length);
     }
 }
 
@@ -220,6 +276,8 @@ function deleteRow(delEl, hiddenId) {
     var skillId = parseInt($(delEl).closest('.row-skill').find('.skill').val());
     // remove in selected array
     perData.skillSelected.splice(perData.skillSelected.indexOf(skillId), 1);
+    // update flag
+    $('input[name="flag"]').val(perData.skillSelected.length);
 
     var trows = $('#skill-container > tr');
     var idField = $('.skill-id').find('input');

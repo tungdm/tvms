@@ -6,12 +6,11 @@
 use Cake\Core\Configure;
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 
 $recordsDisplay = Configure::read('recordsDisplay');
 $lessons = Configure::read('lessons');
-
 
 $counter = 0;
 
@@ -27,16 +26,16 @@ $this->Paginator->setTemplates([
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Danh sách lớp học') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li class="active">Classes</li>
-</ol>
+    <h1><?= __('Danh sách lớp học') ?></h1>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Home',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li class="active">Classes</li>
+    </ol>
 <?php $this->end(); ?>
 
 <div class="row">
@@ -45,7 +44,10 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Classes') ?></h3>
                 <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    <?php if ($permission == 0): ?>
                     <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
+                    <?php endif; ?>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -166,7 +168,13 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php else: ?>
                         <?php foreach ($jclasses as $jclass): ?>
-                        <?php $counter++ ?>
+                        <?php 
+                            $counter++;
+                            if ($currentUser['id'] == $jclass->user_id && $permission != 0) {
+                                // current user only have read access but they are the gvcn
+                                $permission = 0.1;
+                            }
+                        ?>
                         <tr>
                             <td class="cell"><?= $counter ?></td>
                             <td class="cell nameCol"><?= h($jclass->name) ?></td>
@@ -179,10 +187,13 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
                                         </button>
                                     <ul role="menu" class="dropdown-menu">
-                                        <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
+                                    <?php if ($permission < 1 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
                                             <?= $this->Html->link(__('Edit'), ['action' => 'edit', $jclass->id]) ?>
                                         </li>
+                                    <?php endif; ?>
+
+                                    <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
                                             <?= $this->Form->postLink(__('Delete'), 
                                             ['action' => 'delete', $jclass->id], 
@@ -191,11 +202,13 @@ $this->Paginator->setTemplates([
                                                 'confirm' => __('Are you sure you want to delete class {0}?', $jclass->name)
                                             ]) ?>
                                         </li>
-                                        <?php else: ?>
+                                    <?php endif; ?>
+
+                                    <?php if($permission == 1): ?>
                                         <li>
                                             <?= $this->Html->link(__('View'), ['action' => 'view', $jclass->id]) ?>
                                         </li>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
                                     </ul>
                                 </div>
                             </td>

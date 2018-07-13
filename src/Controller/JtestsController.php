@@ -2,9 +2,13 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Database\Expression\QueryExpression;
+use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Log\Log;
 use Cake\Core\Configure;
+use Cake\I18n\Time;
+
 
 /**
  * Jtests Controller
@@ -24,10 +28,34 @@ class JtestsController extends AppController
         $permissionsTable = TableRegistry::get('Permissions');
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
-        if (!empty($userPermission)) {
-            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+        if (!empty($userPermission) || $user['role_id'] == 1) {
+            if ($action == 'edit') {
+                $now = Time::now()->i18nFormat('yyyy-MM-dd');
+                $target_id = $this->request->getParam('pass');
+                if (!empty($target_id)) {
+                    $target_id = $target_id[0];
+                    $testDate = $this->Jtests->get($target_id)->test_date;
+                    if ($testDate >= $now) {
+                        // the test is tested, can not modified
+                        return false;
+                    }
+                }
+            }
+
+            if ($user['role_id'] != 1 && ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view'])))) {
                 $session->write($controller, $userPermission->action);
                 return true;
+            }
+
+            // supervisory can access to set score action
+            if ($action == 'setScore') {
+                $target_id = $this->request->getParam('pass');
+                if (!empty($target_id)) {
+                    $target_id = $target_id[0];
+                    if (!empty($this->Jtests->JtestContents->find()->where(['jtest_id' => $target_id, 'user_id' => $user['id']])->toArray())) {
+                        return true;
+                    }
+                }
             }
         }
         return parent::isAuthorized($user);
@@ -40,12 +68,55 @@ class JtestsController extends AppController
      */
     public function index()
     {
+        $query = $this->request->getQuery();
+        if (!empty($query)) {
+            $allTest = $this->Jtests->find();
+
+            if (!isset($query['records']) || empty($query['records'])) {
+                $query['records'] = 10;
+            }
+            if (isset($query['test_date']) && !empty($query['test_date'])) {
+                $allTest->where(['test_date' => $query['test_date']]);
+            }
+            if (isset($query['lesson_from']) && !empty($query['lesson_from'])) {
+                $allTest->where(['lesson_from >=' => $query['lesson_from']]);
+            }
+            if (isset($query['lesson_to']) && !empty($query['lesson_to'])) {
+                $allTest->where(['lesson_to <=' => $query['lesson_to']]);
+            }
+            if (isset($query['class_id']) && !empty($query['class_id'])) {
+                $allTest->where(['jclass_id <=' => $query['class_id']]);
+            }
+            if (isset($query['status']) && !empty($query['status'])) {
+                $now = Time::now()->i18nFormat('yyyy-MM-dd');
+
+                switch ($query['status']) {
+                    case "1":
+                        $allTest->where(['test_date >' => $now]);
+                        break;
+                    case "2":
+                        $allTest->where(['test_date' => $now]);
+                        break;
+                    case "3":
+                        $allTest->where(['test_date <' => $now]);
+                        break;
+                    case "4":
+                        $allTest->where(['status' => "4"]);
+                        break;
+                }
+            }
+        } else {
+            $query['records'] = 10;
+            $allTest = $this->Jtests->find()->order(['Jtests.created' => 'DESC']);
+        }
+
         $this->paginate = [
-            'contain' => ['Jclasses', 'JtestContents', 'JtestContents.Users']
+            'contain' => ['Jclasses', 'JtestContents', 'JtestContents.Users'],
+            'limit' => $query['records']
         ];
-        $jtests = $this->paginate($this->Jtests);
+        $jtests = $this->paginate($allTest);
         $jclasses = $this->Jtests->Jclasses->find('list');
-        $this->set(compact('jtests', 'jclasses'));
+        $this->set(compact('jtests', 'jclasses', 'query'));
     }
 
     /**
@@ -58,7 +129,11 @@ class JtestsController extends AppController
     public function view($id = null)
     {
         $jtest = $this->Jtests->get($id, [
-            'contain' => ['Jclasses', 'Students', 'JtestAttendances', 'JtestContents', 'JtestContents.Users']
+            'contain' => [
+                'Jclasses', 
+                'Students', 
+                'JtestContents' => ['sort' => ['skill' => 'ASC']], 
+                'JtestContents.Users']
         ]);
 
         $this->set('jtest', $jtest);
@@ -82,9 +157,16 @@ class JtestsController extends AppController
             }
             $this->Flash->error(__('The test could not be saved. Please, try again.'));
         }
-        $jclasses = $this->Jtests->Jclasses->find('list');
+        $lessons = Configure::read('lessons');
+        $jclasses = $this->Jtests->Jclasses->find()
+            ->map(function ($row) use ($lessons) {
+                $row->title = $row->name . ' ( ' . $lessons[$row->current_lesson] . ' )';
+                return $row;
+            })
+            ->combine('id', 'title')
+            ->toArray();
         $userTable = TableRegistry::get('Users');
-        $teachers = $userTable->find('list')->where(['role_id' => '3']);        
+        $teachers = $userTable->find('list')->where(['role_id' => '3']);
         $this->set(compact('jtest', 'jclasses', 'teachers'));
     }
 
@@ -95,34 +177,38 @@ class JtestsController extends AppController
         $resp = [];
         try {
             if (isset($query['id']) && !empty($query['id'])) {
+                // get current lesson
+                $currentLesson = TableRegistry::get('Jclasses')->get($query['id'])->current_lesson;
                 $stdClassTable = TableRegistry::get('JclassesStudents');
                 $allStudents = $stdClassTable->find()->contain(['Students'])->where(['jclass_id' => $query['id']])->select(['student_id'])->toArray();
                 $arr1 = [];
                 foreach ($allStudents as $key => $value) {
                     array_push($arr1, $value->student_id);
                 }
-                Log::write('debug', $arr1);
 
                 $stdTestTable = TableRegistry::get('JtestsStudents');
+
                 $stdTest = $stdTestTable->find()->where(['jtest_id' => $query['testId']])->select(['id', 'student_id'])->toArray();
+
                 $arr2 = [];
                 $arrId = [];
                 foreach ($stdTest as $key => $value) {
                     array_push($arr2, $value->student_id);
                     array_push($arrId, array('id' => $value->id));
                 }
-                Log::write('debug', $arr2);
 
                 if (!empty(array_diff($arr1, $arr2))) {
                     $resp = [
                         'status' => 'changed',
-                        'data' => $allStudents
+                        'data' => $allStudents,
+                        'currentLesson' => $currentLesson
                     ];
                 } else {
                     $resp = [
                         'status' => 'unchanged',
                         'data' => $stdTest,
-                        'ids' => $arrId
+                        'ids' => $arrId,
+                        'currentLesson' => $currentLesson
                     ];
                 }
             }
@@ -161,7 +247,7 @@ class JtestsController extends AppController
         }
         $jclasses = $this->Jtests->Jclasses->find('list');
         $userTable = TableRegistry::get('Users');
-        $teachers = $userTable->find('list')->where(['role_id' => '3']);        
+        $teachers = $userTable->find('list')->where(['role_id' => '3']);
         $this->set(compact('jtest', 'jclasses', 'teachers'));
         $this->render('/Jtests/add');
     }
@@ -176,7 +262,7 @@ class JtestsController extends AppController
         $teacher = $this->Jtests->JtestContents->find()->where(['jtest_id' => $id, 'user_id' => $currentUserId])->toArray();
         if (empty($teacher)) {
             $this->Flash->error(__('You do not have permission for this action.'));
-            return $this->redirect(['action' => 'index']); 
+            return $this->redirect(['action' => 'index']);
         } else {
             $skill = $teacher[0]['skill'];
         }
@@ -186,16 +272,19 @@ class JtestsController extends AppController
                 'fieldList' => ['students'],
                 'associated' => ['Students' => ['fieldList' => ['_joinData']]],
                 ]);
+            $jtest->flag = $jtest->flag - 1;
+            if ($jtest->flag == 0) {
+                $jtest->status = '4'; // finish scoring
+            }
             if ($this->Jtests->save($jtest)) {
                 $this->Flash->success(__('The score has been saved.'));
 
-                return $this->redirect(['action' => 'setScore', $jtest->id]);
+                return $this->redirect(['action' => 'view', $jtest->id]);
             }
             $this->Flash->error(__('The score could not be saved. Please, try again.'));
         }
 
         $this->set(compact('jtest', 'skill'));
-
     }
 
     /**

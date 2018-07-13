@@ -61,10 +61,12 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
     ]) ?>
 <?= $this->Form->hidden('id') ?>
 <?= $this->Form->hidden('changed', ['value' => 'false']) ?>
+<?= $this->Form->hidden('flag') ?>
 
 <?= $this->Form->unlockField('jtest_contents') ?>
 <?= $this->Form->unlockField('students') ?>
 <?= $this->Form->unlockField('changed') ?>
+<?= $this->Form->unlockField('flag') ?>
 
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -124,6 +126,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'label' => false, 
                                 'data-parsley-errors-container' => '#error-lesson-from',
                                 'data-parsley-class-handler' => '#select2-lesson-from',
+                                'data-parsley-max-message' => '',
                                 'class' => 'form-control col-md-7 col-xs-12 select2-theme select-lesson-from'
                                 ]) ?>
                             <span id="error-lesson-from"></span>
@@ -137,6 +140,9 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'label' => false, 
                                 'data-parsley-errors-container' => '#error-lesson-to',
                                 'data-parsley-class-handler' => '#select2-lesson-to',
+                                'data-parsley-max-message' => '',
+                                'data-parsley-min-message' => '',
+                                'data-parsley-range-message' => 'Please select option between lesson from and current lesson',
                                 'class' => 'form-control col-md-7 col-xs-12 select2-theme select-lesson-to'
                                 ]) ?>
                             <span id="error-lesson-to"></span>
@@ -145,7 +151,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="contents"><?= __('Kỹ năng thi') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <div class="col-md-7 col-sm-7 col-xs-12 table-responsive">
                         <button type="button" class="btn btn-primary" id="add-skill" onclick="showAddSkillModal()"><?= __('Add new skill') ?></button>
                         <table class="table table-bordered custom-table">
                             <thead>
