@@ -19,18 +19,18 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('permissions') ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Tạo mới nhân viên') ?></h1>
+<h1><?= __('TẠO MỚI NHÂN VIÊN') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang chính',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Users'), ['controller' => 'Users', 'action' => 'index']) ?>
+        <?= $this->Html->link(__('Nhân viên'), ['controller' => 'Users', 'action' => 'index']) ?>
     </li>
-    <li class="active">Create new user</li>
+    <li class="active">Tạo Mới</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -53,23 +53,23 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                     ]) 
                 ?>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="username"><?= __('Username') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="username"><?= __('Tên tài khoản') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('username', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'User\'s name'
+                            'placeholder' => 'Vui lòng nhập tên tài khoản'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Fullname') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Tên nhân viên') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('fullname', [
                             'label' => false,
                             'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'both name(s) e.g Jon Doe'
+                            'placeholder' => 'Vui lòng nhập tên nhân viên. Ví dụ: Nguyễn Văn A'
                             ]) ?>
                     </div>
                 </div>
@@ -80,12 +80,12 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                             'label' => false,
                             'required' => true,                            
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'example@email.com'
+                            'placeholder' => 'nguyenvana@email.com'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Gender') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('gender', [
                             'options' => $gender, 
@@ -100,7 +100,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Phone') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'required' => true,
@@ -111,7 +111,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Birthday') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
                     <div class="col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group date" id="user-birthday">
                             <?= $this->Form->control('birthday', [
@@ -133,7 +133,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <div class="ln_solid"></div>
                 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Role') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Chức vụ') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('role_id', [
                             'options' => $roles, 
@@ -150,13 +150,13 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <div class="form-group permission-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="permission"><?= __('Permission') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12 table-responsive">
-                        <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Add new permission') ?></button>
+                        <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Thêm quyền') ?></button>
                         <table class="table table-bordered custom-table permission-table">
                             <thead>
                                 <tr>
-                                    <th scope="col"><?= __('Scope') ?></th>
-                                    <th scope="col"><?= __('Permission') ?></th>
-                                    <th scope="col" class="actions"><?= __('Actions') ?></th>
+                                    <th scope="col"><?= __('Phạm vi') ?></th>
+                                    <th scope="col"><?= __('Quyền hạn') ?></th>
+                                    <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                 </tr>
                             </thead>
                             <tbody id="permission-container">
@@ -167,7 +167,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <div class="ln_solid"></div>
                 <div class="form-group">
                     <div class="col-md-6 col-md-offset-3">
-                        <?= $this->Form->button(__('Submit'), ['class' => 'btn btn-success', 'type' => 'button', 'id' => 'create-user-btn']) ?>
+                        <?= $this->Form->button(__('Hoàn tất'), ['class' => 'btn btn-success', 'type' => 'button', 'id' => 'create-user-btn']) ?>
                     </div>
                 </div>
                 <?= $this->Form->end() ?>

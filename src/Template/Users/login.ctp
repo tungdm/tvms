@@ -22,16 +22,16 @@
             <div class="form login_form">
                 <section class="login_content">
                     <?= $this->Form->create() ?>
-                    <h1>Login</h1>
-                    <?= $this->Form->control('username', ['label' => false, 'class' => 'form-control', 'placeholder' => 'Username']) ?>
+                    <h1>TVMS</h1>
+                    <?= $this->Form->control('username', ['label' => false, 'class' => 'form-control', 'placeholder' => 'Tên tài khoản']) ?>
                     <?= $this->Form->control('password', ['label' => false, 'class' => 'form-control', 'placeholder' => 'Password']) ?>
                     <div class="checkbox remember-me" style="text-align: right;">
                         <label>
                             <?= $this->Form->checkbox('remember_me', ['value' => 'true', 'hiddenField' => 'false']) ?>
-                            <?= __('Remember me') ?>
+                            <?= __('Ghi nhớ mật khẩu') ?>
                         </label>
                     </div>
-                    <?= $this->Form->button('Login', ['class' => 'btn btn-default']) ?>
+                    <?= $this->Form->button('ĐĂNG NHẬP', ['class' => 'btn btn-default']) ?>
                     <?= $this->Form->end() ?>
                 </section>
             </div>

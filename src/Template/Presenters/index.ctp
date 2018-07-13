@@ -31,11 +31,11 @@ $this->Paginator->setTemplates([
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Cộng tác viên</li>
+    <li class="active">Cộng Tác Viên</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -43,7 +43,7 @@ $this->Paginator->setTemplates([
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('CỘNG TÁC VIÊN') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
                     <a data-toggle="modal" data-target="#add-presenter-modal" href="#"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
@@ -81,9 +81,9 @@ $this->Paginator->setTemplates([
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="nameCol">
-                                <?= $this->Paginator->sort('name', 'Tên')?>
+                                <?= $this->Paginator->sort('name', 'Cộng tác viên')?>
                             </th>
                             <th scope="col" class="addressCol">
                                 <?= $this->Paginator->sort('address' ,'Địa chỉ') ?>
@@ -94,7 +94,7 @@ $this->Paginator->setTemplates([
                             <th scope="col" class="typeCol">
                                 <?= $this->Paginator->sort('type', 'Loại') ?>
                             </th>
-                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                            <th scope="col" class="actions" ><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -108,7 +108,7 @@ $this->Paginator->setTemplates([
                                     ]) 
                                 ?>
                             </td>
-                            <td class="col-md-2 addressCol">
+                            <td class="col-md-4 addressCol">
                                 <?= $this->Form->control('address', [
                                     'label' => false,                             
                                     'class' => 'form-control col-md-7 col-xs-12', 
@@ -124,7 +124,7 @@ $this->Paginator->setTemplates([
                                     ])
                                 ?>
                             </td>
-                            <td class="col-md-2 typeCol">
+                            <td class="col-md-1 typeCol">
                                 <?= $this->Form->control('type', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12',
@@ -141,7 +141,7 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($presenters)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($presenters as $presenter): ?>
@@ -167,7 +167,7 @@ $this->Paginator->setTemplates([
                                                 ['action' => 'delete', $presenter->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Are you sure you want to delete {0}?', $presenter->username)
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa {0}?', $presenter->username)
                                                 ]) ?>
                                         </li>
                                     </ul>
@@ -179,14 +179,14 @@ $this->Paginator->setTemplates([
                     </tbody>
                 </table>
                 <div class="paginator">
-                    <ul class="pagination">
-                        <?= $this->Paginator->first('<< ' . __('first')) ?>
-                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                <ul class="pagination">
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
                         <?= $this->Paginator->numbers() ?>
-                        <?= $this->Paginator->next(__('next') . ' >') ?>
-                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                        <?= $this->Paginator->next(__('Trang kế') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
                     </ul>
-                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
             </div>
         </div>
@@ -199,7 +199,7 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Thêm Mới Cộng Tác Viên</h4>
+                <h4 class="modal-title">THÊM CỘNG TÁC VIÊN MỚI</h4>
             </div>
             <div class="modal-body">
                 <?= $this->Form->create(false, [
@@ -256,7 +256,7 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Chỉnh Sửa Thông Tin</h4>
+                <h4 class="modal-title">CẬP NHẬT THÔNG TIN CỘNG TÁC VIÊN</h4>
             </div>
             <div class="modal-body">
                 <?= $this->Form->create(false, [

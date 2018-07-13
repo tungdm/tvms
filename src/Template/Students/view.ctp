@@ -35,12 +35,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Students'), [
+        <?= $this->Html->link(__('Lao Động'), [
             'controller' => 'Students',
             'action' => 'index']) ?>
     </li>

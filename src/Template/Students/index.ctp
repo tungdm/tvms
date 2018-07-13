@@ -36,15 +36,15 @@ $this->Paginator->setTemplates([
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Danh sách thực tập sinh') ?></h1>
+<h1><?= __('QUẢN LÝ LAO ĐỘNG') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Students</li>
+    <li class="active">Lao Động</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -52,7 +52,7 @@ $this->Paginator->setTemplates([
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('Students') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="#" class="btn btn-box-tool" type="button" data-toggle="modal" data-target="#add-candidate-modal"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
@@ -63,7 +63,7 @@ $this->Paginator->setTemplates([
                             <li><a href="#">Something else here</a></li>
                             <li class="divider"></li>
                             <li>
-                                <?= $this->Html->link('Export Xlsx', [
+                                <?= $this->Html->link('Xuất danh sách', [
                                     'action' => 'exportXlsx'
                                 ]) ?>
                             </li>
@@ -113,7 +113,7 @@ $this->Paginator->setTemplates([
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
                             </th>
-                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -180,7 +180,7 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($students)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($students as $student): ?>
@@ -201,24 +201,24 @@ $this->Paginator->setTemplates([
                                     <ul role="menu" class="dropdown-menu">
                                         <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
-                                            <?= $this->Html->link(__('Edit'), ['action' => 'info', $student->id]) ?>
+                                            <?= $this->Html->link(__('Chi tiết'), ['action' => 'info', $student->id]) ?>
                                         </li>
                                         <li>
-                                            <?= $this->Form->postLink(__('Delete'), 
+                                            <?= $this->Form->postLink(__('Xóa'), 
                                             ['action' => 'delete', $student->id], 
                                             [
                                                 'escape' => false, 
-                                                'confirm' => __('Are you sure you want to delete {0}?', $student->fullname)
+                                                'confirm' => __('Bạn có chắc muốn xóa {0}?', $student->fullname)
                                             ]) ?>
                                         </li>
                                         <?php else: ?>
                                         <li>
-                                            <?= $this->Html->link(__('View'), ['action' => 'view', $student->id]) ?>
+                                            <?= $this->Html->link(__('Xem'), ['action' => 'view', $student->id]) ?>
                                         </li>
                                         <?php endif; ?>
                                         <li class="divider"></li>
                                         <li>
-                                            <?= $this->Html->link(__('Export Resume'), ['action' => 'exportResume', $student->id ]) ?>
+                                            <?= $this->Html->link(__('Xuất CV Việt'), ['action' => 'exportResume', $student->id ]) ?>
                                         </li>
                                     </ul>
                                 </div>
@@ -230,13 +230,13 @@ $this->Paginator->setTemplates([
                 </table>
                 <div class="paginator">
                     <ul class="pagination">
-                        <?= $this->Paginator->first('<< ' . __('first')) ?>
-                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
                         <?= $this->Paginator->numbers() ?>
-                        <?= $this->Paginator->next(__('next') . ' >') ?>
-                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                        <?= $this->Paginator->next(__('Trang sau') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
                     </ul>
-                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
             </div>
         </div>
@@ -248,7 +248,7 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THÊM MỚI LAO ĐỘNG</h4>
             </div>
             <?= $this->Form->create(null, [
                 'type' => 'post',
@@ -360,8 +360,8 @@ $this->Paginator->setTemplates([
                 </div>
             </div>
             <div class="modal-footer">
-                <?= $this->Form->button(__('Submit'), ['class' => 'btn btn-primary']) ?>
-                <button type="button" class="btn btn-default" id="add-candidate-close-btn" data-dismiss="modal">Close</button>
+                <?= $this->Form->button(__('Hoàn tất'), ['class' => 'btn btn-success']) ?>
+                <button type="button" class="btn btn-default" id="add-candidate-close-btn" data-dismiss="modal">Đóng</button>
             </div>
             <?= $this->Form->end() ?>
         </div>

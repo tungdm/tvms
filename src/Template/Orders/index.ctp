@@ -32,15 +32,15 @@ $this->Paginator->setTemplates([
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Danh sách đơn hàng') ?></h1>
+<h1><?= __('ĐƠN HÀNG PHỎNG VẤN') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Orders</li>
+    <li class="active">Đơn Hàng</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -48,7 +48,7 @@ $this->Paginator->setTemplates([
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('Orders') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                     <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
@@ -111,7 +111,7 @@ $this->Paginator->setTemplates([
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
                             </th>
-                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -188,7 +188,7 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($orders)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($orders as $order): ?>
@@ -211,7 +211,7 @@ $this->Paginator->setTemplates([
                             </td>
                             <td class="cell companyIdCol">
                                 <?php if ($order->has('company')): ?>
-                                <?= $this->Html->link(h($order->company->guild->name_romaji), [
+                                <?= $this->Html->link(h($order->company->name_romaji), [
                                     'controller' => 'Companies', 
                                     'action' => 'index', 
                                     '?' => [
@@ -238,30 +238,30 @@ $this->Paginator->setTemplates([
                                     <ul role="menu" class="dropdown-menu">
                                         <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
-                                            <?= $this->Html->link(__('Edit'), ['action' => 'edit', $order->id]) ?>
+                                            <?= $this->Html->link(__('Cập nhật'), ['action' => 'edit', $order->id]) ?>
                                         </li>
                                         <li>
-                                            <?= $this->Form->postLink(__('Delete'), 
+                                            <?= $this->Form->postLink(__('Xóa'), 
                                             ['action' => 'delete', $order->id], 
                                             [
                                                 'escape' => false, 
-                                                'confirm' => __('Are you sure you want to delete {0}?', $order->name)
+                                                'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0} này?', $order->name)
                                             ]) ?>
                                         </li>
                                             <?php if ($order->status !== "4"): ?>
                                                 <li class="divider"></li>
                                                 <li>
-                                                    <?= $this->Form->postLink(__('Close'), 
+                                                    <?= $this->Form->postLink(__('Đóng'), 
                                                     ['action' => 'close', $order->id], 
                                                     [
                                                         'escape' => false, 
-                                                        'confirm' => __('Are you sure you want to close {0}?', $order->name)
+                                                        'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
                                                     ]) ?>
                                                 </li>
                                             <?php endif; ?>
                                         <?php else: ?>
                                         <li>
-                                            <?= $this->Html->link(__('View'), ['action' => 'view', $order->id]) ?>
+                                            <?= $this->Html->link(__('Chi tiết'), ['action' => 'view', $order->id]) ?>
                                         </li>
                                         <?php endif; ?>
                                     </ul>
@@ -274,13 +274,13 @@ $this->Paginator->setTemplates([
                 </table>
                 <div class="paginator">
                     <ul class="pagination">
-                        <?= $this->Paginator->first('<< ' . __('first')) ?>
-                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
                         <?= $this->Paginator->numbers() ?>
-                        <?= $this->Paginator->next(__('next') . ' >') ?>
-                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                        <?= $this->Paginator->next(__('Trang sau') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
                     </ul>
-                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
             </div>
         </div>

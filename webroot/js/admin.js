@@ -927,7 +927,7 @@ function tableHover() {
 
 function initSelect2() {
     $('.select2-theme').select2({
-        placeholder: 'Select a value',
+        placeholder: 'Chọn thông tin',
         allowClear: true,
         theme: "bootstrap",
         language: {
@@ -1013,7 +1013,7 @@ function readURL(input) {
             }, 1000);
             $('#cropper-modal').modal('toggle');
         } else {
-            window.alert('Please choose an image file.');
+            window.alert('Xin hãy chọn đúng định dạng ảnh.');
         }
     } else {
         // clear input
@@ -1091,7 +1091,7 @@ $(document).ready(function() {
             return srcDate <= dstDate;
         },
         messages: {
-            en: 'Before end date',
+            en: 'Trước ngày kết thúc.',
         }
     });
 
@@ -1109,7 +1109,7 @@ $(document).ready(function() {
             return srcDate >= dstDate;
         },
         messages: {
-            en: 'After from date',
+            en: 'Sau ngày bắt đầu.',
         }
     });
 
@@ -1127,7 +1127,7 @@ $(document).ready(function() {
             return true;
         },
         messages: {
-            en: 'This value is required.',
+            en: 'Xin vui lòng không để trống.',
         }
     });
 

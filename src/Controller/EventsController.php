@@ -35,7 +35,7 @@ class EventsController extends AppController
         if ($currentUserRole != 1) {
             // not admin
             $eventScope = [
-                '1' => 'Only me'
+                '1' => 'Chỉ mình tôi'
             ];
         }
         $this->set(compact('eventScope'));

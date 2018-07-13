@@ -64,20 +64,20 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('documents') ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Thông tin thực tập sinh') ?></h1>
+<h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Students'), [
+        <?= $this->Html->link(__('Lao Động'), [
             'controller' => 'Students',
             'action' => 'index']) ?>
     </li>
-    <li class="active">Info</li>
+    <li class="active">Thông Tin</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -1554,7 +1554,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">a</h4>
             </div>
             <div class="modal-body">
                 <div class="image_container col-md-12 col-xs-12">
@@ -1563,8 +1563,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="crop-btn" data-dismiss="modal">Crop</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="crop-btn" data-dismiss="modal">Cắt ảnh</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -1575,7 +1575,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THÊM MỚI QUAN HỆ</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -1685,8 +1685,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="add-member-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="add-member-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -1798,7 +1798,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THÊM LỊCH SỬ HỌC TẬP</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -1900,8 +1900,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="add-edu-his-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-edu-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="add-edu-his-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-edu-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -1993,7 +1993,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">KINH NGHIỆM LÀM VIỆC</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -2103,8 +2103,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="add-exp-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-exp-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="add-exp-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-exp-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -2207,7 +2207,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THỜI ĐIỂM SỐNG TẠI NHẬT</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -2264,8 +2264,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="set-lived-japan-btn" onclick="setTimeLived()">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="set-lived-japan-btn" onclick="setTimeLived()">Hoàn tất</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -2276,7 +2276,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">NĂNG LỰC NGÔN NGỮ</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -2358,8 +2358,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="add-lang-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-lang-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="add-lang-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-lang-modal-btn" data-dismiss="modal">Đóng
+                </button>
             </div>
         </div>
     </div>
@@ -2435,7 +2436,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">NGÀY TIẾP NHẬN HỒ SƠ - GHI CHÚ</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -2481,8 +2482,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="submit-document-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-document-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="submit-document-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-document-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

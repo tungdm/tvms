@@ -81,7 +81,7 @@ $(document).ready(function() {
                     // reset validation
                     $('#addresses-'+token+'-district').parsley().reset();
                     $('#addresses-'+token+'-district').select2({
-                        placeholder: 'Select a value',
+                        placeholder: 'Xin hãy chọn giá trị',
                         data: processedOptions,
                         allowClear: true,
                         theme: "bootstrap",
@@ -138,7 +138,7 @@ $(document).ready(function() {
                     // reset validation
                     $('#addresses-'+token+'-ward').parsley().reset();
                     $('#addresses-'+token+'-ward').select2({
-                        placeholder: 'Select a value',
+                        placeholder: 'Xin hãy chọn giá trị',
                         data: processedOptions,
                         allowClear: true,
                         theme: "bootstrap",
@@ -205,8 +205,8 @@ $(document).ready(function() {
             // check family not empty
             if (perData.familyCounter == 0) {
                 swal({
-                    title: 'Family area is empty',
-                    text: "Please fill those!",
+                    title: 'Quan hệ gia đình hiện đang bỏ trống',
+                    text: "Xin vui lòng kiểm tra lại!",
                     type: 'error',
                 }).then((result) => {
                     $('#student-tabs a[href="#tab_content1"]').tab('show');
@@ -216,8 +216,8 @@ $(document).ready(function() {
             // check education not empty
             if (perData.eduCounter == 0) {
                 swal({
-                    title: 'Education area is empty',
-                    text: "Please fill those!",
+                    title: 'Học vấn hiện chưa có thông tin',
+                    text: "Xin vui lòng kiểm tra lại!",
                     type: 'error',
                 }).then((result) => {
                     $('#student-tabs a[href="#tab_content3"]').tab('show');
@@ -227,8 +227,8 @@ $(document).ready(function() {
             // check experiences not empty
             if (perData.expCounter == 0) {
                 swal({
-                    title: 'Experiences area is empty',
-                    text: "Please fill those!",
+                    title: 'Kinh nghiệm làm việc chưa có thông tin',
+                    text: "Xin vui lòng kiểm tra lại!",
                     type: 'error',
                 }).then((result) => {
                     $('#student-tabs a[href="#tab_content3"]').tab('show'); 
@@ -330,7 +330,7 @@ function createMemberTemplate(counter) {
 function showAddMemberModal() {
     // renew add-btn
     $('#add-member-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="addMember()">Submit</button>').insertBefore('#close-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="addMember()">Hoàn tất</button>').insertBefore('#close-modal-btn');
     // reset form in modal
     resetFamilyModal();
     // show modal
@@ -373,7 +373,7 @@ function showEditMemberModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-member-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="editMember('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="editMember('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-modal-btn');
     
     // show modal
     $('#add-member-modal').modal('toggle');
@@ -402,13 +402,13 @@ function editMember(rowId) {
 function removeMember(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove family member',
-            text: "You won't be able to revert this!",
+            title: 'Xóa thông tin thành viên gia đình',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonText: 'Vâng, tôi vẫn muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
@@ -525,7 +525,7 @@ function createEduHisTemplate(counter) {
 function showAddEduHisModal() {
     // renew add-btn
     $('#add-edu-his-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="addEduHis()">Submit</button>').insertBefore('#close-edu-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="addEduHis()">Hoàn tất</button>').insertBefore('#close-edu-modal-btn');
     // reset form in modal
     resetEduHisModal();
     // show modal
@@ -544,7 +544,7 @@ function showEditEduHisModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-edu-his-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="editEduHis('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-edu-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="editEduHis('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-edu-modal-btn');
     
     // show modal
     $('#add-edu-his-modal').modal('toggle');
@@ -593,13 +593,13 @@ function editEduHis(rowId) {
 function removeEduHis(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove education history',
-            text: "You won't be able to revert this!",
+            title: 'Xóa lịch sử học vấn',
+            text: "Bạn không thể phục hồi nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
@@ -715,7 +715,7 @@ function createExpTemplate(counter) {
 function showAddExpModal() {
     // renew add-btn
     $('#add-exp-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="addExp()">Submit</button>').insertBefore('#close-exp-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="addExp()">Hoàn tất</button>').insertBefore('#close-exp-modal-btn');
     // reset form in modal
     resetExpModal();
     // show modal
@@ -756,7 +756,7 @@ function showEditExpModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-exp-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="editExp('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-exp-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="editExp('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-exp-modal-btn');
     
     // show modal
     $('#add-exp-modal').modal('toggle');
@@ -784,13 +784,13 @@ function editExp(rowId) {
 function removeExp(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove working experience',
-            text: "You won't be able to revert this!",
+            title: 'Xóa kinh nghiệm làm việc',
+            text: "Một khi đã xóa, bạn không thể khôi phục lại thông tin này!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
@@ -888,7 +888,7 @@ function createLangTemplate(counter) {
 function showAddLangModal() {
     // renew add-btn
     $('#add-lang-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="addLang()">Submit</button>').insertBefore('#close-lang-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="addLang()">Hoàn tất</button>').insertBefore('#close-lang-modal-btn');
     // reset form in modal
     resetLangModal();
     // show modal
@@ -926,7 +926,7 @@ function showEditLangModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-lang-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="editLang('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-lang-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="editLang('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-lang-modal-btn');
     
     // show modal
     $('#add-lang-modal').modal('toggle');
@@ -954,13 +954,13 @@ function editLang(rowId) {
 function removeLang(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove language ability',
-            text: "You won't be able to revert this!",
+            title: 'Xóa năng lực ngôn ngữ',
+            text: "Một khi đã xóa, bạn không thể khôi phục thông tin này!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
@@ -1049,7 +1049,7 @@ function showEditDocModal(ele) {
     var rowIdArr = $(ele).closest('.row-document').attr('id').split('-');
 
     $('#submit-document-btn').remove();
-    $('<button type="button" class="btn btn-success" id="submit-document-btn" onclick="editDoc('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-document-modal-btn');
+    $('<button type="button" class="btn btn-success" id="submit-document-btn" onclick="editDoc('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-document-modal-btn');
 
     // show modal
     $('#document-modal').modal('toggle');

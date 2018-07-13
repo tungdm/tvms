@@ -24,18 +24,18 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('image') ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Chỉnh sửa hồ sơ') ?></h1>
+<h1><?= __('CẬP NHẬT HỒ SƠ') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang chính',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Users'), ['controller' => 'Users', 'action' => 'index']) ?>
+        <?= $this->Html->link(__('Nhân viên'), ['controller' => 'Users', 'action' => 'index']) ?>
     </li>
-    <li class="active">Update profile</li>
+    <li class="active">Chỉnh sửa Profile</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -60,12 +60,12 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title">
-                    <?= __('Thông tin hồ sơ') ?>
+                    <?= __('Thông tin cá nhân') ?>
                 </h3>
             </div>
             <div class="box-body">
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Fullname') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Họ và tên') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('fullname', [
                             'label' => false,
@@ -86,7 +86,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Phone') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'label' => false, 
@@ -98,7 +98,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 </div>
 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Birthday') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
                     <div class="col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group date" id="user-birthday">
                             <?= $this->Form->control('birthday', [
@@ -148,7 +148,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
 
                 <div class="form-group">
                     <div class="col-md-6 col-md-offset-3">
-                        <?= $this->Form->button(__('Submit'), ['class' => 'btn btn-success']) ?>
+                        <?= $this->Form->button(__('Hoàn tất'), ['class' => 'btn btn-success']) ?>
                     </div>
                 </div>
                 <?= $this->Form->hidden('b64code')?>
@@ -164,7 +164,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">Chỉnh sửa ảnh</h4>
             </div>
             <div class="modal-body">
                 <div class="image_container col-md-12 col-xs-12">
@@ -173,8 +173,8 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="crop-btn" data-dismiss="modal">Crop</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="crop-btn" data-dismiss="modal">Cắt hình</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -185,7 +185,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THAY ĐỔI MẬT KHẨU</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -201,7 +201,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                             ]
                         ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Current Password') ?></label>
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Mật khẩu hiện tại') ?></label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <?= $this->Form->control('current-password', [
                                 'label' => false,
@@ -212,7 +212,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('New Password') ?></label>
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Mật khẩu mới') ?></label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <?= $this->Form->control('new-password', [
                                 'label' => false,
@@ -224,7 +224,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Confirm Password') ?></label>
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Nhập lại mật khẩu mới') ?></label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <?= $this->Form->control('confirm-password', [
                                 'label' => false,
@@ -240,8 +240,8 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="change-password-btn">Sumbit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="change-password-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

@@ -22,16 +22,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Orders'), [
+        <?= $this->Html->link(__('Đơn Hàng'), [
             'controller' => 'Orders',
             'action' => 'index']) ?>
     </li>
-    <li class="active">Order Detail</li>
+    <li class="active">Chi tiết</li>
 </ol>
 <?php $this->end(); ?>
 <div class="form-horizontal form-label-left">
@@ -39,7 +39,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <h3 class="box-title"><?= __('Thông tin cơ bản') ?></h3>
+                    <h3 class="box-title"><?= __('THÔNG TIN ĐƠN HÀNG') ?></h3>
                 </div>
                 <div class="box-body">
                     <div class="form-group">

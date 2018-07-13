@@ -81,6 +81,7 @@ return [
         '4' => 'Hòa Hảo',
         '5' => 'Đạo Cơ Đốc',
         '6' => 'Không',
+        '7' => 'Khác'
     ],
     'nation' => [
         '1' => 'Kinh',
@@ -319,8 +320,8 @@ return [
         'Jtests' => 'Tests scope',
     ],
     'permission' => [
-        '0' => 'Full access',
-        '1' => 'Read only'
+        '0' => 'Toàn quyền',
+        '1' => 'Chỉ đọc'
     ],
     'passwordDefault' => '123456789',
 
@@ -342,15 +343,197 @@ return [
 
     // address jp
     'cityJP' => [
-        '1' => [
-            'rmj' => 'TOKYO',
-            'kj' => 'TOKYO'
+        '01' => [
+            'rmj' => 'Hokkaido',
+            'kj' => '北海道'
         ],
-        '2' => [
-            'rmj' => 'OSAKA',
-            'kj' => 'OSAKA'
+        '02' => [
+            'rmj' => 'Aomori',
+            'kj' => '青森県'
+        ],
+        '03' => [
+            'rmj' => 'Iwate',
+            'kj' => '岩手県'
+        ],
+        '04' => [
+            'rmj' => 'Miyagi',
+            'kj' => '宮城県'
+        ],
+        '05' => [
+            'rmj' => 'Akita',
+            'kj' => '秋田県'
+        ],
+        '06' => [
+            'rmj' => 'Yamagata',
+            'kj' => '山形県'
+        ],
+        '07' => [
+            'rmj' => 'Fukushima',
+            'kj' => '福島県'
+        ],
+        '08' => [
+            'rmj' => 'Ibaraki',
+            'kj' => '茨城県'
+        ],
+        '09' => [
+            'rmj' => 'Tochigi',
+            'kj' => '栃木県'
+        ],
+        '10' => [
+            'rmj' => 'Gunma',
+            'kj' => '群馬県'
+        ],
+        '11' => [
+            'rmj' => 'Saitama',
+            'kj' => '埼玉県'
+        ],
+        '12' => [
+            'rmj' => 'Chiba',
+            'kj' => '千葉県'
+        ],
+        '13' => [
+            'rmj' => 'Tokyo',
+            'kj' => '東京都'
+        ],
+        '14' => [
+            'rmj' => 'Kanagawa',
+            'kj' => '神奈川県'
+        ],
+        '15' => [
+            'rmj' => 'Niigata',
+            'kj' => '新潟県'
+        ],
+        '16' => [
+            'rmj' => 'Toyama',
+            'kj' => '富山県'
+        ],
+        '17' => [
+            'rmj' => 'Ishikawa',
+            'kj' => '石川県'
+        ],
+        '18' => [
+            'rmj' => 'Fukui',
+            'kj' => '福井県'
+        ],
+        '19' => [
+            'rmj' => 'Yamanashi',
+            'kj' => '山梨県'
+        ],
+        '20' => [
+            'rmj' => 'Nagano',
+            'kj' => '長野県'
+        ],
+        '21' => [
+            'rmj' => 'Gifu',
+            'kj' => '岐阜県'
+        ],
+        '22' => [
+            'rmj' => 'Shizuoka',
+            'kj' => '静岡県'
+        ],
+        '23' => [
+            'rmj' => 'Aichi',
+            'kj' => '愛知県'
+        ],
+        '24' => [
+            'rmj' => 'Mie',
+            'kj' => '三重県'
+        ],
+        '25' => [
+            'rmj' => 'Shiga',
+            'kj' => '滋賀県'
+        ],
+        '26' => [
+            'vn' => 'Kyoto',
+            'kj' => '京都府'
+        ],
+        '27' => [
+            'rmj' => 'Osaka',
+            'kj' => '大阪府'
+        ],
+        '28' => [
+            'rmj' => 'Hyogo',
+            'kj' => '兵庫県'
+        ],
+        '29' => [
+            'rmj' => 'Nara',
+            'kj' => '奈良県'
+        ],
+        '30' => [
+            'rmj' => 'Wakayama',
+            'kj' => '和歌山県'
+        ],
+        '31' => [
+            'rmj' => 'Tottori',
+            'kj' => '鳥取県'
+        ],
+        '32' => [
+            'rmj' => 'Shimane',
+            'kj' => '島根県'
+        ],
+        '33' => [
+            'rmj' => 'Okayama',
+            'kj' => '岡山県'
+        ],
+        '34' => [
+            'rmj' => 'Hiroshima',
+            'kj' => '広島県'
+        ],
+        '35' => [
+            'rmj' => 'Yamaguchi',
+            'kj' => '山口県'
+        ],
+        '36' => [
+            'rmj' => 'Tokushima',
+            'kj' => '徳島県'
+        ],
+        '37' => [
+            'rmj' => 'Kagawa',
+            'kj' => '香川県'
+        ],
+        '38' => [
+            'rmj' => 'Ehime',
+            'kj' => '愛媛県'
+        ],
+        '39' => [
+            'rmj' => 'Kochi',
+            'kj' => '高知県'
+        ],
+        '40' => [
+            'rmj' => 'Fukuoka',
+            'kj' => '福岡県'
+        ],
+        '41' => [
+            'rmj' => 'Saga',
+            'kj' => '佐賀県'
+        ],
+        '42' => [
+            'rmj' => 'Nagasaki',
+            'kj' => '長崎県'
+        ],
+        '43' => [
+            'rmj' => 'Kumamoto',
+            'kj' => '熊本県'
+        ],
+        '44' => [
+            'rmj' => 'Oita',
+            'kj' => '大分県'
+        ],
+        '45' => [
+            'rmj' => 'Miyazaki',
+            'kj' => '宮崎県'
+        ],
+        '46' => [
+            'rmj' => 'Kagoshima',
+            'kj' => '鹿児島県'
+        ],
+        '47' => [
+            'rmj' => 'Okinawa',
+            'kj' => '沖縄県'
         ]
+
     ],
+
     // student
     'studentStatus' => [
         '1' => 'Lịch hẹn',
@@ -368,8 +551,8 @@ return [
 
     // event
     'eventScope' => [
-        '1' => 'Only me',
-        '2' => 'Global'
+        '1' => 'Chỉ mình tôi',
+        '2' => 'Toàn hệ thống'
     ],
 
     // .docx template

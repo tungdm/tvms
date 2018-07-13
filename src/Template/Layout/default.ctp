@@ -55,7 +55,7 @@ $cakeDescription = 'TVMS';
             <!-- Logo -->
             <a href="/tvms/" class="logo">
                 <!-- mini logo for sidebar mini 50x50 pixels -->
-                <span class="logo-mini"><b>TV</b></span>
+                <span class="logo-mini"><b>TVMS</b></span>
                 <!-- logo for regular state and mobile devices -->
                 <span class="logo-lg"><b>TVMS</b></span>
             </a>
@@ -82,7 +82,7 @@ $cakeDescription = 'TVMS';
                             <ul class="dropdown-menu dropdown-usermenu pull-right">
                                 <li>
                                     <?= $this->Html->link(
-                                        __('Update Profile'), 
+                                        __('Thông tin cá nhân'), 
                                         ['controller' => 'Users', 'action' => 'edit', $this->request->session()->read('Auth.User.id')]
                                         ) 
                                     ?>
@@ -97,7 +97,7 @@ $cakeDescription = 'TVMS';
                                 <li>
                                     <?=
                                         $this->Html->link(
-                                            '<i class="fa fa-sign-out pull-right"></i> Log Out',
+                                            '<i class="fa fa-sign-out pull-right"></i> Đăng xuất',
                                             ['controller' => 'Users', 'action' => 'logout'],
                                             ['escape' => false]
                                         )
@@ -219,9 +219,9 @@ $cakeDescription = 'TVMS';
         </div>
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b>Version</b> 0.1
+            <strong>Bản quyền thuộc về &copy; <a href="#">Nhật Ngữ Tâm Việt</a>.</strong>.
             </div>
-            <strong>Copyright &copy; 2018-2020 <a href="#">M2Group</a>.</strong> All rights reserved.
+            <b>Phiên bản</b> 0.1
         </footer>
     </div>
 
@@ -234,6 +234,7 @@ $cakeDescription = 'TVMS';
 
     <?= $this->Html->script('select2.full.js'); ?>
     <?= $this->Html->script('parsley.min.js'); ?>
+    <?= $this->Html->script('parsley.vn.js'); ?>
     <?= $this->Html->script('handlebars-v4.0.11.js'); ?>
     
     <?= $this->fetch('scriptBottom') ?>
