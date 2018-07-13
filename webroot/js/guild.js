@@ -67,7 +67,7 @@ function editGuild(guildId) {
             $('#edit-address-romaji').val(resp['address_romaji']);
             $('#edit-address-kanji').val(resp['address_kanji']);
             $('#edit-phone-vn').val(resp['phone_vn']);
-            $('#edit-phone-vn').val(resp['phone_jp']);
+            $('#edit-phone-jp').val(resp['phone_jp']);
             // toggle modal
             $('#edit-guild-modal').modal('toggle');
         }

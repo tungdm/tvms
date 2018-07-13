@@ -31,21 +31,21 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
 <?php $this->start('content-header'); ?>
 <?php if ($action === 'add'): ?>
-<h1><?= __('Add New Order') ?></h1>
-<button class="btn btn-success submit-order-btn" type="button">Submit</button>
+<h1><?= __('TẠO ĐƠN HÀNG MỚI') ?></h1>
+<button class="btn btn-success submit-order-btn" type="button">Lưu lại</button>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Orders'), [
+        <?= $this->Html->link(__('Đơn Hàng'), [
             'controller' => 'Orders',
             'action' => 'index']) ?>
     </li>
-    <li class="active">New Order</li>
+    <li class="active">Thêm Mới</li>
 </ol>
 <?php else: ?>
 <h1><?= __('Update Order') ?></h1>
@@ -458,7 +458,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THÊM ỨNG VIÊN PHỎNG VẤN</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -480,18 +480,18 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                     'class' => 'form-control col-md-7 col-xs-12', 
                                     ]) ?>
                                 <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Thao tác
                                         <span class="fa fa-caret-down"></span></button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="javascript:;" onclick="viewCandidate()">View</a></li>
-                                        <li><a href="javascript:;" onclick="addCandidate()">Add</a></li>
+                                        <li><a href="javascript:;" onclick="viewCandidate()">Xem chi tiết</a></li>
+                                        <li><a href="javascript:;" onclick="addCandidate()">Thêm vào hàng chờ</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="recommend"><?= __('Recommend') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="recommend"><?= __('Gợi ý') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12 table-responsive">
                             <table class="table table-bordered custom-table">
                                 <thead>
@@ -514,8 +514,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="add-candidate-btn" onclick="selectCandidate()">Submit</button>
-                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="add-candidate-btn" onclick="selectCandidate()">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -526,7 +526,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">KẾT QUẢ PHỎNG VẤN</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -539,7 +539,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             ]
                         ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="result"><?= __('Result') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="result"><?= __('Kết quả') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('result', [
                                 'options' => $interviewResult, 
@@ -568,8 +568,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="set-interview-result-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-result-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="set-interview-result-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-result-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

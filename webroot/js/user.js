@@ -231,7 +231,7 @@ $(document).ready(function() {
             return selectedValues.indexOf(value) < 0;
         },
         messages: {
-            en: 'Duplicate scope',
+            en: 'Tài khoản đã có quyền này',
         }
     });
 });

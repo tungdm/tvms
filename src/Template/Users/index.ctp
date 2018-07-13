@@ -29,32 +29,30 @@ $this->Paginator->setTemplates([
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Danh sách nhân viên') ?></h1>
+<h1><?= __('QUẢN LÝ NHÂN VIÊN') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Users</li>
+    <li class="active">Nhân Viên</li>
 </ol>
 <?php $this->end(); ?>
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('Users') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a data-toggle="modal" data-target="#setting-modal" href="#">Setting Show/Hide field</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
+                            <li><a data-toggle="modal" data-target="#setting-modal" href="#">Chọn mục quản lý</a></li>                            
                             <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
+                            <li><a href="#">Xuất danh sách</a></li>
                         </ul>
                     </div>
                 </div>
@@ -96,12 +94,12 @@ $this->Paginator->setTemplates([
                                 <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
                             </th>
                             <th scope="col" class="fullnameCol">
-                                <?= $this->Paginator->sort('fullname', 'Họ và tên') ?>
+                                <?= $this->Paginator->sort('fullname', 'Họ tên') ?>
                             </th>
                             <th scope="col" class="roleCol">
                                 <?= __('Chức vụ') ?>
                             </th>
-                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -168,7 +166,7 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($users)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($users as $user): ?>
@@ -192,14 +190,14 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                            <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'><?= __('Update Permission') ?></a>
+                                            <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'><?= __('Phân quyền') ?></a>
                                         </li>
                                         <li>
-                                            <?= $this->Form->postLink('Delete', 
+                                            <?= $this->Form->postLink('Xóa', 
                                                 ['action' => 'delete', $user->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Are you sure you want to delete {0}?', $user->username)
+                                                    'confirm' => __('Bạn có chắc muốn xóa {0}?', $user->username)
                                                 ]) ?>
                                         </li>
                                     </ul>
@@ -213,13 +211,13 @@ $this->Paginator->setTemplates([
                 </table>
                 <div class="paginator">
                     <ul class="pagination">
-                        <?= $this->Paginator->first('<< ' . __('first')) ?>
-                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
                         <?= $this->Paginator->numbers() ?>
-                        <?= $this->Paginator->next(__('next') . ' >') ?>
-                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                        <?= $this->Paginator->next(__('Trang sau') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
                     </ul>
-                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
             </div>
         </div>
@@ -232,7 +230,7 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">CHỌN LỌC TRƯỜNG QUẢN LÝ</h4>
             </div>
             <div class="modal-body">
                 <?= $this->Form->create(null, [
@@ -250,24 +248,24 @@ $this->Paginator->setTemplates([
                             <label><input type="checkbox" name="emailCol" value> <?= __('Email') ?></label>
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label><input type="checkbox" name="genderCol" value checked> <?= __('Gender') ?></label>
+                            <label><input type="checkbox" name="genderCol" value checked> <?= __('Giới tính') ?></label>
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label><input type="checkbox" name="phoneCol" value checked> <?= __('Phone') ?></label>
+                            <label><input type="checkbox" name="phoneCol" value checked> <?= __('Điện thoại') ?></label>
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label><input type="checkbox" name="fullnameCol" value checked> <?= __('Fullname') ?></label>
+                            <label><input type="checkbox" name="fullnameCol" value checked> <?= __('Họ tên') ?></label>
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label><input type="checkbox" name="roleCol" value checked> <?= __('Role') ?></label>
+                            <label><input type="checkbox" name="roleCol" value checked> <?= __('Chức vụ') ?></label>
                         </div>
                     </div>
                 </div>
                 <?= $this->Form->end() ?>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="settings-submit-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="setting-close-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="settings-submit-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="setting-close-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -278,7 +276,7 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">CẬP NHẬT PHÂN QUYỀN</h4>
             </div>
             <div class="modal-body">
             <?= $this->Form->create(null, [
@@ -290,7 +288,7 @@ $this->Paginator->setTemplates([
                 <?= $this->Form->hidden('id') ?>
                 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Role') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Chức vụ ') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('role_id', [
                             'options' => $roles4Edit, 
@@ -305,15 +303,15 @@ $this->Paginator->setTemplates([
                     </div>
                 </div>
                 <div class="form-group permission-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="permission"><?= __('Permission') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="permission"><?= __('Phân quyền') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12 table-responsive">
-                        <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Add new permission') ?></button>
+                        <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Thêm mới') ?></button>
                         <table class="table table-bordered custom-table permission-table">
                             <thead>
                                 <tr>
-                                    <th scope="col" class="col-md-5"><?= __('Scope') ?></th>
-                                    <th scope="col" class="col-md-5"><?= __('Permission') ?></th>
-                                    <th scope="col" class="actions"><?= __('Actions') ?></th>
+                                    <th scope="col" class="col-md-5"><?= __('Phạm vi quản lý') ?></th>
+                                    <th scope="col" class="col-md-5"><?= __('Quyền hạn') ?></th>
+                                    <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                 </tr>
                             </thead>
                             <tbody id="permission-container">
@@ -324,8 +322,8 @@ $this->Paginator->setTemplates([
             <?= $this->Form->end() ?>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="edit-permission-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="setting-close-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="edit-permission-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="setting-close-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

@@ -9,15 +9,15 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Calendar') ?></h1>
+<h1><?= __('LỊCH CÔNG TÁC') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
+            '<i class="fa fa-home"></i> Trang Chính',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Calendar</li>
+    <li class="active">Lịch Công Tác</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -36,7 +36,7 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Event Information</h4>
+                <h4 class="modal-title">THÔNG TIN SỰ KIỆN</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -65,7 +65,7 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
                             ])?>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="scope"><?= __('Scope') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="scope"><?= __('Phạm vi') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('scope', [
                                 'options' => $eventScope, 
@@ -80,7 +80,7 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group color-chooser-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="class"><?= __('Color') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="class"><?= __('Màu Sắc') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
                                 <ul class="fc-color-picker" id="color-chooser">
@@ -100,7 +100,7 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="title"><?= __('Title') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="title"><?= __('Tiêu đề') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12 input-group">
                             <?= $this->Form->control('title', [
                                 'label' => false, 
@@ -108,12 +108,12 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
                                 'required' => true
                                 ]) ?>
                             <div class="input-group-btn">
-                                <button type="button" class="btn btn-primary" id="title-color">Color</button>
+                                <button type="button" class="btn btn-primary" id="title-color">Tên tiêu đề</button>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="description"><?= __('Description') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="description"><?= __('Nội dung') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('description', [
                                 'label' => false, 
@@ -128,8 +128,8 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="submit-event-btn">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" id="close-event-modal-btn">Close</button>
+                <button type="button" class="btn btn-success" id="submit-event-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="close-event-modal-btn">Đóng</button>
             </div>
         </div>
     </div>
@@ -140,7 +140,7 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="event-title">Event Information</h4>
+                <h4 class="modal-title" id="event-title">THÔNG TIN HOẠT ĐỘNG</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -152,7 +152,7 @@ $this->Html->script('event.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

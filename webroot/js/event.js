@@ -81,7 +81,7 @@ function init_calendar() {
             // renew add-btn
             $('#submit-event-btn').remove();
             $('#delete-event-btn').remove();
-            $('<button type="button" class="btn btn-success" id="submit-event-btn" onclick="addEvent()">Submit</button>').insertBefore('#close-event-modal-btn');
+            $('<button type="button" class="btn btn-success" id="submit-event-btn" onclick="addEvent()">Hoàn tất</button>').insertBefore('#close-event-modal-btn');
             
             // show modal
             $('#event-modal').modal('toggle');
