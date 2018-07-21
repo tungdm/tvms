@@ -101,6 +101,7 @@ class JclassesTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
+        $rules->add($rules->isUnique(['name']));
         $rules->add($rules->existsIn(['user_id'], 'Users'));
 
         return $rules;

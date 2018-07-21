@@ -9,6 +9,8 @@ use App\Controller\AppController;
 use Cake\Log\Log;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
+use Cake\Utility\Text;
+
 
 /**
  * Guilds Controller
@@ -19,6 +21,29 @@ use Cake\ORM\Query;
  */
 class GuildsController extends AppController
 {
+    
+    public function isAuthorized($user)
+    {
+        $controller = $this->request->getParam('controller');
+        $action = $this->request->getParam('action');
+        $session = $this->request->session();
+        $permissionsTable = TableRegistry::get('Permissions');
+        $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
+
+        if (!empty($userPermission)) {
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+                $session->write($controller, $userPermission->action);
+                return true;
+            }
+        }
+        return parent::isAuthorized($user);
+    }
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->entity = 'nghiệp đoàn';
+    }
 
     /**
      * Index method
@@ -28,31 +53,28 @@ class GuildsController extends AppController
     public function index()
     {
         $query = $this->request->getQuery();
-        
-        $this->paginate = [
-            'sortWhitelist' => ['name_romaji','name_kanji', 'address_romaji', 'address_kanji', 'phone_vn', 'phone_jp'],
-            'limit' => 10
-        ];
-        $allGuilds = $this->Guilds->find();
+       
         if (!empty($query)) {
-            if (isset($query['name_romaji']) && !empty($query['name_romaji'])) {
+            $allGuilds = $this->Guilds->find();
+            if (!isset($query['records']) || empty($query['records'])) {
+                $query['records'] = 10;
+            }
+            if (isset($query['name']) && !empty($query['name'])) {
                 $allGuilds->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('name_romaji', '%'.$query['name_romaji'].'%');
+                    $orConditions = $exp->or_(function ($or) use ($query) {
+                        return $or->like('Guilds.name_kanji', '%'. trim($query['name']) .'%')
+                            ->like('Guilds.name_romaji', '%'. trim($query['name']) .'%');
+                    });
+                    return $exp->add($orConditions);
                 });
             }
-            if (isset($query['name_kanji']) && !empty($query['name_kanji'])) {
+            if (isset($query['address']) && !empty($query['address'])) {
                 $allGuilds->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('name_kanji', '%'.$query['name_kanji'].'%');
-                });
-            }
-            if (isset($query['address_romaji']) && !empty($query['address_romaji'])) {
-                $allGuilds->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('address_romaji', '%'.$query['address_romaji'].'%');
-                });
-            }
-            if (isset($query['address_kanji']) && !empty($query['address_kanji'])) {
-                $allGuilds->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('address_kanji', '%'.$query['address_kanji'].'%');
+                    $orConditions = $exp->or_(function ($or) use ($query) {
+                        return $or->like('Guilds.address_romaji', '%'.$query['address'].'%')
+                            ->like('Guilds.address_kanji', '%'.$query['address'].'%');
+                    });
+                    return $exp->add($orConditions);
                 });
             }
             if (isset($query['phone_vn']) && !empty($query['phone_vn'])) {
@@ -65,8 +87,14 @@ class GuildsController extends AppController
                     return $exp->like('phone_jp', '%'.$query['phone_jp'].'%');
                 });
             }
+        } else {
+            $query['records'] = 10;
+            $allGuilds = $this->Guilds->find()->order(['Guilds.created' => 'DESC']);
         }
-
+        $this->paginate = [
+            'sortWhitelist' => ['name_romaji','name_kanji', 'address_romaji', 'address_kanji', 'phone_vn', 'phone_jp'],
+            'limit' => $query['records']
+        ];
         $guilds = $this->paginate($allGuilds);
         $this->set(compact('guilds', 'query'));
     }
@@ -78,13 +106,20 @@ class GuildsController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view()
     {
-        $guild = $this->Guilds->get($id, [
-            'contain' => []
-        ]);
+        $this->request->allowMethod('ajax');
+        $guildId = $this->request->getQuery('id');
+        $resp = [];
 
-        $this->set('guild', $guild);
+        try {
+            $guild = $this->Guilds->get($guildId);
+            $resp = $guild;
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
     }
 
     /**
@@ -99,33 +134,28 @@ class GuildsController extends AppController
             $resp = [];
             $guild = $this->Guilds->patchEntity($guild, $this->request->getData());
             $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), $this->request->getParam('action'));
-            // debug($guild);
-            Log::write('debug', 'Guild: '.$guild);
-            
             if($this->Guilds->save($guild)) {
                 $resp = [
                     'status' => 'success',
                     'redirect' => Router::url(['action' => 'index']),
-                    'flash' => [
-                        'title' => 'Success',
-                        'type' => 'success',
-                        'message' => __('Thông tin thêm mới đã được lưu.')
-                    ]
                 ];    
-                $this->Flash->success(__('Lưu thành công.'));
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $guild->name_romaji
+                ]));
             }
         } else {
             $resp = [
                 'status' => 'error',
                 'flash' => [
-                    'title' => 'Error',
+                    'title' => 'Lỗi',
                     'type' => 'error',
-                    'message' => __('Đã có lỗi xảy ra, vui lòng thử lại.')
+                    'icon' => 'fa fa-warning',
+                    'message' => $this->errorMessage['add']
                 ]
             ];
         }
         return $this->jsonResponse($resp);
-        //$this->set(compact('guild'));
     }
 
     /**
@@ -154,20 +184,22 @@ class GuildsController extends AppController
                     $resp = [
                         'status' => 'success',
                         'redirect' => Router::url(['action' => 'index']),
-                        'flash' => [
-                            'title' => 'Success',
-                            'type' => 'success',
-                            'message' => __('Chỉnh sửa thành công !')
-                        ]
                     ];
-                    $this->Flash->success(__('Thông tin đã được thay đổi.'));
+                    $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                        'entity' => $this->entity, 
+                        'name' => $guild->name_romaji
+                        ]));
                 } else {
                     $resp = [
                         'status' => 'error',
                         'flash' => [
-                            'title' => 'Error',
+                            'title' => 'Lỗi',
                             'type' => 'error',
-                            'message' => __('Thao tác chưa thành công. Xin vui lòng thử lại !')
+                            'icon' => 'fa fa-warning',
+                            'message' => Text::insert($this->errorMessage['edit'], [
+                                'entity' => $this->entity,
+                                'name' => $guild->name_romaji
+                            ])
                         ]
                     ];
                 }
@@ -182,24 +214,7 @@ class GuildsController extends AppController
             return $this->jsonResponse($resp);
         } else {
             //TODO: throw 404 page not found
-            
         }
-
-        // $guild = $this->Guilds->get($id, [
-        //     'contain' => []
-        // ]);
-        // if ($this->request->is(['patch', 'post', 'put'])) {
-        //     $guild = $this->Guilds->patchEntity($guild, $this->request->getData(), [
-        //         'fieldList' => ['name', 'address_romaji','address_kanji','phone']
-        //     ]);
-        //     if ($this->Guilds->save($guild)) {
-        //         $this->Flash->success(__('The guild has been saved.'));
-
-        //         return $this->redirect(['action' => 'index']);
-        //     }
-        //     $this->Flash->error(__('The guild could not be saved. Please, try again.'));
-        // }
-        // $this->set(compact('guild'));
     }
 
     /**
@@ -213,10 +228,17 @@ class GuildsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $guild = $this->Guilds->get($id);
+        $guildName = $guild->name_romaji;
         if ($this->Guilds->delete($guild)) {
-            $this->Flash->success(__('The guild has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $guildName
+                ]));
         } else {
-            $this->Flash->error(__('The guild could not be deleted. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $guildName
+            ]));
         }
 
         return $this->redirect(['action' => 'index']);

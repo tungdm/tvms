@@ -1,4 +1,3 @@
-var ajaxing = false;
 var perData = {};
 perData.familyCounter = 0;
 perData.eduCounter = 0;
@@ -56,12 +55,12 @@ $(document).ready(function() {
     $('.select-city').change(function(e) {
         var token = getToken(this);
         if (this.value == null || this.value == '') {
-            $('#addresses-'+token+'-district').empty().append('<option value=""></option>');
-            $('#addresses-'+token+'-district').prop('disabled', true);
+            $('#addresses-'+token+'-district-id').empty().append('<option value=""></option>');
+            $('#addresses-'+token+'-district-id').prop('disabled', true);
         } else {
             $.ajax({
                 type: 'GET',
-                url: '/tvms/students/getDistrict',
+                url: DOMAIN_NAME + '/students/getDistrict',
                 data: {
                     city: this.value
                 },
@@ -71,16 +70,16 @@ $(document).ready(function() {
                     });
     
                     // init select2-district with response data
-                    if ($('#addresses-'+token+'-district').hasClass('select2-hidden-accessible')) {
-                        $('#addresses-'+token+'-district').select2('destroy').empty().append('<option value=""></option>');
+                    if ($('#addresses-'+token+'-district-id').hasClass('select2-hidden-accessible')) {
+                        $('#addresses-'+token+'-district-id').select2('destroy').empty().append('<option value=""></option>');
                     }
     
                     // enable select2
-                    $('#addresses-'+token+'-district').prop('disabled', false);
+                    $('#addresses-'+token+'-district-id').prop('disabled', false);
     
                     // reset validation
-                    $('#addresses-'+token+'-district').parsley().reset();
-                    $('#addresses-'+token+'-district').select2({
+                    $('#addresses-'+token+'-district-id').parsley().reset();
+                    $('#addresses-'+token+'-district-id').select2({
                         placeholder: 'Xin hãy chọn giá trị',
                         data: processedOptions,
                         allowClear: true,
@@ -96,29 +95,29 @@ $(document).ready(function() {
         }
 
         // clear select2-ward, street input data
-        $('#addresses-'+token+'-ward').empty().append('<option value=""></option>');
-        $('#addresses-'+token+'-ward').prop('disabled', true);
+        $('#addresses-'+token+'-ward-id').empty().append('<option value=""></option>');
+        $('#addresses-'+token+'-ward-id').prop('disabled', true);
         $('#addresses-'+token+'-street').val('');
     });
 
     $('.select-district').change(function(e) {
         var token = getToken(this);
         // re-validate input
-        $('#addresses-'+token+'-district').parsley().validate();
-        if ($('#addresses-'+token+'-district').hasClass('parsley-success')) {
-            $('#select2-addresses-'+token+'-district').removeClass('parsley-error');
-        } else if ($('#addresses-'+token+'-district').hasClass('parsley-error')) {
-            $('#select2-addresses-'+token+'-district').addClass('parsley-error');
+        $('#addresses-'+token+'-district-id').parsley().validate();
+        if ($('#addresses-'+token+'-district-id').hasClass('parsley-success')) {
+            $('#select2-addresses-'+token+'-district-id').removeClass('parsley-error');
+        } else if ($('#addresses-'+token+'-district-id').hasClass('parsley-error')) {
+            $('#select2-addresses-'+token+'-district-id').addClass('parsley-error');
         }
 
         if (this.value == null || this.value == '') {
-            $('#addresses-'+token+'-ward').empty().append('<option value=""></option>');
-            $('#addresses-'+token+'-ward').prop('disabled', true);
+            $('#addresses-'+token+'-ward-id').empty().append('<option value=""></option>');
+            $('#addresses-'+token+'-ward-id').prop('disabled', true);
         } else {
             // Send ajax get ward options
             $.ajax({
                 type: 'GET',
-                url: '/tvms/students/getWard',
+                url: DOMAIN_NAME + '/students/getWard',
                 data: {
                     district: this.value
                 },
@@ -128,16 +127,16 @@ $(document).ready(function() {
                     });
 
                     // init select2 with response data
-                    if ($('#addresses-'+token+'-ward').hasClass('select2-hidden-accessible')) {
-                        $('#addresses-'+token+'-ward').select2('destroy').empty().append('<option value=""></option>');
+                    if ($('#addresses-'+token+'-ward-id').hasClass('select2-hidden-accessible')) {
+                        $('#addresses-'+token+'-ward-id').select2('destroy').empty().append('<option value=""></option>');
                     }
 
                     // enable select2
-                    $('#addresses-'+token+'-ward').prop('disabled', false);
+                    $('#addresses-'+token+'-ward-id').prop('disabled', false);
 
                     // reset validation
-                    $('#addresses-'+token+'-ward').parsley().reset();
-                    $('#addresses-'+token+'-ward').select2({
+                    $('#addresses-'+token+'-ward-id').parsley().reset();
+                    $('#addresses-'+token+'-ward-id').select2({
                         placeholder: 'Xin hãy chọn giá trị',
                         data: processedOptions,
                         allowClear: true,
@@ -158,11 +157,11 @@ $(document).ready(function() {
     $('.select-ward').change(function(e) {
         var token = getToken(this);
         // re-validate input
-        $('#addresses-'+token+'-ward').parsley().validate();
-        if ($('#addresses-'+token+'-ward').hasClass('parsley-success')) {
-            $('#select2-addresses-'+token+'-ward').removeClass('parsley-error');
-        } else if ($('#addresses-'+token+'-ward').hasClass('parsley-error')) {
-            $('#select2-addresses-'+token+'-ward').addClass('parsley-error');
+        $('#addresses-'+token+'-ward-id').parsley().validate();
+        if ($('#addresses-'+token+'-ward-id').hasClass('parsley-success')) {
+            $('#select2-addresses-'+token+'-ward-id').removeClass('parsley-error');
+        } else if ($('#addresses-'+token+'-ward-id').hasClass('parsley-error')) {
+            $('#select2-addresses-'+token+'-ward-id').addClass('parsley-error');
         }
         // clear street input data
         $('#addresses-'+token+'-street').val('');
@@ -193,11 +192,11 @@ $(document).ready(function() {
 
         // check parsley error exists
         for (var i=0; i < 2; i++) {
-            if ($('#addresses-'+i+'-district').hasClass('parsley-error')) {
-                $('#select2-addresses-'+i+'-district').addClass('parsley-error');
+            if ($('#addresses-'+i+'-district-id').hasClass('parsley-error')) {
+                $('#select2-addresses-'+i+'-district-id').addClass('parsley-error');
             }
-            if ($('#addresses-'+i+'-ward').hasClass('parsley-error')) {
-                $('#select2-addresses-'+i+'-ward').addClass('parsley-error');
+            if ($('#addresses-'+i+'-ward-id').hasClass('parsley-error')) {
+                $('#select2-addresses-'+i+'-ward-id').addClass('parsley-error');
             }
         }
         
@@ -249,7 +248,7 @@ $(document).ready(function() {
 
                 var tmpTab = $('.parsley-error')[0].closest('.tab-pane');
                 if (tmpTab && (tmpTab.id === 'household' || tmpTab.id === 'current-address')) {
-                    $('#addresses-tabs a[href="#' + tmpTab.id + '"]').tab('show');
+                    $('#address-tabs a[href="#' + tmpTab.id + '"]').tab('show');
                 }
             } else {
                 closestTab = $('.parsley-error')[0].closest('.panel-collapse');
@@ -265,6 +264,14 @@ $(document).ready(function() {
         }
     });
 })
+
+function showAddStudentModal() {
+    // reset form
+    $('#add-candidate-form')[0].reset();
+    $('#addresses-0-city').val(null).trigger('change');
+    $('#add-candidate-form').parsley().reset();
+    $('#add-candidate-modal').modal('toggle');
+}
 
 function setTimeLived() {
     // validate form
@@ -402,13 +409,14 @@ function editMember(rowId) {
 function removeMember(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Xóa thông tin thành viên gia đình',
+            title: 'Xóa thành viên gia đình',
             text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Vâng, tôi vẫn muốn xóa!'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
@@ -416,7 +424,7 @@ function removeMember(delEl, sendAjax) {
                 var rowId = rowIdArr[rowIdArr.length-1];
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/students/deleteFamilyMember',
+                    url: DOMAIN_NAME + '/students/deleteFamilyMember',
                     data: {
                         'id': $('#member-' + rowId + '-id').find('input').val()
                     },
@@ -597,8 +605,9 @@ function removeEduHis(delEl, sendAjax) {
             text: "Bạn không thể phục hồi nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
@@ -607,7 +616,7 @@ function removeEduHis(delEl, sendAjax) {
                 var rowId = rowIdArr[rowIdArr.length-1];
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/students/deleteEducations',
+                    url: DOMAIN_NAME + '/students/deleteEducations',
                     data: {
                         'id': $('#edu-his-'+rowId+'-id').find('input').val()
                     },
@@ -788,8 +797,9 @@ function removeExp(delEl, sendAjax) {
             text: "Một khi đã xóa, bạn không thể khôi phục lại thông tin này!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
@@ -798,7 +808,7 @@ function removeExp(delEl, sendAjax) {
                 var rowId = rowIdArr[rowIdArr.length-1];
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/students/deleteExperience',
+                    url: DOMAIN_NAME + '/students/deleteExperience',
                     data: {
                         'id': $('#exp-'+rowId+'-id').find('input').val()
                     },
@@ -958,8 +968,9 @@ function removeLang(delEl, sendAjax) {
             text: "Một khi đã xóa, bạn không thể khôi phục thông tin này!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
@@ -968,7 +979,7 @@ function removeLang(delEl, sendAjax) {
                 var rowId = rowIdArr[rowIdArr.length-1];
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/students/deleteLang',
+                    url: DOMAIN_NAME + '/students/deleteLang',
                     data: {
                         'id': $('#lang-'+rowId+'-id').find('input').val()
                     },
@@ -1064,4 +1075,9 @@ function editDoc(rowId) {
 
         $('#document-modal').modal('toggle');
     }
+}
+
+function viewPresenter(presenterId) {
+    var overlayId = '';
+    globalViewPresenter(presenterId, overlayId);
 }

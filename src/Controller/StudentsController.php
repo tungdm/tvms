@@ -48,6 +48,7 @@ class StudentsController extends AppController
     {
         parent::initialize();
         $this->loadComponent('ExportFile');
+        $this->entity = 'lao động';
     }
 
     /**
@@ -59,16 +60,12 @@ class StudentsController extends AppController
     {   
         $query = $this->request->getQuery();
         
-        $allStudents = $this->Students->find();
         if (!empty($query)) {
+            $allStudents = $this->Students->find();
+
             if (!isset($query['records']) || empty($query['records'])) {
                 $query['records'] = 10;
             }
-            $this->paginate = [
-                'sortWhitelist' => ['code', 'fullname', 'email', 'gender', 'phone', 'status'],
-                'limit' => (int)$query['records']
-            ];
-            
             if (isset($query['code']) && !empty($query['code'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('code', '%'.$query['code'].'%');
@@ -97,12 +94,13 @@ class StudentsController extends AppController
                 $allStudents->where(['status' => $query['status']]);
             }
         } else {
+            $allStudents = $this->Students->find()->order(['Students.created' => 'DESC']);;
             $query['records'] = 10;
-            $this->paginate = [
-                'sortWhitelist' => ['code', 'fullname', 'email', 'gender', 'phone', 'status'],
-                'limit' => $query['records']
-            ];
         }
+        $this->paginate = [
+            'sortWhitelist' => ['code', 'fullname', 'email', 'phone'],
+            'limit' => $query['records']
+        ];
         $students = $this->paginate($allStudents);
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
         $this->set(compact('students', 'query', 'cities'));
@@ -156,9 +154,12 @@ class StudentsController extends AppController
             $student->status = key(Configure::read('studentStatus'));
 
             if ($this->Students->save($student)) {
-                $this->Flash->success(__('The student has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $student->fullname
+                ]));
             } else {
-                $this->Flash->error(__('The student could not be saved. Please, try again.'));
+                $this->Flash->error($this->errorMessage['add']);
             }
             return $this->redirect(['action' => 'index']);
             
@@ -169,7 +170,7 @@ class StudentsController extends AppController
 
     public function info($id = null)
     {
-        $prevImage = NULL;    
+        $prevImage = NULL;
         if (!empty($id)) {
             $student = $this->Students->get($id, [
                 'contain' => [
@@ -252,15 +253,30 @@ class StudentsController extends AppController
             try{
                 // save to db
                 if ($this->Students->save($student)) {
-                            
-                    $this->Flash->success(__('The student has been saved.'));
+                    if ($action == "add") {
+                        $this->Flash->success(Text::insert($this->successMessage['add'], [
+                            'entity' => $this->entity,
+                            'name' => $student->fullname
+                        ]));
+                    } elseif ($action == "edit") {
+                        $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity,
+                            'name' => $student->fullname
+                        ]));
+                    }
                     return $this->redirect(['action' => 'info', $student->id]);
                 }
             } catch (Exception $e) {
                 Log::write('debug', $e);
             }
-            
-            $this->Flash->error(__('The student could not be saved. Please, try again.'));
+            if ($action == "add") {
+                $this->Flash->error($this->errorMessage['add']);
+            } elseif ($action == "edit") {
+                $this->Flash->error(Text::insert($this->errorMessage['edit'], [
+                    'entity' => $this->entity,
+                    'name' => $student->fullname
+                ]));
+            }
         }
         
         //TODO: get data from db
@@ -276,7 +292,7 @@ class StudentsController extends AppController
                 $wards[$key] = TableRegistry::get('Wards')->find('list')->where(['district_id' => $value->district_id])->toArray();
             }
         }
-        $this->set(compact(['student', 'presenters', 'jobs', 'cities', 'districts', 'wards']));
+        $this->set(compact(['student', 'presenters', 'jobs', 'cities', 'districts', 'wards', 'action']));
     }
 
     public function getDistrict()
@@ -324,10 +340,17 @@ class StudentsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $student = $this->Students->get($id);
+        $studentName = $student->fullname;
         if ($this->Students->delete($student)) {
-            $this->Flash->success(__('The student has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $studentName
+                ]));
         } else {
-            $this->Flash->error(__('The student could not be deleted. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $studentName
+            ]));
         }
 
         return $this->redirect(['action' => 'index']);
@@ -342,21 +365,25 @@ class StudentsController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The member could not be deleted. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
         
         try {
             $member = $families->get($memberId);
+            $memberName = $member->fullname;
             if (!empty($member) && $families->delete($member)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The member has been deleted.')
+                        'message' => Text::insert($this->successMessage['delete'], [
+                            'entity' => 'thành viên', 
+                            'name' => $memberName
+                            ])
                     ]
                 ];
             }

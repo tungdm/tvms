@@ -29,18 +29,20 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý đơn hàng');
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('ĐƠN HÀNG PHỎNG VẤN') ?></h1>
+<h1><?= __('QUẢN LÝ ĐƠN HÀNG') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
+            '<i class="fa fa-home"></i> Trang Chủ',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Đơn Hàng</li>
+    <li class="active">Danh sách đơn hàng</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -76,6 +78,9 @@ $this->Paginator->setTemplates([
                 'id' => 'filter-form'
                 ]) ?>
             <div class="box-body table-responsive">
+                <div class="overlay hidden" id="list-order-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
                 <div class="form-group col-md-4 col-sm-6 col-xs-12 records-per-page">
                     <label class="control-label col-md-3 col-sm-3 col-xs-3"><?= __('Hiển thị') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-6">
@@ -92,9 +97,9 @@ $this->Paginator->setTemplates([
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="nameCol">
-                                <?= $this->Paginator->sort('name', 'Tên đơn hàng')?>
+                                <?= $this->Paginator->sort('name', 'Đơn hàng')?>
                             </th>
                             <th scope="col" class="interviewDateCol">
                                 <?= $this->Paginator->sort('interview_date', 'Ngày tuyển') ?>
@@ -180,7 +185,7 @@ $this->Paginator->setTemplates([
                                         ])
                                     ?>
                             </td>
-                            <td class="filter-group-btn">
+                            <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                             </td>
@@ -199,25 +204,13 @@ $this->Paginator->setTemplates([
                             <td class="cell interviewDateCol"><?= h($order->interview_date) ?></td>
                             <td class="cell workAtCol"><?= h($cityJP[$order->work_at]) ?></td>
                             <td class="cell guildIdCol">
-                                <?php if ($order->company->has('guild')): ?>
-                                <?= $this->Html->link(h($order->company->guild->name_romaji), [
-                                    'controller' => 'Guilds', 
-                                    'action' => 'index', 
-                                    '?' => [
-                                        'name_romaji' => $order->company->guild->name_romaji
-                                    ]],
-                                    ['target' => '_blank']) ?>
+                                <?php if (!empty($order->company->guild)): ?>
+                                <a href="javascript:;" onclick="viewGuild(<?= $order->company->guild->id ?>)"><?= h($order->company->guild->name_romaji) ?></a>
                                 <?php endif; ?>
                             </td>
                             <td class="cell companyIdCol">
                                 <?php if ($order->has('company')): ?>
-                                <?= $this->Html->link(h($order->company->name_romaji), [
-                                    'controller' => 'Companies', 
-                                    'action' => 'index', 
-                                    '?' => [
-                                        'name_romaji' => $order->company->name_romaji
-                                    ]],
-                                    ['target' => '_blank']) ?>
+                                <a href="javascript:;" onclick="viewCompany(<?= $order->company->id ?>)"><?= h($order->company->name_romaji) ?></a>
                                 <?php endif; ?>
                             </td>
                             <td class="cell statusCol">
@@ -236,32 +229,24 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
-                                        <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
-                                            <?= $this->Html->link(__('Cập nhật'), ['action' => 'edit', $order->id]) ?>
+                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                ['action' => 'view', $order->id],
+                                                ['escape' => false]) ?>
+                                        </li>
+                                        <?php if ($permission == 0): ?>
+                                        <li>
+                                            <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i> Sửa'), 
+                                                ['action' => 'edit', $order->id],
+                                                ['escape' => false]) ?>
                                         </li>
                                         <li>
-                                            <?= $this->Form->postLink(__('Xóa'), 
+                                            <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i> Xóa'), 
                                             ['action' => 'delete', $order->id], 
                                             [
                                                 'escape' => false, 
-                                                'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0} này?', $order->name)
+                                                'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
                                             ]) ?>
-                                        </li>
-                                            <?php if ($order->status !== "4"): ?>
-                                                <li class="divider"></li>
-                                                <li>
-                                                    <?= $this->Form->postLink(__('Đóng'), 
-                                                    ['action' => 'close', $order->id], 
-                                                    [
-                                                        'escape' => false, 
-                                                        'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
-                                                    ]) ?>
-                                                </li>
-                                            <?php endif; ?>
-                                        <?php else: ?>
-                                        <li>
-                                            <?= $this->Html->link(__('Chi tiết'), ['action' => 'view', $order->id]) ?>
                                         </li>
                                         <?php endif; ?>
                                     </ul>

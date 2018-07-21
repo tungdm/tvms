@@ -22,43 +22,47 @@ $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('class.js', ['block' => 'scriptBottom']);
 ?>
 
-<?php $this->start('content-header'); ?>
-    <?php if ($action === 'add'): ?>
-    <h1><?= __('Add New Class') ?></h1>
-    <button class="btn btn-success submit-class-btn" type="button">Submit</button>
-    <ol class="breadcrumb">
-        <li>
-            <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
-                '/',
-                ['escape' => false]) ?>
-        </li>
-        <li>
-            <?= $this->Html->link(__('Classes'), [
-                'controller' => 'Jclasses',
-                'action' => 'index']) ?>
-        </li>
-        <li class="active">New Class</li>
-    </ol>
-    <?php else: ?>
-    <h1><?= __('Update Class') ?></h1>
-    <button class="btn btn-success submit-class-btn" type="button">Submit</button>
-    <ol class="breadcrumb">
-        <li>
-            <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
-                '/',
-                ['escape' => false]) ?>
-        </li>
-        <li>
-            <?= $this->Html->link(__('Classes'), [
-                'controller' => 'Jclasses',
-                'action' => 'index']) ?>
-        </li>
-        <li class="active">Update Class</li>
-    </ol>
-    <?php endif; ?>
-<?php $this->end(); ?>
+<?php if ($action === 'add'): ?>
+    <?php $this->assign('title', 'Thêm mới lớp học'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('THÊM MỚI LỚP HỌC') ?></h1>
+        <button class="btn btn-success submit-class-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách lớp học'), [
+                    'controller' => 'Jclasses',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active">Thêm mới lớp học</li>
+        </ol>
+    <?php $this->end(); ?>
+<?php else: ?>
+    <?php $this->assign('title', 'Lớp '  . $jclass->name . ' - Cập nhật thông tin'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('CẬP NHẬT THÔNG TIN LỚP HỌC') ?></h1>
+        <button class="btn btn-success submit-class-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách lớp học'), [
+                    'controller' => 'Jclasses',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active">Lớp <?= $jclass->name ?></li>
+        </ol>
+    <?php $this->end(); ?>
+<?php endif; ?>
 
 <?= $this->Form->create($jclass, [
     'class' => 'form-horizontal form-label-left',
@@ -105,6 +109,8 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'required' => true,
+                            'error' => false,
+                            'placeholder' => 'Nhập tên lớp học'
                             ]) ?>
                         <?php endif; ?>
                     </div>
@@ -194,7 +200,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                         <tr>
                             <th scope="col"><?= __('STT') ?></th>
                             <th scope="col"><?= __('Mã TTS') ?></th>
-                            <th scope="col"><?= __('Họ và tên') ?></th>
+                            <th scope="col"><?= __('Họ tên') ?></th>
                             <th scope="col"><?= __('Giới tính') ?></th>
                             <th scope="col"><?= __('Số điện thoại') ?></th>
                             <th scope="col"><?= __('Ngày nhập học') ?></th>
@@ -282,7 +288,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THÊM HỌC VIÊN</h4>
             </div>
             <div class="modal-body box">
                 <div class="col-md-12 col-xs-12">
@@ -298,34 +304,30 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             ]
                         ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-2 col-sm-2 col-xs-12" for="name"><?= __('Tên TTS') ?></label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="input-group">
                                 <?= $this->Form->control('student.name', [
                                     'label' => false, 
                                     'options' => [],
                                     'class' => 'form-control col-md-7 col-xs-12', 
                                     ]) ?>
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action
-                                        <span class="fa fa-caret-down"></span></button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="javascript:;" onclick="viewStudent()">View</a></li>
-                                        <li><a href="javascript:;" onclick="preAddStudent()">Add</a></li>
-                                    </ul>
-                                </div>
+                                <span class="input-group-btn">
+                                    <button type="button" onclick="preAddStudent()" class="btn btn-primary btn-flat">
+                                        <i class="fa fa-fw fa-plus"></i>
+                                    </button>
+                                </span>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class="col-md-offset-2 col-sm-offset-2 col-md-9 col-sm-9 col-xs-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
                             <table class="table table-bordered custom-table">
                                 <thead>
                                     <tr>
-                                        <th scope="col"><?= __('STT') ?></th>
-                                        <th scope="col"><?= __('Họ và tên') ?></th>
-                                        <th scope="col"><?= __('Giới tính') ?></th>
-                                        <th scope="col"><?= __('Số ĐT') ?></th>
+                                        <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                        <th scope="col" class="col-md-4"><?= __('Họ tên') ?></th>
+                                        <th scope="col" class="col-md-2"><?= __('Giới tính') ?></th>
+                                        <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
                                         <th scope="col" class="actions"></th>
                                     </tr>
                                 </thead>
@@ -336,22 +338,25 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                     </div>
                     <?= $this->Form->end() ?>
                 </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
+                </div>
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="add-candidate-btn" onclick="addStudent()">Submit</button>
-                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="add-candidate-btn" onclick="addStudent()">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
 </div>
 
 <div id="edit-student-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">BẢNG GHI CHÚ</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -364,22 +369,24 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             ]
                         ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="note"><?= __('Ghi chú') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
                             <?= $this->Form->control('modal.note', [
                                 'label' => false,
                                 'type' => 'textarea',
-                                'class' => 'form-control col-md-7 col-xs-12', 
+                                'class' => 'form-control edittextarea', 
                                 ]) ?>
                         </div>
                     </div>
                     <?= $this->Form->end() ?>
                 </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
+                </div>
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="edit-student-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-edit-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="edit-student-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-edit-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -424,8 +431,8 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="change-class-btn">Submit</button>
-                <button type="button" class="btn btn-default" id="close-change-class-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="change-class-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-change-class-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

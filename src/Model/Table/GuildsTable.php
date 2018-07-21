@@ -38,6 +38,10 @@ class GuildsTable extends Table
 
         $this->addBehavior('Timestamp');
         $this->addBehavior('Author');
+
+        $this->hasMany('Companies', [
+            'foreignKey' => 'guild_id'
+        ]);
     }
 
     /**
@@ -67,14 +71,12 @@ class GuildsTable extends Table
         $validator
             ->scalar('phone_vn')
             ->maxLength('phone_vn', 11)
-            ->minLength('phone_vn', 10)
             ->allowEmpty('phone_vn');
 
         $validator
-        ->scalar('phone_jp')
-        ->maxLength('phone_jp', 11)
-        ->minLength('phone_jp', 10)
-        ->allowEmpty('phone_jp');
+            ->scalar('phone_jp')
+            ->maxLength('phone_jp', 255)
+            ->allowEmpty('phone_jp');
 
         $validator
             ->scalar('address_romaji')

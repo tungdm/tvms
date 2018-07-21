@@ -10,6 +10,9 @@ use App\Controller\AppController;
 use Cake\Log\Log;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
+use Cake\Utility\Text;
+
+
 /**
  * Companies Controller
  *
@@ -19,6 +22,29 @@ use Cake\ORM\Query;
  */
 class CompaniesController extends AppController
 {
+    
+    public function isAuthorized($user)
+    {
+        $controller = $this->request->getParam('controller');
+        $action = $this->request->getParam('action');
+        $session = $this->request->session();
+        $permissionsTable = TableRegistry::get('Permissions');
+        $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
+
+        if (!empty($userPermission)) {
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+                $session->write($controller, $userPermission->action);
+                return true;
+            }
+        }
+        return parent::isAuthorized($user);
+    }
+    
+    public function initialize()
+    {
+        parent::initialize();
+        $this->entity = 'công ty';
+    }
 
     /**
      * Index method
@@ -27,48 +53,59 @@ class CompaniesController extends AppController
      */
     public function index()
     {
-        $query = $this->request->getQuery();
-        
-        $this->paginate = [
-            'sortWhitelist' => ['name_romaji','name_kanji','address_romaji', 'address_kanji', 'phone_vn','phone_jp'],
-            'limit' => 10
-        ];
-        $allCompanies = $this->Companies->find();
+        $query = $this->request->getQuery();        
         if (!empty($query)) {
-            if (isset($query['name_romaji']) && !empty($query['name_romaji'])) {
-                $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('name_romaji', '%'.$query['name_romaji'].'%');
+            $allCompanies = $this->Companies->find();
+
+            if (!isset($query['records']) || empty($query['records'])) {
+                $query['records'] = 10;
+            }
+            if (isset($query['name']) && !empty($query['name'])) {
+                $allCompanies->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    $orConditions = $exp->or_(function ($or) use ($query) {
+                        return $or->like('Companies.name_kanji', '%'.$query['name'].'%')
+                            ->like('Companies.name_romaji', '%'.$query['name'].'%');
+                    });
+                    return $exp->add($orConditions);
                 });
             }
-            if (isset($query['name_kanji']) && !empty($query['name_kanji'])) {
-                $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('name_kanji', '%'.$query['name_kanji'].'%');
+            if (isset($query['address']) && !empty($query['address'])) {
+                $allCompanies->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    $orConditions = $exp->or_(function ($or) use ($query) {
+                        return $or->like('Companies.address_romaji', '%'.$query['address'].'%')
+                            ->like('Companies.address_kanji', '%'.$query['address'].'%');
+                    });
+                    return $exp->add($orConditions);
                 });
             }
-            if (isset($query['address_romaji']) && !empty($query['address_romaji'])) {
-                $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('address_romaji', '%'.$query['address_romaji'].'%');
-                });
-            }
-            if (isset($query['address_romaji']) && !empty($query['address_kanji'])) {
-                $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('address_kanji', '%'.$query['address_kanji'].'%');
-                });
+            if (isset($query['guild']) && !empty($query['guild'])) {
+                $allCompanies->where(['guild_id' => $query['guild']]);
             }
             if (isset($query['phone_vn']) && !empty($query['phone_vn'])) {
-                $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('phone_vn', '%'.$query['phone_vn'].'%');
+                $allCompanies->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('Companies.phone_vn', '%'.$query['phone_vn'].'%');
                 });
             }
             if (isset($query['phone_jp']) && !empty($query['phone_jp'])) {
-                $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('phone_jp', '%'.$query['phone_jp'].'%');
+                $allCompanies->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('Companies.phone_jp', '%'.$query['phone_jp'].'%');
                 });
             }
+        } else {
+            $query['records'] = 10;
+            $allCompanies = $this->Companies->find()->order(['Companies.created' => 'DESC']);
         }
 
+        $this->paginate = [
+            'sortWhitelist' => ['name_romaji','name_kanji','address_romaji', 'address_kanji', 'phone_vn','phone_jp'],
+            'contain' => ['Guilds'],
+            'limit' => $query['records']
+        ];
+
         $companies = $this->paginate($allCompanies);
-        $this->set(compact('companies', 'query'));
+        $guilds = $this->Companies->Guilds->find('list');
+
+        $this->set(compact('companies', 'guilds', 'query'));
     }
 
     /**
@@ -80,11 +117,20 @@ class CompaniesController extends AppController
      */
     public function view($id = null)
     {
-        $company = $this->Companies->get($id, [
-            'contain' => ['Guilds']
-        ]);
+        $this->request->allowMethod('ajax');
+        $companyId = $this->request->getQuery('id');
+        $resp = [];
 
-        $this->set('company', $company);
+        try {
+            $guild = $this->Companies->get($companyId, [
+                'contain' => ['Guilds']
+            ]);
+            $resp = $guild;
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
     }
 
     /**
@@ -98,14 +144,16 @@ class CompaniesController extends AppController
         if ($this->request->is('post')) {
             $company = $this->Companies->patchEntity($company, $this->request->getData());
             if ($this->Companies->save($company)) {
-                $this->Flash->success(__('The company has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $company->name_romaji
+                ]));
 
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The company could not be saved. Please, try again.'));
+            $this->Flash->error($this->errorMessage['add']);
         }
-        $guilds = $this->Companies->Guilds->find('list', ['limit' => 200]);
-        $this->set(compact('company', 'guilds'));
+        $this->set(compact('company'));
     }
 
     /**
@@ -126,28 +174,28 @@ class CompaniesController extends AppController
                 $company = $this->Companies->get($data['id'], [
                     'contain' => []
                 ]);
-                $company = $this->Companies->patchEntity($company, $data, [
-                    'fieldList' => ['name_romaji','name_kanji','address_romaji', 'address_kanji', 'phone_vn','phone_jp']
-                ]);
+                $company = $this->Companies->patchEntity($company, $data);
                 $company = $this->Companies->setAuthor($company, $this->Auth->user('id'), $this->request->getParam('action'));
                 if ($this->Companies->save($company)) {
                     $resp = [
                         'status' => 'success',
                         'redirect' => Router::url(['action' => 'index']),
-                        'flash' => [
-                            'title' => 'Success',
-                            'type' => 'success',
-                            'message' => __('Chỉnh sửa thành công !')
-                        ]
                     ];
-                    $this->Flash->success(__('Thông tin đã được thay đổi.'));
+                    $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                        'entity' => $this->entity,
+                        'name' => $company->name_romaji
+                    ]));
                 } else {
                     $resp = [
                         'status' => 'error',
                         'flash' => [
-                            'title' => 'Error',
+                            'title' => 'Lỗi',
                             'type' => 'error',
-                            'message' => __('Thao tác chưa thành công. Xin vui lòng thử lại !')
+                            'icon' => 'fa fa-warning',
+                            'message' => Text::insert($this->errorMessage['edit'], [
+                                'entity' => $this->entity,
+                                'name' => $company->name_romaji
+                            ])
                         ]
                     ];
                 }
@@ -162,7 +210,6 @@ class CompaniesController extends AppController
             return $this->jsonResponse($resp);
         } else {
             //TODO: throw 404 page not found
-            
         }
     }
 
@@ -177,10 +224,17 @@ class CompaniesController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $company = $this->Companies->get($id);
+        $companyName = $company->name_romaji;
         if ($this->Companies->delete($company)) {
-            $this->Flash->success(__('The company has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $companyName
+                ]));
         } else {
-            $this->Flash->error(__('The company could not be deleted. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $companyName
+            ]));
         }
 
         return $this->redirect(['action' => 'index']);

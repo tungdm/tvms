@@ -311,7 +311,7 @@ a:focus {
   display: inline-block;
 }
 .content-header > button {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   margin-left: 5px;
 }
 .content-header > h1 > small {
@@ -923,10 +923,10 @@ a:focus {
  */
 /*Dropdowns in general*/
 .dropdown-menu {
-  box-shadow: none;
   border-color: #eee;
   right: 0;
   left: unset;
+  border-radius: 0px;
 }
 .dropdown-menu > li > a {
   color: #777;
@@ -1602,6 +1602,9 @@ a:focus {
  * Component: Box
  * --------------
  */
+/* .modal-body.box {
+  box-shadow: unset;
+} */
 .box {
   position: relative;
   border-radius: 3px;
@@ -2504,9 +2507,6 @@ a:focus {
  */
 .alert {
   border-radius: 3px;
-}
-.alert h4 {
-  font-weight: 800;
 }
 .alert .icon {
   margin-right: 10px;
@@ -5783,6 +5783,9 @@ table.text-center th {
 .green-color {
   color: green;
 }
+.red-color {
+  color: red;
+}
 
 .alert-success {
   color: #ffffff;
@@ -5869,4 +5872,37 @@ ul.notifications {
 }
 .dark {
   color: #34495E
+}
+
+.jqstooltip {
+  background: #34495E !important;
+  width: 30px !important;
+  height: 22px !important;
+  text-decoration: none
+}
+.tooltip {
+  display: block !important
+}
+.cropper .docs-tooltip {
+  display: block;
+  margin: -6px -12px;
+  padding: 6px 12px
+}
+.cropper .docs-tooltip>.icon {
+  margin: 0 -3px;
+  vertical-align: top
+}
+.cropper .tooltip-inner {
+  white-space: normal
+}
+.cropper .btn-upload .tooltip-inner,
+.cropper .btn-toggle .tooltip-inner {
+  white-space: nowrap
+}
+.cropper .btn-toggle {
+  padding: 6px
+}
+.cropper .btn-toggle>.docs-tooltip {
+  margin: -6px;
+  padding: 6px
 }

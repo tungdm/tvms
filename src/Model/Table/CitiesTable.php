@@ -37,11 +37,13 @@ class CitiesTable extends Table
         $this->setPrimaryKey('id');
 
         $this->hasMany('Districts', [
-            'foreignKey' => 'city_id'
+            'foreignKey' => 'city_id',
+            'dependent' => true,
         ]);
 
         $this->hasMany('Addresses', [
             'foreignKey' => 'city_id',
+            'dependent' => true,
         ]);
     }
 

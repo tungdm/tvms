@@ -76,7 +76,7 @@ class PresentersTable extends Table
 
         $validator
             ->scalar('type')
-            ->maxLength('type', 255)
+            ->maxLength('type', 2)
             ->allowEmpty('type');
 
         $validator

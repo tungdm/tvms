@@ -14,23 +14,26 @@ $this->Html->css('user.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('user.js', ['block' => 'scriptBottom']);
+
+$this->assign('title', 'Thêm mới nhân viên');
 ?>
 
 <?= $this->Form->unlockField('permissions') ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('TẠO MỚI NHÂN VIÊN') ?></h1>
+<h1><?= __('THÊM MỚI NHÂN VIÊN') ?></h1>
+<button class="btn btn-success submit-user-btn" id="create-user-btn" type="button">Lưu lại</button>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang chính',
+            '<i class="fa fa-home"></i> Trang Chủ',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Nhân viên'), ['controller' => 'Users', 'action' => 'index']) ?>
+        <?= $this->Html->link(__('Danh sách nhân viên'), ['controller' => 'Users', 'action' => 'index']) ?>
     </li>
-    <li class="active">Tạo Mới</li>
+    <li class="active">Thêm mới nhân viên</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -39,8 +42,11 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title">
-                    <?= __('Thông tin cơ bản') ?>
+                    <?= __('Thông tin nhân viên') ?>
                 </h3>
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                </div>
             </div>
             <div class="box-body">
                 <?= $this->Form->create($user, [
@@ -53,12 +59,12 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                     ]) 
                 ?>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="username"><?= __('Tên tài khoản') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="username"><?= __('Tài khoản') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('username', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'Vui lòng nhập tên tài khoản'
+                            'placeholder' => 'Nhập tên tài khoản đăng nhập'
                             ]) ?>
                     </div>
                 </div>
@@ -69,7 +75,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                             'label' => false,
                             'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'Vui lòng nhập tên nhân viên. Ví dụ: Nguyễn Văn A'
+                            'placeholder' => 'Nhập họ tên của nhân viên'
                             ]) ?>
                     </div>
                 </div>
@@ -80,7 +86,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                             'label' => false,
                             'required' => true,                            
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'nguyenvana@email.com'
+                            'placeholder' => 'Nhập địa chỉ mail của nhân viên'
                             ]) ?>
                     </div>
                 </div>
@@ -106,7 +112,8 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                             'required' => true,
                             'label' => false, 
                             'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
-                            'class' => 'form-control col-md-7 col-xs-12'
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'placeholder' => 'Nhập số điện thoại của nhân viên'
                             ]) ?>
                     </div>
                 </div>
@@ -154,20 +161,14 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         <table class="table table-bordered custom-table permission-table">
                             <thead>
                                 <tr>
-                                    <th scope="col"><?= __('Phạm vi') ?></th>
-                                    <th scope="col"><?= __('Quyền hạn') ?></th>
+                                    <th scope="col" class="col-md-5"><?= __('Phạm vi') ?></th>
+                                    <th scope="col" class="col-md-5"><?= __('Quyền hạn') ?></th>
                                     <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                 </tr>
                             </thead>
                             <tbody id="permission-container">
                             </tbody>
                         </table>
-                    </div>
-                </div>
-                <div class="ln_solid"></div>
-                <div class="form-group">
-                    <div class="col-md-6 col-md-offset-3">
-                        <?= $this->Form->button(__('Hoàn tất'), ['class' => 'btn btn-success', 'type' => 'button', 'id' => 'create-user-btn']) ?>
                     </div>
                 </div>
                 <?= $this->Form->end() ?>
@@ -186,7 +187,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 'data-parsley-not-duplicate-scope' => '', 
                 'label' => false, 
                 'id' => 'scope-{{counter}}',
-                'class' => 'select-scope form-control col-md-7 col-xs-12 select-group',
+                'class' => 'select-scope form-control col-md-5 select-group',
                 ]) ?>
         </td>
         <td>
@@ -196,7 +197,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 'required' => true, 
                 'label' => false, 
                 'id' => 'permission-{{counter}}',
-                'class' => 'select-action form-control col-md-7 col-xs-12 select-group',
+                'class' => 'select-action form-control col-md-5 select-group',
                 ]) ?>
         </td>
         <td class="action-btn">

@@ -28,6 +28,7 @@ class UsersController extends AppController
         parent::initialize();
 
         Log::write('debug', 'initialize usercontroller');
+        $this->entity = 'nhân viên';
         
         $this->Auth->allow(['login', 'logout']);
     }
@@ -81,7 +82,7 @@ class UsersController extends AppController
                 $this->Auth->setUser($user);
                 return $this->redirect($this->Auth->redirectUrl());
             }
-            $this->Flash->error('Your username or password is incorrect.');
+            $this->Flash->error($this->errorMessage['loginError']);
         }
         $this->viewBuilder()->autoLayout(false);
     }
@@ -100,16 +101,13 @@ class UsersController extends AppController
     {
         $query = $this->request->getQuery();
         
-        $allUsers = $this->Users->find();
         if (!empty($query)) {
+            $allUsers = $this->Users->find();
+
             if (!isset($query['records']) || empty($query['records'])) {
                 $query['records'] = 10;
             }
-            $this->paginate = [
-                'contain' => ['Roles'],
-                'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'role_id'],
-                'limit' => $query['records']
-            ];
+            
             if (isset($query['username']) && !empty($query['username'])) {
                 $allUsers->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('username', '%'.$query['username'].'%');
@@ -143,12 +141,14 @@ class UsersController extends AppController
             }
         } else {
             $query['records'] = 10;
-            $this->paginate = [
-                'contain' => ['Roles'],
-                'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'role_id'],
-                'limit' => $query['records']
-            ];
+            $allUsers = $this->Users->find()->order(['Users.created' => 'DESC']);
         }
+
+        $this->paginate = [
+            'contain' => ['Roles'],
+            'sortWhitelist' => ['username', 'email', 'gender', 'phone', 'fullname', 'role_id'],
+            'limit' => $query['records']
+        ];
 
         $users = $this->paginate($allUsers);
         $roles = $this->Users->Roles->find('list');
@@ -178,9 +178,10 @@ class UsersController extends AppController
             $resp = [
                 'status' => 'error',
                 'flash' => [
-                    'title' => 'Error',
+                    'title' => 'Lỗi',
                     'type' => 'error',
-                    'message' => __('The user could not be saved. Please, try again.')
+                    'icon' => 'fa fa-warning',
+                    'message' => $this->errorMessage['add']
                 ]
             ];
 
@@ -206,13 +207,11 @@ class UsersController extends AppController
                 $resp = [
                     'status' => 'success',
                     'redirect' => Router::url(['action' => 'index']),
-                    'flash' => [
-                        'title' => 'Success',
-                        'type' => 'success',
-                        'message' => __('The user has been saved.')
-                    ]
                 ];
-                $this->Flash->success(__('The user has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $user->fullname
+                ]));
             }
 
             return $this->jsonResponse($resp);
@@ -242,14 +241,6 @@ class UsersController extends AppController
             ];
         } else if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            $resp = [
-                'status' => 'error',
-                'flash' => [
-                    'title' => 'Error',
-                    'type' => 'error',
-                    'message' => __('The permission could not be changed. Please, try again.')
-                ]
-            ];
 
             $currentUser = $this->Auth->user();
             $currentUserRole = $currentUser['role_id'];
@@ -262,6 +253,16 @@ class UsersController extends AppController
                     'error' => 'try to change user role to admin'
                     ]);
                 Log::write('warning', $msg);
+
+                $resp = [
+                    'status' => 'error',
+                    'flash' => [
+                        'title' => 'Lỗi',
+                        'type' => 'error',
+                        'icon' => 'fa fa-warning',
+                        'message' => $this->errorMessage['error']
+                    ]
+                ];
                 return $this->jsonResponse($resp);
             }
 
@@ -287,13 +288,11 @@ class UsersController extends AppController
                         $resp = [
                             'status' => 'success',
                             'redirect' => Router::url(['action' => 'index']),
-                            'flash' => [
-                                'title' => 'Success',
-                                'type' => 'success',
-                                'message' => __('The user has been saved.')
-                            ]
                         ];
-                        $this->Flash->success(__('The permission has been changed.'));
+                        $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $user->fullname
+                            ]));
                     }
                 } catch (Exception $e) {
                     //TODO: blacklist user
@@ -375,7 +374,7 @@ class UsersController extends AppController
             $user = $this->Users->setAuthor($user, $this->Auth->user('id'), $this->request->getParam('action'));
 
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
+                $this->Flash->success($this->successMessage['updateProfile']);
                 
                 if ($this->Auth->user('id') == $id) {
                     $this->Auth->setUser($user);
@@ -383,7 +382,7 @@ class UsersController extends AppController
 
                 return $this->redirect(['action' => 'edit', $user->id]);
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+            $this->Flash->error($this->errorMessage['error']);
         }
         // get role
         $userRole = $this->Auth->user('role')['name'];
@@ -407,10 +406,17 @@ class UsersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $user = $this->Users->get($id);
+        $userName = $user->fullname;
         if ($this->Users->delete($user)) {
-            $this->Flash->success(__('The user has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $userName
+                ]));
         } else {
-            $this->Flash->error(__('The user could not be deleted. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $userName
+            ]));
         }
 
         return $this->redirect(['action' => 'index']);
@@ -418,15 +424,6 @@ class UsersController extends AppController
 
     public function changePassword() {
         $this->request->allowMethod('ajax');
-        $resp = [
-            'status' => 'error',
-            'flash' => [
-                'title' => 'Error',
-                'type' => 'error',
-                'message' => __('The password could not be updated. Please, try again.')
-            ]
-        ];
-
         $data = $this->request->getData();
         $currentPassword = $this->Users->find('password', ['userId' => $this->Auth->user('id')])->first();
 
@@ -442,14 +439,18 @@ class UsersController extends AppController
                 $resp = [
                     'status' => 'success',
                     'redirect' => Router::url(['action' => 'logout']),
-                    'flash' => [
-                        'title' => 'Success',
-                        'type' => 'success',
-                        'message' => __('The password has been updated. Please, login again.')
-                    ]
                 ];
-                $this->Flash->success(__('The password has been updated. Please, login again.'));
+                $this->Flash->success($this->successMessage['updatePassword']);
             }
+        } else {
+            $resp = [
+                'status' => 'error',
+                'flash' => [
+                    'title' => 'Lỗi',
+                    'type' => 'error',
+                    'message' => $this->errorMessage['updatePassword']
+                ]
+            ];
         }
         return $this->jsonResponse($resp);
     }

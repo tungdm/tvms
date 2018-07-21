@@ -25,6 +25,8 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý Nhân viên');
 ?>
 
 <?php $this->start('content-header'); ?>
@@ -32,11 +34,11 @@ $this->Paginator->setTemplates([
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
+            '<i class="fa fa-home"></i> Trang Chủ',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Nhân Viên</li>
+    <li class="active">Danh sách nhân niên</li>
 </ol>
 <?php $this->end(); ?>
 <div class="row">
@@ -45,6 +47,7 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                     <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
@@ -160,7 +163,7 @@ $this->Paginator->setTemplates([
                                     ])
                                 ?>
                             </td>
-                            <td class="filter-group-btn">
+                            <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                             </td>
@@ -178,28 +181,26 @@ $this->Paginator->setTemplates([
                             <td class="cell usernameCol"><?= h($user->username) ?></td>
                             <td class="cell emailCol hidden"><?= h($user->email) ?></td>
                             <td class="cell genderCol"><?= h($gender[$user->gender]) ?></td>
-                            <td class="cell phoneCol"><?= h($user->phone) ?></td>
+                            <td class="cell phoneCol"><?= h($this->Phone->makeEdit($user->phone)) ?></td>
                             <td class="cell fullnameCol"><?= h($user->fullname) ?></td>
-                            <td class="cell roleCol"><?= h($user->role->name) ?></td>
+                            <td class="cell roleCol"><?= h($user->role->name_vn) ?></td>
                             
                             <td class="actions cell">
-                                <?php 
-                                    if (($currentUser['role']['name'] == 'admin' || $permission == 0)  
-                                        && $user->role->name != 'admin' 
-                                        && $user->id != $currentUser['id']): 
-                                    ?>
+                                <?php if ($permission == 0 && $user->role->name != 'admin' && $user->id != $currentUser['id']): ?>
                                 <div class="btn-group">
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                            <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'><?= __('Phân quyền') ?></a>
+                                            <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'>
+                                                <i class="fa fa-edit" aria-hidden="true"></i> Phân quyền
+                                            </a>
                                         </li>
                                         <li>
-                                            <?= $this->Form->postLink('Xóa', 
+                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $user->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc muốn xóa {0}?', $user->username)
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa nhân viên {0}?', $user->fullname)
                                                 ]) ?>
                                         </li>
                                     </ul>

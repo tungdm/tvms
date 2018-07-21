@@ -9,23 +9,25 @@ $teachers = [];
 $avg = [];
 $avgTotal = 0;
 $totalStudent = count($jtest->students);
+
+$this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiết');
 ?>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('Test Detail') ?></h1>
+    <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
     <ol class="breadcrumb">
         <li>
             <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
+                '<i class="fa fa-home"></i> Trang Chủ',
                 '/',
                 ['escape' => false]) ?>
         </li>
         <li>
-            <?= $this->Html->link(__('List Tests'), [
+            <?= $this->Html->link(__('Danh sách kì thi'), [
                 'controller' => 'Jtests',
                 'action' => 'index']) ?>
         </li>
-        <li class="active">Test Detail</li>
+        <li class="active">Kì thi <?= $jtest->test_date ?></li>
     </ol>
 <?php $this->end(); ?>
 
@@ -41,24 +43,24 @@ $totalStudent = count($jtest->students);
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="test_date"><?= __('Ngày thi') ?></label>
-                        <div class="col-md-3 col-sm-7 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_date"><?= __('Ngày thi') ?>: </label>
+                        <div class="ccol-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jtest->test_date) ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="jclass_id"><?= __('Lớp thi') ?></label>
-                        <div class="col-md-3 col-sm-7 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="jclass_id"><?= __('Lớp thi') ?>: </label>
+                        <div class="ccol-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jtest->jclass->name) ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="test_lessons"><?= __('Bài thi') ?></label>
-                        <div class="col-md-3 col-sm-7 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_lessons"><?= __('Bài thi') ?>: </label>
+                        <div class="ccol-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($lessons[$jtest->lesson_from]) ?> ～ <?= h($lessons[$jtest->lesson_to]) ?>
                             </div>

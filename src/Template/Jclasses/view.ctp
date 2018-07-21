@@ -6,23 +6,25 @@ $controller = $this->request->getParam('controller');
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
 $this->Html->script('class.js', ['block' => 'scriptBottom']);
+
+$this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
 ?>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('Class Detail') ?></h1>
+    <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
     <ol class="breadcrumb">
         <li>
             <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
+                '<i class="fa fa-home"></i> Trang Chủ',
                 '/',
                 ['escape' => false]) ?>
         </li>
         <li>
-            <?= $this->Html->link(__('Class'), [
+            <?= $this->Html->link(__('Danh sách lớp học'), [
                 'controller' => 'Jclasses',
                 'action' => 'index']) ?>
         </li>
-        <li class="active">Class Detail</li>
+        <li class="active">Lớp <?= $jclass->name ?></li>
     </ol>
 <?php $this->end(); ?>
 
@@ -38,7 +40,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name"><?= __('Tên lớp') ?></label>
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="name"><?= __('Tên lớp') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jclass->name) ?>
@@ -46,7 +48,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="start"><?= __('Ngày bắt đầu') ?></label>
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="start"><?= __('Ngày bắt đầu') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jclass->start) ?>
@@ -54,7 +56,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_id"><?= __('Giáo viên chủ nhiệm') ?></label>
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="user_id"><?= __('Giáo viên chủ nhiệm') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jclass->user->fullname) ?>

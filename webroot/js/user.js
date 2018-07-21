@@ -1,4 +1,3 @@
-var ajaxing = false;
 var perData = {};
 perData.counter = 0;
 
@@ -28,19 +27,20 @@ function removePermissionRow(delEl) {
 function removePermission(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove user\'s permission',
-            text: "You won't be able to revert this!",
+            title: 'Xóa quyền của nhân viên',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 // send ajax delete request to server
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/users/deletePermission',
+                    url: DOMAIN_NAME + '/users/deletePermission',
                     data: {
                         'id': $(delEl).closest('tr.row-permission').find('input').val()
                     },
@@ -118,6 +118,12 @@ $(document).ready(function() {
     $('#create-user-btn').click(function() {
         var validateResult = $('#create-user-form').parsley().validate();
         if (validateResult) {
+            if (ajaxing) {
+                // still requesting
+                return;
+            }
+            ajaxing = true;
+
             $.ajax({
                 type: "POST",
                 url: $('#create-user-form').attr('action'),
@@ -127,21 +133,36 @@ $(document).ready(function() {
                     if (resp.status == 'success') {
                         window.location = resp.redirect; 
                     } else {
-                        PNotify.desktop.permission();
-                        (new PNotify({
-                            title: resp.flash.title,
+                        var notice = new PNotify({
+                            title: '<strong>' + resp.flash.title + '</strong>',
                             text: resp.flash.message,
                             type: resp.flash.type,
-                            desktop: {
-                                desktop: true
+                            styling: 'bootstrap3',
+                            icon: resp.flash.icon,
+                            cornerclass: 'ui-pnotify-sharp',
+                            buttons: {
+                                closer: false,
+                                sticker: false
                             }
-                        }))
+                        });
+                        notice.get().click(function() {
+                            notice.remove();
+                        });
                     }
+                },
+                complete: function() {
+                    ajaxing = false;
                 }
             });
         }
     });
     
+    $('#update-profile-btn').click(function() {
+        var validateResult = $('#update-profile-form').parsley().validate();
+        if (validateResult) {
+            $('#update-profile-form')[0].submit();
+        }
+    });
     // select display fields
     $('#settings-submit-btn').click(function() {
         var elems = Array.prototype.slice.call($('#setting-form').find('input[type="checkbox"]'));
@@ -167,6 +188,13 @@ $(document).ready(function() {
     $('#change-password-btn').click(function() {
         var validateResult = $('#change-password-form').parsley().validate();
         if (validateResult) {
+            if (ajaxing) {
+                // still requesting
+                return;
+            }
+            ajaxing = true;
+            $('#change-password-overlay').removeClass('hidden');
+
             $.ajax({
                 type: "POST",
                 url: $('#change-password-form').attr('action'),
@@ -176,16 +204,26 @@ $(document).ready(function() {
                     if (resp.status == 'success') {
                         window.location = resp.redirect; 
                     } else {
-                        PNotify.desktop.permission();
-                        (new PNotify({
-                            title: resp.flash.title,
+                        var notice = new PNotify({
+                            title: '<strong>' + resp.flash.title + '</strong>',
                             text: resp.flash.message,
                             type: resp.flash.type,
-                            desktop: {
-                                desktop: true
+                            styling: 'bootstrap3',
+                            icon: resp.flash.icon,
+                            cornerclass: 'ui-pnotify-sharp',
+                            buttons: {
+                                closer: false,
+                                sticker: false
                             }
-                        }))
+                        });
+                        notice.get().click(function() {
+                            notice.remove();
+                        });
                     }
+                },
+                complete: function() {
+                    ajaxing = false;
+                    $('#change-password-overlay').addClass('hidden');
                 }
             });
         }
@@ -202,15 +240,21 @@ $(document).ready(function() {
                     if (resp.status == 'success') {
                         window.location = resp.redirect; 
                     } else {
-                        PNotify.desktop.permission();
-                        (new PNotify({
-                            title: resp.flash.title,
+                        var notice = new PNotify({
+                            title: '<strong>' + resp.flash.title + '</strong>',
                             text: resp.flash.message,
                             type: resp.flash.type,
-                            desktop: {
-                                desktop: true
+                            styling: 'bootstrap3',
+                            icon: resp.flash.icon,
+                            cornerclass: 'ui-pnotify-sharp',
+                            buttons: {
+                                closer: false,
+                                sticker: false
                             }
-                        }))
+                        });
+                        notice.get().click(function() {
+                            notice.remove();
+                        });
                     }
                 }
             });

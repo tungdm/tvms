@@ -8,6 +8,8 @@ use Cake\ORM\TableRegistry;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
 use Cake\I18n\Time;
+use Cake\Utility\Text;
+use Cake\I18n\Number;
 
 /**
  * Orders Controller
@@ -19,6 +21,13 @@ use Cake\I18n\Time;
 class OrdersController extends AppController
 {
     
+    public function initialize()
+    {
+        parent::initialize();
+        $this->entity = 'đơn hàng';
+        $this->loadComponent('SystemEvent');
+    }
+
     public function isAuthorized($user)
     {
         $controller = $this->request->getParam('controller');
@@ -133,14 +142,22 @@ class OrdersController extends AppController
     {
         $order = $this->Orders->newEntity();
         if ($this->request->is('post')) {
-            $order = $this->Orders->patchEntity($order, $this->request->getData(), ['associated' => 'Students']);
+            $data = $this->request->getData();
+            // create system event
+            $event = $this->SystemEvent->create('PHỎNG VẤN', $data['interview_date']);
+            $data['events'][0] = $event;
+            $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
+
             if ($this->Orders->save($order)) {
-                $this->Flash->success(__('The order has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $order->name
+                ]));
 
                 return $this->redirect(['action' => 'edit', $order->id]);
             }
-            $this->Flash->error(__('The order could not be saved. Please, try again.'));
+            $this->Flash->error($this->errorMessage['add']);
         }
         $companies = $this->Orders->Companies->find('list', ['limit' => 200]);
         $jobs = $this->Orders->Jobs->find('list', ['limit' => 200]);
@@ -157,17 +174,31 @@ class OrdersController extends AppController
     public function edit($id = null)
     {
         $order = $this->Orders->get($id, [
-            'contain' => ['Students']
+            'contain' => ['Students', 'Events']
         ]);
+        $currentInterviewDate = $order->interview_date;
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            $order = $this->Orders->patchEntity($order, $data, ['associated' => 'Students']);
+            $newInterviewDate = new Time($data['interview_date']);
+            if ($currentInterviewDate !== $newInterviewDate) {
+                // uppdate system event
+                $event = $this->SystemEvent->update($order->events[0]->id, $data['interview_date']);
+            }
+            $data['events'][0] = $event;
+            $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
+            
             if ($this->Orders->save($order)) {
-                $this->Flash->success(__('The order has been saved.'));
-
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity,
+                    'name' => $order->name
+                ]));
                 return $this->redirect(['action' => 'edit', $order->id]);
             }
-            $this->Flash->error(__('The order could not be saved. Please, try again.'));
+
+            $this->Flash->error(Text::insert($this->errorMessage['edit'], [
+                'entity' => $this->entity,
+                'name' => $order->name
+            ]));
         }
         $companies = $this->Orders->Companies->find('list', ['limit' => 200]);
         $jobs = $this->Orders->Jobs->find('list', ['limit' => 200]);
@@ -186,28 +217,17 @@ class OrdersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $order = $this->Orders->get($id);
+        $orderName = $order->name;
         if ($this->Orders->delete($order)) {
-            $this->Flash->success(__('The order has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $orderName
+                ]));
         } else {
-            $this->Flash->error(__('The order could not be deleted. Please, try again.'));
-        }
-        return $this->redirect(['action' => 'index']);
-    }
-
-    public function close($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        try {
-            $order = $this->Orders->get($id);
-            $order->status = '4'; // close constant
-            if ($this->Orders->save($order)) {
-                $this->Flash->success(__('The order has been close.'));
-            } else {
-                $this->Flash->error(__('The order could not be close. Please, try again.'));
-            }
-        } catch (Exception $e) {
-            //TODO: blacklist user
-            Log::write('debug', $e);
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $orderName
+                ]));
         }
         return $this->redirect(['action' => 'index']);
     }
@@ -220,23 +240,38 @@ class OrdersController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The candidate could not be deleted. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
 
         try {
             $table = TableRegistry::get('OrdersStudents');
-            $interview = $table->get($interviewId);
-
+            $interview = $table->find()->where(['OrdersStudents.id' => $interviewId])->contain(['Students'])->first();
+            $candidateName = $interview->student->fullname;
             if (!empty($interview) && $table->delete($interview)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The candidate has been deleted.')
+                        'message' => Text::insert($this->successMessage['delete'], [
+                            'entity' => 'ứng viên', 
+                            'name' => $candidateName
+                            ])
+                    ]
+                ];
+            } else {
+                $resp = [
+                    'status' => 'error',
+                    'alert' => [
+                        'title' => 'Lỗi',
+                        'type' => 'error',
+                        'message' => Text::insert($this->errorMessage['delete'], [
+                            'entity' => 'ứng viên', 
+                            'name' => $candidateName
+                            ])
                     ]
                 ];
             }
@@ -276,19 +311,19 @@ class OrdersController extends AppController
                 && !empty($query['ageTo'])
                 ) {
                 $candidates->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    $now = Time::now();
-                    $interval = (int) $query['ageTo'] - (int) $query['ageFrom'];
-                    $minDate = $now->subYears((int) $query['ageTo'])->i18nFormat('yyyy-MM-dd');
-                    $maxDate = $now->addYears($interval)->i18nFormat('yyyy-MM-dd');
+                    $minDate = Time::now()->subYears((int) $query['ageTo'])->year . '-01-01';
+                    $maxDate = Time::now()->subYears((int) $query['ageFrom'])->year . '-01-01';
                     return $exp->between('birthday', $minDate, $maxDate, 'date');
                 });
             }
 
-            if (isset($query['height']) && $query['height'] !== 0) {
+            if (isset($query['height']) && (int)$query['height'] !== 0) {
+                Log::write('debug', $query['height']);
                 $candidates->where(['height >=' => (float) $query['height']]);
             }
 
-            if (isset($query['weight']) && $query['weight'] !== 0) {
+            if (isset($query['weight']) && (int)$query['weight'] !== 0) {
+                Log::write('debug', $query['weight']);
                 $candidates->where(['weight >=' => (float) $query['weight']]);
             }
 

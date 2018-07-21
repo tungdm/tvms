@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\I18n\Time;
 use Cake\Log\Log;
+use Cake\Utility\Text;
 
 /**
  * Jclasses Controller
@@ -17,6 +18,12 @@ use Cake\Log\Log;
  */
 class JclassesController extends AppController
 {
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->entity = 'lớp';
+    }
 
     public function isAuthorized($user)
     {
@@ -160,11 +167,13 @@ class JclassesController extends AppController
             $jclass = $this->Jclasses->patchEntity($jclass, $this->request->getData(), ['associated' => 'Students']);
             $jclass = $this->Jclasses->setAuthor($jclass, $this->Auth->user('id'), $this->request->getParam('action'));
             if ($this->Jclasses->save($jclass)) {
-                $this->Flash->success(__('The class has been saved.'));
-
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $jclass->name
+                ]));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('The class could not be saved. Please, try again.'));
+            $this->Flash->error($this->errorMessage['add']);
         }
         $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
         $classes = []; // dummy data
@@ -183,14 +192,21 @@ class JclassesController extends AppController
         $jclass = $this->Jclasses->get($id, [
             'contain' => ['Students', 'Jtests', 'Users']
         ]);
+        $className = $jclass->name;
         if ($this->request->is(['patch', 'post', 'put'])) {
             $jclass = $this->Jclasses->patchEntity($jclass, $this->request->getData());
             if ($this->Jclasses->save($jclass)) {
-                $this->Flash->success(__('The class has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity,
+                    'name' => $jclass->name
+                ]));
 
                 return $this->redirect(['action' => 'edit', $jclass->id]);
             }
-            $this->Flash->error(__('The class could not be saved. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['edit'], [
+                'entity' => $this->entity,
+                'name' => $className
+            ]));
         }
         $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
         $classes = $this->Jclasses->find('list')->where(['id !=' => $id]);
@@ -211,9 +227,15 @@ class JclassesController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $jclass = $this->Jclasses->get($id);
         if ($this->Jclasses->delete($jclass)) {
-            $this->Flash->success(__('The class has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $jclass->name
+                ]));
         } else {
-            $this->Flash->error(__('The class could not be deleted. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $jclass->name
+                ]));
         }
 
         return $this->redirect(['action' => 'index']);
@@ -227,23 +249,39 @@ class JclassesController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The student could not be removed from this class. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
 
         try {
             $table = TableRegistry::get('JclassesStudents');
-            $student = $table->get($recordId);
+            // $student = $table->get($recordId);
+            $record = $table->find()->where(['JclassesStudents.id' => $recordId])->contain(['Students'])->first();
 
-            if (!empty($student) && $table->delete($student)) {
+            if (!empty($record) && $table->delete($record)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The student has been remove from this class.')
+                        'message' => Text::insert($this->successMessage['delete'], [
+                            'entity' => 'học viên', 
+                            'name' => $record->student->fullname
+                            ])
+                    ]
+                ];
+            } else {
+                $resp = [
+                    'status' => 'error',
+                    'alert' => [
+                        'title' => 'Lỗi',
+                        'type' => 'error',
+                        'message' => Text::insert($this->errorMessage['delete'], [
+                            'entity' => 'học viên', 
+                            'name' => $record->student->fullname
+                            ])
                     ]
                 ];
             }
@@ -263,23 +301,44 @@ class JclassesController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The student could not be move to the new class. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
 
         try {
+            $classTable = TableRegistry::get('Jclasses');
+            $jclass = $classTable->get($newClassId);
+
             $table = TableRegistry::get('JclassesStudents');
-            $student = $table->get($recordId);
-            $student->jclass_id = $newClassId;
-            if ($table->save($student)) {
+            $record = $table->find()->where(['JclassesStudents.id' => $recordId])->contain(['Students'])->first();
+            $record->jclass_id = $newClassId;
+
+            if ($table->save($record)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
                         'title' => 'Success',
                         'type' => 'success',
-                        'message' => __('The student has been move to the new class.')
+                        'message' => Text::insert($this->successMessage['changeClass'], [
+                            'entity' => 'học viên', 
+                            'name' => $record->student->fullname,
+                            'class' => $jclass->name
+                            ])
+                    ]
+                ];
+            } else {
+                $resp = [
+                    'status' => 'error',
+                    'alert' => [
+                        'title' => 'Lỗi',
+                        'type' => 'error',
+                        'message' => Text::insert($this->errorMessage['changeClass'], [
+                            'entity' => 'học viên', 
+                            'name' => $record->student->fullname,
+                            'class' => $jclass->name
+                            ])
                     ]
                 ];
             }

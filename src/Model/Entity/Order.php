@@ -74,6 +74,7 @@ class Order extends Entity
         'modified_by' => true,
         'company' => true,
         'job' => true,
-        'students' => true
+        'students' => true,
+        'events' => true,
     ];
 }

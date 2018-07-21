@@ -15,6 +15,7 @@
 }
 .custom-table>thead>tr>th, .custom-table>thead>tr>th>a, .custom-table>thead>tr>th.col-num, .custom-table>thead>tr>th.actions {
     color: #dde4ea;
+    text-align: center;
     vertical-align: middle !important;
 }
 .custom-table > thead > tr > th {
@@ -212,6 +213,37 @@ blockquote {
     margin-top: 5px;
 }
 
-.optional {
+label.optional {
     font-weight: 500;
+    font-style: italic;
+}
+
+.actions {
+    text-align: center;
+}
+
+.footer-note {
+    font-style: italic;
+    text-align: right;
+}
+.footer-note strong, .global-note {
+    color: red;
+}
+.actions .fa-edit {
+    margin-right: 8px !important;
+}
+.actions .fa-trash {
+    margin-right: 11px !important;
+}
+
+.modal-body.box {
+    margin-bottom: auto;
+    box-shadow: unset;
+}
+.box-body.table-responsive {
+    overflow: inherit;
+}
+
+.fc-content {
+    cursor: pointer;
 }

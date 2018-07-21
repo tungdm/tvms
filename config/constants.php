@@ -175,12 +175,12 @@ return [
         '1' => 'Chưa phỏng vấn',
         '2' => 'Đang phỏng vấn',
         '3' => 'Đã phỏng vấn',
-        '4' => 'Đã đóng'
+        '4' => 'Đã có kết quả'
     ],
     'interviewResult' => [
         '0' => '-',
-        '1' => 'Pass',
-        '2' => 'Fail',
+        '1' => 'Đậu',
+        '2' => 'Rớt',
     ],
     'workTime' => [
         '3' => '3 năm',
@@ -313,15 +313,19 @@ return [
     ],
     // user
     'scope' => [
-        'Users' => 'Users scope',
-        'Students' => 'Students scope',
-        'Orders' => 'Orders scope',
-        'Jclasses' => 'Classs scope',
-        'Jtests' => 'Tests scope',
+        'Users' => 'Quản lý nhân viên',
+        'Students' => 'Quản lý lao động',
+        'Events' => 'Quản lý lịch công tác',
+        'Orders' => 'Quản lý đơn hàng',
+        'Jclasses' => 'Quản lý lớp học',
+        'Jtests' => 'Quản lý kì thi',
+        'Guilds' => 'Quản lý nghiệp đoàn',
+        'Companies' => 'Quản lý công ty đối tác',
+        'Presenters' => 'Quản lý cộng tác viên',
     ],
     'permission' => [
-        '0' => 'Toàn quyền',
-        '1' => 'Chỉ đọc'
+        '1' => 'Chỉ đọc',
+        '0' => 'Toàn quyền'
     ],
     'passwordDefault' => '123456789',
 
@@ -549,6 +553,13 @@ return [
         '3' => 'Dân tộc thiểu số',
     ],
 
+    // presenter
+    'presenterType' => [
+        '1' => 'Cá nhân',
+        '2' => 'Công ty',
+        '3' => 'Internet'
+    ],
+
     // event
     'eventScope' => [
         '1' => 'Chỉ mình tôi',
@@ -592,5 +603,27 @@ return [
                 ]
             ]
         ]
-    ]
+                ],
+
+    // message
+    'successMessage' => [
+        'add' => 'Đã lưu thông tin của :entity :name.',
+        'edit' => 'Thông tin của :entity :name đã được cập nhật.',
+        'delete' => 'Đã xóa dữ liệu của :entity :name.',
+        'updateProfile' => 'Hồ sơ cá nhân của bạn đã được cập nhật.',
+        'updatePassword' => 'Mật khẩu của bạn đã được cập nhật.',
+        'changeClass' => 'Học viên :name đã được chuyển qua lớp :class',
+        'setScore' => 'Đã lưu điểm của phần thi :skill'
+    ],
+    'errorMessage' => [
+        'add' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
+        'edit' => 'Không thể cập nhật thông tin của :entity :name. Xin vui lòng thử lại.',
+        'delete' => 'Không thể xóa dữ liệu của :entity :name. Xin hãy thử lại.',
+        'error' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
+        'loginError' => 'Tên đăng nhập hoặc mật khẩu không đúng. Xin hãy thử lại.',
+        'unAuthor' => 'Bạn không có quyền truy cập đến địa chỉ trên. Vui lòng Liên hệ Quản trị viên để được cấp quyền tương ứng.',
+        'updatePassword' => 'Mật khẩu không đúng. Xin hãy nhập lại.',
+        'changeClass' => 'Không thể chuyển học viên :name sang lớp :class',
+        'setScore' => 'Không thể lưu điểm của phần thi :skill'
+    ],
 ];

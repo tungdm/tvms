@@ -1,4 +1,3 @@
-var ajaxing = false;
 var perData = {};
 perData.skillSelected = [];
 
@@ -69,7 +68,7 @@ $(document).ready(function() {
         
         $.ajax({
             type: 'GET',
-            url: '/tvms/jtests/getStudents',
+            url: DOMAIN_NAME + '/jtests/getStudents',
             data: {
                 id: classId,
                 testId: $('input[name="id"]').val()
@@ -145,7 +144,7 @@ function showAddSkillModal() {
     $('#add-skill-form').parsley().reset();
 
     $('#add-skill-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-skill-btn" onclick="addSkill()">Submit</button>').insertBefore('#close-add-skill-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-skill-btn" onclick="addSkill()">Hoàn tất</button>').insertBefore('#close-add-skill-modal-btn');
 
     $('#add-skill-modal').modal('toggle');
 }
@@ -159,7 +158,7 @@ function showEditSkillModal(ele) {
     var initSkill = $('#modal-skill').val();
 
     $('#add-skill-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-skill-btn" onclick="editSkill('+rowId+', '+initSkill+')">Submit</button>').insertBefore('#close-add-skill-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-skill-btn" onclick="editSkill('+rowId+', '+initSkill+')">Hoàn tất</button>').insertBefore('#close-add-skill-modal-btn');
 
     $('#add-skill-modal').modal('toggle');
 }
@@ -179,7 +178,7 @@ function addSkill() {
     //validate form
     var skillId = parseInt($('#modal-skill').val());
     if (perData.skillSelected.indexOf(skillId) >= 0) {
-        alert('You have already selected this skill. Please choose another skill!');
+        alert('Bạn đã chọn thi kỹ năng này. Vui lòng chọn một kỹ năng khác.');
         return;
     }
 
@@ -229,13 +228,14 @@ function editSkill(rowId, initSkill) {
 function deleteSkill(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove skill',
-            text: "You won't be able to revert this!",
+            title: 'Xóa kỹ năng thi',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 var rowIdArr = $(delEl).closest('.row-skill').attr('id').split('-');
@@ -243,7 +243,7 @@ function deleteSkill(delEl, sendAjax) {
 
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/jtests/deleteSkill',
+                    url: DOMAIN_NAME + '/jtests/deleteSkill',
                     data: {
                         'id': $('#skill-id-'+rowId).find('input').val(),
                     },

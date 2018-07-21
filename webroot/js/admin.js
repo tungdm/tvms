@@ -821,8 +821,13 @@ if (typeof NProgress != 'undefined') {
     });
 }
 
+
+// Custom variable
 var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
     $SIDEBAR_MENU = $('.main-sidebar');
+
+var DOMAIN_NAME = '/tvms';
+var ajaxing = false;
 
 function init_sidebar() {
     // check active menu
@@ -1052,7 +1057,135 @@ function viewStudent(studentId) {
     if (!studentId) {
         studentId = $('#student-name').val();
     }
-    window.open('/tvms/students/view/' + studentId, '_blank');
+    window.open(DOMAIN_NAME + '/students/view/' + studentId, '_blank');
+}
+
+function globalViewGuild(guildId, overlayId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $(overlayId).removeClass('hidden');
+    
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/guilds/view',
+        data: {
+            id: guildId
+        },
+        success: function(resp) {
+            if (resp) {
+                $('#view-name-romaji').html(resp.name_romaji);
+                $('#view-name-kanji').html(resp.name_kanji);
+
+                $('#view-address-romaji').html(resp.address_romaji);
+                $('#view-address-kanji').html(resp.address_kanji);
+
+                $('#view-phone-vn').html(resp.phone_vn);
+                $('#view-phone-jp').html(resp.phone_jp);
+
+                $('#view-guild-modal').modal('toggle');
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $(overlayId).addClass('hidden');
+        }
+    });
+}
+
+function globalViewCompany(companyId, overlayId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $(overlayId).removeClass('hidden');
+    
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/companies/view',
+        data: {
+            id: companyId
+        },
+        success: function(resp) {
+            if (resp) {
+                $('#view-company-name-romaji').html(resp.name_romaji);
+                $('#view-company-name-kanji').html(resp.name_kanji);
+
+                $('#view-guild-name-romaji').html(resp.guild.address_romaji);
+                $('#view-guild-name-kanji').html(resp.guild.address_kanji);
+
+                $('#view-company-address-romaji').html(resp.address_romaji);
+                $('#view-company-address-kanji').html(resp.address_kanji);
+
+                $('#view-company-phone-vn').html(resp.phone_vn);
+                $('#view-company-phone-jp').html(resp.phone_jp);
+
+                $('#view-company-modal').modal('toggle');
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $(overlayId).addClass('hidden');
+        }
+    });
+}
+
+function globalViewPresenter(presenterId, overlayId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $(overlayId).removeClass('hidden');
+    
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/presenters/view',
+        data: {
+            id: presenterId
+        },
+        success: function(resp) {
+            if (resp) {
+                $('#view-presenter-name').html(resp.name);
+                $('#view-presenter-address').html(resp.address);
+                $('#view-presenter-phone').html(str2Phone(resp.phone));
+
+                var type;
+                switch (resp.type) {
+                    case "1":
+                        type = "Cá nhân";
+                        break;
+                    case "2":
+                        type = "Công ty";
+                        break;
+                    case "3":
+                        type = "Internet";
+                        break;
+                }
+
+                $('#view-presenter-type').html(type);
+                $('#view-presenter-modal').modal('toggle');
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $(overlayId).addClass('hidden');
+        }
+    });
+}
+
+
+function str2Phone(value) {
+    if (value.length == 10) {
+        return value.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+    } else if (value.length == 11) {
+        return value.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+    } else {
+        return value;
+    }
 }
 
 // var unsaved = false;
@@ -1156,11 +1289,12 @@ Handlebars.registerHelper("trans", function (value, options) {
 });
 
 Handlebars.registerHelper("phoneFormat", function (value, options) {
-    if (value.length == 10) {
-        return value.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
-    } else if (value.length == 11) {
-        return value.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
-    } else {
-        return value;
-    }
+    return str2Phone(value);
+});
+
+Handlebars.registerHelper("calAge", function (value, options) {
+    var now = new Date();
+    var start = new Date(value);
+
+    return moment.duration(now - start).years();
 });

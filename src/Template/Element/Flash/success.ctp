@@ -6,12 +6,11 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 <script type="text/javascript">
 $(document).ready(function() {
     var notice = new PNotify({
-        title: 'Success',
+        title: '<strong>Thành Công</strong>',
         text: '<?= $message ?>',
         type: 'success',
         styling: 'bootstrap3',
         icon: 'fa fa-check-circle-o',
-        // addclass: 'dark',
         cornerclass: 'ui-pnotify-sharp',
         buttons: {
             closer: false,

@@ -18,6 +18,7 @@ use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\Routing\Router;
 use clsTinyButStrong;
+use Cake\Core\Configure;
 
 /**
  * Application Controller
@@ -45,6 +46,8 @@ class AppController extends Controller
 
         $this->loadComponent('RequestHandler');
         $this->loadComponent('Flash');
+        $this->successMessage = Configure::read('successMessage');
+        $this->errorMessage = Configure::read('errorMessage');
 
         /*
          * Enable the following components for recommended CakePHP security settings.
@@ -77,6 +80,7 @@ class AppController extends Controller
                 'controller' => 'Users',
                 'action' => 'login'
             ],
+            'authError' => $this->errorMessage['unAuthor']
             // If unauthorized, return them to page they were just on
             // 'unauthorizedRedirect' => $this->referer()
         ]);

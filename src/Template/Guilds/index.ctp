@@ -8,8 +8,9 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $recordsDisplay = Configure::read('recordsDisplay');
 $counter = 0;
-//$currentUser = $this->request->session()->read('Auth.User');
-//$this->Html->css('guild.css', ['block' => 'styleTop']);
+
+$this->Html->css('flag-icon.css', ['block' => 'styleTop']);
+
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -20,19 +21,21 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý nghiệp đoàn');
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('QUẢN LÝ NGHIỆP ĐOÀN') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li class="active">Nghiệp Đoàn</li>
-</ol>
+    <h1><?= __('QUẢN LÝ NGHIỆP ĐOÀN') ?></h1>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Trang Chủ',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li class="active">Danh sách nghiệp đoàn</li>
+    </ol>
 <?php $this->end(); ?>
 
 <div class="row">
@@ -41,9 +44,10 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
-                    <a class="btn btn-box-tool" data-toggle="modal" data-target="#add-guild-modal" href="#"><i class="fa fa-plus"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    <a class="btn btn-box-tool" href="javascript:;" onclick="showAddGuildModal()"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
-                        <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
+                        <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a data-toggle="modal" data-target="#setting-guild-modal" href="#">Setting Show/Hide field</a></li>
                             <li><a href="#">Another action</a></li>
@@ -61,6 +65,9 @@ $this->Paginator->setTemplates([
                 'id' => 'filter-form'
                 ]) ?>
             <div class="box-body table-responsive">
+                <div class="overlay hidden" id="list-guild-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
                 <div class="form-group col-md-4 col-sm-6 col-xs-12 records-per-page">
                     <label class="control-label col-md-3 col-sm-3 col-xs-3"><?= __('Hiển thị') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-6">
@@ -77,24 +84,15 @@ $this->Paginator->setTemplates([
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
-                            <th scope="col" class="nameromajiCol">
-                                <?= $this->Paginator->sort('nameromaji', 'Nghiệp đoàn')?>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
+                            <th scope="col" class="nameCol">
+                                <?= $this->Paginator->sort('name_romaji', 'Nghiệp đoàn')?>
                             </th>
-                            <th scope="col" class="namekanjiCol hidden">
-                                <?= $this->Paginator->sort('namekanji', 'Phiên âm')?>
+                            <th scope="col" class="addressCol">
+                                <?= $this->Paginator->sort('address_romaji', 'Địa chỉ') ?>
                             </th>
-                            <th scope="col" class="addressromajiCol">
-                                <?= $this->Paginator->sort('addressromaji' ,'Địa chỉ') ?>
-                            </th>
-                            <th scope="col" class="addresskanjiCol hidden">
-                                <?= $this->Paginator->sort('addresskanji' ,'Địa chỉ Nhật') ?>
-                            </th>
-                            <th scope="col" class="phonevnCol hidden">
-                                <?= $this->Paginator->sort('phonevn', 'Liên lạc') ?>
-                            </th>
-                            <th scope="col" class="phonejpCol">
-                                <?= $this->Paginator->sort('phonejp', 'Liên hệ') ?>
+                            <th scope="col" colspan="2" class="phoneCol">
+                                <?= __('Số điện thoại') ?>
                             </th>
                             <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
@@ -102,53 +100,47 @@ $this->Paginator->setTemplates([
                     <tbody>
                         <tr>
                             <td class="col-md-1"></td>
-                            <td class="col-md-3 nameromajiCol">
-                                <?= $this->Form->control('name_romaji', [
+                            <td class="col-md-3 nameCol">
+                                <?= $this->Form->control('name', [
                                     'label' => false,
                                     'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['name_romaji'] ?? ''
+                                    'value' => $query['name'] ?? ''
                                     ]) 
                                 ?>
                             </td>
-                            <td class="col-md-3 namekanjiCol hidden">
-                                <?= $this->Form->control('name_kanji', [
-                                    'label' => false,
-                                    'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['name_kanji'] ?? ''
-                                    ]) 
-                                ?>
-                            </td>
-                            <td class="col-md-5 addressromajiCol">
-                                <?= $this->Form->control('address_romaji', [
+                            <td class="col-md-3 addressCol">
+                                <?= $this->Form->control('address', [
                                     'label' => false,                             
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'value' => $query['address_romaji'] ?? ''
+                                    'value' => $query['address'] ?? ''
                                     ])
                                 ?>
                             </td>
-                            <td class="col-md-5 addresskanjiCol hidden">
-                                <?= $this->Form->control('address_kanji', [
-                                    'label' => false,                             
-                                    'class' => 'form-control col-md-7 col-xs-12', 
-                                    'value' => $query['address_kanji'] ?? ''
-                                    ])
-                                ?>
+                            <td class="col-md-2 phonevnCol">
+                                <div class="input-group">
+                                    <?= $this->Form->control('phone_vn', [
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12', 
+                                        'value' => $query['phone_vn'] ?? ''
+                                        ])
+                                    ?>
+                                    <span class="input-group-addon" style="line-height: 1;">
+                                        <span class="flag-icon flag-icon-vn"></span>
+                                    </span>
+                                </div>
                             </td>
-                            <td class="col-md-1 phonevnCol hidden">
-                                <?= $this->Form->control('phone_vn', [
-                                    'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12', 
-                                    'value' => $query['phone_vn'] ?? ''
-                                    ])
-                                ?>
-                            </td>
-                            <td class="col-md-1 phonejpCol">
-                                <?= $this->Form->control('phone_jp', [
-                                    'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['phone_jp'] ?? ''
-                                    ]) 
-                                ?>
+                            <td class="col-md-2 phonejpCol">
+                                <div class="input-group">
+                                    <?= $this->Form->control('phone_jp', [
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12', 
+                                        'value' => $query['phone_jp'] ?? ''
+                                        ])
+                                    ?>
+                                    <span class="input-group-addon" style="line-height: 1;">
+                                            <span class="flag-icon flag-icon-jp"></span>
+                                    </span>
+                                </div>
                             </td>
                             
                             <td class="col-md-1 filter-group-btn">
@@ -159,37 +151,41 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($guilds)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Không có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($guilds as $guild): ?>
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell"><?= h($counter) ?></td>
-                            <td class="cell nameromajiCol"><?= h($guild->name_romaji) ?></td>
-                            <td class="cell namekanjiCol hidden"><?= h($guild->name_kanji) ?></td>
-                            <td class="cell addressromajiCol"><?= h($guild->address_romaji) ?></td>
-                            <td class="cell addresskanjiCol hidden"><?= h($guild->address_kanji) ?></td>
-                            <td class="cell phonevnCol hidden"><?= h($guild->phone_vn) ?></td>
+                            <td class="cell nameCol"><?= h($guild->name_romaji) . ' (' . h($guild->name_kanji) . ')' ?></td>
+                            <td class="cell addressCol"><?= h($guild->address_romaji) ?></td>
+                            <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($guild->phone_vn)) ?></td>
                             <td class="cell phonejpCol"><?= h($guild->phone_jp) ?></td>
-                            
                             
                             <td class="actions cell">                              
                                 <div class="btn-group">
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                        <a href="#" id="edit-guild-btn" onClick="editGuild('<?= $guild->id ?>')">
-                                        <i class="fa fa-pencil"></i> Sửa</a>
+                                            <a href="javascript:;" onclick="viewGuild(<?= $guild->id ?>)">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                            </a>
+                                        </li>
+                                        <?php if ($permission == 0): ?>
+                                        <li>
+                                            <a href="javascript:;" id="edit-guild-btn" onClick="editGuild('<?= $guild->id ?>')">
+                                            <i class="fa fa-edit"></i> Sửa</a>
                                         </li>
                                         <li>
                                             <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $guild->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Are you sure you want to delete {0}?', $guild->username)
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa nghiệp đoàn {0}?', $guild->name_romaji)
                                                 ]) ?>
                                         </li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>                                      
                             </td>
@@ -213,67 +209,79 @@ $this->Paginator->setTemplates([
     </div>
 </div>
 
-
 <div class="modal fade" id="add-guild-modal" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">THÊM NGHIỆP ĐOÀN MỚI</h4>
+                <h4 class="modal-title">THÊM MỚI NGHIỆP ĐOÀN</h4>
             </div>
             <div class="modal-body">
                 <?= $this->Form->create(false, [
-            'class' => 'form-horizontal form-label-left', 
-            'id' => 'add-guild-form', 
-            'data-parsley-validate' => '',
-            'url' => ['controller' => 'Guilds', 'action' => 'add'],
-            'templates' => [
-                'inputContainer' => '{{content}}'
-                ]
-            ]) 
-            ?>
+                    'class' => 'form-horizontal form-label-left', 
+                    'id' => 'add-guild-form', 
+                    'data-parsley-validate' => '',
+                    'url' => ['controller' => 'Guilds', 'action' => 'add'],
+                    'templates' => [
+                        'inputContainer' => '{{content}}'
+                        ]
+                    ]) ?>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji">
-                        <?= __('Tên Nghiệp Đoàn') ?> </label>
+                        <?= __('Tên nghiệp đoàn') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('name_romaji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập tên nghiệp đoàn']) ?>
+                        <?= $this->Form->control('name_romaji', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập bằng kí tự romaji'
+                            ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_kanji">
-                        <?= __('組合の名前') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('name_kanji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập tên nghiệp đoàn']) ?>
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('name_kanji', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập bằng kí tự kanji'
+                            ]) ?>
                     </div>
                 </div>
+
+                <div class="ln_solid"></div>
+
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address_romaji">
-                        <?= __('Địa chỉ(tiếng Việt)') ?> </label>
+                        <?= __('Địa chỉ') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('address_romaji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Địa chỉ bằng tiếng Việt']) ?>
+                        <?= $this->Form->control('address_romaji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address_kanji">
-                        <?= __('組合の住所') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('address_kanji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Địa chỉ bằng tiếng Nhật']) ?>
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('address_kanji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
+
+                <div class="ln_solid"></div>
+
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone_vn">
                         <?= __('Số Điện Thoại') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone_vn', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập số điện thoại ở Việt Nam']) ?>
+                        <?= $this->Form->control('phone_vn', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'placeholder' => 'Nhập số điện thoại tại Việt Nam']) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone_jp">
-                        <?= __('電番') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone_jp', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập số điện thoại ở Nhật']) ?>
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('phone_jp', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập số điện thoại tại Nhật Bản']) ?>
                     </div>
                 </div>
+                <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" id="add-guild-submit-btn" type="submit">Hoàn Tất</button>
@@ -289,9 +297,9 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Chỉnh Sửa Thông Tin</h4>
+                <h4 class="modal-title">CẬP NHẬT THÔNG TIN NGHIỆP ĐOÀN</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body box">
                 <?= $this->Form->create(false, [
                     'class' => 'form-horizontal form-label-left',
                     'id' => 'edit-guild-form',
@@ -303,61 +311,67 @@ $this->Paginator->setTemplates([
                 <?= $this->Form->hidden('id', ['id' => 'edit-id']) ?>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji">
-                        <?= __('Tên Nghiệp Đoàn') ?> </label>
+                        <?= __('Tên nghiệp đoàn') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('name_romaji', [
                             'label' => false,
                             'id' => 'edit-name-romaji',
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập tên nghiệp đoàn']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_kanji">
-                        <?= __('組合') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('name_kanji', [
                             'label' => false,
                             'id' => 'edit-name-kanji',
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập tên nghiệp đoàn']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
+
+                <div class="ln_solid"></div>
+
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address_romaji">
-                        <?= __('Địa chỉ(tiếng Việt)') ?> *</label>
+                        <?= __('Địa chỉ') ?> *</label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('address_romaji', [
                             'label' => false,
                             'id' => 'edit-address-romaji', 
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Địa chỉ bằng tiếng Việt']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address_kanji">
-                        <?= __('Địa chỉ(tiếng Nhật)') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('address_kanji', ['label' => false,
-                        'id' => 'edit-address-kanji',
-                        'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Địa chỉ bằng tiếng Nhật']) ?>
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('address_kanji', [
+                            'label' => false,
+                            'id' => 'edit-address-kanji',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
+
+                <div class="ln_solid"></div>
+
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone_vn">
-                        <?= __('Số Điện Thoại Việt Nam') ?> *</label>
+                        <?= __('Số điện thoại') ?> *</label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone_vn', ['label' => false, 
-                        'id' => 'edit-phone-vn',
-                        'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập số điện thoại ở Việt Nam']) ?>
+                        <?= $this->Form->control('phone_vn', [
+                            'label' => false, 
+                            'id' => 'edit-phone-vn',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập số điện thoại tại Việt Nam']) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone_jp">
-                        <?= __('Số Điện Thoại Nhật Bản') ?> *</label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone_jp', ['label' => false, 
-                        'id' => 'edit-phone-jp',
-                        'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập số điện thoại ở Nhật']) ?>
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('phone_jp', [
+                            'label' => false, 
+                            'id' => 'edit-phone-jp',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập số điện thoại tại Nhật Bản']) ?>
                     </div>
                 </div>
                 <?= $this->Form->end() ?>
@@ -369,7 +383,6 @@ $this->Paginator->setTemplates([
         </div>
     </div>
 </div>
-
 
 <div class="modal fade" id="setting-guild-modal" role="dialog">
     <div class="modal-dialog">
@@ -390,7 +403,7 @@ $this->Paginator->setTemplates([
                     <div class="col-md-9 col-sm-9 col-xs-12">
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
                             <label>
-                                <input type="checkbox" name="nameromajiCol" value checked>
+                                <input type="checkbox" name="nameCol" value checked>
                                 <?= __('Tên (Việt)') ?>
                             </label>
                         </div>
@@ -402,7 +415,7 @@ $this->Paginator->setTemplates([
                         </div>
                         <div class="checkbox col-md-4 col-sm-6 col-xs-12">
                             <label>
-                                <input type="checkbox" name="addressromajiCol" value checked>
+                                <input type="checkbox" name="addressCol" value checked>
                                 <?= __('Địa chỉ (Việt)') ?>
                             </label>
                         </div>

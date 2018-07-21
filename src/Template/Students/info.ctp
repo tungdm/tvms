@@ -63,29 +63,47 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('language_abilities') ?>
 <?= $this->Form->unlockField('documents') ?>
 
-<?php $this->start('content-header'); ?>
-<h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li>
-        <?= $this->Html->link(__('Lao Động'), [
-            'controller' => 'Students',
-            'action' => 'index']) ?>
-    </li>
-    <li class="active">Thông Tin</li>
-</ol>
-<?php $this->end(); ?>
-
-<?= $this->Form->button('Lưu lại', [
-    'class' => 'btn btn-round btn-success mobile-only create-student-btn', 
-    'type' => 'button', 
-    'id' => 'create-student-mobile-btn',
-    ]) ?>
+<?php if ($action == "add"): ?>
+    <?php $this->assign('title', 'Thêm mới lao động'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('THÊM MỚI LAO ĐỘNG') ?></h1>
+        <button class="btn btn-success create-student-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách lao động'), [
+                    'controller' => 'Students',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active">Thêm mới lao động</li>
+        </ol>
+    <?php $this->end(); ?>
+<?php elseif ($action == "edit"): ?>
+    <?php $this->assign('title', $student->fullname . ' - Cập nhật thông tin lao động'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('CẬP NHẬT THÔNG TIN LAO ĐỘNG') ?></h1>
+        <button class="btn btn-success create-student-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách lao động'), [
+                    'controller' => 'Students',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active"><?= $student->fullname ?></li>
+        </ol>
+    <?php $this->end(); ?>
+<?php endif; ?>
 
 <div class="clearfix"></div>
 
@@ -103,13 +121,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
             </li>
             <li role="presentation" class="">
                 <a href="#tab_content4" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
-            </li>
-            <li>
-                <?= $this->Form->button('Lưu lại', [
-                    'class' => 'btn btn-round btn-success create-student-btn', 
-                    'type' => 'button', 
-                    'id' => 'create-student-desktop-btn',
-                    ]) ?>
             </li>
         </ul>
         <div id="student-tab-content" class="tab-content">
@@ -130,7 +141,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <?= $this->Form->control('fullname', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true
+                                            'required' => true,
+                                            'placeholder' => 'Nhập họ tên của lao động bằng tiếng Việt'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -140,7 +152,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <?= $this->Form->control('fullname_kata', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true
+                                            'required' => true,
+                                            'placeholder' => 'Nhập họ tên của lao động bằng tiếng Nhật'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -162,7 +175,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="email"><?= __('Email') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('email', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12']) ?>
+                                        <?= $this->Form->control('email', [
+                                            'label' => false, 
+                                            'required' => true, 
+                                            'class' => 'form-control col-md-7 col-xs-12',
+                                            'placeholder' => 'Nhập địa chỉ mail của lao động'
+                                            ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -188,6 +206,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 'type' => 'text',
                                                 'label' => false,
                                                 'class' => 'form-control',
+                                                'required' => true, 
                                                 'placeholder' => 'yyyy-mm-dd',
                                                 'data-parsley-errors-container' => '#error-enrolled-date'
                                             ])?>
@@ -252,7 +271,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'label' => false, 
                                             'required' => true, 
                                             'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
-                                            'class' => 'form-control col-md-7 col-xs-12'
+                                            'class' => 'form-control col-md-7 col-xs-12',
+                                            'placeholder' => 'Nhập số điện thoại của lao động'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -336,7 +356,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="presenter"><?= __('Người giới thiệu') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="presenter"><?= __('Người giới thiệu') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('presenter_id', [
                                             'options' => $presenters, 
@@ -347,7 +367,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="expectationJobs"><?= __('Nghề mong muốn') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="expectationJobs"><?= __('Nghề mong muốn') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?php 
                                             $expectArr = explode(',', $student->expectation);
@@ -377,8 +397,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                             <div class="box-body">
                                 <ul id="address-tabs" class="nav nav-tabs">
-                                    <li class="active"><a href="#household" data-toggle="tab"><?= __('Hộ khẩu thường trú') ?></a></li>
-                                    <li><a href="#current-address" data-toggle="tab"><?= __('Nơi ở hiện tại') ?></a></li>
+                                    <li class="active">
+                                        <a href="#household" data-toggle="tab"><?= __('Hộ khẩu thường trú') ?></a>
+                                    </li>
+                                    <li>
+                                        <a href="#current-address" data-toggle="tab"><?= __('Nơi ở hiện tại') ?></a>
+                                    </li>
                                 </ul>
                                 <div id="address-tabs-content" class="tab-content">
                                     <div class="tab-pane fade in active" id="household">
@@ -459,7 +483,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <?= $this->Form->control('addresses.0.street', [
                                                     'required' => true, 
                                                     'label' => false,
-                                                    'class' => 'form-control col-md-7 col-xs-12'
+                                                    'class' => 'form-control col-md-7 col-xs-12',
+                                                    'placeholder' => 'Nhập số nhà, đường'
                                                     ]) ?>
                                             </div>
                                         </div>
@@ -542,7 +567,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <?= $this->Form->control('addresses.1.street', [
                                                     'required' => true, 
                                                     'label' => false,
-                                                    'class' => 'form-control col-md-7 col-xs-12'
+                                                    'class' => 'form-control col-md-7 col-xs-12',
+                                                    'placeholder' => 'Nhập số nhà, đường'
                                                     ]) ?>
                                             </div>
                                         </div>
@@ -582,7 +608,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'label' => false,
                                             'min' => 0,
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true
+                                            'required' => true,
+                                            'placeholder' => 'Nhập chiều cao của ứng viên'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -593,7 +620,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'label' => false,
                                             'min' => 0,
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true]) ?>
+                                            'required' => true,
+                                            'placeholder' => 'Nhập cân nặng của ứng viên'
+                                            ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -605,7 +634,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'max' => 10,
                                             'class' => 'form-control col-md-7 col-xs-12', 
                                             'required' => true,
-                                            'placeholder' => 'Đo tại trường'
+                                            'placeholder' => 'Nhập thị lực mắt trái (đo tại trường)'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -616,7 +645,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'min' => 0,
                                             'max' => 10,
                                             'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Đo tại bệnh viện'
+                                            'placeholder' => 'Nhập thị lực mắt trái (đo tại bệnh viện)'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -629,7 +658,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'max' => 10, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
                                             'required' => true,
-                                            'placeholder' => 'Đo tại trường'
+                                            'placeholder' => 'Nhập thị lực mắt phải (đo tại trường)'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -640,16 +669,17 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'min' => 0,
                                             'max' => 10, 
                                             'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Đo tại bệnh viện'
+                                            'placeholder' => 'Nhập thị lực mắt phải (đo tại bệnh viện)'
                                             ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="color_blind"><?= __('Mù màu') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="color_blind"><?= __('Mù màu') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('color_blind', [
                                             'label' => false,
                                             'class' => 'form-control col-md-7 col-xs-12',
+                                            'placeholder' => 'Nhập tên màu sắc'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -757,12 +787,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <table class="table table-bordered custom-table family-table">
                                     <thead>
                                         <tr>
-                                            <th scope="col"><?= __('STT') ?></th>
-                                            <th scope="col"><?= __('Họ và tên') ?></th>
-                                            <th scope="col"><?= __('Ngày sinh') ?></th>
-                                            <th scope="col"><?= __('Quan hệ') ?></th>
-                                            <th scope="col"><?= __('Nghề nghiệp') ?></th>
-                                            <th scope="col"><?= __('Số ĐT') ?></th>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Họ tên') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Ngày sinh') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Quan hệ') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Nghề nghiệp') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Số ĐT') ?></th>
                                             <th scope="col" class="actions"></th>
                                         </tr>
                                     </thead>
@@ -836,7 +866,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     ]) ?>
                                             </td>
                                             <td class="cell col-md-2">
-                                                <?= $value->phone ?>
+                                                <?= h($this->Phone->makeEdit($value->phone)) ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('families.' . $key . '.phone', [
                                                         'label' => false, 
@@ -844,7 +874,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         ]) ?>
                                                 </div>
                                             </td>
-                                            <td class="cell action-btn">
+                                            <td class="cell action-btn actions">
                                                 <?= $this->Html->link(
                                                     '<i class="fa fa-2x fa-pencil"></i>', 
                                                     'javascript:;',
@@ -892,7 +922,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="code"><?= __('Số CMND') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('cards.0.code', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'required' => true]) ?>
+                                        <?= $this->Form->control('cards.0.code', [
+                                            'label' => false, 
+                                            'class' => 'form-control col-md-7 col-xs-12', 
+                                            'required' => true,
+                                            'placeholder' => 'Nhập số chứng minh nhân dân'
+                                            ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -920,7 +955,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <?= $this->Form->control('cards.0.issued_at', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true
+                                            'required' => true,
+                                            'placeholder' => 'Nhập nơi cấp CMND'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -939,18 +975,19 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?php endif; ?>
                                 <?= $this->Form->hidden('cards.2.type', ['value' => $cardType[2]])?>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="code"><?= __('Số Visa') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="code"><?= __('Số Visa') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('cards.2.code', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12 visa-group',
                                             'data-parsley-validate-if-empty' => '',
                                             'data-parsley-check-empty' => '.visa-group',
+                                            'placeholder' => 'Nhập số Visa'
                                             ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="registration_date"><?= __('Ngày đăng kí') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="registration_date"><?= __('Ngày đăng kí') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="visa-registration-date">
                                             <?= $this->Form->control('cards.2.registration_date', [
@@ -971,7 +1008,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="from_date"><?= __('Ngày cấp') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="from_date"><?= __('Ngày cấp') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="visa-from-date">
                                             <?= $this->Form->control('cards.2.from_date', [
@@ -992,7 +1029,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="to_date"><?= __('Ngày hết hạn') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="to_date"><?= __('Ngày hết hạn') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="visa-to-date">
                                             <?= $this->Form->control('cards.2.to_date', [
@@ -1029,18 +1066,19 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?php endif; ?>
                                 <?= $this->Form->hidden('cards.1.type', ['value' => $cardType[1]])?>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="code"><?= __('Số hộ chiếu') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="code"><?= __('Số hộ chiếu') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('cards.1.code', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12 passport-group',
                                             'data-parsley-validate-if-empty' => '',
                                             'data-parsley-check-empty' => '.passport-group',
+                                            'placeholder' => 'Nhập số hộ chiếu'
                                             ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="from_date"><?= __('Ngày cấp') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="from_date"><?= __('Ngày cấp') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="passport-from-date">
                                             <?= $this->Form->control('cards.1.from_date', [
@@ -1061,7 +1099,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="to_date"><?= __('Ngày hết hạn') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="to_date"><?= __('Ngày hết hạn') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="passport-to-date">
                                             <?= $this->Form->control('cards.1.to_date', [
@@ -1082,13 +1120,14 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="issued_at"><?= __('Nơi cấp') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="issued_at"><?= __('Nơi cấp') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('cards.1.issued_at', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12',
                                             'data-parsley-validate-if-empty' => '',
                                             'data-parsley-check-empty' => '.passport-group',
+                                            'placeholder' => 'Nhập nơi cấp Passport'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -1114,11 +1153,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <table class="table table-bordered custom-table educations-table">
                                     <thead>
                                         <tr>
-                                            <th scope="col"><?= __('STT') ?></th>
-                                            <th scope="col"><?= __('Thời gian') ?></th>
-                                            <th scope="col"><?= __('Cấp học') ?></th>
-                                            <th scope="col"><?= __('Tên trường') ?></th>
-                                            <th scope="col"><?= __('Chuyên ngành') ?></th>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Thời gian') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Cấp học') ?></th>
+                                            <th scope="col" class="col-md-3"><?= __('Tên trường') ?></th>
+                                            <th scope="col" class="col-md-3"><?= __('Chuyên ngành') ?></th>
                                             <th scope="col" class="actions"></th>
                                         </tr>
                                     </thead>
@@ -1185,7 +1224,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         ]) ?>
                                                 </div>
                                             </td>
-                                            <td class="cell action-btn">
+                                            <td class="cell action-btn actions">
                                                 <?= $this->Html->link(
                                                     '<i class="fa fa-2x fa-pencil"></i>', 
                                                     'javascript:;',
@@ -1229,10 +1268,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <table class="table table-bordered custom-table languages-table">
                                     <thead>
                                         <tr>
-                                            <th scope="col"><?= __('STT') ?></th>
-                                            <th scope="col"><?= __('Ngôn ngữ') ?></th>
-                                            <th scope="col"><?= __('Bằng cấp') ?></th>
-                                            <th scope="col"><?= __('Thời hạn hiệu lực') ?></th>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Ngôn ngữ') ?></th>
+                                            <th scope="col" class="col-md-4"><?= __('Bằng cấp') ?></th>
+                                            <th scope="col" class="col-md-4"><?= __('Thời hạn hiệu lực') ?></th>
                                             <th scope="col" class="actions"></th>
                                         </tr>
                                     </thead>
@@ -1257,7 +1296,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         ]) ?>
                                                 </div>
                                             </td>
-                                            <td class="cell col-md-3">
+                                            <td class="cell col-md-4">
                                                 <?= $value->certificate ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('language_abilities.' . $key . '.certificate', [
@@ -1267,7 +1306,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         ]) ?>
                                                 </div>
                                             </td>
-                                            <td class="cell col-md-3">
+                                            <td class="cell col-md-4">
                                                 <?= $value->from_date ?> ～ <?= $value->to_date ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('language_abilities.' . $key . '.from_date', [
@@ -1282,7 +1321,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         ])?>
                                                 </div>
                                             </td>
-                                            <td class="cell action-btn">
+                                            <td class="cell action-btn actions">
                                                 <?= $this->Html->link(
                                                     '<i class="fa fa-2x fa-pencil"></i>', 
                                                     'javascript:;',
@@ -1404,7 +1443,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'class' => 'form-control address',
                                                     ]) ?>
                                             </td>
-                                            <td class="cell action-btn">
+                                            <td class="cell action-btn actions">
                                                 <?= $this->Html->link(
                                                     '<i class="fa fa-2x fa-pencil"></i>', 
                                                     'javascript:;',
@@ -1448,11 +1487,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <table class="table table-bordered custom-table document-table">
                                     <thead>
                                         <tr>
-                                            <th scope="col"><?= __('STT') ?></th>
-                                            <th scope="col"><?= __('Loại hồ sơ') ?></th>
-                                            <th scope="col"><?= __('Số lượng') ?></th>
-                                            <th scope="col"><?= __('Hoàn thành') ?></th>
-                                            <th scope="col"><?= __('Ngày nộp') ?></th>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-5"><?= __('Loại hồ sơ') ?></th>
+                                            <th scope="col" class="col-md-1"><?= __('Số lượng') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Hoàn thành') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Ngày nộp') ?></th>
                                             <th scope="col" class="actions"></th>
                                         </tr>
                                     </thead>
@@ -1586,7 +1625,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->control('modal.fullname', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true
+                                    'required' => true,
+                                    'placeholder' => 'Nhập họ tên của thành viên'
                                     ]) ?>
                             </div>
                         </div>
@@ -1645,7 +1685,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->control('modal.address', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true
+                                    'required' => true,
+                                    'placeholder' => 'Nhập địa chỉ cư trú'
                                     ]) ?>
                             </div>
                         </div>
@@ -1655,7 +1696,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->control('modal.bank_num', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true
+                                    'required' => true,
+                                    'placeholder' => 'Nhập số tài khoản ngân hàng'
                                     ]) ?>
                             </div>
                         </div>
@@ -1665,22 +1707,27 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->control('modal.cmnd_num', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true
+                                    'required' => true,
+                                    'placeholder' => 'Nhập số chứng minh nhân dân'
                                     ]) ?>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="cmnd_num"><?= __('Số Điện Thoại') ?></label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="cmnd_num"><?= __('Số điện thoại') ?></label>
                             <div class="col-md-7 col-sm-7 col-xs-12">
                                 <?= $this->Form->control('modal.phone', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
                                     'required' => true,
                                     'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                                    'placeholder' => 'Nhập số điện thoại của thành viên'
                                     ]) ?>
                             </div>
                         </div>
                     </form>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -1762,7 +1809,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 ]) ?>
         </td>
         <td class="cell col-md-2">
-            {{phoneVal}}
+            {{phoneFormat phoneVal}}
             <div class="hidden">
                 <?= $this->Form->control('{{phone}}', [
                     'label' => false, 
@@ -1771,7 +1818,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </div>
         </td>
-        <td class="cell action-btn">
+        <td class="cell action-btn actions">
             <?= $this->Html->link(
                 '<i class="fa fa-2x fa-pencil"></i>', 
                 'javascript:;',
@@ -1794,7 +1841,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 </script>
 
 <div id="add-edu-his-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -1811,7 +1858,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         ]
                     ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="from_date"><?= __('Thời gian') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="from_date"><?= __('Thời gian học') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
                                 <div class="input-group date input-picker month-mode" id="edu-his-from">
@@ -1867,12 +1914,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="school"><?= __('Tên trường') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="school"><?= __('Trường học') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('edu.school', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => 'Nhập tên trường'
                                 ]) ?>
                         </div>
                     </div>
@@ -1882,20 +1930,25 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <?= $this->Form->control('edu.address', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => 'Nhập địa chỉ của trường học'
                                 ]) ?>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="specialized"><?= __('Chuyên ngành') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="specialized"><?= __('Chuyên ngành') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('edu.specialized', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => 'Nhập chuyên ngành học'
                                 ]) ?>
                         </div>
                     </div>
                 <?= $this->Form->end(); ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -1966,7 +2019,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </div>
         </td>
-        <td class="cell action-btn">
+        <td class="cell action-btn actions">
             <?= $this->Html->link(
                 '<i class="fa fa-2x fa-pencil"></i>', 
                 'javascript:;',
@@ -1989,11 +2042,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 </script>
 
 <div id="add-exp-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">KINH NGHIỆM LÀM VIỆC</h4>
+                <h4 class="modal-title">THÊM KINH NGHIỆM LÀM VIỆC</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -2065,7 +2118,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('exp.company', [
                                 'label' => false, 
+                                'required' => true, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => 'Nhập tên công ty bằng tiếng Việt'
                                 ]) ?>
                         </div>
                     </div>
@@ -2074,17 +2129,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('exp.company_jp', [
                                 'label' => false, 
+                                'required' => true, 
                                 'class' => 'form-control col-md-7 col-xs-12',
-                                ]) ?>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="salary"><?= __('Mức lương') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                            <?= $this->Form->control('exp.salary', [
-                                'label' => false, 
-                                'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true
+                                'placeholder' => 'Nhập tên công ty bằng tiếng Nhật'
                                 ]) ?>
                         </div>
                     </div>
@@ -2094,11 +2141,26 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <?= $this->Form->control('exp.address', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => 'Nhập địa chỉ công ty'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="salary"><?= __('Mức lương') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('exp.salary', [
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12', 
+                                'required' => true,
+                                'placeholder' => 'Nhập mức lương cho công việc đã chọn'
                                 ]) ?>
                         </div>
                     </div>
                 <?= $this->Form->end(); ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -2180,7 +2242,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 'value' => '{{addressVal}}'
                 ]) ?>
         </td>
-        <td class="cell action-btn">
+        <td class="cell action-btn actions">
             <?= $this->Html->link(
                 '<i class="fa fa-2x fa-pencil"></i>', 
                 'javascript:;',
@@ -2261,6 +2323,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     </div>
                     <?= $this->Form->end(); ?>
                 </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
+                </div>
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
@@ -2272,11 +2337,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 </div>
 
 <div id="add-lang-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">NĂNG LỰC NGÔN NGỮ</h4>
+                <h4 class="modal-title">THÊM NĂNG LỰC NGÔN NGỮ</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -2288,72 +2353,76 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         'inputContainer' => '{{content}}'
                         ]
                     ]) ?>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="lang"><?= __('Ngôn ngữ') ?></label>
-                    <div class="col-md-9 col-sm-9 col-xs-12">
-                        <?= $this->Form->control('lang.name', [
-                            'options' => $language,
-                            'required' => true, 
-                            'label' => false,
-                            'empty' => true,
-                            'data-parsley-errors-container' => '#error-lang-name',
-                            'data-parsley-class-handler' => '#select2-lang-name',
-                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                            ]) ?>
-                        <span id="error-lang-name"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="certificate"><?= __('Bằng cắp') ?></label>
-                    <div class="col-md-9 col-sm-9 col-xs-12">
-                        <?= $this->Form->control('lang.certificate', [
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true
-                            ]) ?>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="valid-time"><?= __('Thời gian') ?></label>
-                    <div class="col-md-9 col-sm-9 col-xs-12">
-                        <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
-                            <div class="input-group date input-picker month-mode" id="lang-from">
-                                <?= $this->Form->control('lang.from_date', [
-                                    'type' => 'text',
-                                    'label' => false, 
-                                    'class' => 'form-control from-date-picker',
-                                    'placeholder' => 'yyyy-mm',
-                                    'required' => true,
-                                    'data-parsley-errors-container' => '#error-lang-from',
-                                    'data-parsley-before-date' => '#lang-to-date'
-                                    ])?>
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                            <span id="error-lang-from"></span>
-                        </div>
-                        <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
-                        <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
-                            <div class="input-group date input-picker month-mode" id="lang-to">
-                                <?= $this->Form->control('lang.to_date', [
-                                    'type' => 'text',
-                                    'label' => false, 
-                                    'class' => 'form-control to-date-picker',
-                                    'placeholder' => 'yyyy-mm',
-                                    'required' => true,
-                                    'data-parsley-errors-container' => '#error-lang-to',
-                                    'data-parsley-after-date' => '#lang-from-date'
-                                    ])?>
-                                <span class="input-group-addon">
-                                    <span class="glyphicon glyphicon-calendar"></span>
-                                </span>
-                            </div>
-                            <span id="error-lang-to"></span>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="lang"><?= __('Ngôn ngữ') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('lang.name', [
+                                'options' => $language,
+                                'required' => true, 
+                                'label' => false,
+                                'empty' => true,
+                                'data-parsley-errors-container' => '#error-lang-name',
+                                'data-parsley-class-handler' => '#select2-lang-name',
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                            <span id="error-lang-name"></span>
                         </div>
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="certificate"><?= __('Bằng cắp') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('lang.certificate', [
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12', 
+                                'required' => true,
+                                'placeholder' => 'Nhập tên bằng đã nhận'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="valid-time"><?= __('Thời hạn hiệu lực') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                <div class="input-group date input-picker month-mode" id="lang-from">
+                                    <?= $this->Form->control('lang.from_date', [
+                                        'type' => 'text',
+                                        'label' => false, 
+                                        'class' => 'form-control from-date-picker',
+                                        'placeholder' => 'yyyy-mm',
+                                        'required' => true,
+                                        'data-parsley-errors-container' => '#error-lang-from',
+                                        'data-parsley-before-date' => '#lang-to-date'
+                                        ])?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span id="error-lang-from"></span>
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
+                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                <div class="input-group date input-picker month-mode" id="lang-to">
+                                    <?= $this->Form->control('lang.to_date', [
+                                        'type' => 'text',
+                                        'label' => false, 
+                                        'class' => 'form-control to-date-picker',
+                                        'placeholder' => 'yyyy-mm',
+                                        'required' => true,
+                                        'data-parsley-errors-container' => '#error-lang-to',
+                                        'data-parsley-after-date' => '#lang-from-date'
+                                        ])?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span id="error-lang-to"></span>
+                            </div>
+                        </div>
+                    </div>
                 <?= $this->Form->end(); ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -2381,7 +2450,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </div>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell col-md-4">
             {{certVal}}
             <div class="hidden">
                 <?= $this->Form->control('{{cert}}', [
@@ -2392,7 +2461,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </div>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell col-md-4">
             {{fromdateVal}} ～ {{todateVal}}
             <div class="hidden">
                 <?= $this->Form->control('{{fromdate}}', [
@@ -2409,7 +2478,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell action-btn">
+        <td class="cell action-btn actions">
             <?= $this->Html->link(
                 '<i class="fa fa-2x fa-pencil"></i>', 
                 'javascript:;',
@@ -2468,7 +2537,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="note"><?= __('Ghi chú') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="note"><?= __('Ghi chú') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('modal.note', [
                                 'label' => false, 
@@ -2478,6 +2547,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <?= $this->Form->end() ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>

@@ -1,4 +1,3 @@
-var ajaxing = false;
 var perData = {};
 perData.recommendCounter = 0;
 perData.selectedCounter = 0;
@@ -23,7 +22,7 @@ $(document).ready(function() {
 
     $('#candidate-name').select2({
         ajax: {
-            url: '/tvms/orders/search-candidate',
+            url: DOMAIN_NAME + '/orders/search-candidate',
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -46,14 +45,22 @@ $(document).ready(function() {
             },
             cache: true
         },
-        placeholder: 'Search for a candidate',
+        placeholder: 'Tìm kiếm lao động phù hợp',
         minimumInputLength: 1,
         allowClear: true,
         theme: "bootstrap",
         language: {
             noResults: function() {
                 return "Không tìm thấy kết quả";
-            }
+            },
+            searching: function() {
+                return "Đang tìm kiếm...";
+            },
+            inputTooShort: function (args) {
+                var remainingChars = args.minimum - args.input.length;
+                var message = 'Vui lòng nhập ít nhất ' + remainingChars + ' kí tự';
+                return message;
+            },
         }
     });
 
@@ -78,24 +85,30 @@ function showAddCandidateModal() {
 
     $.ajax({
         type: 'GET',
-        url: '/tvms/orders/recommendCandidate',
+        url: DOMAIN_NAME + '/orders/recommendCandidate',
         data: {
             ageFrom: $('#age-from').val(),
             ageTo: $('#age-to').val(),
-            height: $('#height').val() ? $('#height').val() : 0,
-            weight: $('#weight').val() ? $('#weight').val() : 0,
+            height: $('#height').val(),
+            weight: $('#weight').val(),
             job: $('#job-id').val()
         },
         success: function(resp) {
             $('#recommend-container').empty();
             
             var candidates = resp.candidates;
+            var removeIndexes = [];
 
             $.each(candidates, function(index, value) {
                 if (perData.selected.indexOf(value.id) >= 0) {
-                    candidates.splice(index, 1);
+                    removeIndexes.push(index);
                 }
             });
+            // remove duplicate candidate
+            for (let index = removeIndexes.length-1; index >= 0; index--) {
+                candidates.splice(removeIndexes[index], 1);
+            }
+
             perData.recommendCounter = candidates.length;
             if (candidates.length > 0) {
                 var source = $("#recommend-candidate-template").html();
@@ -121,22 +134,20 @@ function showAddCandidateModal() {
     });
 }
 
-function viewCandidate(candidateId, permission) {
+function viewCandidate(candidateId) {
     if (!candidateId) {
         candidateId = $('#candidate-name').val();
     }
-    if (permission == 1) {
-        // read-only
-        window.open('/tvms/students/view/' + candidateId, '_blank');
-    } else {
-        window.open('/tvms/students/info/' + candidateId, '_blank');
-    }
+    window.open(DOMAIN_NAME + '/students/view/' + candidateId, '_blank');
 }
 
 function addCandidate() {
     var candidateId = parseInt($('#candidate-name').val());
+    if (!candidateId) {
+        return;
+    }
     if (perData.selected.indexOf(candidateId) >= 0) {
-        alert('You have already selected this student. Please choose another candidate!');
+        alert('Bạn đã chọn lao động này. Vui lòng chọn một lao động khác.');
         return;
     }
     var elem = document.querySelector('#cdd-' + candidateId);
@@ -153,7 +164,7 @@ function addCandidate() {
 
     $.ajax({
         type: 'GET',
-        url: '/tvms/orders/getCandidate',
+        url: DOMAIN_NAME + '/orders/getCandidate',
         data: {
             id: candidateId
         },
@@ -225,7 +236,7 @@ function setPassed(ele) {
 
     var rowIdArr = $(ele).closest('.row-rec').attr('id').split('-');
     $('#set-interview-result-btn').remove();
-    $('<button type="button" class="btn btn-success" id="set-interview-result-btn" onclick="setInterviewResult('+rowIdArr[rowIdArr.length-1]+')">Submit</button>').insertBefore('#close-result-modal-btn');
+    $('<button type="button" class="btn btn-success" id="set-interview-result-btn" onclick="setInterviewResult('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-result-modal-btn');
     
     // show modal
     $('#set-pass-modal').modal('toggle');
@@ -240,12 +251,21 @@ function setInterviewResult(rowId) {
 
         $('#row-candidate-'+rowId).find('.interviewDesc').val($('#description').val());
 
+        // update result counter
+        resultCounter = updateResultCounter();
+        if (resultCounter == perData.selected.length) {
+            $('input[name="status"]').val('4');
+        } else {
+            $('input[name="status"]').val('');
+        }
+
         // show edit doc button when pass interview
-        if ($('#result').val() == '1') {
+        if ($('#result').val() === '1') {
             $('#row-candidate-'+rowId).find('.edit-doc').removeClass('hidden');
         } else {
             $('#row-candidate-'+rowId).find('.edit-doc').addClass('hidden');
         }
+        
         $('#set-pass-modal').modal('toggle');
     }
 }
@@ -253,13 +273,14 @@ function setInterviewResult(rowId) {
 function deleteCandidate(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove candidate',
-            text: "You won't be able to revert this!",
+            title: 'Xóa ứng viên',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 var rowIdArr = $(delEl).closest('.row-rec').attr('id').split('-');
@@ -267,7 +288,7 @@ function deleteCandidate(delEl, sendAjax) {
 
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/orders/deleteCandidate',
+                    url: DOMAIN_NAME + '/orders/deleteCandidate',
                     data: {
                         'id': $('#interview-'+rowId+'-id').find('input').val(),
                     },
@@ -337,11 +358,26 @@ function deleteRow(delEl, hiddenId) {
     }
 }
 
-function editDoc(candidateId, permission) {
-    if (permission == 1) {
-        // read-only
-        window.open('/tvms/students/view/' + candidateId + '#tab_content4', '_blank');
-    } else {
-        window.open('/tvms/students/info/' + candidateId + '#tab_content4', '_blank');
-    }
+function editDoc(candidateId) {
+    window.open(DOMAIN_NAME + '/students/view/' + candidateId + '#tab_content4', '_blank');
+}
+
+function viewGuild(guildId) {
+    var overlayId = '#list-order-overlay';
+    globalViewGuild(guildId, overlayId);
+}
+
+function viewCompany(companyId) {
+    var overlayId = '#list-order-overlay';
+    globalViewCompany(companyId, overlayId);
+}
+
+function updateResultCounter() {
+    result = 0;
+    $('.interviewResult').each(function() {
+        if ($(this).val() !== "0") {
+            result++;
+        }
+    });
+    return result;
 }

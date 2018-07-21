@@ -3,6 +3,12 @@ $(document).ready(function() {
         // validate form
         var validateResult = $('#edit-company-form').parsley().validate();
         if (validateResult) {
+            if (ajaxing) {
+                // still requesting
+                return;
+            }
+            ajaxing = true;
+
             $.ajax({
                 type: "POST",
                 url: $('#edit-company-form').attr('action'),
@@ -11,31 +17,60 @@ $(document).ready(function() {
                     if (resp.status == 'success') {
                         window.location = resp.redirect; 
                     } else {
-                        PNotify.desktop.permission();
-                        (new PNotify({
-                            title: resp.flash.title,
+                        var notice = new PNotify({
+                            title: '<strong>' + resp.flash.title + '</strong>',
                             text: resp.flash.message,
                             type: resp.flash.type,
-                            desktop: {
-                                desktop: true
+                            styling: 'bootstrap3',
+                            icon: resp.flash.icon,
+                            cornerclass: 'ui-pnotify-sharp',
+                            buttons: {
+                                closer: false,
+                                sticker: false
                             }
-                        }))
+                        });
+                        notice.get().click(function() {
+                            notice.remove();
+                        });
                     }
+                },
+                complete: function() {
+                    ajaxing = false;
                 }
             });
         }
     });
 });
 
+function viewGuild(guildId) {
+    var overlayId = '#list-company-overlay';
+    globalViewGuild(guildId, overlayId);
+}
+
+function viewCompany(companyId) {
+    var overlayId = '#list-company-overlay';
+    globalViewCompany(companyId, overlayId);
+}
 
 function editCompany(companyId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#list-company-overlay').removeClass('hidden');
+    
     $.ajax({
         type: 'GET',
-        url: '/tvms/companies/edit',
+        url: DOMAIN_NAME + '/companies/edit',
         data: {id: companyId},
         success: function(resp) {
+            // reset form
+            $('#edit-company-form').parsley().reset();
+
             // fill data to edit form
             $('#edit-id').val(resp['id']);
+            $('#edit-guild').val(resp['guild_id']).trigger('change');
             $('#edit-name-romaji').val(resp['name_romaji']);
             $('#edit-name-kanji').val(resp['name_kanji']);
             $('#edit-address-romaji').val(resp['address_romaji']);
@@ -44,25 +79,20 @@ function editCompany(companyId) {
             $('#edit-phone-jp').val(resp['phone_jp']);
             // toggle modal
             $('#edit-company-modal').modal('toggle');
+        },
+        complete: function() {
+            ajaxing = false;
+            $('#list-company-overlay').addClass('hidden');
         }
     });
 };
 
+function showAddCompanyModal() {
+    $('#add-company-form')[0].reset();
+    $('#guild-id').val(null).trigger('change');
 
+    $('#add-company-form').parsley().reset();
 
-$('#setting-company-submit-btn').click(function() {
-    var elems = Array.prototype.slice.call($('#setting-company-form').find('input[type="checkbox"]'));
-    elems.forEach(function (ele) {
-        if (ele.checked) {
-            $('.' + ele.name).removeClass('hidden');
-        } else {
-            $('.' + ele.name).addClass('hidden');
-        }
-    });
-    $('#setting-company-modal').modal('hide');
-});
+    $('#add-company-modal').modal('toggle');
+}
 
-$('#setting-company-close-btn').click(function() {
-    // reset form before close
-    $('#setting-company-form')[0].reset();
-});

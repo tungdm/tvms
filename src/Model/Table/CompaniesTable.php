@@ -40,12 +40,14 @@ class CompaniesTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Author');
 
         $this->belongsTo('Guilds', [
             'foreignKey' => 'guild_id'
         ]);
         $this->hasMany('Orders', [
-            'foreignKey' => 'company_id'
+            'foreignKey' => 'company_id',
+            'dependent' => true,
         ]);
     }
 
@@ -89,7 +91,7 @@ class CompaniesTable extends Table
 
         $validator
             ->scalar('phone_jp')
-            ->maxLength('phone_jp', 11)
+            ->maxLength('phone_jp', 255)
             ->allowEmpty('phone_jp');
 
         $validator

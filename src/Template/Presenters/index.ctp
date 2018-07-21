@@ -5,15 +5,13 @@
  */
 use Cake\Core\Configure;
 $recordsDisplay = Configure::read('recordsDisplay');
-$scope = Configure::read('scope');
-$confPermission = Configure::read('permission');
+$presenterType = Configure::read('presenterType');
 
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
 
-//$this->Html->css('presenter.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -24,19 +22,21 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý Cộng tác viên');
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('DANH SÁCH CỘNG TÁC VIÊN') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li class="active">Cộng Tác Viên</li>
-</ol>
+    <h1><?= __('QUẢN LÝ CỘNG TÁC VIÊN') ?></h1>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Trang Chủ',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li class="active">Cộng tác viên</li>
+    </ol>
 <?php $this->end(); ?>
 
 <div class="row">
@@ -45,7 +45,8 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
-                    <a data-toggle="modal" data-target="#add-presenter-modal" href="#"><i class="fa fa-plus"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    <a class="btn btn-box-tool" href="javascript:;" onclick="showAddPresenterModal()"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -65,6 +66,9 @@ $this->Paginator->setTemplates([
                 'id' => 'filter-form'
                 ]) ?>
             <div class="box-body table-responsive">
+                <div class="overlay hidden" id="list-presenter-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
                 <div class="form-group col-md-4 col-sm-6 col-xs-12 records-per-page">
                     <label class="control-label col-md-3 col-sm-3 col-xs-3"><?= __('Hiển thị') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-6">
@@ -92,7 +96,7 @@ $this->Paginator->setTemplates([
                                 <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
                             </th>
                             <th scope="col" class="typeCol">
-                                <?= $this->Paginator->sort('type', 'Loại') ?>
+                                <?= __('Phân loại') ?>
                             </th>
                             <th scope="col" class="actions" ><?= __('Thao tác') ?></th>
                         </tr>
@@ -108,7 +112,7 @@ $this->Paginator->setTemplates([
                                     ]) 
                                 ?>
                             </td>
-                            <td class="col-md-4 addressCol">
+                            <td class="col-md-3 addressCol">
                                 <?= $this->Form->control('address', [
                                     'label' => false,                             
                                     'class' => 'form-control col-md-7 col-xs-12', 
@@ -124,16 +128,18 @@ $this->Paginator->setTemplates([
                                     ])
                                 ?>
                             </td>
-                            <td class="col-md-1 typeCol">
-                                <?= $this->Form->control('type', [
+                            <td class="col-md-2 typeCol">
+                                <?= $this->Form->control('presenter_type', [
+                                    'options' => $presenterType,
                                     'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['type'] ?? ''
+                                    'empty' => true, 
+                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                    'value' => $query['presenter_type'] ?? ''
                                     ]) 
                                 ?>
                             </td>
                             
-                            <td class="filter-group-btn">
+                            <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                             </td>
@@ -150,8 +156,8 @@ $this->Paginator->setTemplates([
                             <td class="cell"><?= h($counter) ?></td>
                             <td class="cell nameCol"><?= h($presenter->name) ?></td>
                             <td class="cell addressCol"><?= h($presenter->address) ?></td>
-                            <td class="cell phoneCol"><?= h($presenter->phone) ?></td>
-                            <td class="cell typeCol"><?= h($presenter->type) ?></td>
+                            <td class="cell phoneCol"><?= h($this->Phone->makeEdit($presenter->phone)) ?></td>
+                            <td class="cell typeCol"><?= h($presenterType[$presenter->type]) ?></td>
                             
                             
                             <td class="actions cell">                              
@@ -159,17 +165,24 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                        <a href="#" id="edit-presenter-btn" onClick="editPresenter('<?= $presenter->id ?>')">
-                                        <i class="fa fa-pencil"></i> Sửa</a>
+                                            <a href="javascript:;" onclick="viewPresenter(<?= $presenter->id ?>)">
+                                                <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                            </a>
+                                        </li>
+                                        <?php if ($permission == 0): ?>
+                                        <li>
+                                            <a href="#" id="edit-presenter-btn" onClick="editPresenter('<?= $presenter->id ?>')">
+                                            <i class="fa fa-edit"></i> Sửa</a>
                                         </li>
                                         <li>
                                             <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $presenter->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa {0}?', $presenter->username)
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa cộng tác viên {0}?', $presenter->name)
                                                 ]) ?>
                                         </li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>                                      
                             </td>
@@ -199,45 +212,63 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">THÊM CỘNG TÁC VIÊN MỚI</h4>
+                <h4 class="modal-title">THÊM MỚI CỘNG TÁC VIÊN</h4>
             </div>
             <div class="modal-body">
                 <?= $this->Form->create(false, [
-            'class' => 'form-horizontal form-label-left', 
-            'id' => 'add-presenter-form', 
-            'data-parsley-validate' => '',
-            'url' => ['controller' => 'Presenters', 'action' => 'add'],
-            'templates' => [
-                'inputContainer' => '{{content}}'
-                ]
-            ]) 
-            ?>
+                    'class' => 'form-horizontal form-label-left', 
+                    'id' => 'add-presenter-form', 
+                    'data-parsley-validate' => '',
+                    'url' => ['controller' => 'Presenters', 'action' => 'add'],
+                    'templates' => [
+                        'inputContainer' => '{{content}}'
+                        ]
+                    ]) ?>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name">
-                        <?= __('Cộng Tác Viên') ?> </label>
+                        <?= __('Cộng tác viên') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('name', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập tên cộng tác viên']) ?>
+                        <?= $this->Form->control('name', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập tên cộng tác viên']) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address">
-                        <?= __('Địa chỉ(tiếng Việt)') ?> </label>
+                        <?= __('Địa chỉ') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('address', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Địa chỉ bằng tiếng Việt']) ?>
+                        <?= $this->Form->control('address', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập địa chỉ bằng tiếng Việt'
+                            ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone">
                         <?= __('Số Điện Thoại') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập số điện thoại']) ?>
+                        <?= $this->Form->control('phone', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'placeholder' => 'Nhập số điện thoại của cộng tác viên'
+                            ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="type">
                         <?= __('Loại') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('type', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập loại']) ?>
+                        <?= $this->Form->control('type', [
+                            'options' => $presenterType,
+                            'label' => false, 
+                            'required' => true, 
+                            'empty' => true, 
+                            'label' => false, 
+                            'data-parsley-errors-container' => '#error-type',
+                            'data-parsley-class-handler' => '#select2-type',
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                            ]) ?>
+                        <span id="error-type"></span>
                     </div>
                 </div>
             </div>
@@ -270,43 +301,57 @@ $this->Paginator->setTemplates([
                 <?= $this->Form->hidden('id', ['id' => 'edit-id']) ?>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name">
-                        <?= __('Tên Cộng Tác Viên') ?> </label>
+                        <?= __('Cộng tác viên') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('name', [
                             'label' => false,
                             'id' => 'edit-name',
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập tên cộng tác viên']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập tên cộng tác viên']) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address">
-                        <?= __('Địa chỉ') ?> *</label>
+                        <?= __('Địa chỉ') ?></label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('address', [
                             'label' => false,
                             'id' => 'edit-address', 
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Địa chỉ bằng tiếng Việt']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập địa chỉ bằng tiếng Việt']) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone">
-                        <?= __('Số Điện Thoại') ?> *</label>
+                        <?= __('Số Điện Thoại') ?></label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone', ['label' => false, 
-                        'id' => 'edit-phone',
-                        'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập số điện thoại']) ?>
+                        <?= $this->Form->control('phone', [
+                            'label' => false, 
+                            'id' => 'edit-phone',
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập số điện thoại của cộng tác viên']) ?>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="type">
-                        <?= __('Số Điện Thoại') ?> *</label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('type', ['label' => false, 
-                        'id' => 'edit-type',
-                        'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Vui lòng nhập loại']) ?>
+                        <?= __('Loại') ?></label>
+                        <div class="col-md-7 col-sm-5 col-xs-12">
+                            <?= $this->Form->control('type', [
+                                'options' => $presenterType,
+                                'label' => false, 
+                                'required' => true, 
+                                'empty' => true, 
+                                'label' => false, 
+                                'id' => 'edit-type',
+                                'data-parsley-errors-container' => '#error-edit-type',
+                                'data-parsley-class-handler' => '#select2-edit-type',
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                            <span id="error-edit-type"></span>
+                        </div>
                     </div>
-                </div>
                 <?= $this->Form->end() ?>
             </div>
             <div class="modal-footer">

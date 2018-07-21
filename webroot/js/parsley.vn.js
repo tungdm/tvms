@@ -20,7 +20,7 @@ Parsley.addMessages('vn', {
   mincheck:       "Xin vui lòng chọn ít nhất %s lựa chọn.",
   maxcheck:       "Xin vui lòng chọn bằng hoặc ít hơn %s.",
   check:          "Xin hãy chọn giữa %s và %s.",
-  equalto:        "Dữ liệu có vẻ đã bị trùng."
+  equalto:        "Giá trị này phải giống nhau."
 });
 
 Parsley.setLocale('vn');

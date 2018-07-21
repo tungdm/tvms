@@ -6,6 +6,9 @@ use Cake\Core\Exception\Exception;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\I18n\Time;
+use Cake\Utility\Text;
+use Cake\ORM\TableRegistry;
+
 
 /**
  * Events Controller
@@ -16,10 +19,26 @@ use Cake\I18n\Time;
  */
 class EventsController extends AppController
 {
+    
+    public function initialize()
+    {
+        parent::initialize();
+        $this->entity = 'sự kiện';
+    }
+
     public function isAuthorized($user)
     {
-        // all authorized user can access event
-        return true;
+        $controller = $this->request->getParam('controller');
+        $action = $this->request->getParam('action');
+        $session = $this->request->session();
+        $permissionsTable = TableRegistry::get('Permissions');
+        $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
+
+        // case: check permission on specific scope
+        if (!empty($userPermission)) {
+            return true;
+        }
+        return parent::isAuthorized($user);
     }
     /**
      * Index method
@@ -28,12 +47,21 @@ class EventsController extends AppController
      */
     public function index()
     {
+        $controller = $this->request->getParam('controller');
         $eventScope = Configure::read('eventScope');
-
+        $permissionsTable = TableRegistry::get('Permissions');
         $currentUser = $this->Auth->user();
+
+        $userPermission = $permissionsTable->find()
+            ->where([
+                'user_id' => $currentUser['id'],
+                'scope' => $controller,
+                'action' => '0'
+                ])
+            ->first();
         $currentUserRole = $currentUser['role_id'];
-        if ($currentUserRole != 1) {
-            // not admin
+        if ($currentUserRole != 1 && empty($userPermission)) {
+            // not admin or full access user
             $eventScope = [
                 '1' => 'Chỉ mình tôi'
             ];
@@ -57,7 +85,6 @@ class EventsController extends AppController
                 $orCondition = $exp->or_(['user_id' => $currentUserId])->eq('scope', '2');
                 return $exp->add($orCondition);
             });
-            Log::write('debug', $events);
             $events = $events->toArray();
             foreach ($events as $event) {
                 $editable = false;
@@ -89,25 +116,52 @@ class EventsController extends AppController
     {
         $this->request->allowMethod('ajax');
         $id = $this->request->getQuery('id');
-
-        Log::write('debug', $id);
-
         $resp = [];
         try {
-            $event = $this->Events->get($id, ['contain' => 'Users']);
-            Log::write('debug', $event);
-            $resp = [
-                'id' => $event->id,
-                'title' => $event->title,
-                'description' => $event->description,
-                'allDay' => $event->all_day == "true" ? true: false,
-                'scope' => $event->scope,
-                'start' => $event->start,
-                'end' => $event->end,
-                'backgroundColor' => $event->color,
-                'borderColor' => $event->color,
-                'owner' => $event->user->fullname
-            ];
+            $event = $this->Events->find()
+                ->where(['Events.id' => $id])
+                ->select($this->Events)
+                ->select($this->Events->Orders)
+                ->select($this->Events->Orders->Companies)
+                ->select($this->Events->Orders->Companies->Guilds)
+                ->select($this->Events->Orders->Jobs)
+                ->select($this->Events->Users)
+                ->select($this->Events->Jtests)
+                ->select($this->Events->Jtests->Jclasses)
+                ->select($this->Events->Jtests->JtestContents->Users)
+                ->contain([
+                    'Users', 
+                    'Orders', 
+                    'Orders.Students', 
+                    'Orders.Companies', 
+                    'Orders.Companies.Guilds', 
+                    'Orders.Jobs',
+                    'Jtests',
+                    'Jtests.Jclasses',
+                    'Jtests.JtestContents.Users'
+                    ])
+                ->first();
+            $cityJP = Configure::read('cityJP');
+            $cityJP = array_map('array_shift', $cityJP);
+            $yesNoQuestion = Configure::read('yesNoQuestion');
+            $interviewType = Configure::read('interviewType');
+            $skills = Configure::read('skills');
+            $lessons = Configure::read('lessons');
+
+            if (!empty($event->order)) {
+                $event->order->work_at = $cityJP[$event->order->work_at];
+                $event->order->skill_test = $yesNoQuestion[$event->order->skill_test];
+                $event->order->interview_type = $interviewType[$event->order->interview_type];
+            } else if (!empty($event->jtest)) {
+                $event->jtest->lesson_from = $lessons[$event->jtest->lesson_from];
+                $event->jtest->lesson_to = $lessons[$event->jtest->lesson_to];
+                foreach ($event->jtest->jtest_contents as $key => $value) {
+                    $event->jtest->jtest_contents[$key]->skill = $skills[$value->skill];
+                }
+            }
+            $resp = $event;
+            $resp['all_day'] == "true" ? true : false;
+            $resp['owner'] = empty($event->user_id) ? 'Thông báo từ hệ thống' : $event->user->fullname;
         } catch (Exception $e) {
             //TODO: blacklist user
             Log::write('debug', $e);
@@ -127,19 +181,34 @@ class EventsController extends AppController
         if ($this->request->is('post')) {
             $resp = [
                 'status' => 'error',
+                'flash' => [
+                    'title' => 'Lỗi',
+                    'type' => 'error',
+                    'icon' => 'fa fa-warning',
+                    'message' => $this->errorMessage['add']
+                ]
             ];
+
             $event = $this->Events->newEntity();
             $data = $this->request->getData();
-            Log::write('debug', $data);
             
             $currentUser = $this->Auth->user();
             $currentUserRole = $currentUser['role_id'];
-            if ($data['scope'] === "2" && $currentUserRole != 1) {
+            $permissionsTable = TableRegistry::get('Permissions');
+            $controller = $this->request->getParam('controller');
+            $userPermission = $permissionsTable->find()
+                ->where([
+                    'user_id' => $currentUser['id'],
+                    'scope' => $controller,
+                    'action' => '0'
+                    ])
+                ->first();
+            if ($data['scope'] === "2" && $currentUserRole != 1 && empty($userPermission)) {
                 //TODO: Blacklist current user
                 $msgTemplate = Configure::read('blackListTemplate');
                 $msg = Text::insert($msgTemplate, [
                     'username' => $currentUser['username'], 
-                    'error' => 'try to create global eventn'
+                    'error' => 'try to create global event'
                     ]);
                 Log::write('warning', $msg);
                 return $this->jsonResponse($resp); 
@@ -161,6 +230,15 @@ class EventsController extends AppController
                     'allDay' => $event->all_day == "true" ? true: false,
                     'backgroundColor' => $event->color,
                     'borderColor' => $event->color,
+                    'flash' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'icon' => 'fa fa-check-circle-o',
+                        'message' => Text::insert($this->successMessage['add'], [
+                            'entity' => $this->entity,
+                            'name' => $event->title
+                        ])
+                    ]
                 ];
             }
         }
@@ -179,6 +257,12 @@ class EventsController extends AppController
         $this->request->allowMethod('ajax');
         $resp = [
             'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
         ];
         try {
             $event = $this->Events->get($id, [
@@ -186,8 +270,6 @@ class EventsController extends AppController
             ]);
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $data = $this->request->getData();
-                Log::write('debug', $data);
-                
                 $data['start'] = new Time($data['start']);
                 $data['end'] = new Time($data['end']);
     
@@ -204,7 +286,18 @@ class EventsController extends AppController
                         'allDay' => $event->all_day === "true" ? true: false,
                         'backgroundColor' => $event->color,
                         'borderColor' => $event->color,
+                        'flash' => [
+                            'title' => 'Thành Công',
+                            'type' => 'success',
+                            'icon' => 'fa fa-check-circle-o',
+                            'message' => Text::insert($this->successMessage['edit'], [
+                                'entity' => $this->entity,
+                                'name' => $event->title
+                            ])
+                        ]
                     ];
+                } else {
+                    Log::write('debug', $event->errors());
                 }
             }
         }  catch (Exception $e) {
@@ -219,6 +312,12 @@ class EventsController extends AppController
         $this->request->allowMethod('ajax');
         $resp = [
             'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
         ];
         try {
             $event = $this->Events->get($id, [
@@ -242,6 +341,15 @@ class EventsController extends AppController
                         'allDay' => $event->all_day == "true" ? true: false,
                         'backgroundColor' => $event->color,
                         'borderColor' => $event->color,
+                        'flash' => [
+                            'title' => 'Thành Công',
+                            'type' => 'success',
+                            'icon' => 'fa fa-check-circle-o',
+                            'message' => Text::insert($this->successMessage['edit'], [
+                                'entity' => $this->entity,
+                                'name' => $event->title
+                            ])
+                        ]
                     ];
                 }
             }
@@ -267,21 +375,27 @@ class EventsController extends AppController
         if ($this->request->is(['post', 'delete'])) {
             $resp = [
                 'status' => 'error',
-                'alert' => [
-                    'title' => 'Error',
+                'flash' => [
+                    'title' => 'Lỗi',
                     'type' => 'error',
-                    'message' => __('The event could not be deleted. Please, try again.')
+                    'icon' => 'fa fa-warning',
+                    'message' => $this->errorMessage['error']
                 ]
             ];
             try {
                 $event = $this->Events->get($id);
+                $eventTitle = $event->title;
                 if (!empty($event) && $this->Events->delete($event)) {
                     $resp = [
                         'status' => 'success',
-                        'alert' => [
-                            'title' => 'Success',
+                        'flash' => [
+                            'title' => 'Thành Công',
                             'type' => 'success',
-                            'message' => __('The event has been deleted.')
+                            'icon' => 'fa fa-check-circle-o',
+                            'message' => Text::insert($this->successMessage['delete'], [
+                                'entity' => $this->entity,
+                                'name' => $eventTitle
+                            ])
                         ]
                     ];
                 }

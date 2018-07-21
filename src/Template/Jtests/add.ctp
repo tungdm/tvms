@@ -13,43 +13,47 @@ $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
 ?>
 
-<?php $this->start('content-header'); ?>
-    <?php if ($action === 'add'): ?>
-    <h1><?= __('Add New Test') ?></h1>
-    <button class="btn btn-success submit-test-btn" type="button">Submit</button>
-    <ol class="breadcrumb">
-        <li>
-            <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
-                '/',
-                ['escape' => false]) ?>
-        </li>
-        <li>
-            <?= $this->Html->link(__('Test'), [
-                'controller' => 'Jtests',
-                'action' => 'index']) ?>
-        </li>
-        <li class="active">New Test</li>
-    </ol>
-    <?php else: ?>
-    <h1><?= __('Update Test') ?></h1>
-    <button class="btn btn-success submit-test-btn" type="button">Submit</button>
-    <ol class="breadcrumb">
-        <li>
-            <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
-                '/',
-                ['escape' => false]) ?>
-        </li>
-        <li>
-            <?= $this->Html->link(__('Classes'), [
-                'controller' => 'Jtests',
-                'action' => 'index']) ?>
-        </li>
-        <li class="active">Update Test</li>
-    </ol>
-    <?php endif; ?>
-<?php $this->end(); ?>
+<?php if ($action === 'add'): ?>
+    <?php $this->assign('title', 'Thêm mới kì thi'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('THÊM MỚI KÌ THI') ?></h1>
+        <button class="btn btn-success submit-test-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách kì thi'), [
+                    'controller' => 'Jtests',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active">Thêm mới kì thi</li>
+        </ol>
+    <?php $this->end(); ?>
+<?php else: ?>
+    <?php $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Cập nhật thông tin kì thi'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('CẬP NHẬT THÔNG TIN KÌ THI') ?></h1>
+        <button class="btn btn-success submit-test-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách kì thi'), [
+                    'controller' => 'Jtests',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active">Kì thi <?= $jtest->test_date ?></li>
+        </ol>
+    <?php $this->end(); ?>
+<?php endif; ?>
 
 <?= $this->Form->create($jtest, [
     'class' => 'form-horizontal form-label-left',
@@ -152,7 +156,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="contents"><?= __('Kỹ năng thi') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12 table-responsive">
-                        <button type="button" class="btn btn-primary" id="add-skill" onclick="showAddSkillModal()"><?= __('Add new skill') ?></button>
+                        <button type="button" class="btn btn-primary" id="add-skill" onclick="showAddSkillModal()"><?= __('Thêm kỹ năng') ?></button>
                         <table class="table table-bordered custom-table">
                             <thead>
                                 <tr>
@@ -244,7 +248,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">THÊM KỸ NĂNG THI</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -257,8 +261,8 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                         ]
                     ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="skill"><?= __('Skill') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="skill"><?= __('Kỹ năng') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
                             <?= $this->Form->control('modal.skill', [
                                 'options' => $skills, 
                                 'empty' => true,
@@ -272,8 +276,8 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="teacher"><?= __('Teacher') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="teacher"><?= __('Giáo viên phụ trách') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
                             <?= $this->Form->control('modal.teacher', [
                                 'options' => $teachers, 
                                 'empty' => true,
@@ -289,10 +293,13 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                 <?= $this->Form->end() ?>
                 </div>
             </div>
+            <div class="col-md-12 col-xs-12">
+                <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
+            </div>
             <div class="clearfix"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="add-skill-btn" onclick="addSkill()">Submit</button>
-                <button type="button" class="btn btn-default" id="close-add-skill-modal-btn" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="add-skill-btn" onclick="addSkill()">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-add-skill-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

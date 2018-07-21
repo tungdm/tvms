@@ -15,23 +15,25 @@ $workTime = Configure::read('workTime');
 
 $this->Html->css('order.css', ['block' => 'styleTop']);
 $this->Html->script('order.js', ['block' => 'scriptBottom']);
+
+$this->assign('title', $order->name . ' - Thông tin chi tiết')
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('Order Detail') ?></h1>
+<h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
+            '<i class="fa fa-home"></i> Trang Chủ',
             '/',
             ['escape' => false]) ?>
     </li>
     <li>
-        <?= $this->Html->link(__('Đơn Hàng'), [
+        <?= $this->Html->link(__('Danh sách đơn hàng'), [
             'controller' => 'Orders',
             'action' => 'index']) ?>
     </li>
-    <li class="active">Chi tiết</li>
+    <li class="active"><?= $order->name ?></li>
 </ol>
 <?php $this->end(); ?>
 <div class="form-horizontal form-label-left">
@@ -39,68 +41,71 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <h3 class="box-title"><?= __('THÔNG TIN ĐƠN HÀNG') ?></h3>
+                    <h3 class="box-title"><?= __('Thông tin cơ bản') ?></h3>
+                    <div class="box-tools pull-right">
+                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="name"><?= __('Tên đơn hàng') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="name"><?= __('Tên đơn hàng') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->name ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="job_id"><?= __('Nghề nghiệp') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="job_id"><?= __('Nghề nghiệp') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->job->job_name ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="salary"><?= __('Mức lương') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="salary"><?= __('Mức lương') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= $this->Number->format($order->salary_from, ['locale' => 'vn_VN']) ?> ～ <?= $this->Number->format($order->salary_to, ['locale' => 'vn_VN']) ?> (¥/tháng)
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="interview_date"><?= __('Ngày phỏng vấn') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="interview_date"><?= __('Ngày phỏng vấn') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->interview_date ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="work_at"><?= __('Địa điểm làm việc') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="work_at"><?= __('Địa điểm làm việc') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $cityJP[$order->work_at] ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="work_time"><?= __('Thời gian làm việc') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="work_time"><?= __('Thời gian làm việc') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $workTime[$order->work_time] ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="company_id"><?= __('Công ty tiếp nhận') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company_id"><?= __('Công ty tiếp nhận') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->company->name_romaji ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="skill_test"><?= __('Thi tay nghề') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="skill_test"><?= __('Thi tay nghề') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $yesNoQuestion[$order->skill_test] ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="interview_type"><?= __('Hình thức phỏng vấn') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="interview_type"><?= __('Hình thức phỏng vấn') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $interviewType[$order->interview_type] ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->departure_date ?></div>
                         </div>
                     </div>
@@ -111,55 +116,58 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Yêu cầu tuyển chọn') ?></h3>
+                    <div class="box-tools pull-right">
+                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="experience"><?= __('Kinh nghiệm') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="experience"><?= __('Kinh nghiệm') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
                                 <?= !empty($order->experience) ? nl2br($order->experience) : 'N/A' ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="male_num"><?= __('Số lượng nam') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="male_num"><?= __('Số lượng nam') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->male_num ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="female_num"><?= __('Số lượng nữ') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="female_num"><?= __('Số lượng nữ') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->female_num ?></div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="age_interval"><?= __('Độ tuổi') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="age_interval"><?= __('Độ tuổi') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= $order->age_from ?> ～ <?= $order->age_to ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="height"><?= __('Chiều cao') ?></label>
-                        <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="height"><?= __('Chiều cao') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= !empty($order->height) ? $order->height : 'N/A' ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="weight"><?= __('Cân nặng') ?></label>
-                        <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="weight"><?= __('Cân nặng') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= !empty($order->weight) ? $order->weight : 'N/A' ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12" for="requirement"><?= __('Yêu cầu khác') ?></label>
-                        <div class="col-md-7 col-sm-7 col-xs-12">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="requirement"><?= __('Yêu cầu khác') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
                                 <?= !empty($order->requirement) ? nl2br($order->requirement) : 'N/A' ?>
                             </div>
@@ -174,13 +182,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Danh sách ứng viên') ?></h3>
+                    <div class="box-tools pull-right">
+                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    </div>
                 </div>
                 <div class="box-body table-responsive">
                     <table class="table table-bordered custom-table candidate-table">
                         <thead>
                             <tr>
                                 <th scope="col"><?= __('STT') ?></th>
-                                <th scope="col"><?= __('Họ và tên') ?></th>
+                                <th scope="col"><?= __('Họ tên') ?></th>
                                 <th scope="col"><?= __('Tuổi') ?></th>
                                 <th scope="col"><?= __('Giới tính') ?></th>
                                 <th scope="col"><?= __('Số ĐT') ?></th>
@@ -200,7 +211,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                         <?= $counter+1 ?>
                                     </td>
                                     <td class="cell col-md-3">
-                                        <a href="javascript:;" onclick="viewCandidate('<?=$value->id?>', <?=$permission?>);"><?= h($value->fullname) ?></a>
+                                        <a href="javascript:;" onclick="viewCandidate(<?=$value->id?>);"><?= h($value->fullname) ?></a>
                                     </td>
                                     <td class="cell col-md-1">
                                         <?= h(($now->diff($value->birthday))->y) ?>
@@ -222,7 +233,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                             [
                                                 'class' => 'edit-doc',
                                                 'escape' => false,
-                                                'onClick' => "editDoc(this, $permission)"
+                                                'onClick' => "editDoc($value->id)"
                                             ])
                                         ?>
                                         <?php endif; ?>

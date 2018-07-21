@@ -43,7 +43,12 @@ class EventsTable extends Table
 
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
-            'joinType' => 'INNER'
+        ]);
+        $this->belongsTo('Orders', [
+            'foreignKey' => 'order_id',
+        ]);
+        $this->belongsTo('Jtests', [
+            'foreignKey' => 'jtest_id',
         ]);
     }
 
@@ -109,8 +114,10 @@ class EventsTable extends Table
      * @return \Cake\ORM\RulesChecker
      */
     public function buildRules(RulesChecker $rules)
+
     {
         $rules->add($rules->existsIn(['user_id'], 'Users'));
+        $rules->add($rules->existsIn(['order_id'], 'Orders'));
 
         return $rules;
     }

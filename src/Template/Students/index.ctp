@@ -33,6 +33,8 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý Lao động');
 ?>
 
 <?php $this->start('content-header'); ?>
@@ -40,11 +42,11 @@ $this->Paginator->setTemplates([
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
+            '<i class="fa fa-home"></i> Trang Chủ',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Lao Động</li>
+    <li class="active">Danh sách lao động</li>
 </ol>
 <?php $this->end(); ?>
 
@@ -54,7 +56,14 @@ $this->Paginator->setTemplates([
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
-                    <a href="#" class="btn btn-box-tool" type="button" data-toggle="modal" data-target="#add-candidate-modal"><i class="fa fa-plus"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    <div class="btn-group">
+                        <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-plus"></i></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="javascript:;" onclick="showAddStudentModal()">Tạo lịch hẹn</a></li>
+                            <li><?= $this->Html->link(__('Thêm mới lao động'), ['action' => 'info']) ?></li>
+                        </ul>
+                    </div>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -172,7 +181,7 @@ $this->Paginator->setTemplates([
                                     ])
                                 ?>
                             </td>
-                            <td class="filter-group-btn">
+                            <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                                 <?= $this->Form->end() ?>
@@ -191,7 +200,7 @@ $this->Paginator->setTemplates([
                             <td class="cell fullnameCol"><?= h($student->fullname) ?></td>
                             <td class="cell emailCol hidden"><?= h($student->email) ?></td>
                             <td class="cell genderCol"><?= h($gender[$student->gender]) ?></td>
-                            <td class="cell phoneCol"><?= h($student->phone) ?></td>
+                            <td class="cell phoneCol"><?= h($this->Phone->makeEdit($student->phone)) ?></td>
                             <td class="cell statusCol"><?= h($studentStatus[$student->status]) ?></td>
                             
                             <td class="actions cell">
@@ -199,26 +208,31 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
-                                        <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
-                                            <?= $this->Html->link(__('Chi tiết'), ['action' => 'info', $student->id]) ?>
+                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                ['action' => 'view', $student->id],
+                                                ['escape' => false]) ?>
+                                        </li>
+                                        <?php if ($permission == 0): ?>
+                                        <li>
+                                            <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', [
+                                                'action' => 'info', $student->id],
+                                                ['escape' => false]) ?>
                                         </li>
                                         <li>
-                                            <?= $this->Form->postLink(__('Xóa'), 
+                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                             ['action' => 'delete', $student->id], 
                                             [
                                                 'escape' => false, 
-                                                'confirm' => __('Bạn có chắc muốn xóa {0}?', $student->fullname)
+                                                'confirm' => __('Bạn có chắc chắn muốn xóa lao động {0}?', $student->fullname)
                                             ]) ?>
-                                        </li>
-                                        <?php else: ?>
-                                        <li>
-                                            <?= $this->Html->link(__('Xem'), ['action' => 'view', $student->id]) ?>
                                         </li>
                                         <?php endif; ?>
                                         <li class="divider"></li>
                                         <li>
-                                            <?= $this->Html->link(__('Xuất CV Việt'), ['action' => 'exportResume', $student->id ]) ?>
+                                            <?= $this->Html->link('<i class="fa fa-file-word-o" aria-hidden="true"></i> Xuất CV Việt', 
+                                            ['action' => 'exportResume', $student->id],
+                                            ['escape' => false]) ?>
                                         </li>
                                     </ul>
                                 </div>
@@ -248,7 +262,7 @@ $this->Paginator->setTemplates([
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">THÊM MỚI LAO ĐỘNG</h4>
+                <h4 class="modal-title">THÊM MỚI LỊCH HẸN</h4>
             </div>
             <?= $this->Form->create(null, [
                 'type' => 'post',
@@ -267,7 +281,8 @@ $this->Paginator->setTemplates([
                         <?= $this->Form->control('fullname', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true
+                            'required' => true,
+                            'placeholder' => 'Nhập họ tên ứng viên'
                             ]) ?>
                     </div>
                 </div>
@@ -293,7 +308,8 @@ $this->Paginator->setTemplates([
                             'label' => false, 
                             'required' => true, 
                             'class' => 'form-control col-md-7 col-xs-12',
-                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$'
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'placeholder' => 'Nhập số điện thoại của ứng viên'
                             ]) ?>
                     </div>
                 </div>
@@ -303,7 +319,8 @@ $this->Paginator->setTemplates([
                         <?= $this->Form->control('email', [
                             'label' => false, 
                             'required' => true, 
-                            'class' => 'form-control col-md-7 col-xs-12'
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'placeholder' => 'Nhập địa chỉ mail của ứng viên'
                             ]) ?>
                     </div>
                 </div>
@@ -338,7 +355,7 @@ $this->Paginator->setTemplates([
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12 select2-theme',
                             'data-parsley-errors-container' => '#error-address',
-                            'data-parsley-class-handler' => '#select2-address-city',
+                            'data-parsley-class-handler' => '#select2-addresses-0-city',
                             ]) ?>
                         <span id="error-address"></span>
                     </div>

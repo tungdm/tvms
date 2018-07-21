@@ -44,13 +44,17 @@ class JtestsTable extends Table
 
         $this->belongsTo('Jclasses', [
             'foreignKey' => 'jclass_id',
-            'joinType' => 'INNER'
         ]);
         $this->hasMany('JtestContents', [
-            'foreignKey' => 'jtest_id'
+            'foreignKey' => 'jtest_id',
+            'dependent' => true,
         ]);
         $this->belongsToMany('Students', [
-            'through' => 'JtestsStudents'
+            'through' => 'JtestsStudents',
+        ]);
+        $this->hasMany('Events', [
+            'foreignKey' => 'jtest_id',
+            'dependent' => true,
         ]);
     }
 

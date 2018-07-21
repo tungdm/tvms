@@ -1,8 +1,12 @@
-var ajaxing = false;
 var testing = false;
 var perData = {};
 perData.selected = [];
 perData.preAddCounter = 0;
+
+var editor = new Simditor({
+    textarea: $('.edittextarea'),
+    toolbar: ['title', 'bold', 'italic', 'underline', 'color', '|',  'alignment', 'ol', 'ul', '|', 'table', 'link', 'image']
+});
 
 $(document).ready(function() {
     // init selected data
@@ -12,7 +16,7 @@ $(document).ready(function() {
 
     $('#student-name').select2({
         ajax: {
-            url: '/tvms/jclasses/search-student',
+            url: DOMAIN_NAME + '/jclasses/search-student',
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -35,14 +39,22 @@ $(document).ready(function() {
             },
             cache: true
         },
-        placeholder: 'Search for a student',
+        placeholder: 'Tìm kiếm học viên',
         minimumInputLength: 1,
         allowClear: true,
         theme: "bootstrap",
         language: {
             noResults: function() {
                 return "Không tìm thấy kết quả";
-            }
+            },
+            searching: function() {
+                return "Đang tìm kiếm...";
+            },
+            inputTooShort: function (args) {
+                var remainingChars = args.minimum - args.input.length;
+                var message = 'Vui lòng nhập ít nhất ' + remainingChars + ' kí tự';
+                return message;
+            },
         }
     });
 
@@ -66,7 +78,7 @@ $(document).ready(function() {
         $('#change-class-modal-overlay').removeClass('hidden');
         $.ajax({
             type: 'GET',
-            url: '/tvms/jclasses/getClassTestInfo',
+            url: DOMAIN_NAME + '/jclasses/getClassTestInfo',
             data: {
                 id: classId,
             },
@@ -96,8 +108,11 @@ function showAddStudentModal() {
 
 function preAddStudent() {
     var studentId = parseInt($('#student-name').val());
+    if (!studentId) {
+        return;
+    }
     if (perData.selected.indexOf(studentId) >= 0) {
-        alert('You have already selected this student. Please choose another student!');
+        alert('Bạn đã chọn học viên này. Vui lòng chọn một học viên khác!');
         return;
     }
     var elem = document.querySelector('#std-' + studentId);
@@ -114,7 +129,7 @@ function preAddStudent() {
 
     $.ajax({
         type: 'GET',
-        url: '/tvms/jclasses/getStudent',
+        url: DOMAIN_NAME + '/jclasses/getStudent',
         data: {
             id: studentId
         },
@@ -183,13 +198,13 @@ function addStudent() {
 function showEditStudentModal(ele) {
     // reset form
     $('#edit-student-form')[0].reset();
-    $('#modal-note').val($(ele).closest('.row-std').find('.note').val());
+    editor.setValue($(ele).closest('.row-std').find('.note').val());
 
     var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
     var rowId = rowIdArr[rowIdArr.length-1];
 
     $('#edit-student-btn').remove();
-    $('<button type="button" class="btn btn-success" id="edit-student-btn" onclick="editStudent('+rowId+')">Submit</button>').insertBefore('#close-edit-modal-btn');
+    $('<button type="button" class="btn btn-success" id="edit-student-btn" onclick="editStudent('+rowId+')">Hoàn tất</button>').insertBefore('#close-edit-modal-btn');
 
     $('#edit-student-modal').modal('toggle');
 }
@@ -202,11 +217,10 @@ function editStudent(rowId) {
 function showChangeClassModal(ele) {
     if ($('input[name="have_test"]').val() === "true") {
         swal({
-            title: 'Oopps!',
-            text: "The class will have a japanese test. You can not change class at this time.",
+            title: 'Cảnh báo!',
+            text: "Lớp học sắp có cuộc thi năng lực tiếng Nhật. Bạn không thể thực hiện việc chuyển lớp vào lúc này.",
             type: 'warning',
             confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
             confirmButtonText: 'Ok'
         });
     } else {
@@ -216,7 +230,7 @@ function showChangeClassModal(ele) {
         var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
         var rowId = rowIdArr[rowIdArr.length-1];
         $('#change-class-btn').remove();
-        $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Submit</button>').insertBefore('#close-change-class-modal-btn');
+        $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Hoàn tất</button>').insertBefore('#close-change-class-modal-btn');
 
         $('#change-class-modal').modal('toggle');
     }
@@ -226,20 +240,19 @@ function changeClass(rowId) {
     if ($('#modal-class').val()) {
         if (testing) {
             swal({
-                title: 'Oopps!',
-                text: "The class " + $('#modal-class option:selected').html() + " will have a japanese test. You can not change class at this time.",
+                title: 'Cảnh báo!',
+                text: "Lớp " + $('#modal-class option:selected').html() + " sắp có cuộc thi năng lực tiếng Nhật. Bạn không thể thực hiện việc chuyển lớp vào lúc này.",
                 type: 'warning',
                 confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
                 confirmButtonText: 'Ok'
             });
         } else {
-            execChangeClass();
+            execChangeClass(rowId);
         }
     }
 }
 
-function execChangeClass() {
+function execChangeClass(rowId) {
     if (ajaxing) {
         // still requesting
         return;
@@ -249,7 +262,7 @@ function execChangeClass() {
 
     $.ajax({
         type: 'POST',
-        url: '/tvms/jclasses/changeClass',
+        url: DOMAIN_NAME + '/jclasses/changeClass',
         data: {
             'id': $('#class-student-'+rowId+'-id').find('input').val(),
             'class': $('#modal-class').val()
@@ -278,13 +291,14 @@ function execChangeClass() {
 function deleteStudent(delEl, sendAjax) {
     if (sendAjax) {
         swal({
-            title: 'Remove student',
-            text: "You won't be able to revert this!",
+            title: 'Xóa học viên khỏi lớp',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#ddd',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
                 var rowIdArr = $(delEl).closest('.row-std').attr('id').split('-');
@@ -292,7 +306,7 @@ function deleteStudent(delEl, sendAjax) {
 
                 $.ajax({
                     type: 'POST',
-                    url: '/tvms/jclasses/deleteStudent',
+                    url: DOMAIN_NAME + '/jclasses/deleteStudent',
                     data: {
                         'id': $('#class-student-'+rowId+'-id').find('input').val(),
                     },

@@ -23,18 +23,20 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý lớp học');
 ?>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('Danh sách lớp học') ?></h1>
+    <h1><?= __('QUẢN LÝ LỚP HỌC') ?></h1>
     <ol class="breadcrumb">
         <li>
             <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
+                '<i class="fa fa-home"></i> Trang Chủ',
                 '/',
                 ['escape' => false]) ?>
         </li>
-        <li class="active">Classes</li>
+        <li class="active">Danh sách lớp học</li>
     </ol>
 <?php $this->end(); ?>
 
@@ -42,7 +44,7 @@ $this->Paginator->setTemplates([
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('Classes') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                     <?php if ($permission == 0): ?>
@@ -81,9 +83,9 @@ $this->Paginator->setTemplates([
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="nameCol">
-                                <?= $this->Paginator->sort('name', 'Tên lớp')?>
+                                <?= $this->Paginator->sort('name', 'Lớp học')?>
                             </th>
                             <th scope="col" class="startCol">
                                 <?= $this->Paginator->sort('start', 'Ngày bắt đầu') ?>
@@ -95,9 +97,9 @@ $this->Paginator->setTemplates([
                                 <?= __('Giáo viên chủ nhiệm') ?>
                             </th>
                             <th scope="col" class="currentLessonCol">
-                                <?= __('Giáo trình') ?>
+                                <?= __('Bài đang học') ?>
                             </th>
-                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -156,7 +158,7 @@ $this->Paginator->setTemplates([
                                     ])
                                 ?>
                             </td>
-                            <td class="filter-group-btn">
+                            <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                             </td>
@@ -164,7 +166,7 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($jclasses)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($jclasses as $jclass): ?>
@@ -187,20 +189,27 @@ $this->Paginator->setTemplates([
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
                                         </button>
                                     <ul role="menu" class="dropdown-menu">
-                                    <?php if ($permission < 1 || $currentUser['role']['name'] == 'admin'): ?>
                                         <li>
-                                            <?= $this->Html->link(__('Edit'), ['action' => 'edit', $jclass->id]) ?>
+                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                ['action' => 'view', $jclass->id],
+                                                ['escape' => false]) ?>
+                                        </li>
+                                    <?php if ($permission < 1): ?>
+                                        <li>
+                                            <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
+                                                ['action' => 'edit', $jclass->id],
+                                                ['escape' => false]) ?>
                                         </li>
                                     <?php endif; ?>
 
-                                    <?php if ($permission == 0 || $currentUser['role']['name'] == 'admin'): ?>
+                                    <?php if ($permission == 0): ?>
                                         <li>
-                                            <?= $this->Form->postLink(__('Delete'), 
-                                            ['action' => 'delete', $jclass->id], 
-                                            [
-                                                'escape' => false, 
-                                                'confirm' => __('Are you sure you want to delete class {0}?', $jclass->name)
-                                            ]) ?>
+                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                ['action' => 'delete', $jclass->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa lớp {0}?', $jclass->name)
+                                                ]) ?>
                                         </li>
                                     <?php endif; ?>
 

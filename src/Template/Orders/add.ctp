@@ -28,43 +28,47 @@ $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('order.js', ['block' => 'scriptBottom']);
 ?>
 
-<?php $this->start('content-header'); ?>
 <?php if ($action === 'add'): ?>
-<h1><?= __('TẠO ĐƠN HÀNG MỚI') ?></h1>
-<button class="btn btn-success submit-order-btn" type="button">Lưu lại</button>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chính',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li>
-        <?= $this->Html->link(__('Đơn Hàng'), [
-            'controller' => 'Orders',
-            'action' => 'index']) ?>
-    </li>
-    <li class="active">Thêm Mới</li>
-</ol>
+    <?php $this->assign('title', 'Thêm mới đơn hàng'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('THÊM MỚI ĐƠN HÀNG') ?></h1>
+        <button class="btn btn-success submit-order-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách đơn Hàng'), [
+                    'controller' => 'Orders',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active">Thêm mới đơn hàng</li>
+        </ol>
+    <?php $this->end(); ?>
 <?php else: ?>
-<h1><?= __('Update Order') ?></h1>
-<button class="btn btn-success submit-order-btn" type="button">Submit</button>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Home',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li>
-        <?= $this->Html->link(__('Orders'), [
-            'controller' => 'Orders',
-            'action' => 'index']) ?>
-    </li>
-    <li class="active">Update Order</li>
-</ol>
+    <?php $this->assign('title', $order->name . ' - Cập nhật thông tin đơn hàng'); ?>
+    <?php $this->start('content-header'); ?>
+        <h1><?= __('CẬP NHẬT THÔNG TIN ĐƠN HÀNG') ?></h1>
+        <button class="btn btn-success submit-order-btn" type="button">Lưu lại</button>
+        <ol class="breadcrumb">
+            <li>
+                <?= $this->Html->link(
+                    '<i class="fa fa-home"></i> Trang Chủ',
+                    '/',
+                    ['escape' => false]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('Danh sách đơn hàng'), [
+                    'controller' => 'Orders',
+                    'action' => 'index']) ?>
+            </li>
+            <li class="active"><?= $order->name ?></li>
+        </ol>
+    <?php $this->end(); ?>
 <?php endif; ?>
-<?php $this->end(); ?>
 
 <?= $this->Form->create($order, [
     'class' => 'form-horizontal form-label-left',
@@ -74,6 +78,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         'inputContainer' => '{{content}}'
         ]
     ]) ?>
+<?= $this->Form->hidden('status') ?>
+<?= $this->Form->unlockField('status') ?>
 <?= $this->Form->unlockField('students') ?>
 
 <div class="row">    
@@ -92,7 +98,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('name', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true
+                            'required' => true,
+                            'placeholder' => 'Nhập tên đơn hàng'
                             ]) ?>
                     </div>
                 </div>
@@ -120,7 +127,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'min' => '0',
                                 'less-than' => '#salary-to',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-min', 
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => '¥/tháng'
                                 ]) ?>
                         </div>
                         <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
@@ -130,7 +138,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'min' => '0',
                                 'greater-than' => '#salary-from',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-max',
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => '¥/tháng'
                                 ]) ?>
                         </div>
                     </div>
@@ -261,13 +270,14 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             </div>
             <div class="box-body">
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="experience"><?= __('Kinh nghiệm') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="experience"><?= __('Kinh nghiệm') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('experience', [
                             'label' => false, 
                             'type' => 'textarea',
                             'rows' => 3,
                             'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập kinh nghiệm cần thiết'
                             ]) ?>
                     </div>
                 </div>
@@ -277,7 +287,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('male_num', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true
+                            'required' => true,
+                            'placeholder' => 'Nhập số lượng nam cần tuyển'
                             ]) ?>
                     </div>
                 </div>
@@ -287,7 +298,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('female_num', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true
+                            'required' => true,
+                            'placeholder' => 'Nhập số lượng nữ cần tuyển'
                             ]) ?>
                     </div>
                 </div>
@@ -301,7 +313,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'max' => '100',
                                 'less-than' => '#age-to',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-min', 
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => 'Tuổi từ'
                                 ]) ?>
                         </div>
                         <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
@@ -312,7 +325,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'max' => '100',
                                 'greater-than' => '#age-from',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-max', 
-                                'required' => true
+                                'required' => true,
+                                'placeholder' => 'Tuổi đến'
                                 ]) ?>
                         </div>
                     </div>
@@ -322,27 +336,30 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('height', [
                             'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'placeholder' => 'Nhập chiều cao tối thiểu cần thiết'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="weight"><?= __('Cân nặng') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="weight"><?= __('Cân nặng') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('weight', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập cân năng tối thiểu cần thiết'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="requirement"><?= __('Yêu cầu khác') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="requirement"><?= __('Yêu cầu khác') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('requirement', [
                             'label' => false, 
                             'type' => 'textarea',
                             'rows' => 3,
                             'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập yêu cầu khác (nếu có)'
                             ]) ?>
                     </div>
                 </div>
@@ -370,12 +387,12 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <table class="table table-bordered custom-table candidate-table">
                     <thead>
                         <tr>
-                            <th scope="col"><?= __('STT') ?></th>
-                            <th scope="col"><?= __('Họ và tên') ?></th>
-                            <th scope="col"><?= __('Tuổi') ?></th>
-                            <th scope="col"><?= __('Giới tính') ?></th>
-                            <th scope="col"><?= __('Số ĐT') ?></th>
-                            <th scope="col"><?= __('Kết quả') ?></th>
+                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                            <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
+                            <th scope="col" class="col-md-1"><?= __('Tuổi') ?></th>
+                            <th scope="col" class="col-md-1"><?= __('Giới tính') ?></th>
+                            <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
+                            <th scope="col" class="col-md-1"><?= __('Kết quả') ?></th>
                             <th scope="col" class="actions"></th>
                         </tr>
                     </thead>
@@ -484,36 +501,31 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             ]
                         ]) ?>
                     <div class="form-group">
-                        <label class="control-label col-md-2 col-sm-2 col-xs-12" for="name"><?= __('Tên TTS') ?></label>
-                        <div class="col-md-6 col-sm-9 col-xs-12">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="input-group">
                                 <?= $this->Form->control('candidate.name', [
                                     'label' => false, 
                                     'options' => [],
                                     'class' => 'form-control col-md-7 col-xs-12', 
                                     ]) ?>
-                                <div class="input-group-btn">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Thao tác
-                                        <span class="fa fa-caret-down"></span></button>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="javascript:;" onclick="viewCandidate()">Xem chi tiết</a></li>
-                                        <li><a href="javascript:;" onclick="addCandidate()">Thêm vào hàng chờ</a></li>
-                                    </ul>
-                                </div>
+                                <span class="input-group-btn">
+                                    <button type="button" onclick="addCandidate()" class="btn btn-primary btn-flat">
+                                        <i class="fa fa-fw fa-plus"></i>
+                                    </button>
+                                </span>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="recommend"><?= __('Gợi ý') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12 table-responsive">
+                        <div class="col-md-12 col-sm-12 col-xs-12 table-responsive">
                             <table class="table table-bordered custom-table">
                                 <thead>
                                     <tr>
-                                        <th scope="col"><?= __('STT') ?></th>
-                                        <th scope="col"><?= __('Họ và tên') ?></th>
-                                        <th scope="col"><?= __('Tuổi') ?></th>
-                                        <th scope="col"><?= __('Giới tính') ?></th>
-                                        <th scope="col"><?= __('Số ĐT') ?></th>
+                                        <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                        <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
+                                        <th scope="col" class="col-md-2"><?= __('Tuổi') ?></th>
+                                        <th scope="col" class="col-md-2"><?= __('Giới tính') ?></th>
+                                        <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
                                         <th scope="col" class="actions"></th>
                                     </tr>
                                 </thead>
@@ -523,6 +535,9 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         </div>                                    
                     </div>
                     <?= $this->Form->end() ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -567,16 +582,20 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="description"><?= __('Ghi chú') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="description"><?= __('Ghi chú') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('description', [
                                 'label' => false, 
                                 'type' => 'textarea',
                                 'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => 'Nhập ghi chú của buổi phỏng vấn'
                                 ]) ?>
                         </div>
                     </div>
                     <?= $this->Form->end() ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -688,7 +707,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-1">
+        <td class="cell col-md-2">
             {{age}}
             <div class="hidden">
                 <?= $this->Form->control('age', [

@@ -22,18 +22,20 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
+
+$this->assign('title', 'Quản lý thi cử');
 ?>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('Danh sách kì thi') ?></h1>
+    <h1><?= __('QUẢN LÝ THI CỬ') ?></h1>
     <ol class="breadcrumb">
         <li>
             <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
+                '<i class="fa fa-home"></i> Trang Chủ',
                 '/',
                 ['escape' => false]) ?>
         </li>
-        <li class="active">Tests</li>
+        <li class="active">Danh sách kì thi</li>
     </ol>
 <?php $this->end(); ?>
 
@@ -41,7 +43,7 @@ $this->Paginator->setTemplates([
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('Tests') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                     <?php if ($permission == 0): ?>
@@ -84,7 +86,7 @@ $this->Paginator->setTemplates([
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="testDateCol">
                                 <?= $this->Paginator->sort('test_date', 'Ngày thi') ?>
                             </th>
@@ -97,7 +99,7 @@ $this->Paginator->setTemplates([
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
                             </th>
-                            <th scope="col" class="actions"><?= __('Actions') ?></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -169,7 +171,7 @@ $this->Paginator->setTemplates([
                         </tr>
                         <?php if (($jtests)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('No data available') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($jtests as $jtest): ?>
@@ -219,20 +221,24 @@ $this->Paginator->setTemplates([
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                            <?= $this->Html->link(__('View'), ['action' => 'view', $jtest->id]) ?>
+                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                ['action' => 'view', $jtest->id],
+                                                ['escape' => false]) ?>
                                         </li>
                                         <?php if ($permission == 0): ?>
                                             <?php if ($status == 1): ?>
                                             <li>
-                                                <?= $this->Html->link(__('Edit'), ['action' => 'edit', $jtest->id]) ?>
+                                                <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
+                                                    ['action' => 'edit', $jtest->id], 
+                                                    ['escape' => false]) ?>
                                             </li>
                                             <?php endif; ?>
                                             <li>
-                                                <?= $this->Form->postLink(__('Delete'), 
+                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $jtest->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Are you sure you want to delete the test {0}?', $jtest->test_date)
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
                                                 ]) ?>
                                             </li>
                                         <?php endif; ?>
@@ -240,7 +246,9 @@ $this->Paginator->setTemplates([
                                         <?php if (($status == 2 || $status == 3) && $supervisory == true): ?>
                                             <li class="divider"></li>
                                             <li>
-                                                <?= $this->Html->link(__('Nhập điểm'), ['action' => 'setScore', $jtest->id]) ?>
+                                                <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i> Nhập điểm', 
+                                                    ['action' => 'setScore', $jtest->id],
+                                                    ['escape' => false]) ?>
                                             </li>
                                         <?php endif; ?>
                                     </ul>

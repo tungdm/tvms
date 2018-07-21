@@ -45,11 +45,13 @@ class OrdersTable extends Table
 
         $this->belongsTo('Companies', [
             'foreignKey' => 'company_id',
-            'joinType' => 'INNER'
+        ]);
+        $this->hasMany('Events', [
+            'foreignKey' => 'order_id',
+            'dependent' => true,
         ]);
         $this->belongsTo('Jobs', [
             'foreignKey' => 'job_id',
-            'joinType' => 'INNER'
         ]);
         $this->belongsToMany('Students', [
             'through' => 'OrdersStudents'

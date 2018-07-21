@@ -3,11 +3,6 @@
     padding-top: 10px;
 }
 
-#student-tabs>li:last-child {
-    float: right;
-    margin: 4px;
-}
-
 .time-lived {
     padding-top: 7px;
 }

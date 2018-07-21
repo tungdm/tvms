@@ -13,7 +13,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 use Cake\Core\Configure;
-$cakeDescription = 'TVMS';
 ?>
 <!DOCTYPE html>
 <html>
@@ -23,7 +22,6 @@ $cakeDescription = 'TVMS';
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>
-        <?= $cakeDescription ?>:
         <?= $this->fetch('title') ?>
     </title>
     <?= $this->Html->meta('icon') ?>
@@ -37,6 +35,7 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->css('pnotify.nonblock.css') ?>
     <?= $this->Html->css('select2.min.css'); ?>
     <?= $this->Html->css('select2-bootstrap.css'); ?>
+    <?= $this->Html->css('simditor.css'); ?>
 
     <?= $this->Html->css('admin.css') ?>
     <?= $this->Html->css('skin-blue.css') ?>
@@ -55,7 +54,7 @@ $cakeDescription = 'TVMS';
             <!-- Logo -->
             <a href="/tvms/" class="logo">
                 <!-- mini logo for sidebar mini 50x50 pixels -->
-                <span class="logo-mini"><b>TVMS</b></span>
+                <span class="logo-mini"><b>TV</b></span>
                 <!-- logo for regular state and mobile devices -->
                 <span class="logo-lg"><b>TVMS</b></span>
             </a>
@@ -115,7 +114,7 @@ $cakeDescription = 'TVMS';
                 <!-- sidebar menu -->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li>
-                        <?= $this->Html->link('<i class="fa fa-home"></i> <span>MÀN HÌNH CHÍNH</span>', 
+                        <?= $this->Html->link('<i class="fa fa-home" style="font-size: 1.3em;"></i> <span>TRANG CHỦ</span>', 
                             '/',
                             ['escape' => false]) ?>
                     </li>
@@ -181,13 +180,13 @@ $cakeDescription = 'TVMS';
                         </a>
                         <ul class="treeview-menu">
                             <li>
-                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty tiếp nhận', 
-                                    ['controller' => 'Companies', 'action' => 'index'],
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghiệp đoàn', 
+                                    ['controller' => 'Guilds', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
                             <li>
-                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghiệp đoàn', 
-                                    ['controller' => 'Guilds', 'action' => 'index'],
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty tiếp nhận', 
+                                    ['controller' => 'Companies', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
                             <li>
@@ -196,12 +195,6 @@ $cakeDescription = 'TVMS';
                                     ['escape' => false]) ?>
                             </li>
                         </ul>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="fa fa-th"></i>
-                            <span><?= __('TÀI CHÍNH') ?></span>
-                        </a>
                     </li>
                 </ul>
             </section>
@@ -225,6 +218,163 @@ $cakeDescription = 'TVMS';
         </footer>
     </div>
 
+    <!-- Global guild modal -->
+    <div id="view-guild-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">THÔNG TIN NGHIỆP ĐOÀN</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal form-label-left">
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="name"><?= __('Tên nghiệp đoàn') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-name-romaji"></span> (<span id="view-name-kanji"></span>)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <ol class="list-unstyled">
+                                        <li><span id="view-address-romaji"></span></li>
+                                        <li><span id="view-address-kanji"></span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <ol class="list-unstyled">
+                                        <li>(Việt Nam) <span id="view-phone-vn"></span></li>
+                                        <li>(Nhật Bản) <span id="view-phone-jp"></span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global company modal -->
+    <div id="view-company-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">THÔNG TIN CÔNG TY</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal form-label-left">
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company-name"><?= __('Tên công ty') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-company-name-romaji"></span> (<span id="view-company-name-kanji"></span>)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild-name"><?= __('Nghiệp đoàn') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-guild-name-romaji"></span> (<span id="view-guild-name-kanji"></span>)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <ol class="list-unstyled">
+                                        <li><span id="view-company-address-romaji"></span></li>
+                                        <li><span id="view-company-address-kanji"></span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <ol class="list-unstyled">
+                                        <li>(Việt Nam) <span id="view-company-phone-vn"></span></li>
+                                        <li>(Nhật Bản) <span id="view-company-phone-jp"></span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global presenter modal -->
+    <div id="view-presenter-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">THÔNG TIN CỘNG TÁC VIÊN</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal form-label-left">
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="presenter-name"><?= __('Tên cộng tác viên') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-name"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="presenter-address"><?= __('Địa chỉ') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-address"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="presenter-phone"><?= __('Số điện thoại') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-phone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="presenter-type"><?= __('Loại') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-type"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?= $this->Html->script('bootstrap.min.js') ?>
     <?= $this->Html->script('fastclick.js') ?>
     <?= $this->Html->script('nprogress.js') ?>
@@ -236,7 +386,12 @@ $cakeDescription = 'TVMS';
     <?= $this->Html->script('parsley.min.js'); ?>
     <?= $this->Html->script('parsley.vn.js'); ?>
     <?= $this->Html->script('handlebars-v4.0.11.js'); ?>
-    
+
+    <?= $this->Html->script('editor/module.js'); ?>
+    <?= $this->Html->script('editor/hotkeys.js'); ?>
+    <?= $this->Html->script('editor/uploader.js'); ?>
+    <?= $this->Html->script('editor/simditor.js'); ?>
+
     <?= $this->fetch('scriptBottom') ?>
     
     <?= $this->Html->script('admin.js') ?>

@@ -8,6 +8,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Log\Log;
 use Cake\Core\Configure;
 use Cake\I18n\Time;
+use Cake\Utility\Text;
 
 
 /**
@@ -19,6 +20,13 @@ use Cake\I18n\Time;
  */
 class JtestsController extends AppController
 {
+
+    public function initialize()
+    {
+        parent::initialize();
+        $this->entity = 'kì thi';
+        $this->loadComponent('SystemEvent');
+    }
 
     public function isAuthorized($user)
     {
@@ -35,7 +43,7 @@ class JtestsController extends AppController
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
                     $testDate = $this->Jtests->get($target_id)->test_date;
-                    if ($testDate >= $now) {
+                    if ($testDate <= $now) {
                         // the test is tested, can not modified
                         return false;
                     }
@@ -149,13 +157,26 @@ class JtestsController extends AppController
         $jtest = $this->Jtests->newEntity();
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-            $jtest = $this->Jtests->patchEntity($jtest, $data, ['associated' => ['JtestContents', 'Students']]);
-            if ($this->Jtests->save($jtest)) {
-                $this->Flash->success(__('The test has been saved.'));
+            // create system event
+            $event = $this->SystemEvent->create('THI TIẾNG NHẬT', $data['test_date']);
+            $data['events'][0] = $event;
+            $jtest = $this->Jtests->patchEntity($jtest, $data, ['associated' => ['JtestContents', 'Students', 'Events']]);
 
-                return $this->redirect(['action' => 'index']);
+            // update flag
+            $flag = '';
+            foreach ($data['jtest_contents'] as $key => $value) {
+                $flag = $flag . $value['skill'];
             }
-            $this->Flash->error(__('The test could not be saved. Please, try again.'));
+            $jtest->flag = $flag;
+            if ($this->Jtests->save($jtest)) {
+                $this->Flash->success(Text::insert($this->successMessage['add'], [
+                    'entity' => $this->entity,
+                    'name' => $jtest->test_date
+                ]));
+
+                return $this->redirect(['action' => 'edit', $jtest->id]);
+            }
+            $this->Flash->error($this->errorMessage['add']);
         }
         $lessons = Configure::read('lessons');
         $jclasses = $this->Jtests->Jclasses->find()
@@ -229,21 +250,35 @@ class JtestsController extends AppController
     public function edit($id = null)
     {
         $jtest = $this->Jtests->get($id, [
-            'contain' => ['Students', 'JtestContents', 'JtestContents.Users']
+            'contain' => ['Students', 'JtestContents', 'JtestContents.Users', 'Events']
         ]);
+        $currentTestDate = $jtest->test_date;
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
+            $newTestDate = new Time($data['test_date']);
             if ($data['changed'] === "true") {
                 // delete old student test data
                 $result = $this->Jtests->JtestsStudents->deleteAll(['jtest_id' => $jtest->id]);
             }
+            if ($currentTestDate !== $newTestDate) {
+                // uppdate system event
+                $event = $this->SystemEvent->update($jtest->events[0]->id, $data['test_date']);
+            }
+            $data['events'][0] = $event;
+            
             $jtest = $this->Jtests->patchEntity($jtest, $data);
             if ($this->Jtests->save($jtest)) {
-                $this->Flash->success(__('The test has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity,
+                    'name' => $jtest->test_date
+                ]));
 
                 return $this->redirect(['action' => 'edit', $jtest->id]);
             }
-            $this->Flash->error(__('The test could not be saved. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['edit'], [
+                'entity' => $this->entity,
+                'name' => $jtest->test_date
+            ]));
         }
         $jclasses = $this->Jtests->Jclasses->find('list');
         $userTable = TableRegistry::get('Users');
@@ -261,8 +296,8 @@ class JtestsController extends AppController
         $skill = '';
         $teacher = $this->Jtests->JtestContents->find()->where(['jtest_id' => $id, 'user_id' => $currentUserId])->toArray();
         if (empty($teacher)) {
-            $this->Flash->error(__('You do not have permission for this action.'));
-            return $this->redirect(['action' => 'index']);
+            $this->Flash->error($this->errorMessage['unAuthor']);
+            return $this->redirect(['controller' => 'Pages', 'action' => 'index']);
         } else {
             $skill = $teacher[0]['skill'];
         }
@@ -272,16 +307,23 @@ class JtestsController extends AppController
                 'fieldList' => ['students'],
                 'associated' => ['Students' => ['fieldList' => ['_joinData']]],
                 ]);
-            $jtest->flag = $jtest->flag - 1;
-            if ($jtest->flag == 0) {
+            
+            // update flag
+            $jtest->flag = str_replace($skill, '', $jtest->flag);
+            if (empty($jtest->flag)) {
                 $jtest->status = '4'; // finish scoring
             }
+            $skills = Configure::read('skills');
             if ($this->Jtests->save($jtest)) {
-                $this->Flash->success(__('The score has been saved.'));
+                $this->Flash->success(Text::insert($this->successMessage['setScore'], [
+                    'skill' => $skills[$skill]
+                ]));
 
                 return $this->redirect(['action' => 'view', $jtest->id]);
             }
-            $this->Flash->error(__('The score could not be saved. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['setScore'], [
+                'skill' => $skills[$skill]
+            ]));
         }
 
         $this->set(compact('jtest', 'skill'));
@@ -299,9 +341,15 @@ class JtestsController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $jtest = $this->Jtests->get($id);
         if ($this->Jtests->delete($jtest)) {
-            $this->Flash->success(__('The test has been deleted.'));
+            $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                'entity' => $this->entity, 
+                'name' => $jtest->test_date
+                ]));
         } else {
-            $this->Flash->error(__('The test could not be deleted. Please, try again.'));
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $jtest->test_date
+                ]));
         }
 
         return $this->redirect(['action' => 'index']);
@@ -314,21 +362,22 @@ class JtestsController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The skill could not be removed from this test. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
 
         try {
             $record = $this->Jtests->JtestContents->get($recordId);
             if (!empty($record) && $this->Jtests->JtestContents->delete($record)) {
+                $skills = Configure::read('skills');
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The skill has been remove from this test.')
+                        'message' => 'Đã xóa phần thi ' . $skills[$record->skill]
                     ]
                 ];
             }

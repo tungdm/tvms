@@ -41,7 +41,7 @@ class StudentsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
-        $this->addBehavior('Author');        
+        $this->addBehavior('Author');
 
         $this->belongsTo('Jobs', [
             'foreignKey' => 'job_id'

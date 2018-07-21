@@ -5,15 +5,17 @@ $skillsArr = Configure::read('skills');
 $score = Configure::read('score');
 
 $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
+
+$this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi ' . $skillsArr[$skill]);
 ?>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('Nhập điểm thi') ?></h1>
-    <button class="btn btn-success set-score-btn" type="button">Submit</button>
+    <h1><?= __('NHẬP ĐIỂM THI') ?></h1>
+    <button class="btn btn-success set-score-btn" type="button">Lưu lại</button>
     <ol class="breadcrumb">
         <li>
             <?= $this->Html->link(
-                '<i class="fa fa-home"></i> Home',
+                '<i class="fa fa-home"></i> Trang Chủ',
                 '/',
                 ['escape' => false]) ?>
         </li>
@@ -23,7 +25,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                 'action' => 'index'
             ]) ?>
         </li>
-        <li class="active">Điểm thi</li>
+        <li class="active">Nhập điểm thi  <?= $skillsArr[$skill] ?></li>
     </ol>
 <?php $this->end(); ?>
 
@@ -39,7 +41,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title"><?= __('Danh sách học sinh thi') ?></h3>
+                <h3 class="box-title"><?= __('DANH SÁCH THÍ SINH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                 </div>
@@ -49,8 +51,8 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                     <thead>
                         <tr>
                             <th scope="col" class="col-md-1"><?= __('STT') ?></th>
-                            <th scope="col" class="col-md-3"><?= __('Họ và tên') ?></th>
-                            <th scope="col"><?=$skillsArr[$skill] ?></th>
+                            <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
+                            <th scope="col">Điểm thi <?=$skillsArr[$skill] ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,6 +70,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                         'required' => true,
                                         'min' => 0,
                                         'max' => 100,
+                                        'placeholder' => 'Nhập điểm thi từ 0 đến 100'
                                         ]) ?>
                                 </div>
                             </td>

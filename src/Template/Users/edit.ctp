@@ -18,33 +18,26 @@ $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom
 $this->Html->script('cropper.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('user.js', ['block' => 'scriptBottom']);
+
+$this->assign('title', 'Cập nhật hồ sơ cá nhân');
 ?>
 
 <?= $this->Form->unlockField('b64code') ?>
 <?= $this->Form->unlockField('image') ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('CẬP NHẬT HỒ SƠ') ?></h1>
+<h1><?= __('CẬP NHẬT HỒ SƠ CÁ NHÂN') ?></h1>
+<button class="btn btn-success submit-user-btn" id="update-profile-btn" type="button">Lưu lại</button>
 <ol class="breadcrumb">
     <li>
         <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang chính',
+            '<i class="fa fa-home"></i> Trang Chủ',
             '/',
             ['escape' => false]) ?>
     </li>
-    <li>
-        <?= $this->Html->link(__('Nhân viên'), ['controller' => 'Users', 'action' => 'index']) ?>
-    </li>
-    <li class="active">Chỉnh sửa Profile</li>
+    <li class="active">Hồ sơ cá nhân</li>
 </ol>
 <?php $this->end(); ?>
-
-<?= $this->Form->button('Lưu lại', [
-    'class' => 'btn btn-round btn-success mobile-only update-user-btn', 
-    'type' => 'button', 
-    'id' => 'update-user-mobile-btn',
-    'disabled' => 'disabled'
-    ]) ?>
 
 <div class="clearfix"></div>
 
@@ -52,6 +45,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
     <div class="col-md-12 col-sm-12 col-xs-12">
         <?= $this->Form->create($user, [
             'class' => 'form-horizontal form-label-left', 
+            'id' => 'update-profile-form',
             'data-parsley-validate' => '',
             'templates' => [
                 'inputContainer' => '{{content}}'
@@ -62,6 +56,9 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <h3 class="box-title">
                     <?= __('Thông tin cá nhân') ?>
                 </h3>
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">
@@ -71,7 +68,7 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                             'label' => false,
                             'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'User\'s fullname'
+                            'placeholder' => 'Nhập họ tên của bạn'
                             ]) ?>
                     </div>
                 </div>
@@ -81,18 +78,20 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('email', [
                             'label' => false,
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12'
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'placeholder' => 'Nhập địa chỉ mail của bạn'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Điện thoại') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'label' => false, 
                             'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12',
-                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$'
+                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'placeholder' => 'Nhập số điện thoại của bạn'
                             ]) ?>
                     </div>
                 </div>
@@ -138,17 +137,9 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <div class="ln_solid"></div>
 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="password"><?= __('Password') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="password"><?= __('Mật khẩu') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#change-password-modal"><?= __('Thay đổi Password') ?></button>
-                    </div>
-                </div>
-
-                <div class="ln_solid"></div>
-
-                <div class="form-group">
-                    <div class="col-md-6 col-md-offset-3">
-                        <?= $this->Form->button(__('Hoàn tất'), ['class' => 'btn btn-success']) ?>
                     </div>
                 </div>
                 <?= $this->Form->hidden('b64code')?>
@@ -187,7 +178,10 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">THAY ĐỔI MẬT KHẨU</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body box">
+                <div class="overlay hidden" id="change-password-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
                 <div class="col-md-12 col-xs-12">
                     <?= $this->Form->create(null, [
                         'url' => ['controller' => 'Users', 'action' => 'changePassword'],
@@ -202,36 +196,39 @@ $this->Html->script('user.js', ['block' => 'scriptBottom']);
                         ]) ?>
                     <div class="form-group">
                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Mật khẩu hiện tại') ?></label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <?= $this->Form->control('current-password', [
                                 'label' => false,
                                 'type' => 'password',
                                 'required' => true,
                                 'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => 'Nhập mật khẩu hiện tại'
                                 ]) ?>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Mật khẩu mới') ?></label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <?= $this->Form->control('new-password', [
                                 'label' => false,
                                 'type' => 'password',
                                 'required' => true,
                                 'class' => 'form-control col-md-7 col-xs-12',
                                 'data-parsley-minlength' => '8',
+                                'placeholder' => 'Nhập mật khẩu mới'
                                 ]) ?>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-4 col-sm-4 col-xs-12" for="password"><?= __('Nhập lại mật khẩu mới') ?></label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="col-md-7 col-sm-7 col-xs-12">
                             <?= $this->Form->control('confirm-password', [
                                 'label' => false,
                                 'type' => 'password',
                                 'required' => true,
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'data-parsley-equalto' => '#new-password'
+                                'data-parsley-equalto' => '#new-password',
+                                'placeholder' => 'Nhập lại mật khẩu mới'
                                 ]) ?>
                         </div>
                     </div>

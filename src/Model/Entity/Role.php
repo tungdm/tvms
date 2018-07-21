@@ -4,23 +4,19 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Jtest Entity
+ * Role Entity
  *
  * @property int $id
- * @property int $jclass_id
- * @property \Cake\I18n\FrozenDate $test_date
- * @property int $lesson_from
- * @property int $lesson_to
+ * @property string $name
+ * @property string $name_vn
  * @property \Cake\I18n\FrozenTime $created
  * @property int $created_by
  * @property \Cake\I18n\FrozenTime $modified
  * @property int $modified_by
  *
- * @property \App\Model\Entity\Jclass $jclass
- * @property \App\Model\Entity\JtestAttendance[] $jtest_attendances
- * @property \App\Model\Entity\JtestContent[] $jtest_content
+ * @property \App\Model\Entity\User[] $users
  */
-class Jtest extends Entity
+class Role extends Entity
 {
 
     /**
@@ -33,20 +29,12 @@ class Jtest extends Entity
      * @var array
      */
     protected $_accessible = [
-        'jclass_id' => true,
-        'test_date' => true,
-        'lesson_from' => true,
-        'lesson_to' => true,
-        'status' => true,
-        'flag' => true,
+        'name' => true,
+        'name_vn' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'jclass' => true,
-        'jtest_attendances' => true,
-        'jtest_contents' => true,
-        'students' => true,
-        'events' => true
+        'users' => true
     ];
 }

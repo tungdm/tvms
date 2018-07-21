@@ -7,7 +7,7 @@ if (!isset($params['escape']) || $params['escape'] !== false) {
 <script type="text/javascript">
 $(document).ready(function() {
     var notice = new PNotify({
-        title: 'Error',
+        title: '<strong>Lỗi</strong>',
         text: '<?= $message ?>',
         type: 'error',
         styling: 'bootstrap3',
