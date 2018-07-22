@@ -176,6 +176,7 @@ class OrdersController extends AppController
         $order = $this->Orders->get($id, [
             'contain' => ['Students', 'Events']
         ]);
+        $orderName = $order->name;
         $currentInterviewDate = $order->interview_date;
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -197,7 +198,7 @@ class OrdersController extends AppController
 
             $this->Flash->error(Text::insert($this->errorMessage['edit'], [
                 'entity' => $this->entity,
-                'name' => $order->name
+                'name' => $orderName
             ]));
         }
         $companies = $this->Orders->Companies->find('list', ['limit' => 200]);

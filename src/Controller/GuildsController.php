@@ -176,6 +176,8 @@ class GuildsController extends AppController
                 $guild = $this->Guilds->get($data['id'], [
                     'contain' => []
                 ]);
+                $guildName = $guild->name_romaji;
+
                 $guild = $this->Guilds->patchEntity($guild, $data, [
                     'fieldList' => ['name_romaji','name_kanji', 'address_romaji', 'address_kanji', 'phone_vn','phone_jp']
                 ]);
@@ -198,7 +200,7 @@ class GuildsController extends AppController
                             'icon' => 'fa fa-warning',
                             'message' => Text::insert($this->errorMessage['edit'], [
                                 'entity' => $this->entity,
-                                'name' => $guild->name_romaji
+                                'name' => $guildName
                             ])
                         ]
                     ];

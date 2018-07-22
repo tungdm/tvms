@@ -174,6 +174,7 @@ class CompaniesController extends AppController
                 $company = $this->Companies->get($data['id'], [
                     'contain' => []
                 ]);
+                $companyName = $company->name_romaji;
                 $company = $this->Companies->patchEntity($company, $data);
                 $company = $this->Companies->setAuthor($company, $this->Auth->user('id'), $this->request->getParam('action'));
                 if ($this->Companies->save($company)) {
@@ -194,7 +195,7 @@ class CompaniesController extends AppController
                             'icon' => 'fa fa-warning',
                             'message' => Text::insert($this->errorMessage['edit'], [
                                 'entity' => $this->entity,
-                                'name' => $company->name_romaji
+                                'name' => $companyName
                             ])
                         ]
                     ];

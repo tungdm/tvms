@@ -277,7 +277,7 @@ class JtestsController extends AppController
             }
             $this->Flash->error(Text::insert($this->errorMessage['edit'], [
                 'entity' => $this->entity,
-                'name' => $jtest->test_date
+                'name' => $currentTestDate
             ]));
         }
         $jclasses = $this->Jtests->Jclasses->find('list');

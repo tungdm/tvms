@@ -155,6 +155,7 @@ class PresentersController extends AppController
                 $presenter = $this->Presenters->get($data['id'], [
                     'contain' => []
                 ]);
+                $presenterName = $presenter->name;
                 $presenter = $this->Presenters->patchEntity($presenter, $data, [
                     'fieldList' => ['name', 'address', 'phone','type']
                 ]);
@@ -176,7 +177,7 @@ class PresentersController extends AppController
                             'type' => 'error',
                             'message' => Text::insert($this->errorMessage['edit'], [
                                 'entity' => $this->entity,
-                                'name' => $presenter->name
+                                'name' => $presenterName
                             ])
                         ]
                     ];
