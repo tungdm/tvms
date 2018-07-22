@@ -263,6 +263,14 @@ $(document).ready(function() {
             }, 500);
         }
     });
+
+    $('#add-candidate-btn').click(function() {
+        // formChanged = false;
+        var validateResult = $('#add-candidate-form').parsley().validate();
+        if (validateResult) {
+            $('#add-candidate-form').submit()
+        }
+    });
 })
 
 function showAddStudentModal() {
@@ -271,6 +279,7 @@ function showAddStudentModal() {
     $('#addresses-0-city').val(null).trigger('change');
     $('#add-candidate-form').parsley().reset();
     $('#add-candidate-modal').modal('toggle');
+    // formChanged = false;
 }
 
 function setTimeLived() {

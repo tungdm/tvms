@@ -828,6 +828,7 @@ var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
 
 var DOMAIN_NAME = '/tvms';
 var ajaxing = false;
+// var formChanged = false;
 
 function init_sidebar() {
     // check active menu
@@ -972,7 +973,10 @@ function initDatetimePicker() {
         // re-validate when user change picker
         $('#' + ele.id).on('dp.change', function(e) {
             // change form state
-            // unsaved = true;
+            // if ($(this).closest('form').hasClass('form-check-status')) {
+            //     console.log('changed');
+            //     formChanged = true;
+            // }
             $('#' + ele.id + ' input').parsley().validate();
 
             // validate relation input when current input pass the validation
@@ -1188,12 +1192,17 @@ function str2Phone(value) {
     }
 }
 
-// var unsaved = false;
 $(document).ready(function() {
     init_sidebar();
     tableHover();
     initSelect2();
     initDatetimePicker();
+
+    $('select[name="records"]').change(function (e) {
+        if ($(this).val()) {
+            $(this).closest('form').submit();
+        }
+    });
 
     $('#filter-refresh-btn').click(function() {
         $('#filter-form')[0].reset();
@@ -1264,18 +1273,18 @@ $(document).ready(function() {
         }
     });
 
-    // check save state
-    // $("input").change(function(){ //trigers change in all input fields including text type
-    //     unsaved = true;
-    // });
+    // check form change
+    $('.form-check-status :input').change(function() {
+        console.log('changed');
+        formChanged = true;
+    });
 });
 
-// function unloadPage(){ 
-//     if (unsaved){
-//         return "You have unsaved changes on this page. Do you want to leave this page and discard your changes or stay on this page?";
+// window.onbeforeunload = function(event) {
+//     if (formChanged) {
+//         event.returnValue = "You have unsaved changes on this page. Do you want to leave this page and discard your changes or stay on this page?";
 //     }
-// }
-// window.onbeforeunload = unloadPage;
+// };
 
 Handlebars.registerHelper("inc", function (value, options) {
     return parseInt(value) + 1;
