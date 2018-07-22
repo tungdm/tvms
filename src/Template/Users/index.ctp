@@ -85,7 +85,7 @@ $this->assign('title', 'Quản lý Nhân viên');
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="usernameCol">
                                 <?= $this->Paginator->sort('username', 'Tên đăng nhập')?>
                             </th>
@@ -339,7 +339,7 @@ $this->assign('title', 'Quản lý Nhân viên');
     <td>
         <?= $this->Form->control('permissions.{{@index}}.scope', [
             'options' => $scope,
-            'empty' => __('Choose one'),
+            'empty' => true,
             'required' => true,
             'data-parsley-not-duplicate-scope' => '',
             'label' => false,
@@ -350,7 +350,7 @@ $this->assign('title', 'Quản lý Nhân viên');
     <td>
         <?= $this->Form->control('permissions.{{@index}}.action', [
             'options' => $confPermission,
-            'empty' => __('Choose one'),
+            'empty' => true,
             'required' => true,
             'label' => false,
             'class' => 'form-control col-md-7 col-xs-12',

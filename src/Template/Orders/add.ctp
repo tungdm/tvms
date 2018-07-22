@@ -482,16 +482,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
 <div id="add-candidate-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content box">
+            <div class="overlay hidden" id="add-candidate-modal-overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">THÊM ỨNG VIÊN PHỎNG VẤN</h4>
             </div>
-            <div class="modal-body box">
+            <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
-                    <div class="overlay hidden" id="add-candidate-modal-overlay">
-                        <i class="fa fa-refresh fa-spin"></i>
-                    </div>
                     <?= $this->Form->create(null, [
                         'class' => 'form-horizontal form-label-left', 
                         'id' => 'add-candidate-form', 

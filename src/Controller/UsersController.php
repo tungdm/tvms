@@ -26,10 +26,7 @@ class UsersController extends AppController
     public function initialize()
     {
         parent::initialize();
-
-        Log::write('debug', 'initialize usercontroller');
         $this->entity = 'nhân viên';
-        
         $this->Auth->allow(['login', 'logout']);
     }
 
@@ -44,7 +41,7 @@ class UsersController extends AppController
         if (!empty($target_id)) {
             $target_id = $target_id[0];
         }
-        if ($action === 'edit' && ($target_id == $this->Auth->user('id'))) {
+        if (in_array($action, ['edit', 'changePassword']) && ($target_id == $this->Auth->user('id'))) {
             return true;
         }
         
@@ -308,12 +305,13 @@ class UsersController extends AppController
         $this->request->allowMethod('ajax');
         $id = $this->request->getData('id');
         $permissions = TableRegistry::get('Permissions');
+        $user = $this->Users->get($this->Auth->user('id'));
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The permission could not be deleted. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
         try {
@@ -322,9 +320,12 @@ class UsersController extends AppController
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The permission has been deleted.')
+                        'message' => Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $user->fullname
+                            ])
                     ]
                 ];
             }
@@ -426,6 +427,15 @@ class UsersController extends AppController
         $this->request->allowMethod('ajax');
         $data = $this->request->getData();
         $currentPassword = $this->Users->find('password', ['userId' => $this->Auth->user('id')])->first();
+        Log::write('debug', $data);
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['updatePassword']
+            ]
+        ];
 
         // check confirm password
         $hasher = new DefaultPasswordHasher();
@@ -442,15 +452,6 @@ class UsersController extends AppController
                 ];
                 $this->Flash->success($this->successMessage['updatePassword']);
             }
-        } else {
-            $resp = [
-                'status' => 'error',
-                'flash' => [
-                    'title' => 'Lỗi',
-                    'type' => 'error',
-                    'message' => $this->errorMessage['updatePassword']
-                ]
-            ];
         }
         return $this->jsonResponse($resp);
     }

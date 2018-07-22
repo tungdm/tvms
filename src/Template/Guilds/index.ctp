@@ -299,7 +299,7 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">CẬP NHẬT THÔNG TIN NGHIỆP ĐOÀN</h4>
             </div>
-            <div class="modal-body box">
+            <div class="modal-body">
                 <?= $this->Form->create(false, [
                     'class' => 'form-horizontal form-label-left',
                     'id' => 'edit-guild-form',

@@ -285,12 +285,12 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 
 <div id="add-student-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content box">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">THÊM HỌC VIÊN</h4>
             </div>
-            <div class="modal-body box">
+            <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
                     <div class="overlay hidden" id="add-student-modal-overlay">
                         <i class="fa fa-refresh fa-spin"></i>
@@ -394,16 +394,16 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 
 <div id="change-class-modal" class="modal fade" role="dialog">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content box">
+            <div class="overlay hidden" id="change-class-modal-overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Modal Header</h4>
             </div>
-            <div class="modal-body box">
+            <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
-                    <div class="overlay hidden" id="change-class-modal-overlay">
-                        <i class="fa fa-refresh fa-spin"></i>
-                    </div>
                     <?= $this->Form->create(null, [
                         'class' => 'form-horizontal form-label-left', 
                         'id' => 'change-class-form', 

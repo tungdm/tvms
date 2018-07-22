@@ -60,6 +60,7 @@ class Student extends Entity
         'image' => true,
         'job_id' => true,
         'birthday' => true,
+        'appointment_date' => true,
         'marital_status' => true,
         'subject' => true,
         'height' => true,

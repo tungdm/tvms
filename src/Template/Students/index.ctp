@@ -266,7 +266,7 @@ $this->assign('title', 'Quản lý Lao động');
             </div>
             <?= $this->Form->create(null, [
                 'type' => 'post',
-                'class' => 'form-horizontal form-label-left',
+                'class' => 'form-horizontal form-label-left form-check-status',
                 'id' => 'add-candidate-form',
                 'url' => ['action' => 'add'],
                 'data-parsley-validate' => '',
@@ -276,8 +276,8 @@ $this->assign('title', 'Quản lý Lao động');
                 ]) ?>
             <div class="modal-body">
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Họ tên') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname"><?= __('Họ tên') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('fullname', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
@@ -287,8 +287,8 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('gender', [
                             'options' => $gender, 
                             'empty' => true, 
@@ -302,8 +302,8 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'label' => false, 
                             'required' => true, 
@@ -314,19 +314,28 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email"><?= __('Email') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
-                        <?= $this->Form->control('email', [
-                            'label' => false, 
-                            'required' => true, 
-                            'class' => 'form-control col-md-7 col-xs-12',
-                            'placeholder' => 'Nhập địa chỉ mail của ứng viên'
-                            ]) ?>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="appointment_date"><?= __('Ngày hẹn') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="input-group date input-picker" id="appointment-date">
+                            <?= $this->Form->control('appointment_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'yyyy-mm-dd',
+                                'required' => true,
+                                'data-parsley-errors-container' => '#errors-appointment-date'
+                                ])
+                            ?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="errors-appointment-date"></span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
                         <div class="input-group date input-picker" id="candidate-birthday">
                             <?= $this->Form->control('birthday', [
                                 'type' => 'text',
@@ -345,8 +354,8 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Quê quán') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Quê quán') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->hidden('addresses.0.type', ['value' => $addressType[0]]) ?>
                         <?= $this->Form->control('addresses.0.city', [
                             'options' => $cities, 
@@ -361,8 +370,8 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Trình độ học vấn') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Trình độ học vấn') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('educational_level', [
                             'options' => $eduLevel, 
                             'empty' => true, 
@@ -377,7 +386,7 @@ $this->assign('title', 'Quản lý Lao động');
                 </div>
             </div>
             <div class="modal-footer">
-                <?= $this->Form->button(__('Hoàn tất'), ['class' => 'btn btn-success']) ?>
+                <button class="btn btn-success" type="button" id="add-candidate-btn">Hoàn tất</button>
                 <button type="button" class="btn btn-default" id="add-candidate-close-btn" data-dismiss="modal">Đóng</button>
             </div>
             <?= $this->Form->end() ?>

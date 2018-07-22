@@ -7,6 +7,8 @@ use Cake\Core\Configure;
 $gender = Configure::read('gender');
 $scope = Configure::read('scope');
 $confPermission = Configure::read('permission');
+$currentUser = $this->request->session()->read('Auth.User');
+
 
 # Additional style + script
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
@@ -173,18 +175,18 @@ $this->assign('title', 'Cập nhật hồ sơ cá nhân');
 
 <div id="change-password-modal" class="modal fade" role="dialog">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content box">
+            <div class="overlay hidden" id="change-password-overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">THAY ĐỔI MẬT KHẨU</h4>
             </div>
-            <div class="modal-body box">
-                <div class="overlay hidden" id="change-password-overlay">
-                    <i class="fa fa-refresh fa-spin"></i>
-                </div>
+            <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
                     <?= $this->Form->create(null, [
-                        'url' => ['controller' => 'Users', 'action' => 'changePassword'],
+                        'url' => ['controller' => 'Users', 'action' => 'changePassword', $currentUser['id']],
                         'class' => 'form-horizontal form-label-left', 
                         'id' => 'change-password-form',
                         'controller' => 'Users',

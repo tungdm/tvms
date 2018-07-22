@@ -240,6 +240,7 @@ label.optional {
     margin-bottom: auto;
     box-shadow: unset;
 }
+
 .box-body.table-responsive {
     overflow: inherit;
 }

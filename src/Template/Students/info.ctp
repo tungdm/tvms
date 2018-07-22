@@ -44,7 +44,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 ?>
 
 <?= $this->Form->create($student, [
-    'class' => 'form-horizontal form-label-left', 
+    'class' => 'form-horizontal form-label-left form-check-status', 
     'id' => 'create-student-form', 
     'type' => 'file',
     'data-parsley-validate' => '',
@@ -173,11 +173,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="email"><?= __('Email') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="email"><?= __('Email') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('email', [
                                             'label' => false, 
-                                            'required' => true, 
                                             'class' => 'form-control col-md-7 col-xs-12',
                                             'placeholder' => 'Nhập địa chỉ mail của lao động'
                                             ]) ?>
@@ -1593,7 +1592,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">a</h4>
             </div>
             <div class="modal-body">
                 <div class="image_container col-md-12 col-xs-12">
