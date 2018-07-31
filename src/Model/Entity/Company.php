@@ -40,6 +40,8 @@ class Company extends Entity
         'address_romaji' => true,
         'address_kanji' => true,
         'phone_vn' => true,
+        'deputy_name_romaji' => true,
+        'deputy_name_kanji' => true,
         'phone_jp' => true,
         'guild_id' => true,
         'created' => true,

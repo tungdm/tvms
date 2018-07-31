@@ -195,19 +195,65 @@ function addStudent() {
     perData.preAddCounter = 0;
 }
 
-function showEditStudentModal(ele) {
-    // reset form
-    $('#edit-student-form')[0].reset();
-    editor.setValue($(ele).closest('.row-std').find('.note').val());
+function showHistoryModal(studentId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#list-student-class-overlay').removeClass('hidden');
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/students/getAllHistories/',
+        data: {
+            id: studentId,
+            type: 'education'
+        },
+        success: function(resp) {
+            // reset form
+            if (resp.status == 'success') {
+                // update counter
+                historyCounter = resp.histories.length;
+                // re-render view
+                var source = $("#all-histories-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(resp.histories);
+                $('.history-detail').remove();
+                $(html).insertAfter('#now-tl');
+                $('#student-created').html(resp.student_created);
 
-    var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
-    var rowId = rowIdArr[rowIdArr.length-1];
+                $('#add-history').remove();
+                $('#refresh-history').remove();
+                $('<a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal('+studentId+', \'education\')" id="add-history"><i class="fa fa-plus"></i></a>').insertBefore('#close-history');
+                $('<a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories('+studentId+', \'education\', \'list-history-overlay\')" id="refresh-history"><i class="fa fa-refresh"></i></a>').insertBefore('#close-history');
 
-    $('#edit-student-btn').remove();
-    $('<button type="button" class="btn btn-success" id="edit-student-btn" onclick="editStudent('+rowId+')">Hoàn tất</button>').insertBefore('#close-edit-modal-btn');
-
-    $('#edit-student-modal').modal('toggle');
+                // show modal
+                $('#all-histories-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $('#list-student-class-overlay').addClass('hidden');
+        }
+    });
 }
+
 
 function editStudent(rowId) {
     $('#row-student-'+rowId).find('.note').val($('#modal-note').val());
@@ -296,7 +342,7 @@ function deleteStudent(delEl, sendAjax) {
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {

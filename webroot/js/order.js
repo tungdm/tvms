@@ -180,7 +180,8 @@ function addCandidate() {
                     'fullname': resp.fullname,
                     'gender': resp.gender,
                     'phone': resp.phone,
-                    'age': resp.age
+                    'age': resp.age,
+                    'status': resp.status,
                 });
                 $('#recommend-container').append(html);
                 var elem = document.querySelector('#cdd-' + resp.id);
@@ -209,6 +210,7 @@ function selectCandidate() {
             data['age'] = row.find('#age').val();
             data['gender'] = row.find('#gender').val();
             data['phone'] = row.find('#phone').val();
+            data['status'] = row.find('#status').val();
             datas.push(data);
 
             perData.selectedCounter++;
@@ -261,8 +263,21 @@ function setInterviewResult(rowId) {
 
         // show edit doc button when pass interview
         if ($('#result').val() === '1') {
+            // set return date
+            var duration = moment.duration(parseInt($('select[name="work_time"]').val()), 'years');
+            var returnDate = moment($('input[name="departure_date"]').val()).add(duration).format('YYYY-MM-DD');
+            console.log(returnDate);
+            $('#row-candidate-'+rowId).find('.return_date').val(returnDate);
+            if ($('#row-candidate-'+rowId).find('.status').val() != '3') {
+                $('#row-candidate-'+rowId).find('.status').val('3');
+            }
             $('#row-candidate-'+rowId).find('.edit-doc').removeClass('hidden');
         } else {
+            // set return date
+            $('#row-candidate-'+rowId).find('.return_date').val('');
+            if ($('#row-candidate-'+rowId).find('.status').val() == '3') {
+                $('#row-candidate-'+rowId).find('.status').val('2');
+            }
             $('#row-candidate-'+rowId).find('.edit-doc').addClass('hidden');
         }
         
@@ -278,7 +293,7 @@ function deleteCandidate(delEl, sendAjax) {
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
@@ -380,4 +395,15 @@ function updateResultCounter() {
         }
     });
     return result;
+}
+
+
+function viewGuild(id) {
+    var overlayId = '';
+    globalViewGuild(id, overlayId);
+}
+
+function viewCompany(id) {
+    var overlayId = '';
+    globalViewCompany(id, overlayId);
 }

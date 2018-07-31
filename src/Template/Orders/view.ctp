@@ -86,9 +86,19 @@ $this->assign('title', $order->name . ' - Thông tin chi tiết')
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company_id"><?= __('Nghiệp đoàn quản lý') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <a href="javascript:;" onclick="viewGuild(<?= $order->company->guild->id ?>)"><?= h($order->company->guild->name_romaji) ?></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company_id"><?= __('Công ty tiếp nhận') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->company->name_romaji ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <a href="javascript:;" onclick="viewCompany(<?= $order->company->id ?>)"><?= h($order->company->name_romaji) ?></a>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">

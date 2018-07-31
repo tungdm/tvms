@@ -180,7 +180,7 @@ use Cake\Core\Configure;
                         </a>
                         <ul class="treeview-menu">
                             <li>
-                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghiệp đoàn', 
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghiệp đoàn quản lý', 
                                     ['controller' => 'Guilds', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
@@ -232,7 +232,25 @@ use Cake\Core\Configure;
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="name"><?= __('Tên nghiệp đoàn') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <span id="view-name-romaji"></span> (<span id="view-name-kanji"></span>)
+                                    <span id="view-name-romaji"></span><br/>
+                                    <span id="view-name-kanji"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="license_num"><?= __('Số giấy phép') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-license-number"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-deputy-romaji"></span><br/>
+                                    <span id="view-deputy-kanji">
                                 </div>
                             </div>
                         </div>
@@ -281,7 +299,17 @@ use Cake\Core\Configure;
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company-name"><?= __('Tên công ty') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <span id="view-company-name-romaji"></span> (<span id="view-company-name-kanji"></span>)
+                                    <span id="view-company-name-romaji"></span><br/>
+                                    <span id="view-company-name-kanji"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-company-deputy-romaji"></span><br/>
+                                    <span id="view-company-deputy-kanji">
                                 </div>
                             </div>
                         </div>
@@ -289,7 +317,8 @@ use Cake\Core\Configure;
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild-name"><?= __('Nghiệp đoàn') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <span id="view-guild-name-romaji"></span> (<span id="view-guild-name-kanji"></span>)
+                                    <span id="view-guild-name-romaji"></span><br/>
+                                    <span id="view-guild-name-kanji"></span>
                                 </div>
                             </div>
                         </div>
@@ -374,6 +403,106 @@ use Cake\Core\Configure;
             </div>
         </div>
     </div>
+
+    <!-- Global history modal -->
+    <div id="history-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content box">
+                <div class="overlay hidden" id="history-modal-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">GHI CHÚ</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12 col-xs-12">
+                        <?= $this->Form->create(null, [
+                            'class' => 'form-horizontal form-label-left', 
+                            'id' => 'add-edit-history-form', 
+                            'data-parsley-validate' => '',
+                            'templates' => [
+                                'inputContainer' => '{{content}}'
+                                ]
+                            ]) ?>
+                        <?= $this->Form->hidden('hitory.type', ['id' => 'history-type'])?>
+                        <?= $this->Form->hidden('hitory.student_id', ['id' => 'history-student-id'])?>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="title"><?= __('Tiêu đề') ?></label>
+                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                <?= $this->Form->control('history.title', [
+                                    'label' => false, 
+                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'required' => true,
+                                    'placeholder' => 'Nhập tiêu đề ghi chú'
+                                    ]) ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="note"><?= __('Nội dung') ?></label>
+                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                <?= $this->Form->control('history.note', [
+                                    'label' => false,
+                                    'type' => 'textarea',
+                                    'class' => 'form-control', 
+                                    'placeholder' => 'Nhập nội dung ghi chú',
+                                    'rows' => 10
+                                    ]) ?>
+                            </div>
+                        </div>
+                        <?= $this->Form->end() ?>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="submit-history-btn">Hoàn tất</button>
+                    <button type="button" class="btn btn-default" id="close-history-modal-btn" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global history template -->
+    <script id="history-template" type="text/x-handlebars-template">
+        <li class="history-detail" id="history-{{counter}}" history="{{id}}">
+            <img src="{{image}}" class="img-circle timeline-avatar" alt="">
+            <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> {{created}}</span>
+                <h3 class="timeline-header">{{title}}</h3>
+                <div class="timeline-body">
+                    {{{note}}}
+                </div>
+                <div class="timeline-footer">
+                    <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this)">Chỉnh sửa</button>
+                    <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this)">Xóa</button>
+                </div>
+            </div>
+        </li>
+    </script>
+
+    <!-- Global all histories template -->
+    <script id="all-histories-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <li class="history-detail" id="history-{{@index}}" history="{{id}}">
+                <img src="/tvms/img/{{users_created_by.image}}" class="img-circle timeline-avatar" alt="">
+                <div class="timeline-item">
+                    <span class="time"><i class="fa fa-clock-o"></i> {{created}}</span>
+                    <h3 class="timeline-header">{{title}}</h3>
+                    <div class="timeline-body">
+                        {{{nl2br note}}}
+                    </div>
+                    <div class="timeline-footer">
+                        {{#if owner}}
+                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this)">Chỉnh sửa</button>
+                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this)">Xóa</button>
+                        {{else}}
+                        <span class="history-creater">Người tạo: {{users_created_by.fullname}}</span>
+                        {{/if}}
+                    </div>
+                </div>
+            </li>
+        {{/each}}
+    </script>
 
     <?= $this->Html->script('bootstrap.min.js') ?>
     <?= $this->Html->script('fastclick.js') ?>

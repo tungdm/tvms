@@ -158,7 +158,7 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell"><?= h($counter) ?></td>
-                            <td class="cell nameCol"><?= h($guild->name_romaji) . ' (' . h($guild->name_kanji) . ')' ?></td>
+                            <td class="cell nameCol"><?= h($guild->name_romaji) ?><br/><?= h($guild->name_kanji) ?></td>
                             <td class="cell addressCol"><?= h($guild->address_romaji) ?></td>
                             <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($guild->phone_vn)) ?></td>
                             <td class="cell phonejpCol"><?= h($guild->phone_jp) ?></td>
@@ -247,6 +247,34 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                             ]) ?>
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="license_num">
+                        <?= __('Số giấy phép') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('license_number', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập số giấy phép của nghiệp đoàn'
+                            ]) ?>
+                    </div>
+                </div>
+
+                <div class="ln_solid"></div>
+                
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="deputy_name">
+                        <?= __('Người đại diện') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('deputy_name_romaji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('deputy_name_kanji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
+                    </div>
+                </div>
 
                 <div class="ln_solid"></div>
 
@@ -330,6 +358,47 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="license_num">
+                        <?= __('Số giấy phép') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('license_number', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'id' => 'edit-license-number',
+                            'placeholder' => 'Nhập số giấy phép của nghiệp đoàn'
+                            ]) ?>
+                    </div>
+                </div>
+
+                <div class="ln_solid"></div>
+
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="deputy_name">
+                        <?= __('Người đại diện') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('deputy_name_romaji', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'id' => 'edit-deputy-name-romaji', 
+                            'placeholder' => 'Nhập bằng kí tự romaji'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('deputy_name_kanji', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'id' => 'edit-deputy-name-kanji', 
+                            'placeholder' => 'Nhập bằng kí tự kanji',
+                            ]) ?>
+                    </div>
+                </div>
+                
                 <div class="ln_solid"></div>
 
                 <div class="form-group">

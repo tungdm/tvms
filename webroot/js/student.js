@@ -3,6 +3,42 @@ perData.familyCounter = 0;
 perData.eduCounter = 0;
 perData.expCounter = 0;
 perData.langCounter = 0;
+var initGraph;
+
+var lineChartOptions = {
+    responsive: true,
+    title: {
+        display: true,
+        text: 'Biểu đồ điểm thi IQ đầu vào ngày ' + moment(iqtests[0].test_date).format('YYYY-MM-DD')
+    },
+    tooltips: {
+        mode: 'index',
+        intersect: false,
+    },
+    hover: {
+        mode: 'nearest',
+        intersect: true
+    },
+    scales: {
+        xAxes: [{
+            display: true,
+            scaleLabel: {
+                display: false,
+            }
+        }],
+        yAxes: [{
+            display: true,
+            scaleLabel: {
+                display: false,
+            }
+        }]
+    },
+    animation: {
+        onComplete: function() {
+            isChartRendered = true
+        }
+    }
+}
 
 // init handlebars
 if ($('#family-template')[0]){
@@ -25,6 +61,12 @@ $(document).ready(function() {
     perData.expCounter = $('#exp-container > tr').length;
     perData.langCounter = $('#lang-container > tr').length;
 
+    // init select2 status
+    $('select[name="status"]').find('option').each(function() {
+        if ($(this).attr('value') == "1") {
+            $(this).prop('disabled', true);
+        }
+    });
     // init switchery
     var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
     elems.forEach(function (html) {
@@ -43,9 +85,13 @@ $(document).ready(function() {
             }
         };
     }
-    
 
     $('#student-tabs').tabCollapse();
+
+    if ($('#line-chart').length ) {
+        // renderIqLineGraph();
+        renderLineChart();
+    }
 
     var focusTab = window.location.hash;
     if (focusTab) {
@@ -263,23 +309,186 @@ $(document).ready(function() {
             }, 500);
         }
     });
-
-    $('#add-candidate-btn').click(function() {
-        // formChanged = false;
-        var validateResult = $('#add-candidate-form').parsley().validate();
-        if (validateResult) {
-            $('#add-candidate-form').submit()
-        }
-    });
 })
 
 function showAddStudentModal() {
     // reset form
     $('#add-candidate-form')[0].reset();
-    $('#addresses-0-city').val(null).trigger('change');
+    $('#addresses-0-city-id').val(null).trigger('change');
+    $('#gender').val(null).trigger('change');
+    $('#educational-level').val(null).trigger('change');
     $('#add-candidate-form').parsley().reset();
-    $('#add-candidate-modal').modal('toggle');
+
+    // remove hidden address id
+    $('#addresses-0-id').remove();
+    // change modal title
+    $('#add-candidate-modal').find('.modal-title').html('THÊM MỚI LỊCH HẸN');
+    // change to add button
+    $('#add-candidate-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-candidate-btn" onclick="addCandidate()">Hoàn tất</button>').insertBefore('#add-candidate-close-btn');
     // formChanged = false;
+    $('#add-candidate-modal').modal('toggle');
+}
+
+function viewSCandidate(candidateId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#list-student-overlay').removeClass('hidden');
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/students/getStudent',
+        data: {
+            id: candidateId
+        },
+        success: function(resp) {
+            if (resp.status == 'success') {
+                // fill data
+                $('#view-candidate-name').html(resp.data.fullname);
+                $('#view-candidate-gender').html(resp.gender);
+                $('#view-candidate-phone').html(str2Phone(resp.data.phone));
+                $('#view-candidate-appointment-date').html(resp.appointment_date);
+                $('#view-candidate-birthday').html(resp.birthday);
+                $('#view-candidate-address').html(resp.data.addresses[0].city.name);
+                $('#view-candidate-edu-level').html(resp.edu_level);
+                $('#view-candidate-note').html((resp.data.note).replace(/\r?\n/g,'<br/>'));
+
+                $('#view-candidate-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $('#list-student-overlay').addClass('hidden');
+        }
+    });
+}
+function addCandidate() {
+    // formChanged = false;
+    var validateResult = $('#add-candidate-form').parsley().validate();
+    if (validateResult) {
+        $('#add-candidate-form').submit()
+    }
+}
+
+function showEditStudentModal(candidateId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#list-student-overlay').removeClass('hidden');
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/students/getStudent',
+        data: {
+            id: candidateId
+        },
+        success: function(resp) {
+            if (resp.status == 'success') {
+                // create hidden id for address
+                $('#add-candidate-form').append('<input type="hidden" id="addresses-0-id" name="addresses[0][id]" value="'+ resp.data.addresses[0].id +'" />');
+                // fill form
+                $('#fullname').val(resp.data.fullname);
+                $('#gender').val(resp.data.gender).trigger('change');
+                $('#phone').val(resp.data.phone);
+                $('input[name="appointment_date"]').val(resp.data.appointment_date).trigger('change');
+                $('input[name="birthday"]').val(resp.data.birthday).trigger('change');
+                $('#addresses-0-city-id').val(resp.data.addresses[0].city_id).trigger('change');
+                $('#educational-level').val(resp.data.educational_level).trigger('change');
+                $('#note').val(resp.data.note);
+
+                // change modal title
+                $('#add-candidate-modal').find('.modal-title').html('CẬP NHẬT LỊCH HẸN');
+                // change to edit button
+                $('#add-candidate-btn').remove();
+                $('<button type="button" class="btn btn-success" id="add-candidate-btn" onclick="editCandidate('+resp.data.id+')">Hoàn tất</button>').insertBefore('#add-candidate-close-btn');
+
+                $('#add-candidate-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $('#list-student-overlay').addClass('hidden');
+        }
+    });
+}
+
+function editCandidate(id) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+
+    //validate form
+    var validateResult = $('#add-candidate-form').parsley().validate();
+    if (validateResult) {
+        ajaxing = true;
+        $.ajax({
+            type: 'POST',
+            url: DOMAIN_NAME + '/students/edit/' + id,
+            data: $('#add-candidate-form').serialize(),
+            success: function(resp){
+                if (resp.status == 'success') {
+                    window.location = resp.redirect; 
+                } else {
+                    var notice = new PNotify({
+                        title: '<strong>' + resp.flash.title + '</strong>',
+                        text: resp.flash.message,
+                        type: resp.flash.type,
+                        styling: 'bootstrap3',
+                        icon: resp.flash.icon,
+                        cornerclass: 'ui-pnotify-sharp',
+                        buttons: {
+                            closer: false,
+                            sticker: false
+                        }
+                    });
+                    notice.get().click(function() {
+                        notice.remove();
+                    });
+                }
+            },
+            complete: function() {
+                ajaxing = false;
+            }
+        });
+    }
 }
 
 function setTimeLived() {
@@ -333,6 +542,11 @@ function createMemberTemplate(counter) {
 
         'bankNum': 'families[' + counter + '][bank_num]',
         'bankNumVal': $('#modal-bank-num').val(),
+
+        'bankName': 'families[' + counter + '][bank_name]',
+
+        'bankBranch': 'families[' + counter + '][bank_branch]',
+        'bankBranchVal': $('#modal-bank-branch').val(),
        
         'cmndNum': 'families[' + counter + '][cmnd_num]',
         'cmndNumVal': $('#modal-cmnd-num').val(),
@@ -364,6 +578,7 @@ function addMember() {
         // set value for select box
         $('select[name="families['+perData.familyCounter+'][relationship]"]').val($('#modal-relationship').val());
         $('select[name="families['+perData.familyCounter+'][job_id]"]').val($('#modal-job').val());
+        $('select[name="families['+perData.familyCounter+'][bank_name]"]').val($('#modal-bank-name').val());
 
         // close modal
         $('#add-member-modal').modal('toggle');
@@ -384,6 +599,10 @@ function showEditMemberModal(ele) {
     $('#modal-address').val($(ele).closest('.row-member').find('.address').val()).trigger('change');
     $('#modal-bank-num').val($(ele).closest('.row-member').find('.bank_num').val());
     $('#modal-cmnd-num').val($(ele).closest('.row-member').find('.cmnd_num').val());
+
+    $('#modal-bank-name').val($(ele).closest('.row-member').find('.bank_name').val()).trigger('change');;
+    $('#modal-bank-branch').val($(ele).closest('.row-member').find('.bank_branch').val());
+
     $('#modal-phone').val($(ele).closest('.row-member').find('.phone').val());
     var rowIdArr = $(ele).closest('.row-member').attr('id').split('-');
 
@@ -406,6 +625,7 @@ function editMember(rowId) {
         // set value for select box
         $('select[name="families['+rowId+'][relationship]"]').val($('#modal-relationship').val());
         $('select[name="families['+rowId+'][job_id]"]').val($('#modal-job').val());
+        $('select[name="families['+rowId+'][bank_name]"]').val($('#modal-bank-name').val());
 
         // close modal
         $('#add-member-modal').modal('toggle');
@@ -423,7 +643,7 @@ function removeMember(delEl, sendAjax) {
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
@@ -507,6 +727,8 @@ function showMemberModal(ele) {
     $('.modal-job').html($(ele).closest('.row-member').find('.family-job-name').html());
     $('.modal-address').html($(ele).closest('.row-member').find('.family-address').html());
     $('.modal-bank-num').html($(ele).closest('.row-member').find('.family-bank-num').html());
+    $('.modal-bank-name').html($(ele).closest('.row-member').find('.family-bank-name').html());
+    $('.modal-bank-branch').html($(ele).closest('.row-member').find('.family-bank-branch').html());
     $('.modal-cmnd-num').html($(ele).closest('.row-member').find('.family-cmnd-num').html());
     $('.modal-phone').html($(ele).closest('.row-member').find('.family-phone').html());
     // show modal
@@ -611,11 +833,11 @@ function removeEduHis(delEl, sendAjax) {
     if (sendAjax) {
         swal({
             title: 'Xóa lịch sử học vấn',
-            text: "Bạn không thể phục hồi nếu đã xóa!",
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
@@ -803,11 +1025,11 @@ function removeExp(delEl, sendAjax) {
     if (sendAjax) {
         swal({
             title: 'Xóa kinh nghiệm làm việc',
-            text: "Một khi đã xóa, bạn không thể khôi phục lại thông tin này!",
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
@@ -974,11 +1196,11 @@ function removeLang(delEl, sendAjax) {
     if (sendAjax) {
         swal({
             title: 'Xóa năng lực ngôn ngữ',
-            text: "Một khi đã xóa, bạn không thể khôi phục thông tin này!",
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
@@ -1090,3 +1312,73 @@ function viewPresenter(presenterId) {
     var overlayId = '';
     globalViewPresenter(presenterId, overlayId);
 }
+
+function getIqScore(studentId) {
+    if (initGraph) {
+        return;
+    }
+
+    if (ajaxing) {
+        return;
+    }
+    ajaxing = true;
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/students/getIqScore',
+        data: {
+            id: studentId
+        },
+        success: function(resp) {
+            console.log(resp);
+        },
+        complete: function() {
+            ajaxing = false;
+        }
+    });
+}
+
+function renderLineChart() {
+    var config = {
+        type: 'line',
+        data: {
+            labels  : [
+                'Câu 1', 'Câu 2', 'Câu 3', 'Câu 4', 'Câu 5', 'Câu 6', 'Câu 7', 'Câu 8', 'Câu 9', 'Câu 10',
+                'Câu 11', 'Câu 12', 'Câu 13', 'Câu 14', 'Câu 15', 'Câu 16', 'Câu 17', 'Câu 18', 'Câu 19', 'Câu 20',
+                'Câu 21', 'Câu 22', 'Câu 23', 'Câu 24'
+            ],
+            datasets: [
+                {
+                    label: 'Điểm',
+                    backgroundColor: 'rgb(54, 162, 235)',
+					borderColor: 'rgb(54, 162, 235)',
+                    data: [
+                        iqtests[0].q1, iqtests[0].q2, iqtests[0].q3, iqtests[0].q4, iqtests[0].q5, iqtests[0].q6, iqtests[0].q7, iqtests[0].q8,
+                        iqtests[0].q9, iqtests[0].q10, iqtests[0].q11, iqtests[0].q12, iqtests[0].q13, iqtests[0].q14, iqtests[0].q15, iqtests[0].q16,
+                        iqtests[0].q17, iqtests[0].q18, iqtests[0].q19, iqtests[0].q20, iqtests[0].q12, iqtests[0].q22, iqtests[0].q23, iqtests[0].q24,
+                    ],
+                    fill: false,
+                },
+            ]
+        },
+        options: lineChartOptions
+    };
+
+    var ctx = document.getElementById('line-chart').getContext('2d');
+    window.myLine = new Chart(ctx, config);
+}
+
+
+function viewGuild(id) {
+    var overlayId = '#list-order-overlay';
+    globalViewGuild(id, overlayId);
+}
+
+function viewCompany(id) {
+    var overlayId = '#list-order-overlay';
+    globalViewCompany(id, overlayId);
+}
+
+
+
+

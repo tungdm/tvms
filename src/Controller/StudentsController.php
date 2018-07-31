@@ -12,6 +12,8 @@ use Cake\I18n\Time;
 use Cake\Utility\Text;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
+use Cake\Routing\Router;
+use Cake\I18n\I18n;
 
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -71,9 +73,9 @@ class StudentsController extends AppController
                     return $exp->like('code', '%'.$query['code'].'%');
                 });
             }
-            if (isset($query['fullname']) && !empty($query['fullname'])) {
+            if (isset($query['student_name']) && !empty($query['student_name'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('fullname', '%'.$query['fullname'].'%');
+                    return $exp->like('fullname', '%'.$query['student_name'].'%');
                 });
             }
             if (isset($query['email']) && !empty($query['email'])) {
@@ -81,17 +83,25 @@ class StudentsController extends AppController
                     return $exp->like('email', '%'.$query['email'].'%');
                 });
             }
-            if (isset($query['gender']) && !empty($query['gender'])) {
-                $allStudents->where(['gender' => $query['gender']]);
+            if (isset($query['student_gender']) && !empty($query['student_gender'])) {
+                $allStudents->where(['gender' => $query['student_gender']]);
             }
 
-            if (isset($query['phone']) && !empty($query['phone'])) {
+            if (isset($query['student_phone']) && !empty($query['student_phone'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('phone', '%'.$query['phone'].'%');
+                    return $exp->like('phone', '%'.$query['student_phone'].'%');
                 });
             }
             if (isset($query['status']) && !empty($query['status'])) {
                 $allStudents->where(['status' => $query['status']]);
+            }
+            if (isset($query['enrolled_date']) && !empty($query['enrolled_date'])) {
+                $allStudents->where(['Students.enrolled_date >=' => $query['enrolled_date']]);
+            }
+            if (isset($query['return_from']) && !empty($query['return_from']) && isset($query['return_to']) && !empty($query['return_to'])) {
+                $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->between('return_date', $query['return_from'], $query['return_to'], 'date');
+                });
             }
         } else {
             $allStudents = $this->Students->find()->order(['Students.created' => 'DESC']);;
@@ -129,12 +139,60 @@ class StudentsController extends AppController
                 'Experiences.Jobs',
                 'LanguageAbilities',
                 'Documents',
-                'Presenters'
+                'Presenters',
+                'InputTests' => ['sort' => ['InputTests.type' => 'ASC']],
+                'IqTests',
+                'Orders' => ['sort' => ['Orders.created' => 'DESC']],
+                'Orders.Companies',
+                'Orders.Companies.Guilds',
+                'Histories' => ['sort' => ['Histories.created' => 'DESC']],
+                'Histories.UsersCreatedBy',
             ]
         ]);
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
         $this->set(compact(['student', 'jobs', 'cities']));
+    }
+
+    public function getStudent()
+    {
+        $this->request->allowMethod('ajax');
+        $candidateId = $this->request->getQuery('id');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+
+        try {
+            $student = $this->Students->get($candidateId, [
+                'contain' => [
+                    'Addresses' => ['sort' => ['Addresses.type' => 'ASC']],
+                    'Addresses.Cities'
+                    ]
+                ]);
+            
+            $eduLevel = Configure::read('eduLevel');
+            $eduLevel = array_map('array_shift', $eduLevel);
+            $gender = Configure::read('gender');
+
+            $resp = [
+                'status' => 'success',
+                'data' => $student,
+                'edu_level' => $eduLevel[$student->educational_level],
+                'gender' => $gender[$student->gender],
+                'birthday' => $student->birthday->i18nFormat('yyyy-MM-dd'),
+                'appointment_date' => $student->appointment_date->i18nFormat('yyyy-MM-dd'),
+            ];
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
     }
 
     /**
@@ -168,6 +226,231 @@ class StudentsController extends AppController
         }
     }
 
+    public function getHistory()
+    {
+        $this->request->allowMethod('ajax');
+        $id = $this->request->getQuery('id');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $history = $this->Students->Histories->get($id);
+            $resp = [
+                'status' => 'success',
+                'history' => $history
+            ];
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    function getAllHistories()
+    {
+        $this->request->allowMethod('ajax');
+        $studentId = $this->request->getQuery('id');
+        $type = $this->request->getQuery('type');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $histories = $this->Students->Histories->find()
+                ->contain(['UsersCreatedBy'])
+                ->where(['student_id' => $studentId, 'type' => $type])
+                ->order(['Histories.created' => 'DESC']);
+            $histories->formatResults(function ($results) {
+                return $results->map(function ($row) {
+                    $row['created'] = $row['created']->i18nFormat('HH:mm, dd/MM/yyyy');
+                    $row['owner'] = $row['created_by'] == $this->Auth->user('id') ? true : false;
+                    return $row;
+                });
+            });
+            $student = $this->Students->get($studentId);
+            $resp = [
+                'status' => 'success',
+                'histories' => $histories,
+                'student_created' => $student->created->i18nFormat('dd/MM/yyyy')
+            ];
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function addHistory()
+    {
+        $this->request->allowMethod('ajax');
+        $data = $this->request->getData();
+        $history = $this->Students->Histories->newEntity();
+        $history = $this->Students->Histories->patchEntity($history, $data);
+        $history = $this->Students->Histories->setAuthor($history, $this->Auth->user('id'), 'add');
+
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $student = $this->Students->get($data['student_id']);
+            if ($this->Students->Histories->save($history)) {
+                $history = $this->Students->Histories->get($history->id, ['contain' => ['UsersCreatedBy', 'UsersModifiedBy']]);
+                $history->created = $history->created->i18nFormat('HH:mm, dd/MM/yyyy');
+                $resp = [
+                    'status' => 'success',
+                    'history' => $history,
+                    'flash' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'icon' => 'fa fa-check-circle-o',
+                        'message' => Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $student->fullname
+                            ])
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function editHistory($id = null)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $history = $this->Students->Histories->find()->where([
+                'created_by' => $this->Auth->user('id'), 
+                'id' => $id
+                ])->first();
+            if (!empty($history)) {
+                $data = $this->request->getData();
+                $student = $this->Students->get($data['student_id']);
+
+                $history = $this->Students->Histories->patchEntity($history, $data);
+                if ($this->Students->Histories->save($history)) {
+                    $resp = [
+                        'status' => 'success',
+                        'flash' => [
+                            'title' => 'Thành Công',
+                            'type' => 'success',
+                            'icon' => 'fa fa-check-circle-o',
+                            'message' => Text::insert($this->successMessage['edit'], [
+                                'entity' => $this->entity, 
+                                'name' => $student->fullname
+                                ])
+                        ]
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function deleteHistory()
+    {
+        $this->request->allowMethod('ajax');
+        $id = $this->request->getData('id');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Error',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        
+        try {
+            $history = $this->Students->Histories->find()->contain(['Students'])->where(['Histories.id' => $id, 'Histories.created_by' => $this->Auth->user('id')])->first();
+            if (!empty($history) && $this->Students->Histories->delete($history)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'message' => Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $history->student->fullname
+                            ])
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        
+        return $this->jsonResponse($resp);
+    }
+
+    public function edit($id = null)
+    {
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $student = $this->Students->get($id, [
+                'contain' => [
+                    'Addresses' => ['sort' => ['Addresses.type' => 'ASC']],
+                    ]
+                ]);
+            $data = $this->request->getData();
+            $student = $this->Students->patchEntity($student, $data, ['associated' => ['Addresses']]);
+            
+            if ($this->Students->save($student)) {
+                $resp = [
+                    'status' => 'success',
+                    'redirect' => Router::url(['action' => 'index']),
+                ];
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity, 
+                    'name' => $student->fullname
+                    ]));
+            }
+
+
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
     public function info($id = null)
     {
         $prevImage = NULL;
@@ -182,7 +465,11 @@ class StudentsController extends AppController
                     'Experiences',
                     'Experiences.Jobs',
                     'LanguageAbilities',
-                    'Documents'
+                    'Documents',
+                    'InputTests',
+                    'IqTests',
+                    'Histories' => ['sort' => ['Histories.created' => 'DESC']],
+                    'Histories.UsersCreatedBy',
                     ]
                 ]);
             $action = 'edit';
@@ -201,7 +488,9 @@ class StudentsController extends AppController
                 'Educations',
                 'Experiences',
                 'LanguageAbilities',
-                'Documents'
+                'Documents',
+                'InputTests',
+                'IqTests'
                 ]]);
             
             // save image
@@ -715,7 +1004,7 @@ class StudentsController extends AppController
                 'title' => 'Quá trình công tác',
                 'time' => $value->from_date . ' ～ ' . $value->to_date,
                 'company' => $companyStr
-            ];
+        ];
             array_push($expHis, $history);
         }
         $this->tbs->MergeBlock('b', $expHis);

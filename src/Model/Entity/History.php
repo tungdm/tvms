@@ -4,27 +4,20 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Family Entity
+ * History Entity
  *
  * @property int $id
  * @property int $student_id
- * @property string $fullname
- * @property \Cake\I18n\FrozenDate $birthday
- * @property int $relationship
- * @property int $job_id
- * @property string $address
- * @property string $bank_num
- * @property string $cmnd_num
- * @property int $phone
+ * @property string $type
+ * @property string $note
  * @property \Cake\I18n\FrozenTime $created
  * @property int $created_by
  * @property \Cake\I18n\FrozenTime $modified
  * @property int $modified_by
  *
  * @property \App\Model\Entity\Student $student
- * @property \App\Model\Entity\Job $job
  */
-class Family extends Entity
+class History extends Entity
 {
 
     /**
@@ -38,21 +31,13 @@ class Family extends Entity
      */
     protected $_accessible = [
         'student_id' => true,
-        'fullname' => true,
-        'birthday' => true,
-        'relationship' => true,
-        'job_id' => true,
-        'address' => true,
-        'bank_name' => true,
-        'bank_branch' => true,
-        'bank_num' => true,
-        'cmnd_num' => true,
-        'phone' => true,
+        'type' => true,
+        'title' => true,
+        'note' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'student' => true,
-        'job' => true
+        'student' => true
     ];
 }

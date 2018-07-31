@@ -64,6 +64,14 @@ class UsersTable extends Table
         $this->hasMany('Jclasses', [
             'foreignKey' => 'user_id',
         ]);
+        $this->hasMany('HistoriesCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Histories'
+        ]);
+        $this->hasMany('HistoriesModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Histories'
+        ]);
     }
 
     /**

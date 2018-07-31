@@ -87,6 +87,9 @@ $this->assign('title', 'Quản lý Lao động');
                 'id' => 'filter-form'
                 ]) ?>
             <div class="box-body table-responsive">
+                <div class="overlay hidden" id="list-student-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
                 <div class="form-group col-md-4 col-sm-6 col-xs-12 records-per-page">
                     <label class="control-label col-md-3 col-sm-3 col-xs-3"><?= __('Hiển thị') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-6">
@@ -137,10 +140,10 @@ $this->assign('title', 'Quản lý Lao động');
                                 ?>
                             </td>
                             <td class="col-md-2 fullnameCol">
-                                <?= $this->Form->control('fullname', [
+                                <?= $this->Form->control('student_name', [
                                     'label' => false,
                                     'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['fullname'] ?? ''
+                                    'value' => $query['student_name'] ?? ''
                                     ]) 
                                 ?>
                             </td>
@@ -153,21 +156,21 @@ $this->assign('title', 'Quản lý Lao động');
                                 ?>
                             </td>
                             <td class="col-md-1 genderCol" style="width: 12.499999995%;">
-                                <?= $this->Form->control('gender', [
+                                <?= $this->Form->control('student_gender', [
                                     'options' => $gender, 
                                     'empty' => true,
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
                                     'id' => 'filter-gender',
-                                    'value' => $query['gender'] ?? ''
+                                    'value' => $query['student_gender'] ?? ''
                                     ])
                                 ?>
                             </td>
                             <td class="col-md-1 phoneCol" style="width: 12.499999995%;">
-                                <?= $this->Form->control('phone', [
+                                <?= $this->Form->control('student_phone', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'value' => $query['phone'] ?? ''
+                                    'value' => $query['student_phone'] ?? ''
                                     ])
                                 ?>
                             </td>
@@ -197,7 +200,7 @@ $this->assign('title', 'Quản lý Lao động');
                         <tr>
                             <td class="cell"><?= h($counter) ?></td>
                             <td class="cell codeCol"><?= h($student->code) ?></td>
-                            <td class="cell fullnameCol"><?= h($student->fullname) ?></td>
+                            <td class="cell fullnameCol"><?= h($student->fullname) ?><br><?= h($student->fullname_kata)?></td>
                             <td class="cell emailCol hidden"><?= h($student->email) ?></td>
                             <td class="cell genderCol"><?= h($gender[$student->gender]) ?></td>
                             <td class="cell phoneCol"><?= h($this->Phone->makeEdit($student->phone)) ?></td>
@@ -209,31 +212,51 @@ $this->assign('title', 'Quản lý Lao động');
                                     </button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
+                                            <?php if ($student->status == 1): ?>
+                                                <a href="javascript:;" onclick="viewSCandidate(<?= $student->id ?>)">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                                </a>
+                                            <?php else: ?>
                                             <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
                                                 ['action' => 'view', $student->id],
                                                 ['escape' => false]) ?>
+                                            <?php endif; ?>
                                         </li>
                                         <?php if ($permission == 0): ?>
-                                        <li>
-                                            <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', [
-                                                'action' => 'info', $student->id],
-                                                ['escape' => false]) ?>
-                                        </li>
-                                        <li>
-                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                            ['action' => 'delete', $student->id], 
-                                            [
-                                                'escape' => false, 
-                                                'confirm' => __('Bạn có chắc chắn muốn xóa lao động {0}?', $student->fullname)
-                                            ]) ?>
-                                        </li>
+                                            <li>
+                                            <?php if ($student->status == 1): ?>
+                                                <a href="javascript:;" onclick="showEditStudentModal(<?= $student->id ?>)">
+                                                    <i class="fa fa-edit" aria-hidden="true"></i> Sửa
+                                                </a>
+                                            <?php else: ?>
+                                                <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', [
+                                                    'action' => 'info', $student->id],
+                                                    ['escape' => false]) ?>
+                                            <?php endif; ?>
+                                            </li>
+                                            <li>
+                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                ['action' => 'delete', $student->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa lao động {0}?', $student->fullname)
+                                                ]) ?>
+                                            </li>
                                         <?php endif; ?>
                                         <li class="divider"></li>
+                                        <?php if ($student->status == 1): ?>
+                                        <li>
+                                            <?= $this->Html->link('<i class="fa fa-angle-double-up" aria-hidden="true"></i> Kí kết chính thức', 
+                                            ['action' => 'info', $student->id],
+                                            ['escape' => false]) ?>
+                                        </li>
+                                        <?php else: ?>
                                         <li>
                                             <?= $this->Html->link('<i class="fa fa-file-word-o" aria-hidden="true"></i> Xuất CV Việt', 
                                             ['action' => 'exportResume', $student->id],
                                             ['escape' => false]) ?>
                                         </li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>
                             </td>
@@ -354,23 +377,23 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Quê quán') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="address"><?= __('Quê quán') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->hidden('addresses.0.type', ['value' => $addressType[0]]) ?>
-                        <?= $this->Form->control('addresses.0.city', [
+                        <?= $this->Form->control('addresses.0.city_id', [
                             'options' => $cities, 
                             'empty' => true, 
                             'required' => true, 
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12 select2-theme',
                             'data-parsley-errors-container' => '#error-address',
-                            'data-parsley-class-handler' => '#select2-addresses-0-city',
+                            'data-parsley-class-handler' => '#select2-addresses-0-city-id',
                             ]) ?>
                         <span id="error-address"></span>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Trình độ học vấn') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="edu-level"><?= __('Trình độ học vấn') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('educational_level', [
                             'options' => $eduLevel, 
@@ -384,12 +407,110 @@ $this->assign('title', 'Quản lý Lao động');
                         <span id="error-edu-level"></span>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="note"><?= __('Ghi chú') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <?= $this->Form->control('note', [
+                            'label' => false, 
+                            'type' => 'textarea',
+                            'rows' => 3,
+                            'class' => 'form-control col-md-7 col-xs-12 edittextarea', 
+                            'placeholder' => 'Nhập nội dung ghi chú cuộc hẹn'
+                            ]) ?>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" type="button" id="add-candidate-btn">Hoàn tất</button>
                 <button type="button" class="btn btn-default" id="add-candidate-close-btn" data-dismiss="modal">Đóng</button>
             </div>
             <?= $this->Form->end() ?>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="view-candidate-modal" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">THÔNG TIN LỊCH HẸN</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                    <div class="form-horizontal form-label-left">
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="fullname-name"><?= __('Họ tên') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-name"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="gender"><?= __('Giới tính') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-gender"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-phone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="appointment_date"><?= __('Ngày hẹn') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-appointment-date"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="birthday"><?= __('Ngày sinh') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-birthday"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Quê quán') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-address"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="edu_level"><?= __('Trình độ học vấn') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-edu-level"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="note"><?= __('Ghi chú') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12" style="height:unset;">
+                                    <span id="view-candidate-note"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+            </div>
         </div>
     </div>
 </div>

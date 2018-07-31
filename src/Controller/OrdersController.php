@@ -93,6 +93,9 @@ class OrdersController extends AppController
                         break;
                 }
             }
+            if (isset($query['created']) && !empty($query['created'])) {
+                $allOrders->where(['Orders.created >=' => $query['created']]);
+            }
         } else {
             $query['records'] = 10;
             $allOrders = $this->Orders->find()->order(['Orders.created' => 'DESC']);
@@ -127,7 +130,12 @@ class OrdersController extends AppController
     public function view($id = null)
     {
         $order = $this->Orders->get($id, [
-            'contain' => ['Companies', 'Jobs', 'Students']
+            'contain' => [
+                'Companies', 
+                'Companies.Guilds',
+                'Jobs', 
+                'Students'
+                ]
         ]);
 
         $this->set('order', $order);
@@ -294,7 +302,8 @@ class OrdersController extends AppController
                 ->find('list', ['limit' => 200])
                 ->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('fullname', '%'.$query['q'].'%');
-                });
+                })
+                ->where(['status <' => '3']);
             $resp['items'] = $students;
         }
         return $this->jsonResponse($resp);        
@@ -333,7 +342,7 @@ class OrdersController extends AppController
                     return $exp->like('expectation', '%,'.$query['job'].',%');
                 });
             }
-
+            $candidates->where(['status <' => '3']);
             $now = Time::now();
             $candidates->formatResults(function ($results) use ($now) {
                 return $results->map(function ($row) use ($now) {

@@ -122,6 +122,10 @@ function editGuild(guildId) {
             $('#edit-address-kanji').val(resp['address_kanji']);
             $('#edit-phone-vn').val(resp['phone_vn']);
             $('#edit-phone-jp').val(resp['phone_jp']);
+
+            $('#edit-deputy-name-romaji').val(resp['deputy_name_romaji']);
+            $('#edit-deputy-name-kanji').val(resp['deputy_name_kanji']);
+            $('#edit-license-number').val(resp['license_number']);
             // toggle modal
             $('#edit-guild-modal').modal('toggle');
         },

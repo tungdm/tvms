@@ -11,6 +11,7 @@ $lessons = Configure::read('lessons');
 $currentUser = $this->request->session()->read('Auth.User');
 
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
+$historyNow = Time::now()->i18nFormat('dd/MM/yyyy');
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
@@ -183,6 +184,9 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
+            <div class="overlay hidden" id="list-student-class-overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Danh sách học sinh') ?></h3>
                 <div class="box-tools pull-right">
@@ -204,7 +208,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             <th scope="col"><?= __('Giới tính') ?></th>
                             <th scope="col"><?= __('Số điện thoại') ?></th>
                             <th scope="col"><?= __('Ngày nhập học') ?></th>
-                            <th scope="col" class="actions"></th>
+                            <th scope="col" class="actions"><?= h('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody id="student-container">
@@ -244,32 +248,44 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                     <?= !empty($value->enrolled_date) ? $value->enrolled_date : 'N/A' ?>
                                 </td>
                                 <td class="cell actions">
-                                    <?= $this->Html->link(
-                                        '<i class="fa fa-2x fa-pencil"></i>', 
-                                        'javascript:;',
-                                        [
-                                            'escape' => false,
-                                            'onClick' => "showEditStudentModal(this)"
-                                        ]) 
-                                    ?>
-                                    <?php if ($permission == 0): ?>
-                                    <?= $this->Html->link(
-                                        '<i class="fa fa-2x fa-exchange"></i>', 
-                                        'javascript:;',
-                                        [
-                                            'escape' => false,
-                                            'onClick' => "showChangeClassModal(this)"
-                                        ])
-                                    ?>
-                                    <?= $this->Html->link(
-                                        '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
-                                        'javascript:;',
-                                        [
-                                            'escape' => false, 
-                                            'onClick' => "deleteStudent(this, true)"
-                                        ]
-                                    )?>
-                                    <?php endif; ?>
+                                    <div class="btn-group">
+                                        <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
+                                        </button>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <li>
+                                                <?= $this->Html->link(
+                                                    '<i class="fa fa-history"></i> Ghi chú', 
+                                                    'javascript:;',
+                                                    [
+                                                        'escape' => false,
+                                                        'onClick' => "showHistoryModal($value->id)"
+                                                    ]) 
+                                                ?>
+                                            </li>
+                                            <?php if ($permission == 0): ?>
+                                            <li>
+                                                <?= $this->Html->link(
+                                                    '<i class="fa fa-exchange"></i> Chuyển lớp', 
+                                                    'javascript:;',
+                                                    [
+                                                        'escape' => false,
+                                                        'onClick' => "showChangeClassModal(this)"
+                                                    ])
+                                                ?>
+                                            </li>
+                                            <li>
+                                                <?= $this->Html->link(
+                                                    '<i class="fa fa-trash"></i> Xóa',
+                                                    'javascript:;',
+                                                    [
+                                                        'escape' => false, 
+                                                        'onClick' => "deleteStudent(this, true)"
+                                                    ]
+                                                )?>
+                                            </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
                                 </td>
                                 <?php $counter++; ?>
                             </tr>
@@ -400,7 +416,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
             </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Modal Header</h4>
+                <h4 class="modal-title">CHUYỂN LỚP HỌC</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -539,23 +555,59 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
             {{enrolledDate}}
         </td>
         <td class="actions cell">
-            <?= $this->Html->link(
-                '<i class="fa fa-2x fa-pencil"></i>', 
-                'javascript:;',
-                [
-                    'escape' => false,
-                    'onClick' => "showEditStudentModal(this)"
-                ]) 
-            ?>
-            <?= $this->Html->link(
-                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
-                'javascript:;',
-                [
-                    'escape' => false, 
-                    'onClick' => "deleteStudent(this)"
-                ]
-            )?>
+            <div class="btn-group">
+                <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">
+                    Mở rộng <span class="caret"></span>
+                </button>
+                <ul role="menu" class="dropdown-menu">
+                    <li>
+                        <?= $this->Html->link(
+                            '<i class="fa fa-trash"></i> Xóa',
+                            'javascript:;',
+                            [
+                                'escape' => false, 
+                                'onClick' => "deleteStudent(this)"
+                            ]
+                        )?>
+                    </li>
+                </ul>
+            </div>
         </td>
     </tr>
     {{/each}}
 </script>
+
+<div id="all-histories-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content box">
+            <div class="overlay hidden" id="list-history-overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
+            <div class="modal-header">
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" id="add-history"><i class="fa fa-plus"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool" id="refresh-history"><i class="fa fa-refresh"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool" data-dismiss="modal" id="close-history"><i class="fa fa-remove"></i></a>
+                </div>
+                <h4 class="modal-title">BẢNG GHI CHÚ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                    <ul class="timeline">
+                        <li class="time-label" id="now-tl">
+                            <span class="bg-black"><?= h($historyNow) ?></span>
+                        </li>
+                        
+                        <li class="time-label">
+                            <span class="bg-blue" id="student-created"></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-all-histories-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -235,6 +235,9 @@ label.optional {
 .actions .fa-trash {
     margin-right: 11px !important;
 }
+.actions .fa-exchange {
+    margin-right: 8px !important;
+}
 
 .modal-body.box {
     margin-bottom: auto;
@@ -247,4 +250,43 @@ label.optional {
 
 .fc-content {
     cursor: pointer;
+}
+
+.chart-responsive h4 {
+    text-align: center;
+}
+
+.timeline-avatar {
+    width: 40px;
+    height: 40px;
+    line-height: 30px;
+    margin-left: 12px;
+    position: absolute;
+}
+
+.timeline-footer {
+    min-height: 42px;
+    border-top: 1px solid #f4f4f4;
+}
+
+.history-creater {
+    color: #999;
+    font-style: italic;
+    font-size: 12px;
+}
+
+.modal { overflow: auto !important; }
+
+.overview .row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.small-box, .info-box, .box {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pie-chart-name {
+    text-align: center;
 }

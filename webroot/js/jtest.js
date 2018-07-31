@@ -233,7 +233,7 @@ function deleteSkill(delEl, sendAjax) {
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#ddd',
+            cancelButtonColor: '#222d32',
             cancelButtonText: 'Đóng',
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {

@@ -1,7 +1,11 @@
 <?php
 use Cake\Core\Configure;
+use Cake\I18n\Time;
+
+$currentUser = $this->request->session()->read('Auth.User');
 
 $gender = Configure::read('gender');
+$bank = Configure::read('bank');
 $yesNoQuestion = Configure::read('yesNoQuestion');
 
 $country = Configure::read('country');
@@ -25,11 +29,19 @@ $cardType = array_keys(Configure::read('cardType'));
 $bloodGroup = Configure::read('bloodGroup');
 $preferredHand = Configure::read('preferredHand');
 $relationship = Configure::read('relationship');
+$interviewResult = Configure::read('interviewResult');
+$now = Time::now();
 
+
+$this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
+$this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
 $this->Html->script('student.js', ['block' => 'scriptBottom']);
 $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
 ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
 
 <?php $this->start('content-header'); ?>
 <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
@@ -64,6 +76,12 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content4" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content5" role="tab" id="view-input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content6" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
                 </li>
             </ul>
             <div id="student-tab-content" class="tab-content">
@@ -446,6 +464,52 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div class="ln_solid"></div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="purpose"><?= __('Mục đích XKLĐ') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->purpose) ? $student->purpose : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="saving_expected"><?= __('Số tiền mong muốn') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->saving_expected) ? $student->saving_expected : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="after_plan"><?= __('Dự định sau khi về') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->after_plan) ? $student->after_plan : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="ln_solid"></div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="strength"><?= __('Điểm mạnh') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->strength) ? $student->strength : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="weakness"><?= __('Điểm yếu') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->weakness) ? $student->weakness : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -500,6 +564,12 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 </td>
                                                 <td class="hidden family-bank-num">
                                                     <?= $value->bank_num ?>
+                                                </td>
+                                                <td class="hidden family-bank-name">
+                                                    <?= $bank[$value->bank_name] ?>
+                                                </td>
+                                                <td class="hidden family-bank-branch">
+                                                    <?= $value->bank_branch ?>
                                                 </td>
                                                 <td class="hidden family-cmnd-num">
                                                     <?= $value->cmnd_num ?>
@@ -655,6 +725,51 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content3">
+                    <?php if (!empty($student->orders)): ?>
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Lịch sử phỏng vấn') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body table-responsive">
+                                    <div class="overlay hidden" id="list-order-overlay">
+                                        <i class="fa fa-refresh fa-spin"></i>
+                                    </div>
+                                    <table class="table table-bordered custom-table order-table">
+                                        <thead>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Đơn hàng') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Ngày tuyển') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Nghiệp đoàn') ?></th>
+                                            <th scope="col" class="col-md-3"><?= __('Công ty tiếp nhận') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Kết quả') ?></th>
+                                        </thead>
+                                        <tbody>
+                                        <?php foreach ($student->orders as $key => $value): ?>
+                                            <tr>
+                                                <td><?= $key + 1?></td>
+                                                <td><?= h($value->name) ?></td>
+                                                <td><?= h($value->interview_date) ?></td>
+                                                <td>
+                                                    <a href="javascript:;" onclick="viewGuild(<?= $value->company->guild->id ?>)"><?= h($value->company->guild->name_romaji) ?></a>
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:;" onclick="viewCompany(<?= $value->company->id ?>)"><?= h($value->company->name_romaji) ?></a>
+                                                </td>
+                                                <td><?= h($interviewResult[$value->_joinData->result]) ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">
@@ -878,6 +993,166 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
+                    <div class="rows">
+                        <div class="col-md-6 col-xs-12 left-col">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Tính toán cơ bản') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_date"><?= __('Ngày thi') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->input_tests[0]->test_date) ? $student->input_tests[0]->test_date : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="score"><?= __('Điểm thi') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->input_tests[0]->score) ? $student->input_tests[0]->score : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Tính toán nâng cao') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_date"><?= __('Ngày thi') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->input_tests[1]->test_date) ? $student->input_tests[1]->test_date : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="score"><?= __('Điểm thi') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->input_tests[1]->score) ? $student->input_tests[1]->score : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12 right-col">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Tiếng Nhật') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_date"><?= __('Ngày thi') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->input_tests[2]->test_date) ? $student->input_tests[2]->test_date : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="score"><?= __('Điểm thi') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->input_tests[2]->score) ? $student->input_tests[2]->score : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Kiểm tra IQ') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadChart()"><i class="fa fa-cloud-download"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body overview">
+                                    <?php if (!empty($student->iq_tests)): ?>
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                            <canvas id="line-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Lịch sử hoạt động') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay')"><i class="fa fa-refresh"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="overlay hidden" id="list-history-overlay">
+                                        <i class="fa fa-refresh fa-spin"></i>
+                                    </div>
+                                    <ul class="timeline">
+                                        <li class="time-label" id="now-tl">
+                                            <span class="bg-black"><?= h($now) ?></span>
+                                        </li>
+                                        <?php foreach($student->histories as $key => $value): ?>
+                                        <li class="history-detail" id="history-<?= $key ?>" history="<?= $value->id ?>">
+                                            <?php if (empty($value->users_created_by->image)): ?>
+                                                <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'user-image']) ?>
+                                            <?php else: ?>
+                                                <?= $this->Html->image($value->users_created_by->image, ['class' => 'img-circle timeline-avatar']) ?>
+                                            <?php endif; ?>
+                                            <div class="timeline-item">
+                                                <span class="time"><i class="fa fa-clock-o"></i> <?= $value->created ?></span>
+                                                <h3 class="timeline-header"><?= $value->title ?></h3>
+                                                <div class="timeline-body">
+                                                    <?= !empty($value->note) ? nl2br($value->note) : '' ?>
+                                                </div>
+                                                <div class="timeline-footer">
+                                                    <?php if ($currentUser['id'] == $value->created_by): ?>
+                                                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this)">Chỉnh sửa</button>
+                                                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this)">Xóa</button>
+                                                    <?php else: ?>
+                                                    <span class="history-creater">Người tạo: <?= h($value->users_created_by->fullname) ?></span>
+                                                    <?php endif;?>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <?php endforeach; ?>
+                                        <li class="time-label">
+                                            <span class="bg-blue"><?= h($student->created) ?></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -942,6 +1217,22 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="bank_name"><?= __('Ngân hàng') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span class="modal-bank-name"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="bank_branch"><?= __('Chi nhánh') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span class="modal-bank-branch"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="cmnd_num"><?= __('Số CMND') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
@@ -967,3 +1258,5 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
         </div>
     </div>
 </div>
+
+<script type="text/javascript">var iqtests = <?= json_encode($student->iq_tests) ?>;</script>

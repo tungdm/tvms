@@ -431,6 +431,13 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                             'label' => false,
                                             'class' => 'form-control interviewResult result'
                                             ]) ?>
+                                        <?= $this->Form->control('students.' . $key . '.status', [
+                                            'class' => 'form-control status'
+                                            ]) ?>
+                                        <?= $this->Form->control('students.' . $key . '.return_date', [
+                                            'type' => 'text',
+                                            'class' => 'form-control return_date'
+                                            ]) ?>
                                     </div>
                                 </td>
                                 <td class="cell hidden">
@@ -551,7 +558,10 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
 <div id="set-pass-modal" class="modal fade" role="dialog">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content box">
+            <div class="overlay hidden" id="set-pass-overlay">
+                <i class="fa fa-refresh fa-spin"></i>
+            </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">KẾT QUẢ PHỎNG VẤN</h4>
@@ -566,6 +576,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             'inputContainer' => '{{content}}'
                             ]
                         ]) ?>
+                    <input type="hidden" name="student[status]" id="student-status">
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="result"><?= __('Kết quả') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
@@ -640,6 +651,14 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     'options' => $interviewResult,
                     'label' => false,
                     'class' => 'form-control interviewResult result'
+                    ]) ?>
+                <?= $this->Form->control('students.{{row}}.status', [
+                    'class' => 'form-control status',
+                    'value' => '{{status}}'
+                    ]) ?>
+                <?= $this->Form->control('students.{{row}}.return_date', [
+                    'type' => 'text',
+                    'class' => 'form-control return_date'
                     ]) ?>
             </div>
         </td>
@@ -801,6 +820,10 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     'label' => false,
                     'class' => 'form-control',
                     'value' => '{{phone}}'
+                    ])?>
+                <?= $this->Form->control('status', [
+                    'class' => 'form-control',
+                    'value' => '{{status}}'
                     ])?>
             </div>
         </td>

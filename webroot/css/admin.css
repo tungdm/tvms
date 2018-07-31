@@ -2241,8 +2241,7 @@ a:focus {
 }
 .timeline > li > .timeline-item {
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   margin-top: 0;
   background: #fff;
   color: #444;
@@ -5071,10 +5070,13 @@ table.text-center th {
 }
 .bg-red,
 .bg-yellow,
+.bg-yellow-2,
 .bg-aqua,
 .bg-blue,
+.bg-blue-2,
 .bg-light-blue,
 .bg-green,
+.bg-green-2,
 .bg-navy,
 .bg-teal,
 .bg-olive,
@@ -5082,6 +5084,7 @@ table.text-center th {
 .bg-orange,
 .bg-fuchsia,
 .bg-purple,
+.bg-purple-2,
 .bg-maroon,
 .bg-black,
 .bg-red-active,
@@ -5155,12 +5158,22 @@ table.text-center th {
 .modal-warning .modal-body {
   background-color: #f39c12 !important;
 }
+
+.bg-yellow-2 {
+  background-color: #f3b312c9 !important;
+}
 .bg-aqua,
 .callout.callout-info,
 .alert-info,
 .label-info,
 .modal-info .modal-body {
   background-color: #00c0ef !important;
+}
+.bg-blue-2 {
+  background-color: #39d9dd !important;
+}
+.bg-purple-2 {
+  background-color: #d739dd82 !important;
 }
 .bg-blue {
   background-color: #0073b7 !important;
@@ -5176,6 +5189,9 @@ table.text-center th {
 .label-success,
 .modal-success .modal-body {
   background-color: #00a65a !important;
+}
+.bg-green-2 {
+  background-color: #00a65a8c !important;
 }
 .bg-navy {
   background-color: #001f3f !important;

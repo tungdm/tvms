@@ -178,9 +178,7 @@ class GuildsController extends AppController
                 ]);
                 $guildName = $guild->name_romaji;
 
-                $guild = $this->Guilds->patchEntity($guild, $data, [
-                    'fieldList' => ['name_romaji','name_kanji', 'address_romaji', 'address_kanji', 'phone_vn','phone_jp']
-                ]);
+                $guild = $this->Guilds->patchEntity($guild, $data);
                 $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), $this->request->getParam('action'));
                 if ($this->Guilds->save($guild)) {
                     $resp = [

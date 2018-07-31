@@ -319,7 +319,7 @@ class JclassesController extends AppController
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
                         'message' => Text::insert($this->successMessage['changeClass'], [
                             'entity' => 'học viên', 

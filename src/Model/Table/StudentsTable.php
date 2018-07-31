@@ -70,7 +70,19 @@ class StudentsTable extends Table
             'foreignKey' => 'student_id',
             'dependent' => true,
         ]);
+        $this->hasMany('InputTests', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
+        $this->hasMany('IqTests', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
         $this->hasMany('Documents', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
+        $this->hasMany('Histories', [
             'foreignKey' => 'student_id',
             'dependent' => true,
         ]);

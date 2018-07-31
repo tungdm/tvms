@@ -17,7 +17,14 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Network\Exception\ForbiddenException;
 use Cake\Network\Exception\NotFoundException;
+use Cake\Core\Exception\Exception;
 use Cake\View\Exception\MissingTemplateException;
+use Cake\ORM\TableRegistry;
+use Cake\I18n\Time;
+use Cake\Database\Expression\QueryExpression;
+use Cake\ORM\Query;
+use Cake\Log\Log;
+
 
 /**
  * Static content controller
@@ -65,8 +72,86 @@ class PagesController extends AppController
         if (!empty($path[1])) {
             $subpage = $path[1];
         }
-        $this->set(compact('page', 'subpage'));
+        // get data
+        $orderTable = TableRegistry::get('Orders');
+        $orderStudentsTable = TableRegistry::get('OrdersStudents');
+        $studentTable = TableRegistry::get('Students');
+        $now = Time::now();
+        $year = $now->year;
+        $month = $now->month;
+        $currentMonth = $now->i18nFormat('yyyy-MM');
+        $firstDayOfMonth = $currentMonth . '-01';
+        $lastDayOfMonth = $this->getLastDayOfMonth($firstDayOfMonth);
 
+        // first row data
+        $newOrder = $orderTable->find()->where(['created >=' => $firstDayOfMonth])->count();
+        $newStudent = $studentTable->find()->where(['enrolled_date >=' => $firstDayOfMonth])->count();
+        $returnStudent = $studentTable->find()->where(function (QueryExpression $exp, Query $q) use($firstDayOfMonth, $lastDayOfMonth) {
+            return $exp->between('return_date', $firstDayOfMonth, $lastDayOfMonth, 'date');
+        })->count();
+        $newPassedCount = $orderStudentsTable->find()->where(['result' => '1', 'created >=' => $firstDayOfMonth])->count();
+        
+        // second row data
+        $northPopulation = $this->getAreaPopulation(['from' => '01', 'to' => '37']);
+        $middlePopulation = $this->getAreaPopulation(['from' => '38', 'to' => '69']);
+        $southPopulation = $this->getAreaPopulation(['from' => '70', 'to' => '96']);
+        
+        // third row data
+        $totalPassed = $orderStudentsTable->find()->where(['result' => '1']);
+        $totalPassedCount = $totalPassed->count();
+        $totalImmigrationCount = $totalPassed->contain(['Students'])->where(function (QueryExpression $exp, Query $q) {
+                return $exp->between('status', '4', '8');
+            })->count();
+        $rateImmi = round($totalImmigrationCount/$totalPassedCount, 2) * 100;
+        
+        $totalReturn = $studentTable->find()->where(function (QueryExpression $exp, Query $q) {
+                return $exp->between('status', '5', '8');
+            })->count();
+        $totalWithdraw = $studentTable->find()->where(['status' => '7'])->count();
+        $rateWithdraw = round($totalWithdraw/$totalReturn, 2) * 100;
+        for ($i=1; $i < $month; $i++) {
+            $pastMonth = $year . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
+            $firstDayOfMonth = $pastMonth . '-01';
+            $lastDayOfMonth = $this->getLastDayOfMonth($pastMonth);
+
+            $monthlyNewOrder = $orderTable->find()
+                ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfMonth, $lastDayOfMonth) {
+                    return $exp->between('created', $firstDayOfMonth, $lastDayOfMonth, 'date');
+                })->count();
+            $monthlyNewStudent = $studentTable->find()
+                ->where(function (QueryExpression $exp, Query $q) use($firstDayOfMonth, $lastDayOfMonth) {
+                    return $exp->between('enrolled_date', $firstDayOfMonth, $lastDayOfMonth, 'date');
+                })->count();
+            $totalData[$pastMonth] = [
+                'student' => $monthlyNewOrder,
+                'order' => $monthlyNewStudent
+            ];
+        }
+        $totalData[$currentMonth] = [
+            'student' => $newStudent,
+            'order' => $newOrder
+        ];
+
+        $data = [
+            'currentMonth' => $currentMonth,
+            'lastDayOfMonth' => $lastDayOfMonth,
+            'newOrder' => $newOrder,
+            'newStudent' => $newStudent,
+            'returnStudent' => $returnStudent,
+            'newPassedCount' => $newPassedCount,
+            'totalData' => $totalData,
+            'totalPassedCount' => $totalPassedCount,
+            'totalImmigrationCount' => $totalImmigrationCount,
+            'rateImmi' => $rateImmi,
+            'totalReturn' => $totalReturn,
+            'totalWithdraw' => $totalWithdraw,
+            'rateWithdraw' => $rateWithdraw,
+            'northPopulation' => $northPopulation,
+            'middlePopulation' => $middlePopulation,
+            'southPopulation' => $southPopulation
+        ];
+
+        $this->set(compact('page', 'subpage', 'data'));
         try {
             $this->render(implode('/', $path));
         } catch (MissingTemplateException $exception) {
@@ -75,5 +160,57 @@ class PagesController extends AppController
             }
             throw new NotFoundException();
         }
+    }
+
+    public function getPassedStudents()
+    {
+        $this->request->allowMethod('ajax');
+        
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $now = Time::now();
+            $currentMonth = $now->i18nFormat('yyyy-MM-01');
+            $orderStudentsTable = TableRegistry::get('OrdersStudents');
+            $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'created' > $currentMonth]);
+            $resp = [
+                'status' => 'success',
+                'data' => $newlyPassed
+            ];
+            Log::write('debug', $resp);
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    protected function getLastDayOfMonth($month)
+    {
+        return date("Y-m-t", strtotime($month));
+    }
+
+    protected function getAreaPopulation($range)
+    {
+        $addressTable = TableRegistry::get('Addresses');
+        $population = $addressTable->find();
+        $population
+            ->select(['count' => $population->func()->count('student_id'), 'city_id', 'Cities.name'])
+            ->matching('Cities')
+            ->where(['Addresses.type' => '1'])
+            ->where(function (QueryExpression $exp, Query $q) use ($range) {
+                return $exp->between('city_id', $range['from'], $range['to']);
+            })
+            ->group('city_id')
+            ->order(['count'=>'DESC'])
+            ->limit(5)
+            ->toArray();
+        return $population;
     }
 }
