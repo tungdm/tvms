@@ -103,11 +103,22 @@ class PresentersController extends AppController
     {
         $this->request->allowMethod('ajax');
         $presenterId = $this->request->getQuery('id');
-        $resp = [];
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
 
         try {
             $presenter = $this->Presenters->get($presenterId);
-            $resp = $presenter;
+            $resp = [
+                'status' => 'success',
+                'data' => $presenter
+            ];
         } catch (Exception $e) {
             //TODO: blacklist user
             Log::write('debug', $e);

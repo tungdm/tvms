@@ -86,9 +86,7 @@ class PagesController extends AppController
         // first row data
         $newOrder = $orderTable->find()->where(['created >=' => $firstDayOfMonth])->count();
         $newStudent = $studentTable->find()->where(['enrolled_date >=' => $firstDayOfMonth])->count();
-        $returnStudent = $studentTable->find()->where(function (QueryExpression $exp, Query $q) use($firstDayOfMonth, $lastDayOfMonth) {
-            return $exp->between('return_date', $firstDayOfMonth, $lastDayOfMonth, 'date');
-        })->count();
+        $returnStudent = $studentTable->find()->where(['return_date' => $currentMonth])->count();
         $newPassedCount = $orderStudentsTable->find()->where(['result' => '1', 'created >=' => $firstDayOfMonth])->count();
         
         // second row data
@@ -107,24 +105,29 @@ class PagesController extends AppController
         $totalReturn = $studentTable->find()->where(function (QueryExpression $exp, Query $q) {
                 return $exp->between('status', '5', '8');
             })->count();
-        $totalWithdraw = $studentTable->find()->where(['status' => '7'])->count();
-        $rateWithdraw = round($totalWithdraw/$totalReturn, 2) * 100;
+        if ($totalReturn == 0) {
+            $totalWithdraw = $rateWithdraw = 0;
+        } else {
+            $totalWithdraw = $studentTable->find()->where(['status' => '7'])->count();
+            $rateWithdraw = round($totalWithdraw/$totalReturn, 2) * 100;
+        }
+        
         for ($i=1; $i < $month; $i++) {
             $pastMonth = $year . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
-            $firstDayOfMonth = $pastMonth . '-01';
-            $lastDayOfMonth = $this->getLastDayOfMonth($pastMonth);
+            $firstDayOfMonthTmp = $pastMonth . '-01';
+            $lastDayOfMonthTmp = $this->getLastDayOfMonth($pastMonth);
 
             $monthlyNewOrder = $orderTable->find()
-                ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfMonth, $lastDayOfMonth) {
-                    return $exp->between('created', $firstDayOfMonth, $lastDayOfMonth, 'date');
+                ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfMonthTmp, $lastDayOfMonthTmp) {
+                    return $exp->between('created', $firstDayOfMonthTmp, $lastDayOfMonthTmp, 'date');
                 })->count();
             $monthlyNewStudent = $studentTable->find()
-                ->where(function (QueryExpression $exp, Query $q) use($firstDayOfMonth, $lastDayOfMonth) {
-                    return $exp->between('enrolled_date', $firstDayOfMonth, $lastDayOfMonth, 'date');
+                ->where(function (QueryExpression $exp, Query $q) use($firstDayOfMonthTmp, $lastDayOfMonthTmp) {
+                    return $exp->between('enrolled_date', $firstDayOfMonthTmp, $lastDayOfMonthTmp, 'date');
                 })->count();
             $totalData[$pastMonth] = [
-                'student' => $monthlyNewOrder,
-                'order' => $monthlyNewStudent
+                'student' => $monthlyNewStudent,
+                'order' => $monthlyNewOrder
             ];
         }
         $totalData[$currentMonth] = [
@@ -134,6 +137,7 @@ class PagesController extends AppController
 
         $data = [
             'currentMonth' => $currentMonth,
+            'firstDayOfMonth' => $firstDayOfMonth,
             'lastDayOfMonth' => $lastDayOfMonth,
             'newOrder' => $newOrder,
             'newStudent' => $newStudent,
@@ -179,7 +183,7 @@ class PagesController extends AppController
             $now = Time::now();
             $currentMonth = $now->i18nFormat('yyyy-MM-01');
             $orderStudentsTable = TableRegistry::get('OrdersStudents');
-            $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'created' > $currentMonth]);
+            $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'Orders.created >=' => $currentMonth]);
             $resp = [
                 'status' => 'success',
                 'data' => $newlyPassed

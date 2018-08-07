@@ -98,6 +98,20 @@ class AppController extends Controller
         if (isset($user['role']) && $user['role_id'] == 1) {
             return true;
         }
+        if ($this->request->is('ajax')) {
+            $this->response->type('json');
+            $this->response->body(json_encode([
+                'status' => 'error', 
+                'flash' => [
+                    'title' => 'Lỗi',
+                    'type' => 'error',
+                    'icon' => 'fa fa-warning',
+                    'message' => $this->errorMessage['unAuthor']
+                ]
+                ]));
+            $this->response->send();
+            exit();
+        }
 
         // Default deny
         return false;

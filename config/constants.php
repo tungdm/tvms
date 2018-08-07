@@ -7,6 +7,24 @@ return [
         'Y' => 'Có',
         'N' => 'Không'
     ],
+    'yesNoJP' => [
+        'Y' => '有',
+        'N' => '無'
+    ],
+    'smokedrink' => [
+        'Y' => [
+            'vn' => 'Có',
+            'jp' => '有',
+        ],
+        'L' => [
+            'vn' => 'Ít',
+            'jp' => '少',
+        ],
+        'N' => [
+            'vn' => 'Không',
+            'jp' => '無'
+        ]
+    ],
     'recordsDisplay' => [
         '10' => '10',
         '25' => '25',
@@ -17,24 +35,51 @@ return [
         'M' => 'Nam',
         'F' => 'Nữ',
     ],
+    'genderJP' => [
+        'M' => '男',
+        'F' => '女'
+    ],
     'bank' => [
-        '1' => 'Ngân hàng Á Châu',
-        '2' => 'Ngân hàng Tiên Phong',
-        '3' => 'Ngân hàng Đông Á',
-        '4' => 'Ngân hàng Đông Nam Á',
-        '5' => 'Ngân hàng An Bình',
-        '6' => 'Ngân hàng Bắc Á',
-        '7' => 'Ngân hàng Bản Việt',
-        '8' => 'Ngân hàng Hàng Hải Việt Nam',
-        '9' => 'Ngân hàng Kỹ Thương Việt Nam',
-        '10' => 'Ngân hàng Kiên Long',
-        '11' => 'Ngân hàng Nam Á',
-        '12' => 'Ngân hàng Quốc Dân',
-        '13' => 'Ngân hàng Việt Nam Thịnh Vượng',
-        '14' => 'Ngân hàng Phát triển nhà Thành phố Hồ Chí Minh',
-        '15' => 'Ngân hàng Phương Đông',
-        '16' => 'Ngân hàng Quân đội',
-        '17' => 'Ngân hàng Đại chúng',
+        '1' => 'Ngân hàng Á Châu - ABC',
+        '2' => 'Ngân hàng Tiên Phong - TPBank',
+        '3' => 'Ngân hàng Đông Á - DongABank',
+        '4' => 'Ngân hàng Đông Nam Á - SeABank',
+        '5' => 'Ngân hàng An Bình - AnBinhBank',
+        '6' => 'Ngân hàng Bắc Á - BacABank',
+        '7' => 'Ngân hàng Bản Việt - VietCapitalBank',
+        '8' => 'Ngân hàng Hàng Hải Việt Nam - Maritime Bank',
+        '9' => 'Ngân hàng Kỹ Thương Việt Nam - Techcombank',
+        '10' => 'Ngân hàng Kiên Long - KienLong Bank',
+        '11' => 'Ngân hàng Nam Á - NamABank',
+        '12' => 'Ngân hàng Quốc Dân - NCB',
+        '13' => 'Ngân hàng Việt Nam Thịnh Vượng - VPBank',
+        '14' => 'Ngân hàng Phát triển nhà Thành phố Hồ Chí Minh - HDBank',
+        '15' => 'Ngân hàng Phương Đông - OCB',
+        '16' => 'Ngân hàng Quân đội - Military Bank',
+        '17' => 'Ngân hàng Quốc tế - VIB Bank',
+        '18' => 'Ngân hàng Sài Gòn - SCBank',
+        '19' => 'Ngân hàng TMCP Thương mại Sài Gòn - PVcom Bank',
+        '20' => 'Sài Gòn Công Thương - Saigon Bank',
+        '21' => 'Ngân hàng Đại chúng - SHB',
+        '22' => 'Sài Gòn Thương Tín - Sacombank',
+        '23' => 'Ngân hàng Việt Á - VietA Bank',
+        '24' => 'Ngân hàng Bảo Việt - BaoViet Bank',
+        '25' => 'Việt Nam Thương Tín - Viet Bank',
+        '26' => 'Xăng dầu Petrolimex - Petrolimex Group Bank',
+        '27' => 'Ngân hàng Xuất Nhập khẩu Việt Nam - Eximbank',
+        '28' => 'Bưu điện Liên Việt - LienVietPostBank (LPB)',
+        '29' => 'Ngân hàng Ngoại thương Việt Nam - Vietcombank',
+        '30' => 'Ngân hàng Công Thương Việt Nam - VietinBank',
+        '31' => 'Ngân hàng Đầu tư và Phát triển Việt Nam - BIDV',
+        '32' => 'HSBC',
+        '33' => 'Standard Chartered',
+        '34' => 'Shinhan Bank',
+        '35' => 'Ngân hàng Đại Dương - OceanBank',
+        '36' => 'Ngân hàng Dầu Khí Toàn Cầu - GPBank',
+        '37' => 'Ngân hàng Nông nghiệp và Phát triển nông thôn - Agribank',
+        '38' => 'Ngân hàng Xây dựng - CB',
+        '39' => 'Ngân hàng Citibank Việt Nam',
+        '40' => 'MUFG',
     ],
     'bloodGroup' => [
         'A' => 'A',
@@ -43,44 +88,71 @@ return [
         'AB' => 'AB',
     ],
     'relationship' => [
-        '1' => 'Cha',
-        '2' => 'Mẹ',
-        '3' => 'Vợ',
-        '4' => 'Chồng',
-        '5' => 'Con trai',
-        '6' => 'Con gái',
-        '7' => 'Anh trai',
-        '8' => 'Em trai',
-        '9' => 'Chị gái',
-        '10' => 'Em gái',
-        '11' => 'Bố dượng',
-        '12' => 'Mẹ kế',
+        '1' => [
+            'vn' => 'Cha',
+            'jp' => '父',
+        ],
+        '2' => [
+            'vn' => 'Mẹ',
+            'jp' => '母',
+        ],
+        '3' => [
+            'vn' => 'Vợ',
+            'jp' => '妻',
+        ],
+        '4' => [
+            'vn' => 'Chồng',
+            'jp' => '夫',
+        ],
+        '5' => [
+            'vn' => 'Con trai',
+            'jp' => '子',
+        ],
+        '6' => [
+            'vn' => 'Con gái',
+            'jp' => '子',
+        ],
+        '7' =>  [
+            'vn' => 'Anh trai',
+            'jp' => '兄',
+        ],
+        '8' => [
+            'vn' => 'Em trai',
+            'jp' => '弟',
+        ],
+        '9' => [
+            'vn' => 'Chị gái',
+            'jp' => '姉',
+        ],
+        '10' => [
+            'vn' => 'Em gái',
+            'jp' => '妹',
+        ],
     ],
     'preferredHand' => [
         '1' => 'Tay phải',
         '2' => 'Tay trái',
-        '3' => 'Hai tay',
     ],
     'eduLevel' => [
         '1' => [
             'vn' => 'Tiểu học',
-            'jp' => '小学校'
+            'jp' => '小学'
         ],
         '2' => [
             'vn' => 'Trung học cơ sở',
-            'jp' => '中学校'
+            'jp' => '中学'
         ],
         '3' => [
             'vn' => 'Trung học phổ thông',
-            'jp' => '高校'
+            'jp' => '高等学'
         ],
         '4' => [
             'vn' => 'Trung cấp',
-            'jp' => '専門高等学校'
+            'jp' => '専門学'
         ],
         '5' => [
             'vn' => 'Cao đẳng',
-            'jp' => 'カレッジ'
+            'jp' => '短期大学'
         ],
         '6' => [
             'vn' => 'Đại học',
@@ -88,10 +160,18 @@ return [
         ],      
     ],
     'maritalStatus' => [
-        '1' => 'Độc thân',
-        '2' => 'Đã kết hôn',
-        '3' => 'Ly thân',
-        '4' => 'Ly hôn'
+        '1' => [
+            'vn' => 'Độc thân',
+            'jp' => '未婚'
+        ],
+        '2' => [
+            'vn' => 'Đã kết hôn',
+            'jp' => '既婚'
+        ],
+        '3' => [
+            'vn' => 'Ly hôn',
+            'jp' => '離婚',
+        ]
     ],
     'religion' => [
         '1' => 'Phật giáo',
@@ -166,6 +246,10 @@ return [
         '02' => [
             'vn' => 'Nhật Bản',
             'jp' => '日本'
+        ],
+        '03' => [
+            'vn' => 'Khác',
+            'jp' => 'Other'
         ]
     ],
     'cardType' => [
@@ -308,6 +392,7 @@ return [
         '2' => 'Ngày thi',
         '3' => 'Đã thi',
         '4' => 'Đã có kết quả',
+        '5' => 'Hoàn tất'
     ],
 
     //document
@@ -381,18 +466,43 @@ return [
 
     // address vn
     'addressType' => [
-        '1' => 'household',
+        '1' => 'household', // ho khau thuong tru
         '2' => 'currentAddress'
     ],
 
-    'addressENLevel' => [
-        'Thành phố' => 'City',
-        'Tỉnh' => 'Province',
-        'Quận' => 'District',
-        'Huyện' => 'District',
-        'Phường' => 'Ward',
-        'Xã' => 'Commune',
-        'Thị trấn' => 'Town'
+    'addressLevel' => [
+        'Thành phố' => [
+            'en' => 'City',
+            'jp' => '市'
+        ],
+        'Tỉnh' => [
+            'en' => 'Province',
+            'jp' => '省'
+        ],
+        'Quận' => [
+            'en' => 'District',
+            'jp' => '区'
+        ],
+        'Huyện' => [
+            'en' => 'District',
+            'jp' => '県'
+        ],
+        'Phường' => [
+            'en' => 'Ward',
+            'jp' => '郡'
+        ],
+        'Xã' => [
+            'en' => 'Commune',
+            'jp' => '社'
+        ],
+        'Thị trấn' => [
+            'en' => 'Town',
+            'jp' => '町'
+        ],
+    ],
+
+    'addressJPLevel' => [
+        'Thành phố' 
     ],
 
     // address jp
@@ -625,8 +735,104 @@ return [
     'schoolTemplate' => ":schoolNameEN:eduLevelJP校卒業\nTốt nghiệp trường :eduLevelVN :schoolNameVN",
     'folderImgTemplate' =>  ROOT . DS . 'webroot' . DS . 'img' . DS . 'templates',
     'resume' => [
-        'filename' => '履歴書-:firstName.docx'
+        'filename' => '履歴書-:firstName.docx',
+        'template' => 'resume.docx'
     ],
+    'contract' => [
+        'filename_jp' => ':firstName 日本での契約書（日本語).docx',
+        'filename_vn' => ':firstName 日本での契約書（ベトナム語).docx',
+    ],
+    'eduPlan' => [
+        'filename' => 'Thủ tục công nhận kế hoạch đào tạo.docx',
+        'template' => 'edu_plan.docx'
+    ],
+    'commitment' => [
+        'filename' => 'Tóm tắt và cam kết của tổ chức nước ngoài.docx',
+        'template' => 'commitment.docx'
+    ],
+    'dispatchLetter' => [
+        'filename' => '技能実習生候補者のリスト.docx',
+        'template' => 'dispatch-letter.docx'
+    ],
+    'dispatchLetterXlsx' => [
+        'filename' => 'Mẫu đề nghị cấp thư phái cử.xlsx'
+    ],
+    'cvTemplate' => [
+        'filename' => ':firstName-CV.docx',
+        'template' => 'cv.docx',
+        'familyAdditional' => [
+            0 => "続柄",
+            1 => "使用教書",
+            2 => "学習期間",
+            3 => "既習課",
+        ]
+    ],
+    'listCandidatesXlsx' => [
+        'filename' => 'Danh sách ứng viên phỏng vấn.xlsx',
+        'header' => [
+            'A' => [
+                'title' => 'No.',
+                'width' => 4,
+            ], 
+            'B' => [
+                'title' => '氏名',
+                'width' => 36,
+            ],
+            'C' =>  [
+                'title' => '生年月日', 
+                'width' => 20,
+            ],
+            'D' => [
+                'title' => '年齢',  
+                'width' => 10,
+            ],
+            'E' => [
+                'title' => '婚姻', 
+                'width' => 10,
+            ],
+            'F' => [
+                'title' => '日本語', 
+                'width' => 10,
+            ],
+            'G' =>  [
+                'title' => '計算',  
+                'width' => 10,
+            ],
+            'H' => [
+                'title' => 'クレペリン', 
+                'width' => 14,
+            ],
+            'I' => [
+                'title' => '握力 (kg)',
+                'width' => 10,
+            ],
+            'I7' => '右',
+            'J' => [
+                'width' => 10,
+            ],
+            'J7' => '左',
+            'K' => [
+                'title' => '背筋力 (kg)',
+                'width' => 14,
+            ],
+            'L' => [
+                'title' => '血液型',
+                'width' => 10,
+            ],
+            'M' => [
+                'title' => '備考',
+                'width' => 10,
+            ],
+            'N' => [
+                'title' => '合格',
+                'width' => 10,
+            ],
+        ]
+    ],
+    'vnDateFormatFull' => 'ngày :day tháng :month năm :year',
+    'vnDateFormatShort' => ':day tháng :month năm :year',
+    'jpKingYearStart' => 1988,
+    'jpKingYearName' => '作成',
 
     // .xlsx template
     'headerStyle' => [
@@ -655,7 +861,7 @@ return [
                 ]
             ]
         ]
-                ],
+    ],
 
     // message
     'successMessage' => [
@@ -669,13 +875,14 @@ return [
     ],
     'errorMessage' => [
         'add' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
-        'edit' => 'Không thể cập nhật thông tin của :entity :name. Xin vui lòng thử lại.',
+        'edit' => 'Không thể cập nhật thông tin của :entity :name. Xin hãy thử lại.',
         'delete' => 'Không thể xóa dữ liệu của :entity :name. Xin hãy thử lại.',
         'error' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
         'loginError' => 'Tên đăng nhập hoặc mật khẩu không đúng. Xin hãy thử lại.',
         'unAuthor' => 'Bạn không có quyền truy cập đến địa chỉ trên. Vui lòng Liên hệ Quản trị viên để được cấp quyền tương ứng.',
         'updatePassword' => 'Mật khẩu không đúng. Xin hãy nhập lại.',
         'changeClass' => 'Không thể chuyển học viên :name sang lớp :class',
-        'setScore' => 'Không thể lưu điểm của phần thi :skill'
+        'setScore' => 'Không thể lưu điểm của phần thi :skill',
+        'export' => ':missingField của :entity :name bị trống. Xin hãy nhập dữ liệu rồi thử lại sau.',
     ],
 ];

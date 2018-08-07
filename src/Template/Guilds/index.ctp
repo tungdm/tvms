@@ -38,6 +38,23 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <a  data-toggle='tooltip' title='Thêm mới'
+                    class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
+                    onclick="showAddGuildModal()">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -45,7 +62,6 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <a class="btn btn-box-tool" href="javascript:;" onclick="showAddGuildModal()"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -260,6 +276,18 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                             ]) ?>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="subsidy">
+                        <?= __('Tiền trợ cấp TTS') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('subsidy', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => '¥/tháng'
+                            ]) ?>
+                    </div>
+                </div>
 
                 <div class="ln_solid"></div>
                 
@@ -368,6 +396,19 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'id' => 'edit-license-number',
                             'placeholder' => 'Nhập số giấy phép của nghiệp đoàn'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="subsidy">
+                        <?= __('Tiền trợ cấp TTS') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('subsidy', [
+                            'label' => false, 
+                            'required' => true, 
+                            'id' => 'edit-subsidy',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => '¥/tháng'
                             ]) ?>
                     </div>
                 </div>

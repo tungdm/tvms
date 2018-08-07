@@ -150,7 +150,7 @@ class OrdersTable extends Table
             ->notEmpty('work_at');
 
         $validator
-            ->date('departure_date')
+            ->scalar('departure_date')
             ->requirePresence('departure_date', 'create')
             ->notEmpty('departure_date');
 

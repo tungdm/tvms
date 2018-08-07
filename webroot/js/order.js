@@ -20,6 +20,16 @@ $(document).ready(function() {
         $(targetId).attr('max', $(this).val());
     });
 
+    $('#work-time').change(function() {
+        var returnDate = calReturnDate($('#work-time').val(), $('#departure-date').val());
+        setReturnDate(returnDate);
+    });
+
+    $('#departure-date-div').on('dp.change', function() {
+        var returnDate = calReturnDate($('#work-time').val(), $('#departure-date').val());
+        setReturnDate(returnDate);
+    });
+
     $('#candidate-name').select2({
         ajax: {
             url: DOMAIN_NAME + '/orders/search-candidate',
@@ -244,6 +254,20 @@ function setPassed(ele) {
     $('#set-pass-modal').modal('toggle');
 }
 
+function calReturnDate(workTime, departureDate) {
+    var duration = moment.duration(parseInt(workTime), 'years');
+    return moment(departureDate).add(duration).format('YYYY-MM'); 
+}
+
+function setReturnDate(returnDate) {
+    $('.return_date').each(function() {
+        var interviewResult = $(this).closest('.row-rec').find('.result').val();
+        if (interviewResult == '1') { // passed
+            $(this).val(returnDate);
+        }
+    })
+}
+
 function setInterviewResult(rowId) {
     // validate form
     var validateResult = $('#set-pass-form').parsley().validate();
@@ -264,21 +288,17 @@ function setInterviewResult(rowId) {
         // show edit doc button when pass interview
         if ($('#result').val() === '1') {
             // set return date
-            var duration = moment.duration(parseInt($('select[name="work_time"]').val()), 'years');
-            var returnDate = moment($('input[name="departure_date"]').val()).add(duration).format('YYYY-MM-DD');
-            console.log(returnDate);
+            var returnDate = calReturnDate($('select[name="work_time"]').val(), $('input[name="departure_date"]').val());
             $('#row-candidate-'+rowId).find('.return_date').val(returnDate);
             if ($('#row-candidate-'+rowId).find('.status').val() != '3') {
                 $('#row-candidate-'+rowId).find('.status').val('3');
             }
-            $('#row-candidate-'+rowId).find('.edit-doc').removeClass('hidden');
         } else {
             // set return date
             $('#row-candidate-'+rowId).find('.return_date').val('');
             if ($('#row-candidate-'+rowId).find('.status').val() == '3') {
                 $('#row-candidate-'+rowId).find('.status').val('2');
             }
-            $('#row-candidate-'+rowId).find('.edit-doc').addClass('hidden');
         }
         
         $('#set-pass-modal').modal('toggle');
@@ -361,8 +381,9 @@ function deleteRow(delEl, hiddenId) {
             if (i < idField.length) {
                 continue;
             }
-            var classArr = inputField[i-idField.length].className.split(' ');
-            inputField[i-idField.length].name = 'students[' + i + '][' + classArr[classArr.length-1] + ']';
+            $('#row-candidate-'+i).find('.id').attr('name', 'students[' + i + '][id]');
+            $('#row-candidate-'+i).find('.status').attr('name', 'students[' + i + '][_joinData][status]');
+            $('#row-candidate-'+i).find('.return_date').attr('name', 'students[' + i + '][return_date]');
         }
 
         classArr = selectField[i].className.split(' ');
@@ -395,15 +416,4 @@ function updateResultCounter() {
         }
     });
     return result;
-}
-
-
-function viewGuild(id) {
-    var overlayId = '';
-    globalViewGuild(id, overlayId);
-}
-
-function viewCompany(id) {
-    var overlayId = '';
-    globalViewCompany(id, overlayId);
 }

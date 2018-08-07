@@ -1,10 +1,14 @@
 <?php
 use Cake\Core\Configure;
+use Cake\I18n\Time;
 
 $lessons = Configure::read('lessons');
 $skills = Configure::read('skills');
 
 $action = $this->request->getParam('action');
+$controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
+$currentUser = $this->request->session()->read('Auth.User');
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
@@ -54,6 +58,44 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
         </ol>
     <?php $this->end(); ?>
 <?php endif; ?>
+
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($action === 'edit'): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
+                    ['action' => 'view', $jtest->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xem chi tiết',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $jtest->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+            <?php endif; ?>
+            <li>
+                <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out submit-test-btn" data-toggle="tooltip" title="Lưu lại">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+<?php $this->end(); ?>
 
 <?= $this->Form->create($jtest, [
     'class' => 'form-horizontal form-label-left',
@@ -163,7 +205,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                     <th scope="col" class="col-md-2"><?= __('STT') ?></th>
                                     <th scope="col" class="col-md-3"><?= __('Kỹ năng') ?></th>
                                     <th scope="col" class="col-md-4"><?= __('Giáo viên phụ trách') ?></th>
-                                    <th scope="col" class="actions"></th>
+                                    <th scope="col" class="actions"><?=  __('Thao tác') ?></th>
                                 </tr>
                             </thead>
                             <tbody id="skill-container">

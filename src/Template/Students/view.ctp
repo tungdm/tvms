@@ -3,6 +3,8 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 
 $currentUser = $this->request->session()->read('Auth.User');
+$controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
 
 $gender = Configure::read('gender');
 $bank = Configure::read('bank');
@@ -20,7 +22,10 @@ $language = array_map('array_shift', $language);
 $document = Configure::read('document');
 
 $studentStatus = Configure::read('studentStatus');
+
 $maritalStatus = Configure::read('maritalStatus');
+$maritalStatus = array_map('array_shift', $maritalStatus);
+
 $studentSubject = Configure::read('studentSubject');
 $religion = Configure::read('religion');
 $nation = Configure::read('nation');
@@ -32,7 +37,6 @@ $relationship = Configure::read('relationship');
 $interviewResult = Configure::read('interviewResult');
 $now = Time::now();
 
-
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -41,7 +45,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-
 
 <?php $this->start('content-header'); ?>
 <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
@@ -59,6 +62,44 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
     </li>
     <li class="active"><?= $student->fullname ?></li>
 </ol>
+<?php $this->end(); ?>
+
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <li data-toggle="tooltip" title="Xuất báo cáo">
+                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
+                   data-toggle="modal" 
+                   data-target="#export-student-modal">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                </a>
+            </li>
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                    ['action' => 'info', $student->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Sửa',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $student->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa lao động {0}?', $student->fullname)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
 <?php $this->end(); ?>
 
 <div class="form-horizontal form-label-left">
@@ -255,6 +296,93 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     </div>
                                 </div>
                             </div>
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="is_lived_in_japan"><?= __('Đã từng đi nhật') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->is_lived_in_japan) ? $yesNoQuestion[$student->is_lived_in_japan] : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group time-lived-jp<?php if (empty($student->is_lived_in_japan) || $student->is_lived_in_japan !== 'Y'): ?> hidden <?php endif; ?>">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="time_lived_in_japan"><?= __('Thời gian') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="time-lived">
+                                                <?php if($student->is_lived_in_japan === 'Y'): ?>
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= $student->lived_from ?> ～ <?= $student->lived_to ?>
+                                                </div>
+                                                <?php endif;?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="ln_solid"></div>
+                                    
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="reject"><?= __('Từng bị từ chối lưu trú') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->reject_stay) ? $yesNoQuestion[$student->reject_stay] : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="ln_solid"></div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="purpose"><?= __('Mục đích XKLĐ') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->purpose) ? $student->purpose : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="saving_expected"><?= __('Số tiền mong muốn') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->saving_expected) ? $student->saving_expected : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="after_plan"><?= __('Dự định sau khi về') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->after_plan) ? $student->after_plan : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="ln_solid"></div>
+
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="strength"><?= __('Điểm mạnh') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->strength) ? $student->strength : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="weakness"><?= __('Điểm yếu') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->weakness) ? $student->weakness : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6 col-xs-12 right-col">
                             <div class="box">
@@ -376,6 +504,30 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="right_hand_force"><?= __('Lực bóp tay phải') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->right_hand_force) ? $student->right_hand_force : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="left_hand_force"><?= __('Lực bóp tay trái') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->left_hand_force) ? $student->left_hand_force : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="back_force"><?= __('Lực kéo lưng') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->back_force) ? $student->back_force : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="left_eye_sight"><?= __('Thị lực (trái)') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
@@ -418,95 +570,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                                 <?= !empty($student->preferred_hand) ? $preferredHand[$student->preferred_hand] : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-xs-12 right-col">
-                            <div class="box">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
-                                </div>
-                                <div class="box-body">
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="is_lived_in_japan"><?= __('Đã từng đi nhật') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->is_lived_in_japan) ? $yesNoQuestion[$student->is_lived_in_japan] : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group time-lived-jp<?php if (empty($student->is_lived_in_japan) || $student->is_lived_in_japan !== 'Y'): ?> hidden <?php endif; ?>">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="time_lived_in_japan"><?= __('Thời gian') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="time-lived">
-                                                <?php if($student->is_lived_in_japan === 'Y'): ?>
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= $student->lived_from ?> ～ <?= $student->lived_to ?>
-                                                </div>
-                                                <?php endif;?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="ln_solid"></div>
-                                    
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="reject"><?= __('Từng bị từ chối lưu trú') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->reject_stay) ? $yesNoQuestion[$student->reject_stay] : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="ln_solid"></div>
-
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="purpose"><?= __('Mục đích XKLĐ') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->purpose) ? $student->purpose : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="saving_expected"><?= __('Số tiền mong muốn') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->saving_expected) ? $student->saving_expected : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="after_plan"><?= __('Dự định sau khi về') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->after_plan) ? $student->after_plan : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-        
-                                    <div class="ln_solid"></div>
-
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="strength"><?= __('Điểm mạnh') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->strength) ? $student->strength : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="weakness"><?= __('Điểm yếu') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->weakness) ? $student->weakness : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -810,7 +873,8 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                     <?= $value->address ?>
                                                 </td>
                                                 <td class="cell col-md-2 edu-specialized">
-                                                    <?= $value->specialized ?>
+                                                    <?= $value->specialized ?> <br />
+                                                    <?= $value->specialized_jp ?>
                                                 </td>
                                             </tr>
                                             <?php endforeach; ?> 
@@ -1259,4 +1323,88 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
     </div>
 </div>
 
-<script type="text/javascript">var iqtests = <?= json_encode($student->iq_tests) ?>;</script>
+<div class="modal fade" id="export-student-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
+                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell"><?= __('1') ?></td>
+                                <td class="cell"><?= __('Sơ yếu lý lịch') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportResume', $student->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('2') ?></td>
+                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Nhật)') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'jp']],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('3') ?></td>
+                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Việt)') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'vn']],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('4') ?></td>
+                                <td class="cell"><?= __('Thủ tục công nhận kế hoạch đào tạo') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportEduPlan', $student->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('5') ?></td>
+                                <td class="cell"><?= __('Tóm tắt và cam kết của tổ chức nước ngoài') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCompanyCommitment', $student->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var iqtests = <?= json_encode($student->iq_tests) ?>;
+    var studentName = '<?= $studentName_EN ?>';
+</script>

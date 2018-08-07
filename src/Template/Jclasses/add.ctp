@@ -65,6 +65,44 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
     <?php $this->end(); ?>
 <?php endif; ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($action === 'edit'): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
+                    ['action' => 'view', $jclass->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xem chi tiết',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $jclass->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa lớp {0}?', $jclass->name)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+            <?php endif; ?>
+            <li>
+                <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out submit-class-btn" data-toggle="tooltip" title="Lưu lại">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <?= $this->Form->create($jclass, [
     'class' => 'form-horizontal form-label-left',
     'id' => 'add-class-form',

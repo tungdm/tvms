@@ -44,7 +44,7 @@ class JtestsController extends AppController
                     $target_id = $target_id[0];
                     $testDate = $this->Jtests->get($target_id)->test_date;
                     if ($testDate <= $now) {
-                        // the test is tested, can not modified
+                        // can not modified
                         return false;
                     }
                 }
@@ -60,7 +60,15 @@ class JtestsController extends AppController
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
-                    if (!empty($this->Jtests->JtestContents->find()->where(['jtest_id' => $target_id, 'user_id' => $user['id']])->toArray())) {
+                    $record = $this->Jtests->JtestContents->find()->where(['jtest_id' => $target_id, 'user_id' => $user['id']])->toArray();
+                    $jtest = $this->Jtests
+                            ->find()
+                            ->contain([
+                                'JtestContents' => function ($q) use ($target_id, $user) {
+                                    return $q->where(['jtest_id' => $target_id, 'user_id' => $user['id']]);
+                                }
+                            ])->first();
+                    if (!empty($jtest->jtest_contents) && $jtest->status !== '5') {
                         return true;
                     }
                 }
@@ -84,7 +92,7 @@ class JtestsController extends AppController
                 $query['records'] = 10;
             }
             if (isset($query['test_date']) && !empty($query['test_date'])) {
-                $allTest->where(['test_date' => $query['test_date']]);
+                $allTest->where(['test_date >=' => $query['test_date']]);
             }
             if (isset($query['lesson_from']) && !empty($query['lesson_from'])) {
                 $allTest->where(['lesson_from >=' => $query['lesson_from']]);
@@ -329,6 +337,25 @@ class JtestsController extends AppController
         $this->set(compact('jtest', 'skill'));
     }
 
+    public function finish($id = null)
+    {
+        $this->request->allowMethod(['post']);
+        $jtest = $this->Jtests->get($id);
+        if ($jtest->status !== '4') {
+            $this->Flash->error($this->errorMessage['unAuthor']);
+        } else {
+            $jtest->status = '5'; // close test
+            if ($this->Jtests->save($jtest)) {
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity, 
+                    'name' => $jtest->test_date
+                    ]));
+            } else {
+                $this->Flash->error($this->errorMessage['error']);
+            }
+        }
+        return $this->redirect(['action' => 'index']);
+    }
     /**
      * Delete method
      *

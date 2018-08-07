@@ -29,6 +29,29 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi 
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
+                    ['action' => 'view', $jtest->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xem chi tiết',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <li>
+                <a href="#" class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out set-score-btn" data-toggle="tooltip" title="Lưu lại">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <?= $this->Form->create($jtest, [
     'class' => 'form-horizontal form-label-left',
     'id' => 'set-score-form',

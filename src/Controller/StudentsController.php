@@ -9,6 +9,7 @@ use Cake\Log\Log;
 use Cake\Event\Event;
 use Cake\Core\Exception\Exception;
 use Cake\I18n\Time;
+use Cake\I18n\Number;
 use Cake\Utility\Text;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
@@ -38,7 +39,8 @@ class StudentsController extends AppController
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
         if (!empty($userPermission)) {
-            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+            if ($userPermission->action == 0 
+            || ($userPermission->action == 1 && (in_array($action, ['index', 'view', 'getStudent']) || strpos($action, 'export') === 0))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -50,6 +52,7 @@ class StudentsController extends AppController
     {
         parent::initialize();
         $this->loadComponent('ExportFile');
+        $this->loadComponent('Ulti');
         $this->entity = 'lao động';
     }
 
@@ -87,13 +90,11 @@ class StudentsController extends AppController
                 $allStudents->where(['gender' => $query['student_gender']]);
             }
 
-            if (isset($query['student_phone']) && !empty($query['student_phone'])) {
-                $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('phone', '%'.$query['student_phone'].'%');
-                });
+            if (isset($query['presenter']) && !empty($query['presenter'])) {
+                $allStudents->where(['presenter_id' => $query['presenter']]);
             }
-            if (isset($query['status']) && !empty($query['status'])) {
-                $allStudents->where(['status' => $query['status']]);
+            if (isset($query['student_status']) && !empty($query['student_status'])) {
+                $allStudents->where(['status' => $query['student_status']]);
             }
             if (isset($query['enrolled_date']) && !empty($query['enrolled_date'])) {
                 $allStudents->where(['Students.enrolled_date >=' => $query['enrolled_date']]);
@@ -108,12 +109,16 @@ class StudentsController extends AppController
             $query['records'] = 10;
         }
         $this->paginate = [
-            'sortWhitelist' => ['code', 'fullname', 'email', 'phone'],
+            'contain' => [
+                'Presenters', 
+            ],
+            'sortWhitelist' => ['code', 'fullname', 'email', 'enrolled_date'],
             'limit' => $query['records']
         ];
         $students = $this->paginate($allStudents);
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
-        $this->set(compact('students', 'query', 'cities'));
+        $presenters = $this->Students->Presenters->find('list');
+        $this->set(compact('students', 'query', 'cities', 'presenters'));
     }
 
     /**
@@ -149,9 +154,12 @@ class StudentsController extends AppController
                 'Histories.UsersCreatedBy',
             ]
         ]);
+        $studentName_VN = mb_strtoupper($student->fullname);
+        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
-        $this->set(compact(['student', 'jobs', 'cities']));
+        $this->set(compact(['student', 'jobs', 'cities', 'studentName_EN']));
     }
 
     public function getStudent()
@@ -208,7 +216,7 @@ class StudentsController extends AppController
             $student = $this->Students->patchEntity($student, $this->request->getData(), ['associated' => ['Addresses']]);
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $this->request->getParam('action'));
 
-            //Get first key in studentStatus array
+            // Get first key in studentStatus array
             $student->status = key(Configure::read('studentStatus'));
 
             if ($this->Students->save($student)) {
@@ -251,7 +259,7 @@ class StudentsController extends AppController
         return $this->jsonResponse($resp);
     }
 
-    function getAllHistories()
+    public function getAllHistories()
     {
         $this->request->allowMethod('ajax');
         $studentId = $this->request->getQuery('id');
@@ -794,8 +802,6 @@ class StudentsController extends AppController
         // Load config
         $resumeConfig = Configure::read('resume');
         $country = Configure::read('country');
-        $addressENLevel = Configure::read('addressENLevel');
-        $currentAddressTemplate = Configure::read('currentAddressTemplate');
         $schoolTemplate = Configure::read('schoolTemplate');
         $eduLevel = Configure::read('eduLevel');
         $folderImgTemplate = Configure::read('folderImgTemplate');
@@ -804,7 +810,7 @@ class StudentsController extends AppController
         $student = $this->Students->get($id, [
             'contain' => [
                 'Addresses' => function($q) {
-                    return $q->where(['Addresses.type' => '2']);
+                    return $q->where(['Addresses.type' => '1']);
                 },
                 'Addresses.Cities',
                 'Addresses.Districts',
@@ -816,14 +822,13 @@ class StudentsController extends AppController
                 ]
             ]);
 
-        // $template = WWW_ROOT . 'document' . DS . 'resume_template.docx';
-        $template = WWW_ROOT . 'document' . DS . 'resume.docx';
+        $template = WWW_ROOT . 'document' . DS . $resumeConfig['template'];
         $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
         
         // Prepare data
         $now = Time::now();
         $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->convertV2E($studentName_VN);
+        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
         $studentName = explode(' ', $studentName_EN);
         $studentFirstName = array_pop($studentName);
         $output_file_name = Text::insert($resumeConfig['filename'], [
@@ -847,21 +852,7 @@ class StudentsController extends AppController
             $marital_y = $folderImgTemplate . DS . 'blank.png';
         }
 
-        $currentCity = $student->addresses[0]->city->name;
-        $cityType = $student->addresses[0]->city->type;
-        if ($cityType == 'Thành phố Trung ương') {
-            $currentCityEN = $this->convertV2E(str_replace("Thành phố", "", $currentCity) . " " . $addressENLevel['Thành phố']);
-        } else {
-            $currentCityEN = $this->convertV2E(str_replace($cityType, "", $currentCity) . " " . $addressENLevel[$cityType]);
-        }
-
-        $currentDistrict = $student->addresses[0]->district->name;
-        $districtType = $student->addresses[0]->district->type;
-        $currentDistrictEN = $this->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressENLevel[$districtType]);
-        
-        $currentWard = $student->addresses[0]->ward->name;
-        $wardType = $student->addresses[0]->ward->type;
-        $currentWardEN = $this->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressENLevel[$wardType]);
+        $mergedAdd = $this->mergeAddress($student->addresses[0]);
 
         $jplevel_JP = $jplevel_VN = $enlevel_JP = $enlevel_VN = "            ";
         if (!empty($student->language_abilities)) {
@@ -916,16 +907,8 @@ class StudentsController extends AppController
 
         $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
 
-        $this->tbs->VarRef['currentaddress_en'] = Text::insert($currentAddressTemplate, [
-            'ward' => $currentWardEN,
-            'district' => $currentDistrictEN,
-            'city' => $currentCityEN,
-        ]);
-        $this->tbs->VarRef['currentaddress_vn'] = Text::insert($currentAddressTemplate, [
-            'ward' => $currentWard,
-            'district' => $currentDistrict,
-            'city' => $currentCity,
-        ]);
+        $this->tbs->VarRef['currentaddress_en'] = $mergedAdd['en'];
+        $this->tbs->VarRef['currentaddress_vn'] = $mergedAdd['vn'];
 
         $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
         if ($student->is_lived_in_japan === 'Y') {
@@ -965,7 +948,7 @@ class StudentsController extends AppController
                     'title' => 'Quá trình học tập',
                     'time' => $value->from_date . ' ～ ' . $value->to_date,
                     'school' => Text::insert($schoolTemplate, [
-                        'schoolNameEN' => $this->convertV2E($value->school),
+                        'schoolNameEN' => $this->Ulti->convertV2E($value->school),
                         'eduLevelJP' => $eduLevel[$value->degree]['jp'],
                         'schoolNameVN' => $value->school,
                         'eduLevelVN' => $eduLevel[$value->degree]['vn']
@@ -1013,6 +996,140 @@ class StudentsController extends AppController
         exit;
     }
 
+    public function exportContract($id = null)
+    {
+        // load config
+        $contractConfig = Configure::read('contract');
+        $vnDateFormatFull = Configure::read('vnDateFormatFull');
+        $vnDateFormatShort = Configure::read('vnDateFormatShort');
+        // load template
+        $lang = $this->request->getQuery('lang');
+        $filenameLang = 'filename_' . $lang;
+        $template = WWW_ROOT . 'document' . DS . 'contract_'. $lang .'.docx';
+        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+        $student = $this->Students->get($id, [
+            'contain' => [
+                'Cards' => function($q) {
+                    return $q->where(['Cards.type' => '1']);
+                },
+                'Orders',
+                'Orders.Jobs',
+                'Orders.Companies',
+                'Orders.Companies.Guilds',
+                'Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                },
+                'Addresses.Cities',
+                'Addresses.Districts',
+                'Addresses.Wards',
+            ]
+        ]);
+        $now = Time::now();
+        $birthday = $student->birthday;
+        $cmnd_from_date = $student->cards[0]->from_date;
+        $mergeAddress = $this->mergeAddress($student->addresses[0]);
+        $job = $student->orders[0]->job;
+        $guild = $student->orders[0]->company->guild;
+        $company = $student->orders[0]->company;
+        if ($lang == 'jp') {
+            $createdDay = $now->i18nFormat('yyyy年MM月dd日');
+            $birthday = $birthday->i18nFormat('yyyy年MM月dd日');
+            $cmnd_from_date = $cmnd_from_date->i18nFormat('yyyy年MM月dd日');
+            $address = $mergeAddress['en'];
+            $job = $job->job_name_jp;
+            $guild = $guild->name_kanji;
+            $company = $company->name_kanji;
+        } else {
+            $createdDay = Text::insert($vnDateFormatFull, [
+                'day' => date('d'), 
+                'month' => date('m'), 
+                'year' => date('Y'), 
+                ]);
+
+            $birthday = Text::insert($vnDateFormatShort, [
+                'day' => str_pad($birthday->day, 2, '0', STR_PAD_LEFT), 
+                'month' => str_pad($birthday->month, 2, '0', STR_PAD_LEFT), 
+                'year' => $birthday->year, 
+                ]);
+            $cmnd_from_date = $cmnd_from_date->i18nFormat('dd/MM/yyyy');
+            $address = $mergeAddress['vn'];
+            $job = $job->job_name;
+            $guild = $guild->name_romaji;
+            $company = $company->name_romaji;
+        }
+        $studentName_VN = mb_strtoupper($student->fullname);
+        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $studentName = explode(' ', $studentName_EN);
+        $studentFirstName = array_pop($studentName);
+        $output_file_name = Text::insert($contractConfig[$filenameLang], [
+            'firstName' => $studentFirstName, 
+            ]);
+        $this->tbs->VarRef['created_day'] = $createdDay;
+        if ($lang == 'jp') {
+            $this->tbs->VarRef['student_name'] = $studentName_EN;
+        } else {
+            $this->tbs->VarRef['student_name'] = $studentName_VN;
+        }
+        $this->tbs->VarRef['birthday'] = $birthday;
+        $this->tbs->VarRef['cmnd'] = $student->cards[0]->code;
+        $this->tbs->VarRef['from_day'] = $cmnd_from_date;
+        $this->tbs->VarRef['address'] = $address;
+        $this->tbs->VarRef['job'] = $job;
+        $this->tbs->VarRef['guild'] = $guild;
+        $this->tbs->VarRef['company'] = $company;
+        $this->tbs->VarRef['subsidy'] = Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']);
+        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        exit;
+    }
+
+    public function exportEduPlan($id = null)
+    {
+        // load config
+        $eduPlanConfig = Configure::read('eduPlan');
+        $jpKingYearStart = Configure::read('jpKingYearStart');
+        $jpKingYearName = Configure::read('jpKingYearName');
+
+        $template = WWW_ROOT . 'document' . DS . $eduPlanConfig['template'];
+        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+        $student = $this->Students->get($id, [
+            'contain' => [
+                'Orders',
+                'Orders.Jobs',
+                'Orders.Companies',
+                'Orders.Companies.Guilds',
+            ]
+        ]);
+        $output_file_name = $eduPlanConfig['filename'];
+        $studentName_VN = mb_strtoupper($student->fullname);
+        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $now = Time::now();
+
+        $this->tbs->VarRef['company'] = $student->orders[0]->company->name_kanji;
+        $this->tbs->VarRef['guild'] = $student->orders[0]->company->guild->name_kanji;
+        $this->tbs->VarRef['fullname'] = $studentName_EN;
+        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
+        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        exit;
+    }
+
+    public function exportCompanyCommitment($id = null)
+    {
+        // load config
+        $commitmentConfig = Configure::read('commitment');
+        $jpKingYearStart = Configure::read('jpKingYearStart');
+        $jpKingYearName = Configure::read('jpKingYearName');
+        $output_file_name = $commitmentConfig['filename'];
+
+        $now = Time::now();
+        $template = WWW_ROOT . 'document' . DS . $commitmentConfig['template'];
+        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
+        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        exit;
+    }
+
     public function exportXlsx() {
         $this->autoRender = false;
         
@@ -1035,7 +1152,7 @@ class StudentsController extends AppController
         // set table header
         $header = ['Id', 'Code', 'Fullname', 'Birthday'];
         $spreadsheet->setActiveSheetIndex(0)->fromArray($header, NULL, 'A1');
-        // add some data
+        // fill data to table
         $spreadsheet->getActiveSheet()->fromArray($exportData, NULL, 'A2');
         // set filter
         $spreadsheet->getActiveSheet()->setAutoFilter($spreadsheet->getActiveSheet()->calculateWorksheetDimension());
@@ -1060,24 +1177,43 @@ class StudentsController extends AppController
         $spreadsheet->setActiveSheetIndex(0);
 
         // export XLSX file for download
-        $this->ExportFile->export($spreadsheet);
+        $this->ExportFile->export($spreadsheet, 'demo.xlsx');
         exit;
     }
 
-    public function convertV2E ($str)
+    public function mergeAddress($address)
     {
-        if (!$str) {
-            return false;
+        $addressLevel = Configure::read('addressLevel');
+        $currentAddressTemplate = Configure::read('currentAddressTemplate');
+        $currentCity = $address->city->name;
+        $cityType = $address->city->type;
+        if ($cityType == 'Thành phố Trung ương') {
+            $currentCityEN = $this->Ulti->convertV2E(str_replace("Thành phố", "", $currentCity) . " " . $addressLevel['Thành phố']['en']);
+        } else {
+            $currentCityEN = $this->Ulti->convertV2E(str_replace($cityType, "", $currentCity) . " " . $addressLevel[$cityType]['en']);
         }
-        $str = trim($str);
-        $str = mb_strtoupper($str);
-        $str = preg_replace("/(À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ)/", "A", $str);
-        $str = preg_replace("/(È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ)/", "E", $str);
-        $str = preg_replace("/(Ì|Í|Ị|Ỉ|Ĩ)/", "I", $str);
-        $str = preg_replace("/(Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ)/", "O", $str);
-        $str = preg_replace("/(Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ)/", "U", $str);
-        $str = preg_replace("/(Ỳ|Ý|Ỵ|Ỷ|Ỹ)/", "Y", $str);
-        $str = preg_replace("/(Đ)/", "D", $str);
-        return $str;
+
+        $currentDistrict = $address->district->name;
+        $districtType = $address->district->type;
+        $currentDistrictEN = $this->Ulti->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['en']);
+        
+        $currentWard = $address->ward->name;
+        $wardType = $address->ward->type;
+        $currentWardEN = $this->Ulti->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['en']);
+
+        $mergeAdd = [
+            'vn' => Text::insert($currentAddressTemplate, [
+                'ward' => $currentWard,
+                'district' => $currentDistrict,
+                'city' => $currentCity,
+            ]),
+            'en' => Text::insert($currentAddressTemplate, [
+                'ward' => $currentWardEN,
+                'district' => $currentDistrictEN,
+                'city' => $currentCityEN,
+            ])
+        ];
+
+        return $mergeAdd;
     }
 }

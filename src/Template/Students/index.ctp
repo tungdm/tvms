@@ -50,6 +50,38 @@ $this->assign('title', 'Quản lý Lao động');
 </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <li data-toggle="tooltip" title="Xuất báo cáo">
+                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out">
+                    <i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>
+                </a>
+            </li>
+            <?php if ($permission == 0): ?>
+            <li>
+                <a onclick="showAddStudentModal()"
+                   class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out"
+                   data-toggle="tooltip" title="Tạo lịch hẹn">
+                    <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                </a>
+            </li>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-user-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'info'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới lao động',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -57,13 +89,6 @@ $this->assign('title', 'Quản lý Lao động');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <div class="btn-group">
-                        <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-plus"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="javascript:;" onclick="showAddStudentModal()">Tạo lịch hẹn</a></li>
-                            <li><?= $this->Html->link(__('Thêm mới lao động'), ['action' => 'info']) ?></li>
-                        </ul>
-                    </div>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -106,21 +131,18 @@ $this->assign('title', 'Quản lý Lao động');
                 <table class="table table-bordered custom-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="col-num"><?= __('No.') ?></th>
-                            <th scope="col" class="codeCol">
-                                <?= $this->Paginator->sort('code', 'Mã TTS')?>
-                            </th>
+                            <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="fullnameCol">
                                 <?= $this->Paginator->sort('fullname', 'Họ và tên') ?>
                             </th>
-                            <th scope="col" class="emailCol hidden">
-                                <?= $this->Paginator->sort('email') ?>
+                            <th scope="col" class="enrolledDateCol">
+                                <?= $this->Paginator->sort('enrolled_date', 'Ngày nhập học')?>
                             </th>
                             <th scope="col" class="genderCol">
                                 <?= __('Giới tính') ?>
                             </th>
-                            <th scope="col" class="phoneCol">
-                                <?= $this->Paginator->sort('phone', 'Số điện thoại') ?>
+                            <th scope="col" class="presenterCol">
+                                <?= __('Người giới thiệu') ?>
                             </th>
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
@@ -131,14 +153,6 @@ $this->assign('title', 'Quản lý Lao động');
                     <tbody>
                         <tr>
                             <td></td>
-                            <td class="col-md-2 codeCol">
-                                <?= $this->Form->control('code', [
-                                    'label' => false,
-                                    'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['code'] ?? ''
-                                    ]) 
-                                ?>
-                            </td>
                             <td class="col-md-2 fullnameCol">
                                 <?= $this->Form->control('student_name', [
                                     'label' => false,
@@ -147,13 +161,20 @@ $this->assign('title', 'Quản lý Lao động');
                                     ]) 
                                 ?>
                             </td>
-                            <td class="col-md-2 emailCol hidden">
-                                <?= $this->Form->control('email', [
-                                    'label' => false,
-                                    'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['email'] ?? ''
-                                    ]) 
-                                ?>
+                            <td class="col-md-2 enrolledDateCol">
+                                <div class="input-group date input-picker" id="select-enrolled-date">
+                                    <?= $this->Form->control('enrolled_date', [
+                                        'type' => 'text',
+                                        'label' => false,
+                                        'placeholder' => 'yyyy-mm-dd',
+                                        'class' => 'form-control col-md-7 col-xs-12',
+                                        'value' => $query['enrolled_date'] ?? ''
+                                        ]) 
+                                    ?>
+                                    <span class="input-group-addon" style="line-height: 1;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
                             </td>
                             <td class="col-md-1 genderCol" style="width: 12.499999995%;">
                                 <?= $this->Form->control('student_gender', [
@@ -166,21 +187,23 @@ $this->assign('title', 'Quản lý Lao động');
                                     ])
                                 ?>
                             </td>
-                            <td class="col-md-1 phoneCol" style="width: 12.499999995%;">
-                                <?= $this->Form->control('student_phone', [
+                            <td class="col-md-2 presenterCol">
+                                <?= $this->Form->control('presenter', [
+                                    'options' => $presenters, 
+                                    'empty' => true,
                                     'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12', 
-                                    'value' => $query['student_phone'] ?? ''
+                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                    'value' => $query['presenter'] ?? ''
                                     ])
                                 ?>
                             </td>
                             <td class="col-md-2 statusCol">
-                                <?= $this->Form->control('status', [
+                                <?= $this->Form->control('student_status', [
                                     'options' => $studentStatus, 
                                     'empty' => true,
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                    'value' => $query['status'] ?? ''
+                                    'value' => $query['student_status'] ?? ''
                                     ])
                                 ?>
                             </td>
@@ -199,11 +222,10 @@ $this->assign('title', 'Quản lý Lao động');
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell"><?= h($counter) ?></td>
-                            <td class="cell codeCol"><?= h($student->code) ?></td>
                             <td class="cell fullnameCol"><?= h($student->fullname) ?><br><?= h($student->fullname_kata)?></td>
-                            <td class="cell emailCol hidden"><?= h($student->email) ?></td>
+                            <td class="cell enrolledDateCol"><?= h($student->enrolled_date) ?></td>
                             <td class="cell genderCol"><?= h($gender[$student->gender]) ?></td>
-                            <td class="cell phoneCol"><?= h($this->Phone->makeEdit($student->phone)) ?></td>
+                            <td class="cell presenterCol"><?= $student->presenter ? $student->presenter->name : '' ?></td>
                             <td class="cell statusCol"><?= h($studentStatus[$student->status]) ?></td>
                             
                             <td class="actions cell">
@@ -213,49 +235,52 @@ $this->assign('title', 'Quản lý Lao động');
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
                                             <?php if ($student->status == 1): ?>
+                                                <?php $entity = "lịch hẹn" ?>
                                                 <a href="javascript:;" onclick="viewSCandidate(<?= $student->id ?>)">
                                                     <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
                                                 </a>
                                             <?php else: ?>
-                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
-                                                ['action' => 'view', $student->id],
-                                                ['escape' => false]) ?>
+                                                <?php $entity = "lao động" ?>
+                                                <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                    ['action' => 'view', $student->id],
+                                                    ['escape' => false]) ?>
                                             <?php endif; ?>
                                         </li>
                                         <?php if ($permission == 0): ?>
-                                            <li>
                                             <?php if ($student->status == 1): ?>
+                                            <li>
                                                 <a href="javascript:;" onclick="showEditStudentModal(<?= $student->id ?>)">
                                                     <i class="fa fa-edit" aria-hidden="true"></i> Sửa
                                                 </a>
+                                            </li>
+                                            <li>
+                                                <?= $this->Html->link('<i class="fa fa-angle-double-up" style="font-size: 1.3em" aria-hidden="true"></i> Kí kết chính thức', 
+                                                    ['action' => 'info', $student->id],
+                                                    ['escape' => false]) ?>
+                                            </li>
                                             <?php else: ?>
+                                            <li>
                                                 <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', [
                                                     'action' => 'info', $student->id],
                                                     ['escape' => false]) ?>
-                                            <?php endif; ?>
                                             </li>
+                                            <?php endif; ?>
                                             <li>
                                                 <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $student->id], 
                                                 [
                                                     'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa lao động {0}?', $student->fullname)
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa ' . $entity . ' {0}?', $student->fullname)
                                                 ]) ?>
                                             </li>
                                         <?php endif; ?>
-                                        <li class="divider"></li>
-                                        <?php if ($student->status == 1): ?>
-                                        <li>
-                                            <?= $this->Html->link('<i class="fa fa-angle-double-up" aria-hidden="true"></i> Kí kết chính thức', 
-                                            ['action' => 'info', $student->id],
-                                            ['escape' => false]) ?>
-                                        </li>
-                                        <?php else: ?>
-                                        <li>
-                                            <?= $this->Html->link('<i class="fa fa-file-word-o" aria-hidden="true"></i> Xuất CV Việt', 
-                                            ['action' => 'exportResume', $student->id],
-                                            ['escape' => false]) ?>
-                                        </li>
+                                        <?php if ($student->status != '1'): ?>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <a href="javascript" data-toggle="modal" data-target="#export-student-modal">
+                                                    <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
+                                                </a>
+                                            </li>
                                         <?php endif; ?>
                                     </ul>
                                 </div>
@@ -421,7 +446,7 @@ $this->assign('title', 'Quản lý Lao động');
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-success" type="button" id="add-candidate-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-success" id="add-candidate-btn">Hoàn tất</button>
                 <button type="button" class="btn btn-default" id="add-candidate-close-btn" data-dismiss="modal">Đóng</button>
             </div>
             <?= $this->Form->end() ?>
@@ -510,6 +535,87 @@ $this->assign('title', 'Quản lý Lao động');
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="export-student-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
+                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell"><?= __('1') ?></td>
+                                <td class="cell"><?= __('Sơ yếu lý lịch') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportResume', $student->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('2') ?></td>
+                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Nhật)') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'jp']],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('3') ?></td>
+                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Việt)') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'vn']],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('4') ?></td>
+                                <td class="cell"><?= __('Thủ tục công nhận kế hoạch đào tạo') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportEduPlan', $student->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('5') ?></td>
+                                <td class="cell"><?= __('Tóm tắt và cam kết của tổ chức nước ngoài') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCompanyCommitment', $student->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Login Page</title>
-    <?= $this->Html->meta('icon') ?>
+    <?= $this->Html->meta('icon', 'tvms.png') ?>
     <?= $this->Html->css('bootstrap/bootstrap.min.css') ?>
     <?= $this->Html->css('font-awesome/font-awesome.min.css') ?>
     <?= $this->Html->css('nprogress/nprogress.css') ?>

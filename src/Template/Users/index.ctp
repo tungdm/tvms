@@ -41,6 +41,27 @@ $this->assign('title', 'Quản lý Nhân viên');
     <li class="active">Danh sách nhân niên</li>
 </ol>
 <?php $this->end(); ?>
+
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-user-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'add'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới nhân viên',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -48,7 +69,6 @@ $this->assign('title', 'Quản lý Nhân viên');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">

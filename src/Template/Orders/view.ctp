@@ -20,22 +20,61 @@ $this->assign('title', $order->name . ' - Thông tin chi tiết')
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chủ',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li>
-        <?= $this->Html->link(__('Danh sách đơn hàng'), [
-            'controller' => 'Orders',
-            'action' => 'index']) ?>
-    </li>
-    <li class="active"><?= $order->name ?></li>
-</ol>
+    <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Trang Chủ',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li>
+            <?= $this->Html->link(__('Danh sách đơn hàng'), [
+                'controller' => 'Orders',
+                'action' => 'index']) ?>
+        </li>
+        <li class="active"><?= $order->name ?></li>
+    </ol>
 <?php $this->end(); ?>
+
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <li data-toggle="tooltip" title="Xuất hồ sơ">
+                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
+                   data-toggle="modal" 
+                   data-target="#export-order-modal">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                </a>
+            </li>
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                    ['action' => 'edit', $order->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Sửa',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $order->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="form-horizontal form-label-left">
     <div class="row">    
         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -206,7 +245,7 @@ $this->assign('title', $order->name . ' - Thông tin chi tiết')
                                 <th scope="col"><?= __('Giới tính') ?></th>
                                 <th scope="col"><?= __('Số ĐT') ?></th>
                                 <th scope="col"><?= __('Kết quả') ?></th>
-                                <th scope="col" class="actions"></th>
+                                <th scope="col" class="actions">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="candidate-container">
@@ -236,17 +275,21 @@ $this->assign('title', $order->name . ' - Thông tin chi tiết')
                                         <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     </td>
                                     <td class="actions cell">
-                                        <?php if ($value->_joinData->result == 1): ?>
-                                        <?= $this->Html->link(
-                                            '<i class="fa fa-2x fa-folder"></i>',
-                                            'javascript:;',
+                                        <?= $this->Html->link('<i class="fa fa-2x fa-book"></i>',
                                             [
-                                                'class' => 'edit-doc',
+                                                'controller' => 'Orders', 
+                                                'action' => 'exportCv', 
+                                                '?' => [
+                                                    'studentId' => $value->id,
+                                                    'serial' => $key+1
+                                                ]
+                                                
+                                            ],
+                                            [
                                                 'escape' => false,
-                                                'onClick' => "editDoc($value->id)"
-                                            ])
-                                        ?>
-                                        <?php endif; ?>
+                                                'data-toggle' => 'tooltip',
+                                                'title' => 'Xuất CV',
+                                            ])?>
                                     </td>
                                 </tr>
                                 <?php $counter++; ?>
@@ -255,6 +298,67 @@ $this->assign('title', $order->name . ' - Thông tin chi tiết')
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="export-order-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
+                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell"><?= __('1') ?></td>
+                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDispatchLetter', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('2') ?></td>
+                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDispatchLetterXlsx', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('3') ?></td>
+                                <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCandidates', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

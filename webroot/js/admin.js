@@ -829,6 +829,7 @@ var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
 var DOMAIN_NAME = '/tvms';
 var ajaxing = false;
 var historyCounter = 0;
+var isChartRendered = false;
 // var formChanged = false;
 
 function init_sidebar() {
@@ -1081,22 +1082,38 @@ function globalViewGuild(guildId, overlayId) {
             id: guildId
         },
         success: function(resp) {
-            if (resp) {
-                $('#view-name-romaji').html(resp.name_romaji);
-                $('#view-name-kanji').html(resp.name_kanji);
+            if (resp.status == 'success') {
+                $('#view-name-romaji').html(resp.data.name_romaji);
+                $('#view-name-kanji').html(resp.data.name_kanji);
 
-                $('#view-address-romaji').html(resp.address_romaji);
-                $('#view-address-kanji').html(resp.address_kanji);
+                $('#view-address-romaji').html(resp.data.address_romaji);
+                $('#view-address-kanji').html(resp.data.address_kanji);
 
-                $('#view-phone-vn').html(str2Phone(resp.phone_vn));
-                $('#view-phone-jp').html(resp.phone_jp);
+                $('#view-phone-vn').html(str2Phone(resp.data.phone_vn));
+                $('#view-phone-jp').html(resp.data.phone_jp);
 
-                $('#view-license-number').html(resp.license_number);
-                $('#view-deputy-romaji').html(resp.deputy_name_romaji);
-                $('#view-deputy-kanji').html(resp.deputy_name_kanji);
-
+                $('#view-license-number').html(resp.data.license_number);
+                $('#view-deputy-romaji').html(resp.data.deputy_name_romaji);
+                $('#view-deputy-kanji').html(resp.data.deputy_name_kanji);
+                $('#view-subsidy').html(resp.data.subsidy.toLocaleString());
 
                 $('#view-guild-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
             }
         },
         complete: function() {
@@ -1121,23 +1138,39 @@ function globalViewCompany(companyId, overlayId) {
             id: companyId
         },
         success: function(resp) {
-            if (resp) {
-                $('#view-company-name-romaji').html(resp.name_romaji);
-                $('#view-company-name-kanji').html(resp.name_kanji);
+            if (resp.status == 'success') {
+                $('#view-company-name-romaji').html(resp.data.name_romaji);
+                $('#view-company-name-kanji').html(resp.data.name_kanji);
 
-                $('#view-guild-name-romaji').html(resp.guild.address_romaji);
-                $('#view-guild-name-kanji').html(resp.guild.address_kanji);
+                $('#view-guild-name-romaji').html(resp.data.guild.address_romaji);
+                $('#view-guild-name-kanji').html(resp.data.guild.address_kanji);
 
-                $('#view-company-address-romaji').html(resp.address_romaji);
-                $('#view-company-address-kanji').html(resp.address_kanji);
+                $('#view-company-address-romaji').html(resp.data.address_romaji);
+                $('#view-company-address-kanji').html(resp.data.address_kanji);
 
-                $('#view-company-phone-vn').html(str2Phone(resp.phone_vn));
-                $('#view-company-phone-jp').html(resp.phone_jp);
+                $('#view-company-phone-vn').html(str2Phone(resp.data.phone_vn));
+                $('#view-company-phone-jp').html(resp.data.phone_jp);
 
-                $('#view-company-deputy-romaji').html(resp.deputy_name_romaji);
-                $('#view-company-deputy-kanji').html(resp.deputy_name_kanji);
+                $('#view-company-deputy-romaji').html(resp.data.deputy_name_romaji);
+                $('#view-company-deputy-kanji').html(resp.data.deputy_name_kanji);
 
                 $('#view-company-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
             }
         },
         complete: function() {
@@ -1162,13 +1195,13 @@ function globalViewPresenter(presenterId, overlayId) {
             id: presenterId
         },
         success: function(resp) {
-            if (resp) {
-                $('#view-presenter-name').html(resp.name);
-                $('#view-presenter-address').html(resp.address);
-                $('#view-presenter-phone').html(str2Phone(resp.phone));
+            if (resp.status == 'success') {
+                $('#view-presenter-name').html(resp.data.name);
+                $('#view-presenter-address').html(resp.data.address);
+                $('#view-presenter-phone').html(str2Phone(resp.data.phone));
 
                 var type;
-                switch (resp.type) {
+                switch (resp.data.type) {
                     case "1":
                         type = "Cá nhân";
                         break;
@@ -1182,6 +1215,22 @@ function globalViewPresenter(presenterId, overlayId) {
 
                 $('#view-presenter-type').html(type);
                 $('#view-presenter-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
             }
         },
         complete: function() {
@@ -1516,12 +1565,37 @@ function downloadChart() {
     document.body.removeChild(dlLink);
 }
 
+function initFloatingButton() {
+    $('#zoomBtn').click(function () {
+        if($(this).hasClass('active')){
+            $(this).removeClass('active')
+        } else {
+            $(this).addClass('active')
+        }
+        $('.zoom-btn-sm').toggleClass('scale-out');
+        if (!$('.zoom-card').hasClass('scale-out')) {
+            $('.zoom-card').toggleClass('scale-out');
+        }
+    });
+}
+
 $(document).ready(function() {
     init_sidebar();
     tableHover();
     initSelect2();
     initDatetimePicker();
+    initFloatingButton();
 
+    // init tooltip
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // disable enter key
+    $(window).keydown(function (e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
     // init history counter
     historyCounter = $('.history-detail').length;
 

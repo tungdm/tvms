@@ -46,6 +46,26 @@ $this->assign('title', 'Quản lý đơn hàng');
 </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'add'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -53,7 +73,6 @@ $this->assign('title', 'Quản lý đơn hàng');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -62,10 +81,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                             <li><a href="#">Something else here</a></li>
                             <li class="divider"></li>
                             <li>
-                                Export File
-                                <!-- <?= $this->Html->link('Export Xlsx', [
-                                    'action' => 'exportXlsx'
-                                ]) ?> -->
+                                <a href="#">Action</a>
                             </li>
                         </ul>
                     </div>
@@ -249,6 +265,12 @@ $this->assign('title', 'Quản lý đơn hàng');
                                             ]) ?>
                                         </li>
                                         <?php endif; ?>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" data-toggle="modal" data-target="#export-order-modal">
+                                                <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                             </td>
@@ -267,6 +289,67 @@ $this->assign('title', 'Quản lý đơn hàng');
                     </ul>
                     <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="export-order-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
+                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell"><?= __('1') ?></td>
+                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDispatchLetter', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('2') ?></td>
+                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDispatchLetterXlsx', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('3') ?></td>
+                                <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCandidates', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

@@ -1,5 +1,6 @@
 <?php
 use Cake\Core\Configure;
+use Cake\I18n\Time;
 
 $lessons = Configure::read('lessons');
 $skillsArr = Configure::read('skills');
@@ -9,6 +10,31 @@ $teachers = [];
 $avg = [];
 $avgTotal = 0;
 $totalStudent = count($jtest->students);
+
+$controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
+$currentUser = $this->request->session()->read('Auth.User');
+
+$supervisory = false;
+if (!empty($jtest->jtest_contents)) {
+    foreach ($jtest->jtest_contents as $key => $content) {
+        if ($content->user_id == $currentUser['id']) {
+            // current user only have read access but they are the supervisory
+            $supervisory = true;
+        }
+    }
+}
+$status = 0;
+$now = Time::now()->i18nFormat('yyyy-MM-dd');
+if ($jtest->status == "4" || $jtest->status == "5") {
+    $status = (int) $jtest->status;
+} elseif ($now < $jtest->test_date) {
+    $status = 1;
+} elseif ($now == $jtest->test_date) {
+    $status = 2;
+} else {
+    $status = 3;
+}
 
 $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiết');
 ?>
@@ -31,6 +57,51 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <?php if ($status == 1): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                    ['action' => 'edit', $jtest->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Sửa',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $jtest->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+            <?php if ($status < 5 && $status >= 2 && $supervisory == true): ?>
+            <li>
+                <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i>', 
+                    ['action' => 'setScore', $jtest->id],
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Nhập điểm',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="form-horizontal form-label-left">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -43,24 +114,24 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_date"><?= __('Ngày thi') ?>: </label>
-                        <div class="ccol-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="test_date"><?= __('Ngày thi') ?>: </label>
+                        <div class="ccol-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jtest->test_date) ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="jclass_id"><?= __('Lớp thi') ?>: </label>
-                        <div class="ccol-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="jclass_id"><?= __('Lớp thi') ?>: </label>
+                        <div class="ccol-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jtest->jclass->name) ?>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="test_lessons"><?= __('Bài thi') ?>: </label>
-                        <div class="ccol-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="test_lessons"><?= __('Bài thi') ?>: </label>
+                        <div class="ccol-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($lessons[$jtest->lesson_from]) ?> ～ <?= h($lessons[$jtest->lesson_to]) ?>
                             </div>

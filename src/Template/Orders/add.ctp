@@ -6,6 +6,9 @@
 use Cake\Core\Configure;
 use Cake\I18n\Time;
 
+$controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
+
 $gender = Configure::read('gender');
 $interviewResult = Configure::read('interviewResult');
 
@@ -69,6 +72,49 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         </ol>
     <?php $this->end(); ?>
 <?php endif; ?>
+
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($action === 'edit'): ?>
+            <li data-toggle="tooltip" title="Xuất báo cáo">
+                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
+                   data-toggle="modal" 
+                   data-target="#export-order-modal">
+                    <i class="fa fa-book" aria-hidden="true"></i>
+                </a>
+            </li>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
+                    ['action' => 'view', $order->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xem chi tiết',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $order->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+            <li>
+                <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out submit-order-btn" data-toggle="tooltip" title="Lưu lại">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+<?php $this->end(); ?>
 
 <?= $this->Form->create($order, [
     'class' => 'form-horizontal form-label-left',
@@ -241,12 +287,12 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="input-group date input-picker gt-now" id="departure-date">
+                        <div class="input-group date input-picker gt-now month-mode" id="departure-date-div">
                             <?= $this->Form->control('departure_date', [
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'yyyy-mm',
                                 'required' => true,
                                 'data-parsley-errors-container' => '#error-departure-date'
                                 ])?>
@@ -393,7 +439,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             <th scope="col" class="col-md-1"><?= __('Giới tính') ?></th>
                             <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
                             <th scope="col" class="col-md-1"><?= __('Kết quả') ?></th>
-                            <th scope="col" class="actions"></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody id="candidate-container">
@@ -448,32 +494,31 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                         ]) ?>
                                 </td>
                                 <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-2x fa-book"></i>',
+                                        [
+                                            'controller' => 'Orders', 
+                                            'action' => 'exportCv', 
+                                            '?' => [
+                                                'studentId' => $value->id,
+                                                'serial' => $key+1
+                                            ]
+                                            
+                                        ],
+                                        ['escape' => false])?>
                                     <?= $this->Html->link(
                                         '<i class="fa fa-2x fa-pencil"></i>', 
                                         'javascript:;',
                                         [
                                             'escape' => false,
                                             'onClick' => "setPassed(this)"
-                                        ]) 
-                                    ?>
+                                        ])?>
                                     <?= $this->Html->link(
                                         '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
                                         'javascript:;',
                                         [
                                             'escape' => false, 
                                             'onClick' => "deleteCandidate(this, true)"
-                                        ]
-                                    )?>
-                                    <?php $isHidden = $value->_joinData->result != 1 ? " hidden" : "";  ?>
-                                    <?= $this->Html->link(
-                                        '<i class="fa fa-2x fa-folder"></i>',
-                                        'javascript:;',
-                                        [
-                                            'class' => 'edit-doc' . $isHidden,
-                                            'escape' => false,
-                                            'onClick' => "editDoc($value->id)"
-                                        ])
-                                    ?>
+                                        ])?>
                                 </td>
                             </tr>
                             <?php $counter++; ?>
@@ -532,8 +577,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                         <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
                                         <th scope="col" class="col-md-2"><?= __('Tuổi') ?></th>
                                         <th scope="col" class="col-md-2"><?= __('Giới tính') ?></th>
-                                        <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
-                                        <th scope="col" class="actions"></th>
+                                        <th scope="col" class="col-md-2"><?= __('Số ĐT') ?></th>
+                                        <th scope="col" class="actions col-md-2"><?= __('Thao tác')?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="recommend-container">
@@ -618,6 +663,67 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
     </div>
 </div>
 
+<div class="modal fade" id="export-order-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
+                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell"><?= __('1') ?></td>
+                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDispatchLetter', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('2') ?></td>
+                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDispatchLetterXlsx', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell"><?= __('3') ?></td>
+                                <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCandidates', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script id="selected-candidate-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-rec" id="row-candidate-{{row}}">
@@ -686,15 +792,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     'onClick' => "deleteCandidate(this)"
                 ]
             )?>
-            <?= $this->Html->link(
-                '<i class="fa fa-2x fa-folder"></i>',
-                'javascript:;',
-                [
-                    'class' => 'edit-doc hidden',
-                    'escape' => false,
-                    'onClick' => "editDoc({{id}})"
-                ])
-            ?>
         </td>
     </tr>
     {{/each}}
@@ -748,7 +845,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell col-md-2">
             {{phoneFormat phone}}
             <div class="hidden">
                 <?= $this->Form->control('phone', [
@@ -812,7 +909,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell col-md-2">
             {{phoneFormat phone}}
             <div class="hidden">
                 <?= $this->Form->control('phone', [

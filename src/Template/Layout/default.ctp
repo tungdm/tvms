@@ -24,7 +24,7 @@ use Cake\Core\Configure;
     <title>
         <?= $this->fetch('title') ?>
     </title>
-    <?= $this->Html->meta('icon') ?>
+    <?= $this->Html->meta('icon', 'tvms.png') ?>
 
     <?= $this->Html->css('bootstrap/bootstrap.min.css') ?>
     <?= $this->Html->css('font-awesome/font-awesome.min.css') ?>
@@ -40,6 +40,7 @@ use Cake\Core\Configure;
     <?= $this->Html->css('admin.css') ?>
     <?= $this->Html->css('skin-blue.css') ?>
     <?= $this->Html->css('base.css') ?>
+
     <?= $this->Html->script('jquery.min.js') ?>
     
     <?= $this->fetch('meta') ?>
@@ -151,7 +152,7 @@ use Cake\Core\Configure;
                     </li>
                     <li class="treeview">
                         <a href="#">
-                            <i class="fa fa-bar-chart-o"></i>
+                            <i class="fa fa-graduation-cap"></i>
                             <span><?= __('ĐÀO TẠO') ?></span>
                             <span class="pull-right-container">
                                 <i class="fa fa-angle-left pull-right"></i>
@@ -209,6 +210,9 @@ use Cake\Core\Configure;
                 <?= $this->fetch('content') ?>
             </section>
             <div class="clearfix"></div>
+            <section class="floating-button">
+                <?= $this->fetch('floating-button') ?>
+            </section>
         </div>
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
@@ -242,6 +246,14 @@ use Cake\Core\Configure;
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-license-number"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="subsidy"><?= __('Tiền trợ cấp TTS') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-subsidy"></span> ¥/tháng
                                 </div>
                             </div>
                         </div>

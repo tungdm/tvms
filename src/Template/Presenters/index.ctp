@@ -39,6 +39,23 @@ $this->assign('title', 'Quản lý Cộng tác viên');
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <a  data-toggle='tooltip' title='Thêm mới'
+                    class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
+                    onclick="showAddPresenterModal()">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">

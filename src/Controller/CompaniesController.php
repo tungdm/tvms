@@ -119,13 +119,24 @@ class CompaniesController extends AppController
     {
         $this->request->allowMethod('ajax');
         $companyId = $this->request->getQuery('id');
-        $resp = [];
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
 
         try {
-            $guild = $this->Companies->get($companyId, [
+            $company = $this->Companies->get($companyId, [
                 'contain' => ['Guilds']
             ]);
-            $resp = $guild;
+            $resp = [
+                'status' => 'success',
+                'data' => $company
+            ];
         } catch (Exception $e) {
             //TODO: blacklist user
             Log::write('debug', $e);

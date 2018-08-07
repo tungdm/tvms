@@ -10,7 +10,7 @@ $scope = Configure::read('scope');
 $confPermission = Configure::read('permission');
 
 $controller = $this->request->getParam('controller');
-$permission = $this->request->session()->read($controller);
+$permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
 
@@ -44,6 +44,23 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <a  data-toggle='tooltip' title='Thêm mới'
+                    class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
+                    onclick="showAddCompanyModal()">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -51,7 +68,6 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <a class="btn btn-box-tool" href="javascript:;" onclick="showAddCompanyModal()"><i class="fa fa-plus"></i></a>
                     <div class="btn-group">
                         <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">

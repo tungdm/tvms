@@ -72,7 +72,7 @@ class JclassesController extends AppController
                 });
             }
             if (isset($query['start']) && !empty($query['start'])) {
-                $allClasses->where(['start' => $query['start']]);
+                $allClasses->where(['start >=' => $query['start']]);
             }
             if (isset($query['num_students']) && $query['num_students'] != NULL) {
                 $allClasses

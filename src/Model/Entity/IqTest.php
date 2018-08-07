@@ -55,6 +55,7 @@ class IqTest extends Entity
     protected $_accessible = [
         'student_id' => true,
         'test_date' => true,
+        'total' => true,
         'q1' => true,
         'q2' => true,
         'q3' => true,

@@ -43,6 +43,7 @@ class Family extends Entity
         'relationship' => true,
         'job_id' => true,
         'address' => true,
+        'living_at' => true,
         'bank_name' => true,
         'bank_branch' => true,
         'bank_num' => true,

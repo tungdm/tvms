@@ -40,6 +40,26 @@ $this->assign('title', 'Quản lý lớp học');
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'add'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -47,9 +67,6 @@ $this->assign('title', 'Quản lý lớp học');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <?php if ($permission == 0): ?>
-                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool','escape' => false]) ?>
-                    <?php endif; ?>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
@@ -173,7 +190,7 @@ $this->assign('title', 'Quản lý lớp học');
                         <?php 
                             $counter++;
                             if ($currentUser['id'] == $jclass->user_id && $permission != 0) {
-                                // current user only have read access but they are the gvcn
+                                // current user only have read access but they are the main teacher
                                 $permission = 0.1;
                             }
                         ?>
@@ -194,15 +211,15 @@ $this->assign('title', 'Quản lý lớp học');
                                                 ['action' => 'view', $jclass->id],
                                                 ['escape' => false]) ?>
                                         </li>
-                                    <?php if ($permission < 1): ?>
+                                        <?php if ($permission < 1): ?>
                                         <li>
                                             <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
                                                 ['action' => 'edit', $jclass->id],
                                                 ['escape' => false]) ?>
                                         </li>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
 
-                                    <?php if ($permission == 0): ?>
+                                        <?php if ($permission == 0): ?>
                                         <li>
                                             <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $jclass->id], 
@@ -211,13 +228,7 @@ $this->assign('title', 'Quản lý lớp học');
                                                     'confirm' => __('Bạn có chắc chắn muốn xóa lớp {0}?', $jclass->name)
                                                 ]) ?>
                                         </li>
-                                    <?php endif; ?>
-
-                                    <?php if($permission == 1): ?>
-                                        <li>
-                                            <?= $this->Html->link(__('View'), ['action' => 'view', $jclass->id]) ?>
-                                        </li>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>
                             </td>
@@ -228,13 +239,13 @@ $this->assign('title', 'Quản lý lớp học');
                 </table>
                 <div class="paginator">
                     <ul class="pagination">
-                        <?= $this->Paginator->first('<< ' . __('first')) ?>
-                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
                         <?= $this->Paginator->numbers() ?>
-                        <?= $this->Paginator->next(__('next') . ' >') ?>
-                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                        <?= $this->Paginator->next(__('Trang sau') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
                     </ul>
-                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
             </div>
         </div>

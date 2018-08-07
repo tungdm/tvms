@@ -2,7 +2,9 @@
 use Cake\Core\Configure;
 
 $gender = Configure::read('gender');
+$lessons = Configure::read('lessons');
 $controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
 $this->Html->script('class.js', ['block' => 'scriptBottom']);
@@ -26,6 +28,37 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
         </li>
         <li class="active">Lớp <?= $jclass->name ?></li>
     </ol>
+<?php $this->end(); ?>
+
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                    ['action' => 'edit', $jclass->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Sửa',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                    ['action' => 'delete', $jclass->id], 
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                        'escape' => false, 
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xóa',
+                        'confirm' => __('Bạn có chắc chắn muốn xóa lớp {0}?', $jclass->name)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
 <?php $this->end(); ?>
 
 <div class="form-horizontal form-label-left">
@@ -60,6 +93,14 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($jclass->user->fullname) ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="current_lesson"><?= __('Bài đang học') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= h($lessons[$jclass->current_lesson]) ?>
                             </div>
                         </div>
                     </div>

@@ -39,6 +39,26 @@ $this->assign('title', 'Quản lý thi cử');
     </ol>
 <?php $this->end(); ?>
 
+<?php $this->start('floating-button'); ?>
+    <div class="zoom" id="draggable-button">
+        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+        <ul class="zoom-menu">
+            <?php if ($permission == 0): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'add'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
+        </ul>
+    </div>
+<?php $this->end(); ?>
+
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -46,19 +66,12 @@ $this->assign('title', 'Quản lý thi cử');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <?php if ($permission == 0): ?>
-                    <?= $this->Html->link('<i class="fa fa-plus"></i>', ['action' => 'add'], ['class' => 'btn btn-box-tool', 'escape' => false]) ?>
-                    <?php endif; ?>
                     <div class="btn-group">
                         <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="#">Action</a></li>
                             <li><a href="#">Another action</a></li>
                             <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li>
-                                Export File
-                            </li>
                         </ul>
                     </div>
                 </div>
@@ -178,7 +191,7 @@ $this->assign('title', 'Quản lý thi cử');
                         <?php 
                             $counter++;
                             $supervisory = false;
-                            foreach ($jtest->jtest_contents as $ck => $content) {
+                            foreach ($jtest->jtest_contents as $key => $content) {
                                 if ($content->user_id == $currentUser['id']) {
                                     // current user only have read access but they are the supervisory
                                     $supervisory = true;
@@ -199,9 +212,9 @@ $this->assign('title', 'Quản lý thi cử');
                             <td class="cell statusCol">
                                 <?php 
                                     $status = 0;
-                                    if ($jtest->status == "4") {
-                                        $status = 4;
-                                        echo h($testStatus["4"]);
+                                    if ($jtest->status == "4" || $jtest->status == "5") {
+                                        $status = (int) $jtest->status;
+                                        echo h($testStatus[$jtest->status]);
                                     } elseif ($now < $jtest->test_date) {
                                         $status = 1;
                                         echo h($testStatus["1"]);
@@ -232,6 +245,15 @@ $this->assign('title', 'Quản lý thi cử');
                                                     ['action' => 'edit', $jtest->id], 
                                                     ['escape' => false]) ?>
                                             </li>
+                                            <?php elseif ($status == 4): ?>
+                                            <li>
+                                                <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i> Đóng', 
+                                                ['action' => 'finish', $jtest->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Bạn có chắc chắn muốn đóng kì thi {0}?', $jtest->test_date)
+                                                ]) ?>
+                                            </li>
                                             <?php endif; ?>
                                             <li>
                                                 <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
@@ -243,7 +265,7 @@ $this->assign('title', 'Quản lý thi cử');
                                             </li>
                                         <?php endif; ?>
 
-                                        <?php if (($status == 2 || $status == 3) && $supervisory == true): ?>
+                                        <?php if ($status < 5 && $status >= 2 && $supervisory == true): ?>
                                             <li class="divider"></li>
                                             <li>
                                                 <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i> Nhập điểm', 
@@ -261,13 +283,13 @@ $this->assign('title', 'Quản lý thi cử');
                 </table>
                 <div class="paginator">
                     <ul class="pagination">
-                        <?= $this->Paginator->first('<< ' . __('first')) ?>
-                        <?= $this->Paginator->prev('< ' . __('previous')) ?>
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
                         <?= $this->Paginator->numbers() ?>
-                        <?= $this->Paginator->next(__('next') . ' >') ?>
-                        <?= $this->Paginator->last(__('last') . ' >>') ?>
+                        <?= $this->Paginator->next(__('Trang sau') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
                     </ul>
-                    <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
                 </div>
             </div>
         </div>

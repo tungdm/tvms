@@ -5,11 +5,21 @@ perData.expCounter = 0;
 perData.langCounter = 0;
 var initGraph;
 
+var testDate = '';
+if (typeof iqtests !== 'undefined' && iqtests.length > 0) {
+    testDate =  moment(iqtests[0].test_date).format('YYYY-MM-DD')
+}
+
+var stName = '';
+if (typeof studentName !== 'undefined') {
+    stName = studentName;
+}
+
 var lineChartOptions = {
     responsive: true,
     title: {
         display: true,
-        text: 'Biểu đồ điểm thi IQ đầu vào ngày ' + moment(iqtests[0].test_date).format('YYYY-MM-DD')
+        text: 'クレペリン検査 * ' + stName + ' * ' +  testDate
     },
     tooltips: {
         mode: 'index',
@@ -97,6 +107,15 @@ $(document).ready(function() {
     if (focusTab) {
         $('#student-tabs a[href="' + focusTab + '"]').tab('show');
     }
+
+    $('.iqtest_score').change(function() {
+        var total = 0;
+        $('.iqtest_score').each(function() {
+            total += parseInt($(this).val());
+        });
+        console.log(total);
+        $('#iqtest_total').val(total);
+    });
 
     $('.select-city').change(function(e) {
         var token = getToken(this);
@@ -222,6 +241,10 @@ $(document).ready(function() {
             if ($('#lived-to').val()) {
                 $('#jp-to-date').val($('#lived-to').val()).trigger('change');
             }
+            // reset form
+            $('#set-lived-japan-form')[0].reset();
+            $('#set-lived-japan-form').parsley().reset();
+
             // show modal
             $('#lived-japan-modal').modal('toggle');
         } else {
@@ -230,6 +253,13 @@ $(document).ready(function() {
             $('.time-lived').empty();
             $('#lived-from').val('');
             $('#lived-to').val('');
+        }
+    });
+
+    $('#lived-japan-modal').on('hidden.bs.modal', function() {
+        var validateResult = $('#set-lived-japan-form').parsley().validate();
+        if (!validateResult) {
+            $('select[name="is_lived_in_japan"]').val('N').trigger('change');
         }
     });
 
@@ -381,6 +411,7 @@ function viewSCandidate(candidateId) {
         }
     });
 }
+
 function addCandidate() {
     // formChanged = false;
     var validateResult = $('#add-candidate-form').parsley().validate();
@@ -540,6 +571,8 @@ function createMemberTemplate(counter) {
         'address': 'families[' + counter + '][address]',
         'addressVal': $('#modal-address').val(),
 
+        'livingAt': 'families[' + counter + '][living_at]',
+
         'bankNum': 'families[' + counter + '][bank_num]',
         'bankNumVal': $('#modal-bank-num').val(),
 
@@ -579,6 +612,7 @@ function addMember() {
         $('select[name="families['+perData.familyCounter+'][relationship]"]').val($('#modal-relationship').val());
         $('select[name="families['+perData.familyCounter+'][job_id]"]').val($('#modal-job').val());
         $('select[name="families['+perData.familyCounter+'][bank_name]"]').val($('#modal-bank-name').val());
+        $('select[name="families['+perData.familyCounter+'][living_at]"]').val($('#modal-living-at').val());
 
         // close modal
         $('#add-member-modal').modal('toggle');
@@ -597,6 +631,7 @@ function showEditMemberModal(ele) {
     $('#modal-relationship').val($(ele).closest('.row-member').find('.relationship').val()).trigger('change');
     $('#modal-job').val($(ele).closest('.row-member').find('.job_id').val()).trigger('change');
     $('#modal-address').val($(ele).closest('.row-member').find('.address').val()).trigger('change');
+    $('#modal-living-at').val($(ele).closest('.row-member').find('.living_at').val()).trigger('change');
     $('#modal-bank-num').val($(ele).closest('.row-member').find('.bank_num').val());
     $('#modal-cmnd-num').val($(ele).closest('.row-member').find('.cmnd_num').val());
 
@@ -626,6 +661,7 @@ function editMember(rowId) {
         $('select[name="families['+rowId+'][relationship]"]').val($('#modal-relationship').val());
         $('select[name="families['+rowId+'][job_id]"]').val($('#modal-job').val());
         $('select[name="families['+rowId+'][bank_name]"]').val($('#modal-bank-name').val());
+        $('select[name="families['+rowId+'][living_at]"]').val($('#modal-living-at').val());
 
         // close modal
         $('#add-member-modal').modal('toggle');
@@ -704,18 +740,19 @@ function deleteMemberRow(delEl, hiddenId) {
 
     for (var i = 0; i < inputField.length; i++) {
         var classArr = inputField[i].className.split(' ');
-        inputField[i].name = 'families[' + Math.floor(i/6) + '][' + classArr[classArr.length-1] + ']';
+        inputField[i].name = 'families[' + Math.floor(i/7) + '][' + classArr[classArr.length-1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
         var classArr = selectField[i].className.split(' ');
-        selectField[i].name = 'families[' + Math.floor(i/2) + '][' + classArr[classArr.length-1] + ']';
+        selectField[i].name = 'families[' + Math.floor(i/4) + '][' + classArr[classArr.length-1] + ']';
     }
 }
 
 function resetFamilyModal() {
     $('#add-member-form')[0].reset();
     $('#modal-relationship').val(null).trigger('change');
+    $('#modal-living-at').val(null).trigger('change');
     $('#modal-job').val(null).trigger('change');
     $('#add-member-form').parsley().reset();
 }
@@ -757,6 +794,12 @@ function createEduHisTemplate(counter) {
 
         'specialized': 'educations[' + counter + '][specialized]',
         'specializedVal': $('#edu-specialized').val(),
+
+        'specializedJP': 'educations[' + counter + '][specialized_jp]',
+        'specializedJPVal': $('#edu-specialized-jp').val(),
+
+        'certificate': 'educations[' + counter + '][certificate]',
+        'certificateVal': $('#edu-certificate').val(),
     });
     return edu_html;
 }
@@ -779,6 +822,8 @@ function showEditEduHisModal(ele) {
     $('#edu-school').val($(ele).closest('.row-edu-his').find('.school').val());
     $('#edu-address').val($(ele).closest('.row-edu-his').find('.address').val());
     $('#edu-specialized').val($(ele).closest('.row-edu-his').find('.specialized').val());
+    $('#edu-specialized-jp').val($(ele).closest('.row-edu-his').find('.specialized_jp').val());
+    $('#edu-certificate').val($(ele).closest('.row-edu-his').find('.certificate').val());
     var rowIdArr = $(ele).closest('.row-edu-his').attr('id').split('-');
 
     // replace add-btn with edit-btn
@@ -898,7 +943,7 @@ function deleteEduHisRow(delEl, hiddenId) {
 
     for (var i = 0; i < inputField.length; i++) {
         var classArr = inputField[i].className.split(' ');
-        inputField[i].name = 'educations[' + Math.floor(i/5) + '][' + classArr[classArr.length-1] + ']';
+        inputField[i].name = 'educations[' + Math.floor(i/7) + '][' + classArr[classArr.length-1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
@@ -1343,13 +1388,13 @@ function renderLineChart() {
         type: 'line',
         data: {
             labels  : [
-                'Câu 1', 'Câu 2', 'Câu 3', 'Câu 4', 'Câu 5', 'Câu 6', 'Câu 7', 'Câu 8', 'Câu 9', 'Câu 10',
-                'Câu 11', 'Câu 12', 'Câu 13', 'Câu 14', 'Câu 15', 'Câu 16', 'Câu 17', 'Câu 18', 'Câu 19', 'Câu 20',
-                'Câu 21', 'Câu 22', 'Câu 23', 'Câu 24'
+                '文1', '文2', '文3', '文4', '文5', '文6', '文7', '文8', '文9', '文10',
+                '文11', '文12', '文13', '文14', '文15', '文16', '文17', '文18', '文19', '文20',
+                '文21', '文22', '文23', '文24'
             ],
             datasets: [
                 {
-                    label: 'Điểm',
+                    label: '点',
                     backgroundColor: 'rgb(54, 162, 235)',
 					borderColor: 'rgb(54, 162, 235)',
                     data: [
@@ -1378,7 +1423,3 @@ function viewCompany(id) {
     var overlayId = '#list-order-overlay';
     globalViewCompany(id, overlayId);
 }
-
-
-
-

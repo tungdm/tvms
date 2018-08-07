@@ -31,7 +31,7 @@ $this->assign('title', 'TVMS | Trang Chủ');
                 [
                     'controller' => 'Orders', 
                     'action' => 'index',
-                    '?' => ['created' => $data['currentMonth']]
+                    '?' => ['created' => $data['firstDayOfMonth']]
                 ],
                 [
                     'class' => 'small-box-footer',
@@ -52,7 +52,7 @@ $this->assign('title', 'TVMS | Trang Chủ');
                 [
                     'controller' => 'Students', 
                     'action' => 'index',
-                    '?' => ['enrolled_date' => $data['currentMonth']]
+                    '?' => ['enrolled_date' => $data['firstDayOfMonth']]
                 ],
                 [
                     'class' => 'small-box-footer',
@@ -85,7 +85,7 @@ $this->assign('title', 'TVMS | Trang Chủ');
             [
                 'controller' => 'Students', 
                 'action' => 'index',
-                '?' => ['return_from' => $data['currentMonth'], 'return_to' => $data['lastDayOfMonth']]
+                '?' => ['return_from' => $data['firstDayOfMonth'], 'return_to' => $data['lastDayOfMonth']]
             ],
             [
                 'class' => 'small-box-footer',
@@ -197,7 +197,7 @@ $this->assign('title', 'TVMS | Trang Chủ');
 
 <div id="newly-passed-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content box">
+        <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">DANH SÁCH ĐẬU PHỎNG VẤN</h4>

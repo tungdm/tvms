@@ -110,11 +110,22 @@ class GuildsController extends AppController
     {
         $this->request->allowMethod('ajax');
         $guildId = $this->request->getQuery('id');
-        $resp = [];
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
 
         try {
             $guild = $this->Guilds->get($guildId);
-            $resp = $guild;
+            $resp = [
+                'status' => 'success',
+                'data' => $guild
+            ];
         } catch (Exception $e) {
             //TODO: blacklist user
             Log::write('debug', $e);
