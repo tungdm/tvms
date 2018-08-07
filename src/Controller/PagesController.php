@@ -100,7 +100,11 @@ class PagesController extends AppController
         $totalImmigrationCount = $totalPassed->contain(['Students'])->where(function (QueryExpression $exp, Query $q) {
                 return $exp->between('status', '4', '8');
             })->count();
-        $rateImmi = round($totalImmigrationCount/$totalPassedCount, 2) * 100;
+        if ($totalPassedCount == 0) {
+            $rateImmi = 0;
+        } else {
+            $rateImmi = round($totalImmigrationCount/$totalPassedCount, 2) * 100;
+        }
         
         $totalReturn = $studentTable->find()->where(function (QueryExpression $exp, Query $q) {
                 return $exp->between('status', '5', '8');
