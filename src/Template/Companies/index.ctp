@@ -68,16 +68,6 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <div class="btn-group">
-                        <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a data-toggle="modal" data-target="#setting-company-modal" href="#">Chọn mục quản lý</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Xuất danh sách</a></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <?= $this->Form->create(null, [
@@ -273,7 +263,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                 </div>
                 <div class="form-group">
                     <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('name_kanji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
+                        <?= $this->Form->control('name_kanji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
 
@@ -288,7 +278,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                 </div>
                 <div class="form-group">
                     <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('deputy_name_kanji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
+                        <?= $this->Form->control('deputy_name_kanji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
 
@@ -298,7 +288,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address_romaji">
                         <?= __('Địa chỉ') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('address_romaji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
+                        <?= $this->Form->control('address_romaji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">
@@ -329,7 +319,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                 <div class="ln_solid"></div>
 
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone_vn">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="phone_vn">
                         <?= __('Số Điện Thoại') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('phone_vn', [
@@ -389,7 +379,6 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         <?= $this->Form->control('name_kanji', [
                             'label' => false,
                             'id' => 'edit-name-kanji',
-                            'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
@@ -413,7 +402,6 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('deputy_name_kanji', [
                             'label' => false, 
-                            'required' => true, 
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'id' => 'edit-deputy-name-kanji', 
                             'placeholder' => 'Nhập bằng kí tự kanji',
@@ -429,6 +417,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('address_romaji', [
                             'label' => false,
+                            'required' => true, 
                             'id' => 'edit-address-romaji', 
                             'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
@@ -465,7 +454,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                 <div class="ln_solid"></div>
 
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone_vn">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="phone_vn">
                         <?= __('Số Điện Thoại') ?></label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('phone_vn', ['label' => false, 

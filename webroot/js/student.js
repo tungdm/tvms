@@ -232,6 +232,21 @@ $(document).ready(function() {
         $('#addresses-'+token+'-street').val('');
     });
 
+    $('.js-switch').click(function(e) {
+        if ($(this)[0].checked) {
+            $(this).closest('tr').find('select').prop('disabled', false);
+        } else {
+            // clear select value
+            $(this).closest('tr').find('select').val(null).trigger('change');
+            $(this).closest('tr').find('select').prop('disabled', true);
+        }
+    });
+
+    initSelect2AjaxSearch('std-order-name', DOMAIN_NAME + '/orders/search-order', 'Tìm kiếm đơn hàng');
+    initSelect2AjaxSearch('std-company-name', DOMAIN_NAME + '/companies/search-company', 'Tìm kiếm công ty');
+    initSelect2AjaxSearch('std-guild-name', DOMAIN_NAME + '/guilds/search-guild', 'Tìm kiếm nghiệp đoàn');
+    initSelect2AjaxSearch('std-class-name', DOMAIN_NAME + '/jclasses/search-class', 'Tìm kiếm lớp học');
+   
     $('select[name="is_lived_in_japan"]').change(function () {
         if ($(this).val() == 'Y') {
             // fill data
@@ -1422,4 +1437,22 @@ function viewGuild(id) {
 function viewCompany(id) {
     var overlayId = '#list-order-overlay';
     globalViewCompany(id, overlayId);
+}
+
+function reportStudent() {
+    // reset modal
+    $('#std-status').val(null).trigger('change');
+    $('#std-presenter').val(null).trigger('change');
+    $('#std-edulevel').val(null).trigger('change');
+    $('#std-gender').val(null).trigger('change');
+
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (e) {
+        if (e.checked) {
+            console.log(e);
+            $('input[name="'+e.name+'"]').click();
+        }
+    });
+    // show modal
+    $('#report-student-modal').modal('toggle');
 }

@@ -22,10 +22,12 @@ $counter = 0;
 $currentUser = $this->request->session()->read('Auth.User');
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
 
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-tabcollapse.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('student.js', ['block' => 'scriptBottom']);
 
 $this->Paginator->setTemplates([
@@ -55,7 +57,7 @@ $this->assign('title', 'Quản lý Lao động');
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
             <li data-toggle="tooltip" title="Xuất báo cáo">
-                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out">
+                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" onclick="reportStudent()">
                     <i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>
                 </a>
             </li>
@@ -350,11 +352,10 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="phone"><?= __('Số điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'label' => false, 
-                            'required' => true, 
                             'class' => 'form-control col-md-7 col-xs-12',
                             'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                             'placeholder' => 'Nhập số điện thoại của ứng viên'
@@ -362,7 +363,7 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="appointment_date"><?= __('Ngày hẹn') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="appointment_date"><?= __('Ngày viết CV') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <div class="input-group date input-picker" id="appointment-date">
                             <?= $this->Form->control('appointment_date', [
@@ -370,7 +371,6 @@ $this->assign('title', 'Quản lý Lao động');
                                 'label' => false, 
                                 'class' => 'form-control',
                                 'placeholder' => 'yyyy-mm-dd',
-                                'required' => true,
                                 'data-parsley-errors-container' => '#errors-appointment-date'
                                 ])
                             ?>
@@ -382,7 +382,7 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="birthday"><?= __('Ngày sinh') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <div class="input-group date input-picker" id="candidate-birthday">
                             <?= $this->Form->control('birthday', [
@@ -390,7 +390,6 @@ $this->assign('title', 'Quản lý Lao động');
                                 'label' => false, 
                                 'class' => 'form-control',
                                 'placeholder' => 'yyyy-mm-dd',
-                                'required' => true,
                                 'data-parsley-errors-container' => '#picker-errors'
                                 ])
                             ?>
@@ -433,7 +432,7 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="note"><?= __('Ghi chú') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="note"><?= __('Ghi chú') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('note', [
                             'label' => false, 
@@ -489,7 +488,7 @@ $this->assign('title', 'Quản lý Lao động');
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="appointment_date"><?= __('Ngày hẹn') ?>: </label>
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="appointment_date"><?= __('Ngày viết CV') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-candidate-appointment-date"></span>
@@ -617,6 +616,245 @@ $this->assign('title', 'Quản lý Lao động');
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="report-student-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">XUẤT BÁO CÁO</h4>
+            </div>
+            <?= $this->Form->create(null, [
+                'class' => 'form-horizontal form-label-left', 
+                'url' => ['action' => 'exportReport'],
+                'id' => 'report-form', 
+                'data-parsley-validate' => '',
+                'templates' => [
+                    'inputContainer' => '{{content}}'
+                    ]
+                ]) ?>
+            <?= $this->Form->unlockField('std.order') ?>
+            <?= $this->Form->unlockField('std.class') ?>
+            <?= $this->Form->unlockField('std.company') ?>
+            <?= $this->Form->unlockField('std.guild') ?>
+            <?= $this->Form->unlockField('std.reportfrom') ?>
+            <?= $this->Form->unlockField('std.reportto') ?>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="status"><?= __('Trạng thái') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <?= $this->Form->control('std.status', [
+                                'options' => $studentStatus, 
+                                'empty' => true,
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="presenter"><?= __('Người giới thiệu') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <?= $this->Form->control('std.presenter', [
+                                'options' => $presenters, 
+                                'empty' => true,
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="city"><?= __('Quê quán') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <?= $this->Form->control('std.city', [
+                                'options' => $cities, 
+                                'empty' => true,
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="edulevel"><?= __('Trình độ học vấn') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <?= $this->Form->control('std.edulevel', [
+                                'options' => $eduLevel, 
+                                'empty' => true,
+                                'label' => false, 
+                                'data-parsley-errors-container' => '#error-std-edulevel',
+                                'data-parsley-class-handler' => '#select2-std-edulevel',
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                            <span id="error-std-edulevel"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <?= $this->Form->control('std.gender', [
+                                'options' => $gender, 
+                                'empty' => true,
+                                'label' => false, 
+                                'data-parsley-errors-container' => '#error-std-gender',
+                                'data-parsley-class-handler' => '#select2-std-gender',
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                            <span id="error-std-gender"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="from_date"><?= __('Thời gian nhập học') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                <div class="input-group date input-picker month-mode" id="report-from">
+                                    <?= $this->Form->control('std.reportfrom', [
+                                        'type' => 'text',
+                                        'label' => false, 
+                                        'class' => 'form-control from-date-picker',
+                                        'placeholder' => 'yyyy-mm',
+                                        'data-parsley-before-date' => '#std-reportto'
+                                        ])?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
+                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                <div class="input-group date input-picker month-mode" id="report-to">
+                                    <?= $this->Form->control('std.reportto', [
+                                        'type' => 'text',
+                                        'label' => false, 
+                                        'class' => 'form-control to-date-picker',
+                                        'placeholder' => 'yyyy-mm',
+                                        'data-parsley-after-date' => '#std-reportfrom'
+                                        ])?>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="additional"><?= __('Thông tin kèm theo') ?></label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <table class="table table-bordered custom-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-md-2"><?= __('STT') ?></th>
+                                        <th scope="col" class="col-md-5"><?= __('Thông tin') ?></th>
+                                        <th scope="col" class="col-md-5"><?= __('Điều kiện') ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="cell">1</td>
+                                        <td class="cell">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input name="std[order]" type="checkbox" class="js-switch">  Đơn hàng
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <?= $this->Form->control('std.order.name', [
+                                                'label' => false, 
+                                                'options' => [],
+                                                'disabled' => true,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                ]) ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="cell">2</td>
+                                        <td class="cell">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input name="std[company]" type="checkbox" class="js-switch">  Công ty tiếp nhận
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <?= $this->Form->control('std.company.name', [
+                                                'label' => false, 
+                                                'options' => [],
+                                                'disabled' => true,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                ]) ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="cell">3</td>
+                                        <td class="cell">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input name="std[guild]" type="checkbox" class="js-switch">  Nghiệp đoàn quản lý
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <?= $this->Form->control('std.guild.name', [
+                                                'label' => false, 
+                                                'options' => [],
+                                                'disabled' => true,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                ]) ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="cell">4</td>
+                                        <td class="cell">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input name="std[class]" type="checkbox" class="js-switch">  Lớp học
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <?= $this->Form->control('std.class.name', [
+                                                'label' => false, 
+                                                'options' => [],
+                                                'disabled' => true,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                ]) ?>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- <div class="checkbox">
+                                <label>
+                                    <input name="std[order]" type="checkbox" class="js-switch">  Đơn hàng
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input name="std[company]" type="checkbox" class="js-switch">  Công ty tiếp nhận
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input name="std[guild]" type="checkbox" class="js-switch">  Nghiệp đoàn quản lý
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input name="std[class]" type="checkbox" class="js-switch">  Lớp học
+                                </label>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="export-report-btn" onclick="">Tải về</button>
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+            <?= $this->Form->end() ?>
         </div>
     </div>
 </div>

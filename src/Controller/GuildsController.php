@@ -99,6 +99,22 @@ class GuildsController extends AppController
         $this->set(compact('guilds', 'query'));
     }
 
+    public function searchGuild()
+    {
+        $this->request->allowMethod('ajax');
+        $query = $this->request->getQuery();
+        $resp = [];
+        if (isset($query['q']) && !empty($query['q'])) {
+            $guilds = $this->Guilds
+                ->find('list')
+                ->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('name_romaji', '%'.$query['q'].'%');
+                });
+            $resp['items'] = $guilds;
+        }
+        return $this->jsonResponse($resp);   
+    }
+
     /**
      * View method
      *

@@ -36,6 +36,12 @@ use Cake\Log\Log;
 class PagesController extends AppController
 {
 
+    public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('Util');
+    }
+
     public function isAuthorized($user) 
     {
         $controller = $this->request->getParam('controller');
@@ -81,7 +87,7 @@ class PagesController extends AppController
         $month = $now->month;
         $currentMonth = $now->i18nFormat('yyyy-MM');
         $firstDayOfMonth = $currentMonth . '-01';
-        $lastDayOfMonth = $this->getLastDayOfMonth($firstDayOfMonth);
+        $lastDayOfMonth = $this->Util->getLastDayOfMonth($firstDayOfMonth);
 
         // first row data
         $newOrder = $orderTable->find()->where(['created >=' => $firstDayOfMonth])->count();
@@ -119,7 +125,7 @@ class PagesController extends AppController
         for ($i=1; $i < $month; $i++) {
             $pastMonth = $year . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
             $firstDayOfMonthTmp = $pastMonth . '-01';
-            $lastDayOfMonthTmp = $this->getLastDayOfMonth($pastMonth);
+            $lastDayOfMonthTmp = $this->Util->getLastDayOfMonth($pastMonth);
 
             $monthlyNewOrder = $orderTable->find()
                 ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfMonthTmp, $lastDayOfMonthTmp) {
@@ -197,11 +203,6 @@ class PagesController extends AppController
             Log::write('debug', $e);
         }
         return $this->jsonResponse($resp);
-    }
-
-    protected function getLastDayOfMonth($month)
-    {
-        return date("Y-m-t", strtotime($month));
     }
 
     protected function getAreaPopulation($range)

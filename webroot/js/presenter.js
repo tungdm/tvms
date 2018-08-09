@@ -43,6 +43,7 @@ function viewPresenter(presenterId) {
 
 function showAddPresenterModal() {
     $('#add-presenter-form')[0].reset();
+    $('#type').val(null).trigger('change');
     $('#add-presenter-form').parsley().reset();
 
     $('#add-presenter-modal').modal('toggle');

@@ -37,7 +37,7 @@ class OrdersTable extends Table
         parent::initialize($config);
 
         $this->setTable('orders');
-        $this->setDisplayField('title');
+        $this->setDisplayField('name');
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');

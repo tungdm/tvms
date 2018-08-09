@@ -399,51 +399,51 @@ return [
     'document' => [
         '1' => [
             'type' => 'Bằng cấp 2/cấp 3/Trung cấp/Cao đẳng/Đại học (Nộp cả bằng gốc)',
-            'quantity' => '3 bản'
+            'quantity' => '01 bản'
         ],
         '2' => [
-            'type' => 'Chứng minh nhân dân/Thẻ căn cước',
-            'quantity' => '6 bản'
+            'type' => 'Chứng minh nhân dân/Thẻ căn cước (Photo công chứng)',
+            'quantity' => '03 bản'
         ],
         '3' => [
-            'type' => 'Hộ chiếu (Passport) _ Nộp cả hộ chiếu gốc',
-            'quantity' => '3 bản'
+            'type' => 'Hộ chiếu (Passport) _ Nộp cả hộ chiếu gốc (Photo công chứng)',
+            'quantity' => '02 bản'
         ],
         '4' => [
             'type' => 'Số hộ khẩu (Photo công chứng)',
-            'quantity' => '2 bản'
+            'quantity' => '02 bản'
         ],
         '5' => [
             'type' => 'Giấy khai sinh (Bản sao)',
-            'quantity' => '4 bản'
+            'quantity' => '02 bản'
         ],
         '6' => [
             'type' => 'Sơ yếu lý lịch (Mẫu Công ty)',
-            'quantity' => '1 bản'
+            'quantity' => '01 bản'
         ],
         '7' => [
             'type' => 'Đơn xác nhận phụng dưỡng (Mẫu Công ty)',
-            'quantity' => '3 bản'
+            'quantity' => '03 bản'
         ],
         '8' => [
             'type' => 'Giấy đăng ký kết hôn (nếu có)',
-            'quantity' => '3 bản'
+            'quantity' => '01 bản'
         ],
         '9' => [
             'type' => 'Chứng minh nhân dân photo công chứng của những người trong đơn phụng dưỡng',
-            'quantity' => '3 bản/người'
+            'quantity' => '01 bản/người'
         ],
         '10' => [
             'type' => 'Hình 4 x 6 (Áo trắng, nền trắng)',
-            'quantity' => '15 tấm'
+            'quantity' => '08 tấm'
         ],
         '11' => [
             'type' => 'Hình 3 x 4 (Áo trắng, nền trắng)',
-            'quantity' => '15 tấm'
+            'quantity' => '08 tấm'
         ],
         '12' => [
             'type' => 'Hình 4,5 x 4,5 (Áo trắng, nền trắng)',
-            'quantity' => '2 tấm'
+            'quantity' => '02 tấm'
         ],
     ],
     // user
@@ -713,6 +713,8 @@ return [
         '1' => 'Bộ đội xuất ngũ',
         '2' => 'Đối tượng chính sách',
         '3' => 'Dân tộc thiểu số',
+        '4' => 'Bình thường',
+        '5' => 'Khác'
     ],
 
     // presenter
@@ -829,6 +831,13 @@ return [
             ],
         ]
     ],
+    'reportXlsx' => [
+        'filename' => 'report.xlsx',
+        'studentTitle' => 'DANH SÁCH LAO ĐỘNG',
+        'classTitle' => 'DANH SÁCH LỚP HỌC',
+        'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+    ],
+
     'vnDateFormatFull' => 'ngày :day tháng :month năm :year',
     'vnDateFormatShort' => ':day tháng :month năm :year',
     'jpKingYearStart' => 1988,

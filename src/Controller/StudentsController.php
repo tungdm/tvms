@@ -18,7 +18,8 @@ use Cake\I18n\I18n;
 
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-
+use PhpOffice\PhpSpreadsheet\Style;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 /**
  * Students Controller
  *
@@ -52,7 +53,7 @@ class StudentsController extends AppController
     {
         parent::initialize();
         $this->loadComponent('ExportFile');
-        $this->loadComponent('Ulti');
+        $this->loadComponent('Util');
         $this->entity = 'lao động';
     }
 
@@ -152,10 +153,11 @@ class StudentsController extends AppController
                 'Orders.Companies.Guilds',
                 'Histories' => ['sort' => ['Histories.created' => 'DESC']],
                 'Histories.UsersCreatedBy',
+                'Jtests'
             ]
         ]);
         $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $studentName_EN = $this->Util->convertV2E($studentName_VN);
 
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
@@ -828,7 +830,7 @@ class StudentsController extends AppController
         // Prepare data
         $now = Time::now();
         $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $studentName_EN = $this->Util->convertV2E($studentName_VN);
         $studentName = explode(' ', $studentName_EN);
         $studentFirstName = array_pop($studentName);
         $output_file_name = Text::insert($resumeConfig['filename'], [
@@ -948,7 +950,7 @@ class StudentsController extends AppController
                     'title' => 'Quá trình học tập',
                     'time' => $value->from_date . ' ～ ' . $value->to_date,
                     'school' => Text::insert($schoolTemplate, [
-                        'schoolNameEN' => $this->Ulti->convertV2E($value->school),
+                        'schoolNameEN' => $this->Util->convertV2E($value->school),
                         'eduLevelJP' => $eduLevel[$value->degree]['jp'],
                         'schoolNameVN' => $value->school,
                         'eduLevelVN' => $eduLevel[$value->degree]['vn']
@@ -1059,7 +1061,7 @@ class StudentsController extends AppController
             $company = $company->name_romaji;
         }
         $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $studentName_EN = $this->Util->convertV2E($studentName_VN);
         $studentName = explode(' ', $studentName_EN);
         $studentFirstName = array_pop($studentName);
         $output_file_name = Text::insert($contractConfig[$filenameLang], [
@@ -1103,7 +1105,7 @@ class StudentsController extends AppController
         ]);
         $output_file_name = $eduPlanConfig['filename'];
         $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $studentName_EN = $this->Util->convertV2E($studentName_VN);
         $now = Time::now();
 
         $this->tbs->VarRef['company'] = $student->orders[0]->company->name_kanji;
@@ -1181,6 +1183,306 @@ class StudentsController extends AppController
         exit;
     }
 
+    public function exportReport() {
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            $zoomScale = 100;
+            $allStudents = $this->Students->find()->contain([
+                'Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                },
+                'Addresses.Cities',
+                'Presenters'
+            ]);
+            if (!empty($data['std'])) {
+                $condition = $data['std'];
+                if (isset($condition['order']) && !empty($condition['order'])) {
+                    $zoomScale = $zoomScale - 5;
+                    if (!empty($condition['order']['name'])) {
+                        $zoomScale = $zoomScale - 5;
+                        // select all students belong to the query order
+                        Log::write('debug', 'select all students belong to the query order');
+
+                        $allStudents->contain([
+                            'Orders' => function($q) use ($condition) {
+                                return $q->where(['Orders.id' => $condition['order']['name']]);
+                            }, 
+                            'Orders.Jobs'
+                            ]);
+                        $allStudents->matching('Orders', function($q) use ($condition) {
+                            return $q->where(['Orders.id' => $condition['order']['name']]);
+                        });
+                    } else {
+                        Log::write('debug', 'select all student passed the interview');
+                        // select all student passed the interview
+                        $allStudents->contain([
+                            'Orders' => function($q) {
+                                return $q->where(['result' => '1']);
+                            }, 
+                            'Orders.Jobs'
+                            ]);
+                    }
+                }
+                
+                if (isset($condition['company']) && !empty($condition['company'])) {
+                    $zoomScale = $zoomScale - 5;
+                    Log::write('debug', 'select all student with company info if passed the interview');
+                    $allStudents->contain([
+                        'Orders', 
+                        'Orders.Companies'
+                        ]);
+
+                    if (!empty($condition['company']['name'])) {
+                        // select all students passed the interview and belong to the query company
+                        $allStudents->matching('Orders.Companies', function($q) use ($condition) {
+                            return $q->where([
+                                'Companies.id' => $condition['company']['name'],
+                                'result' => '1'
+                                ]);
+                        });
+                    }
+                }
+                if (isset($condition['guild']) && !empty($condition['guild'])) {
+                    $zoomScale = $zoomScale - 5;
+                    Log::write('debug', 'select all student with guild info if passed the interview');
+                    $allStudents->contain([
+                        'Orders', 
+                        'Orders.Companies.Guilds'
+                        ]);
+                    if (!empty($condition['guild']['name'])) {
+                        // select all students passed the interview and belong to the query guild
+                        $allStudents->matching('Orders.Companies.Guilds', function($q) use ($condition) {
+                            return $q->where([
+                                'Guilds.id' => $condition['guild']['name'],
+                                ]);
+                        });
+                    }
+                }
+                if (isset($condition['class']) && !empty($condition['class'])) {
+                    $zoomScale = $zoomScale - 5;
+                    $allStudents->contain('Jclasses');
+                    if (!empty($condition['class']['name'])) {
+                        $allStudents->matching('Jclasses', function($q) use ($condition) {
+                            return $q->where(['Jclasses.id' => $condition['class']['name']]);
+                        });
+                    }
+                }
+                
+                if (isset($condition['status']) && !empty($condition['status'])) {
+                    $allStudents->where(['Students.status' => $condition['status']]);
+                }
+                if (isset($condition['presenter']) && !empty($condition['presenter'])) {
+                    $allStudents->where(['Students.presenter_id' => (int)$condition['presenter']]);
+                }
+                if (isset($condition['city']) && !empty($condition['city'])) {
+                    $allStudents->matching('Addresses', function($q) use ($condition) {
+                        return $q->where(['Addresses.city_id' => $condition['city']]);
+                    });
+                }
+                if (isset($condition['edulevel']) && !empty($condition['edulevel'])) {
+                    $allStudents->where(['Students.educational_level' => $condition['edulevel']]);
+                }
+                if (isset($condition['gender']) && !empty($condition['gender'])) {
+                    $allStudents->where(['Students.gender' => $condition['gender']]);
+                }
+                
+                // enrolled date filter
+                if (!empty($condition['reportfrom']) && empty($condition['reportto'])) {
+                    $start = $condition['reportfrom'] . '-01';
+                    $allStudents->where(['Students.enrolled_date >=' => $start]);
+                } else if (empty($condition['reportfrom']) && !empty($condition['reportto'])) {
+                    $reportto = $condition['reportto'] . '-01';
+                    $end = $this->Util->getLastDayOfMonth($reportto);
+                    $allStudents->where(['Students.enrolled_date <=' => $end]);
+                } else if (!empty($condition['reportfrom']) && !empty($condition['reportto'])) {
+                    $start = $condition['reportfrom'] . '-01';
+                    $reportto = $condition['reportto'] . '-01';
+                    $end = $this->Util->getLastDayOfMonth($reportto);
+                    $allStudents->where(function (QueryExpression $exp, Query $q) use($start, $end) {
+                        return $exp->between('Students.enrolled_date', $start, $end, 'date');
+                    });
+                }
+            }
+            Log::write('debug', $allStudents->toArray());
+            // debug($allStudents->toArray());
+            // load config
+            $reportConfig = Configure::read('reportXlsx');
+            $studentStatus = Configure::read('studentStatus');
+            $cityJP = Configure::read('cityJP');
+            $lessons = Configure::read('lessons');
+            $interviewResult = Configure::read('interviewResult');
+            // init worksheet
+            $spreadsheet = $this->ExportFile->setXlsxProperties();
+            $spreadsheet->setActiveSheetIndex(0);
+            $activeSheet = $spreadsheet->getActiveSheet();
+            $activeSheet->getSheetView()->setZoomScale($zoomScale);
+            $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
+            $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
+            
+            $activeSheet->setShowGridLines(false);
+            $activeSheet->setCellValue('A1', $reportConfig['branch']);
+            $activeSheet->getStyle('A1:A1')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+
+            $col = 'I';
+            $activeSheet
+                ->mergeCells('A5:A6')->setCellValue('A5', 'STT')
+                ->mergeCells('B5:B6')->setCellValue('B5', 'Họ tên')
+                ->mergeCells('C5:C6')->setCellValue('C5', 'Ngày sinh')
+                ->mergeCells('D5:E5')->setCellValue('D5', 'Giới tính')->setCellValue('D6', 'Nam')->setCellValue('E6', 'Nữ')
+                ->mergeCells('F5:F6')->setCellValue('F5', 'Quê quán')
+                ->mergeCells('G5:G6')->setCellValue('G5', 'Ngày nhập học')
+                ->mergeCells('H5:H6')->setCellValue('H5', 'Người giới thiệu')
+                ->mergeCells('I5:I6')->setCellValue('I5', 'Trạng thái');
+            if (isset($condition['order']) && !empty($condition['order'])) {
+                $col++; // J
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Ngành nghề');
+                $activeSheet->getColumnDimension($col)->setWidth(20);
+
+                $col++; // K
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Ngày phỏng vấn');
+                $activeSheet->getColumnDimension($col)->setWidth(16);
+
+                $col++; // L
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Địa chỉ làm việc');
+                $activeSheet->getColumnDimension($col)->setWidth(15);
+
+                if (!empty($condition['order']['name'])) {
+                    $col++; // M
+                    $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Kết quả');
+                    $activeSheet->getColumnDimension($col)->setWidth(7);
+                }
+            }
+            if (isset($condition['company']) && !empty($condition['company'])) {
+                $col++; // J | M | N
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Công ty');
+                $activeSheet->getColumnDimension($col)->setWidth(20);
+            }
+            if (isset($condition['guild']) && !empty($condition['guild'])) {
+                $col++; // J | N | O
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Nghiệp đoàn');
+                $activeSheet->getColumnDimension($col)->setWidth(25);
+            }
+            if (isset($condition['class']) && !empty($condition['class'])) {
+                $col++; // J | O | P
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Lớp học');
+                $activeSheet->getColumnDimension($col)->setWidth(9);
+
+                $col++; // J | P | Q
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Bài đang học');
+                $activeSheet->getColumnDimension($col)->setWidth(13);
+            }
+
+            $activeSheet->getColumnDimension('A')->setWidth(6);
+            $activeSheet->getColumnDimension('B')->setWidth(25);
+            $activeSheet->getColumnDimension('C')->setWidth(12);
+            $activeSheet->getColumnDimension('D')->setWidth(6);
+            $activeSheet->getColumnDimension('E')->setWidth(6);
+            $activeSheet->getColumnDimension('F')->setWidth(15);
+            $activeSheet->getColumnDimension('G')->setWidth(15);
+            $activeSheet->getColumnDimension('H')->setWidth(20);
+            $activeSheet->getColumnDimension('I')->setWidth(12);
+
+            $activeSheet->getRowDimension('3')->setRowHeight(30);
+            $activeSheet->mergeCells('A3:'.$col.'3');
+            $activeSheet->setCellValue('A3', $reportConfig['studentTitle']);
+            $activeSheet->getStyle('A3:A3')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 16,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $listStudents = [];
+            $counter = 6;
+            foreach ($allStudents as $key => $student) {
+                $counter++;
+                if ($student->gender == 'M') {
+                    $male = 'x';
+                    $female = '';
+                } else {
+                    $male = '';
+                    $female = 'x';
+                }
+                $data = [
+                    $key+1,
+                    $student->fullname,
+                    $student->birthday->i18nFormat('dd/MM/yyyy'),
+                    $male,
+                    $female,
+                    $student->addresses[0]->city->name,
+                    $student->enrolled_date ? $student->enrolled_date->i18nFormat('dd/MM/yyyy') : '',
+                    $student->presenter->name ?? '',
+                    $studentStatus[$student->status]
+                ];
+                if (isset($condition['order']) && !empty($condition['order'])) {
+                    $job = $student->orders ? $student->orders[0]->job->job_name : '';
+                    $interviewDate = $student->orders ? $student->orders[0]->interview_date->i18nFormat('dd/MM/yyyy') : '';
+                    $workAt = $student->orders ? $cityJP[$student->orders[0]->work_at]['rmj'] : '';
+                    if (!empty($condition['order']['name'])) {
+                        $result = $student->orders ? $interviewResult[$student->orders[0]->_joinData->result] : '';
+                        array_push($data, $job, $interviewDate, $workAt, $result);
+                    } else {
+                        array_push($data, $job, $interviewDate, $workAt);
+                    }
+                }
+                if (isset($condition['company']) && !empty($condition['company'])) {
+                    $companyName = $student->orders ? $student->orders[0]->company->name_romaji : '';
+                    array_push($data, $companyName);
+                }
+                if (isset($condition['guild']) && !empty($condition['guild'])) {
+                    $guildName = $student->orders ? $student->orders[0]->company->guild->name_romaji : '';
+                    array_push($data, $guildName);
+                }
+                if (isset($condition['class']) && !empty($condition['class'])) {
+                    $className = $student->jclasses ? $student->jclasses[0]->name : '';
+                    $currentLesson = $student->jclasses ? $lessons[$student->jclasses[0]->current_lesson] : '';
+                    array_push($data, $className, $currentLesson);
+                }
+                array_push($listStudents, $data);
+            }
+            $activeSheet->fromArray($listStudents, NULL, 'A7');
+            $activeSheet->getStyle('A5:'. $col . $counter)->getAlignment()->setWrapText(true);
+            $activeSheet->getStyle('A5:'. $col . $counter)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Style\Border::BORDER_THIN,
+                    ]
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $activeSheet->getStyle('A5:'.$col.'6')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
+            ]);
+            $activeSheet->getStyle('A7:A'.$counter)->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
+            ]);
+
+            $footer = $counter+1;
+            $spreadsheet = $this->ExportFile->generateFooter($spreadsheet, $counter+1, $col);
+
+            $spreadsheet->getActiveSheet()->freezePane('A7');
+
+            // export XLSX file for download
+            $this->ExportFile->export($spreadsheet, $reportConfig['filename']);
+            exit;
+        }
+    }
+
     public function mergeAddress($address)
     {
         $addressLevel = Configure::read('addressLevel');
@@ -1188,18 +1490,18 @@ class StudentsController extends AppController
         $currentCity = $address->city->name;
         $cityType = $address->city->type;
         if ($cityType == 'Thành phố Trung ương') {
-            $currentCityEN = $this->Ulti->convertV2E(str_replace("Thành phố", "", $currentCity) . " " . $addressLevel['Thành phố']['en']);
+            $currentCityEN = $this->Util->convertV2E(str_replace("Thành phố", "", $currentCity) . " " . $addressLevel['Thành phố']['en']);
         } else {
-            $currentCityEN = $this->Ulti->convertV2E(str_replace($cityType, "", $currentCity) . " " . $addressLevel[$cityType]['en']);
+            $currentCityEN = $this->Util->convertV2E(str_replace($cityType, "", $currentCity) . " " . $addressLevel[$cityType]['en']);
         }
 
         $currentDistrict = $address->district->name;
         $districtType = $address->district->type;
-        $currentDistrictEN = $this->Ulti->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['en']);
+        $currentDistrictEN = $this->Util->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['en']);
         
         $currentWard = $address->ward->name;
         $wardType = $address->ward->type;
-        $currentWardEN = $this->Ulti->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['en']);
+        $currentWardEN = $this->Util->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['en']);
 
         $mergeAdd = [
             'vn' => Text::insert($currentAddressTemplate, [

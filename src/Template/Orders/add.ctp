@@ -502,7 +502,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                                 'studentId' => $value->id,
                                                 'serial' => $key+1
                                             ]
-                                            
                                         ],
                                         ['escape' => false])?>
                                     <?= $this->Html->link(
@@ -854,6 +853,11 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     'class' => 'form-control',
                     'value' => '{{phone}}'
                     ])?>
+                
+                <?= $this->Form->control('status', [
+                    'class' => 'form-control',
+                    'value' => '{{status}}'
+                    ]) ?>
             </div>
         </td>
         <td>

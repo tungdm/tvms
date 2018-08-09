@@ -293,7 +293,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="image"><?= __('Hình ảnh') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="image"><?= __('Hình ảnh') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('image', [
                                             'type' => 'file',
@@ -325,11 +325,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="subject"><?= __('Đối tượng') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="subject"><?= __('Đối tượng') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('subject', [
                                             'options' => $studentSubject, 
-                                            'required' => true, 
                                             'empty' => true, 
                                             'label' => false,
                                             'data-parsley-errors-container' => '#error-student-subject',
@@ -437,7 +436,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'options' => $presenters, 
                                             'label' => false, 
                                             'empty' => true,
-                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
                                             ]) ?>
                                     </div>
                                 </div>
@@ -814,11 +813,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="blood_group"><?= __('Nhóm máu') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="blood_group"><?= __('Nhóm máu') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('blood_group', [
                                             'options' => $bloodGroup, 
-                                            'required' => true, 
                                             'empty' => true, 
                                             'label' => false, 
                                             'data-parsley-errors-container' => '#error-blood-group',
@@ -886,14 +884,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="left_eye_sight"><?= __('Thị lực (trái)') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="left_eye_sight"><?= __('Thị lực (trái)') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('left_eye_sight', [
                                             'label' => false,
                                             'min' => 0,
                                             'max' => 10,
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
                                             'placeholder' => 'Nhập thị lực mắt trái (đo tại trường)'
                                             ]) ?>
                                     </div>
@@ -910,14 +907,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="right_eye_sight"><?= __('Thị lực (phải)') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="right_eye_sight"><?= __('Thị lực (phải)') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('right_eye_sight', [
                                             'label' => false,
                                             'min' => 0,
                                             'max' => 10, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
                                             'placeholder' => 'Nhập thị lực mắt phải (đo tại trường)'
                                             ]) ?>
                                     </div>
@@ -945,11 +941,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="preferred_hand"><?= __('Tay thuận') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="preferred_hand"><?= __('Tay thuận') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('preferred_hand', [
                                             'options' => $preferredHand, 
-                                            'required' => true, 
                                             'empty' => true, 
                                             'label' => false, 
                                             'data-parsley-errors-container' => '#error-preferred-hand',
@@ -1831,7 +1826,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->hidden('input_tests.0.type', ['value' => $input_test[0]])?>
                                 
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="test_date"><?= __('Ngày thi') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="test_date"><?= __('Ngày thi') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="input-test-0-test-date">
                                             <?= $this->Form->control('input_tests.0.test_date', [
@@ -1839,21 +1834,17 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 'label' => false, 
                                                 'class' => 'form-control',
                                                 'placeholder' => 'yyyy-mm-dd',
-                                                'required' => true,
-                                                'data-parsley-errors-container' => '#error-0-test-date'
                                                 ])?>
                                             <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
                                             </span>
                                         </div>
-                                        <span id="error-0-test-date"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="score"><?= __('Điểm thi') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="score"><?= __('Điểm thi') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('input_tests.0.score', [
-                                            'required' => true,
                                             'label' => false, 
                                             'min' => 0,
                                             'max' => 100,
@@ -1879,7 +1870,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?php endif; ?>
                                 <?= $this->Form->hidden('input_tests.1.type', ['value' => $input_test[1]])?>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="test_date"><?= __('Ngày thi') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="test_date"><?= __('Ngày thi') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="input-test-1-test-date">
                                             <?= $this->Form->control('input_tests.1.test_date', [
@@ -1887,21 +1878,17 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 'label' => false, 
                                                 'class' => 'form-control',
                                                 'placeholder' => 'yyyy-mm-dd',
-                                                'required' => true,
-                                                'data-parsley-errors-container' => '#error-1-test-date'
                                                 ])?>
                                             <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
                                             </span>
                                         </div>
-                                        <span id="error-1-test-date"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="score"><?= __('Điểm thi') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="score"><?= __('Điểm thi') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('input_tests.1.score', [
-                                            'required' => true,
                                             'label' => false, 
                                             'min' => 0,
                                             'max' => 999,
@@ -1927,7 +1914,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?php endif; ?>
                                 <?= $this->Form->hidden('input_tests.2.type', ['value' => $input_test[2]])?>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="test_date"><?= __('Ngày thi') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="test_date"><?= __('Ngày thi') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="input-test-2-test-date">
                                             <?= $this->Form->control('input_tests.2.test_date', [
@@ -1935,21 +1922,17 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 'label' => false, 
                                                 'class' => 'form-control',
                                                 'placeholder' => 'yyyy-mm-dd',
-                                                'required' => true,
-                                                'data-parsley-errors-container' => '#error-2-test-date'
                                                 ])?>
                                             <span class="input-group-addon">
                                                 <span class="glyphicon glyphicon-calendar"></span>
                                             </span>
                                         </div>
-                                        <span id="error-2-test-date"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="score"><?= __('Điểm thi') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="score"><?= __('Điểm thi') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('input_tests.2.score', [
-                                            'required' => true,
                                             'label' => false, 
                                             'min' => 0,
                                             'max' => 100,
@@ -1978,29 +1961,25 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?php endif; ?>
                                 <?= $this->Form->hidden('iq_tests.0.total', ['id' => 'iqtest_total']) ?>
                                 <div class="form-group col-md-12 col-sm-12 col-xs-12">
-                                    <label class="control-label col-md-5 col-sm-5 col-xs-12" for="question"><?= __('Ngày thi') ?></label>
+                                    <label class="control-label col-md-5 col-sm-5 col-xs-12 optional" for="question"><?= __('Ngày thi') ?></label>
                                     <div class="input-group col-md-4 col-sm-4 col-xs-12 date input-picker" id="input-iq-test-date">
                                         <?= $this->Form->control('iq_tests.0.test_date', [
                                             'type' => 'text',
                                             'label' => false, 
                                             'class' => 'form-control',
                                             'placeholder' => 'yyyy-mm-dd',
-                                            'required' => true,
-                                            'data-parsley-errors-container' => '#error-iq-test-date'
                                             ])?>
                                         <span class="input-group-addon">
                                             <span class="glyphicon glyphicon-calendar"></span>
                                         </span>
                                     </div>
-                                    <span id="error-iq-test-date"></span>
                                 </div>
                                 <?php  foreach ($iqtest as $key => $value): ?>
                                 <div class="col-md-offset-1">
                                     <div class="form-group col-md-3 col-sm-4 col-xs-12">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="question"><?= $value ?></label>
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12 optional" for="question"><?= $value ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <?= $this->Form->control('iq_tests.0.q'. ($key+1), [
-                                                'required' => true,
                                                 'label' => false, 
                                                 'min' => 0,
                                                 'max' => 15,
@@ -2127,7 +2106,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="birthday"><?= __('Ngày sinh') ?></label>
                             <div class="col-md-7 col-sm-7 col-xs-12">
                                 <div class="input-group date input-picker" id="member-birthday">
                                     <?= $this->Form->control('modal.birthday', [
@@ -2135,23 +2114,19 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'label' => false, 
                                         'class' => 'form-control',
                                         'placeholder' => 'yyyy-mm-dd',
-                                        'required' => true,
-                                        'data-parsley-errors-container' => '#error-member-birthday'
                                         ])?>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
                                 </div>
-                                <span id="error-member-birthday"></span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="cmnd_num"><?= __('Số CMND') ?></label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="cmnd_num"><?= __('Số CMND') ?></label>
                             <div class="col-md-7 col-sm-7 col-xs-12">
                                 <?= $this->Form->control('modal.cmnd_num', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true,
                                     'placeholder' => 'Nhập số chứng minh nhân dân'
                                     ]) ?>
                             </div>
@@ -2187,12 +2162,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="address"><?= __('Địa chỉ') ?></label>
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="address"><?= __('Địa chỉ') ?></label>
                             <div class="col-md-7 col-sm-7 col-xs-12">
                                 <?= $this->Form->control('modal.address', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'required' => true,
                                     'placeholder' => 'Nhập địa chỉ cư trú'
                                     ]) ?>
                             </div>
@@ -2460,7 +2434,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="certificate"><?= __('Ngày nhận bằng') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="certificate"><?= __('Ngày nhận bằng') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group date input-picker month-mode" id="edu-certificate-div">
                                 <?= $this->Form->control('edu.certificate', [
@@ -2468,7 +2442,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     'label' => false, 
                                     'class' => 'form-control',
                                     'placeholder' => 'yyyy-mm',
-                                    'required' => true,
                                     'data-parsley-errors-container' => '#error-certificate',
                                     ])?>
                                 <span class="input-group-addon">
@@ -2490,12 +2463,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="address"><?= __('Địa chỉ') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="address"><?= __('Địa chỉ') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('edu.address', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true,
                                 'placeholder' => 'Nhập địa chỉ của trường học'
                                 ]) ?>
                         </div>
@@ -2700,33 +2672,31 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="company"><?= __('Công ty') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="company"><?= __('Công ty / Nơi làm việc') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('exp.company', [
                                 'label' => false, 
                                 'required' => true, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'placeholder' => 'Nhập tên công ty bằng tiếng Việt'
+                                'placeholder' => 'Nhập tên công ty / nơi làm việc bằng tiếng Việt'
                                 ]) ?>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="company_jp"><?= __('Công ty (JP)') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
+                        <div class="col-md-offset-3 col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('exp.company_jp', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12',
-                                'placeholder' => 'Nhập tên công ty bằng tiếng Nhật'
+                                'placeholder' => 'Nhập tên công ty / nơi làm việc bằng tiếng Nhật'
                                 ]) ?>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="address"><?= __('Địa chỉ') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="address"><?= __('Địa chỉ') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('exp.address', [
                                 'label' => false, 
                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true,
                                 'placeholder' => 'Nhập địa chỉ công ty'
                                 ]) ?>
                         </div>

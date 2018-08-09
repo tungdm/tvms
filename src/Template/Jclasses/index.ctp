@@ -44,6 +44,16 @@ $this->assign('title', 'Quản lý lớp học');
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
+            <li data-toggle="tooltip" title="Xuất báo cáo">
+                <?= $this->Html->link(__('<i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>'), 
+                    ['action' => 'exportReport'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Xuất báo cáo',
+                        'escape' => false
+                    ]) ?>
+            </li>
             <?php if ($permission == 0): ?>
             <li>
                 <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 

@@ -5,6 +5,7 @@ use Cake\Controller\Component;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
+use Cake\I18n\Time;
 
 class ExportFileComponent extends Component
 {
@@ -23,6 +24,18 @@ class ExportFileComponent extends Component
             ->setKeywords('office 2007 openxml php')
             ->setCategory('Result file');
         
+        return $spreadsheet;
+    }
+
+    public function generateFooter($spreadsheet, $row, $col)
+    {
+        $now = Time::now();
+        $day = str_pad((string) $now->day, 2, '0', STR_PAD_LEFT);
+        $month = str_pad((string) $now->month, 2, '0', STR_PAD_LEFT);
+        $spreadsheet->getActiveSheet()->mergeCells('A'.$row.':'.$col.$row)
+            ->setCellValue('A'.$row, 'TPHCM, ngày ' . $day . ' tháng ' . $month . ' năm ' . $now->year);
+        $spreadsheet->getActiveSheet()->getStyle('A'.$row)->getFont()->setItalic(true);
+        $spreadsheet->getActiveSheet()->getStyle('A'.$row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
         return $spreadsheet;
     }
 

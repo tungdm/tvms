@@ -29,7 +29,7 @@ class OrdersController extends AppController
         parent::initialize();
         $this->entity = 'đơn hàng';
         $this->loadComponent('SystemEvent');
-        $this->loadComponent('Ulti');
+        $this->loadComponent('Util');
         $this->loadComponent('ExportFile');
     }
 
@@ -236,18 +236,16 @@ class OrdersController extends AppController
             $student->status = '2';
             $student->return_date = '';
         }
-        debug($order->students);
-
         // $entities = $this->Orders->Students->patchEntities($interviewers);
         if ($this->Orders->Students->saveMany($order->students) && $this->Orders->delete($order)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
-                'name' => $orderName
+                'name' => $order->name
                 ]));
         } else {
             $this->Flash->error(Text::insert($this->errorMessage['delete'], [
                 'entity' => $this->entity,
-                'name' => $orderName
+                'name' => $order->name
                 ]));
         }
         return $this->redirect(['action' => 'index']);
@@ -319,6 +317,28 @@ class OrdersController extends AppController
             $resp['items'] = $students;
         }
         return $this->jsonResponse($resp);        
+    }
+
+    public function searchOrder()
+    {
+        $this->request->allowMethod('ajax');
+        $query = $this->request->getQuery();
+        $resp = [];
+        if (isset($query['q']) && !empty($query['q'])) {
+            $orders = $this->Orders
+                ->find()
+                ->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('name', '%'.$query['q'].'%');
+                })
+                ->map(function ($row) {
+                    $row->name = $row->name . ' (' . $row->interview_date->i18nFormat('dd/MM/yyyy') . ')';
+                    return $row;
+                })
+                ->combine('id', 'name')
+                ->toArray();
+            $resp['items'] = $orders;
+        }
+        return $this->jsonResponse($resp);   
     }
 
     public function recommendCandidate()
@@ -428,7 +448,7 @@ class OrdersController extends AppController
             ]
         ]);
         $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+        $studentName_EN = $this->Util->convertV2E($studentName_VN);
         $studentName = explode(' ', $studentName_EN);
         $studentFirstName = array_pop($studentName);
         $output_file_name = Text::insert($cvTemplateConfig['filename'], [
@@ -454,18 +474,18 @@ class OrdersController extends AppController
         $currentCity = $household->city->name;
         $cityType = $household->city->type;
         if ($cityType == 'Thành phố Trung ương') {
-            $address .= $this->Ulti->convertV2E(str_replace("Thành phố", "", $currentCity)) . " 市 ";
+            $address .= $this->Util->convertV2E(str_replace("Thành phố", "", $currentCity)) . " 市 ";
         } else {
-            $address .= $this->Ulti->convertV2E(str_replace($cityType, "", $currentCity)) . " 省 ";
+            $address .= $this->Util->convertV2E(str_replace($cityType, "", $currentCity)) . " 省 ";
         }
 
         $currentDistrict = $household->district->name;
         $districtType = $household->district->type;
-        $address .= $this->Ulti->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['jp']) . " ";
+        $address .= $this->Util->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['jp']) . " ";
 
         $currentWard = $household->ward->name;
         $wardType = $household->ward->type;
-        $address .= $this->Ulti->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['jp']) . " ";
+        $address .= $this->Util->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['jp']) . " ";
 
         $cityCode = (int) $household->city->id;
         if ($cityCode <= 37) {
@@ -499,7 +519,7 @@ class OrdersController extends AppController
                 $history = [
                     'year' => $fromDate->year . " ～ " . $toDate->year,
                     'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
-                    'schoolName' => $this->Ulti->convertV2E($value->school),
+                    'schoolName' => $this->Util->convertV2E($value->school),
                     'schoolJP' => $eduLevel[$value->degree]['jp'] . "校卒業" . $specialized,
                 ];
                 array_push($eduHis, $history);
@@ -580,7 +600,7 @@ class OrdersController extends AppController
             if (!empty($student->families) && !empty($student->families[$i])) {
                 $value = $student->families[$i];
                 $member = [
-                    'name' => $this->Ulti->convertV2E($value->fullname),
+                    'name' => $this->Util->convertV2E($value->fullname),
                     'relationship' => $relationship[$value->relationship]['jp'],
                     'age' => ($now->diff($value->birthday))->y,
                     'job' => $value->job->job_name_jp,
@@ -598,7 +618,7 @@ class OrdersController extends AppController
         $families[0]['additional'] = $cvTemplateConfig['familyAdditional'][0] . "            ：" . $memberInJPRel;
         $families[1]['additional'] = $cvTemplateConfig['familyAdditional'][1] . "    ：みんなの日本語";
         $families[2]['additional'] = $cvTemplateConfig['familyAdditional'][2] . "    ：" . $studyTime . "ヶ月";
-        $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . $student->jclasses[0]->current_lesson . "課";
+        $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . ($student->jclasses ? $student->jclasses[0]->current_lesson : '0') . "課";
         
         $this->tbs->MergeBlock('d', $families);
 
@@ -615,13 +635,13 @@ class OrdersController extends AppController
         $avatar = $student->image ?? 'students/no_img.png';
         $this->tbs->VarRef['avatar'] = ROOT . DS . 'webroot' . DS . 'img' . DS . $avatar;
         $this->tbs->VarRef['livingJP'] = "在日親戚    ：" . ($memberInJP == true ? "有" : "無");
-        $this->tbs->VarRef['strength'] = $student->strength;
-        $this->tbs->VarRef['purpose'] = $student->purpose;
+        $this->tbs->VarRef['strength'] = $student->strength ?? '';
+        $this->tbs->VarRef['purpose'] = $student->purpose ?? '';
         $this->tbs->VarRef['genitive'] = $student->genitive ?? '';
         $this->tbs->VarRef['salary'] = $student->salary ?? '';
-        $this->tbs->VarRef['saving'] = $student->saving_expected;
+        $this->tbs->VarRef['saving'] = $student->saving_expected ?? '';
         $this->tbs->VarRef['maritalStatus'] = $maritalStatus[$student->marital_status]['jp'];
-        $this->tbs->VarRef['after_plan'] = $student->after_plan;
+        $this->tbs->VarRef['after_plan'] = $student->after_plan ?? '';
         $this->tbs->VarRef['reh'] = $student->right_eye_sight_hospital ?? '';
         $this->tbs->VarRef['leh'] = $student->left_eye_sight_hospital ?? '';
         $this->tbs->VarRef['re'] = $student->right_eye_sight;
@@ -703,7 +723,7 @@ class OrdersController extends AppController
         $listJP = $listVN = [];
         foreach ($order->students as $key => $student) {
             $studentName_VN = mb_strtoupper($student->fullname);
-            $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
             $departureDate = strtotime($order->departure_date);
 
             $studentJP = [
@@ -825,7 +845,7 @@ class OrdersController extends AppController
         
         $spreadsheet->getActiveSheet()->getStyle('I8')->getAlignment()->setWrapText(true);
         $spreadsheet->getActiveSheet()->getRowDimension('8')->setRowHeight(34);
-        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(4);
+        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(5);
         $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(32);
         $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(12);
         $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(5);
@@ -876,6 +896,7 @@ class OrdersController extends AppController
         }
         // fill data to table
         $spreadsheet->getActiveSheet()->fromArray($listWorkers, NULL, 'A10');
+        $spreadsheet->getActiveSheet()->getStyle('A8:M'. $counter)->getAlignment()->setWrapText(true);
         $spreadsheet->getActiveSheet()->getStyle('A8:M'.$counter)->applyFromArray([
             'borders' => [
                 'allBorders' => [
@@ -1036,7 +1057,7 @@ class OrdersController extends AppController
                 return $this->redirect(['action' => 'index']);
             }
             $studentName_VN = mb_strtoupper($student->fullname);
-            $studentName_EN = $this->Ulti->convertV2E($studentName_VN);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
 
             $nameCell = $student->fullname_kata . "\n" . $studentName_EN;
             $ageCell = ($now->diff($student->birthday))->y;

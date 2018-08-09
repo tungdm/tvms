@@ -52,7 +52,7 @@ $(document).ready(function() {
                 if ($(this).val() == lessonTo) {
                     return $(this).html(); 
                 } 
-    });
+            });
             $('.select-lesson-from').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
         }
     });

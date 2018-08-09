@@ -3,7 +3,7 @@ namespace App\Controller\Component;
 
 use Cake\Controller\Component;
 
-class UltiComponent extends Component
+class UtilComponent extends Component
 {
 
     public function convertV2E($str)
@@ -21,5 +21,10 @@ class UltiComponent extends Component
         $str = preg_replace("/(Ỳ|Ý|Ỵ|Ỷ|Ỹ)/", "Y", $str);
         $str = preg_replace("/(Đ)/", "D", $str);
         return $str;
+    }
+    
+    public function getLastDayOfMonth($month)
+    {
+        return date("Y-m-t", strtotime($month));
     }
 }

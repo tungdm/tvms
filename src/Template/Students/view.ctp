@@ -833,6 +833,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                     <?php endif; ?>
+                    
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">

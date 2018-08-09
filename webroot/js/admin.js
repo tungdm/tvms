@@ -946,6 +946,52 @@ function initSelect2() {
     });
 }
 
+function initSelect2AjaxSearch(eleId, searchUrl, placeholder) {
+    $('#' + eleId).select2({
+        ajax: {
+            url: searchUrl,
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                    page: params.page
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                var processedOptions = $.map(data.items, function(obj, index) {
+                    return {id: index, text: obj};
+                });
+                return {
+                    results: processedOptions,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+            cache: true
+        },
+        placeholder: placeholder,
+        minimumInputLength: 1,
+        allowClear: true,
+        theme: "bootstrap",
+        language: {
+            noResults: function() {
+                return "Không tìm thấy kết quả";
+            },
+            searching: function() {
+                return "Đang tìm kiếm...";
+            },
+            inputTooShort: function (args) {
+                var remainingChars = args.minimum - args.input.length;
+                var message = 'Vui lòng nhập ít nhất ' + remainingChars + ' kí tự';
+                return message;
+            },
+        }
+    });
+}
+
 function initDatetimePicker() {
     // init datetime picker
     var elems = Array.prototype.slice.call($('.input-picker'));

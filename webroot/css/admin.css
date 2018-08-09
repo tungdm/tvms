@@ -196,6 +196,7 @@ a:focus {
   border: none;
   min-height: 50px;
   border-radius: 0;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 .layout-top-nav .main-header .navbar {
   margin-left: 0;
@@ -1607,7 +1608,7 @@ a:focus {
 } */
 .box {
   position: relative;
-  border-radius: 3px;
+  /* border-radius: 3px; */
   background: #ffffff;
   margin-bottom: 20px;
   width: 100%;

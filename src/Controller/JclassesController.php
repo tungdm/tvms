@@ -8,6 +8,8 @@ use Cake\ORM\TableRegistry;
 use Cake\I18n\Time;
 use Cake\Log\Log;
 use Cake\Utility\Text;
+use Cake\Core\Configure;
+use PhpOffice\PhpSpreadsheet\Style;
 
 /**
  * Jclasses Controller
@@ -22,6 +24,7 @@ class JclassesController extends AppController
     public function initialize()
     {
         parent::initialize();
+        $this->loadComponent('ExportFile');
         $this->entity = 'lớp';
     }
 
@@ -101,6 +104,22 @@ class JclassesController extends AppController
         $jclasses = $this->paginate($allClasses);
         $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
         $this->set(compact('jclasses', 'teachers', 'query'));
+    }
+
+    public function searchClass()
+    {
+        $this->request->allowMethod('ajax');
+        $query = $this->request->getQuery();
+        $resp = [];
+        if (isset($query['q']) && !empty($query['q'])) {
+            $classes = $this->Jclasses
+                ->find('list')
+                ->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('name', '%'.$query['q'].'%');
+                });
+            $resp['items'] = $classes;
+        }
+        return $this->jsonResponse($resp);   
     }
 
     /**
@@ -379,5 +398,106 @@ class JclassesController extends AppController
             Log::write('debug', $e);
         }
         return $this->jsonResponse($resp);
+    }
+
+    public function exportReport() {
+        $allClasses = $this->Jclasses->find()->contain([
+            'Users',
+            'Students'
+        ]);
+
+        // load config
+        $reportConfig = Configure::read('reportXlsx');
+        $lessons = Configure::read('lessons');
+
+        // init worksheet
+        $spreadsheet = $this->ExportFile->setXlsxProperties();
+        $spreadsheet->setActiveSheetIndex(0);
+        $activeSheet = $spreadsheet->getActiveSheet();
+        $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
+        $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
+        
+        $activeSheet->setShowGridLines(false);
+        $activeSheet->setCellValue('A1', $reportConfig['branch']);
+        $activeSheet->getStyle('A1:A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $activeSheet->getRowDimension('3')->setRowHeight(30);
+        $activeSheet->mergeCells('A3:F3');
+        $activeSheet->setCellValue('A3', $reportConfig['classTitle']);
+        $activeSheet->getStyle('A3:A3')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 16,
+            ],
+            'alignment' => [
+                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $activeSheet
+            ->mergeCells('A5:A6')->setCellValue('A5', 'STT')
+            ->mergeCells('B5:B6')->setCellValue('B5', 'Lớp học')
+            ->mergeCells('C5:C6')->setCellValue('C5', 'Ngày bắt đầu')
+            ->mergeCells('D5:D6')->setCellValue('D5', 'Sĩ số')
+            ->mergeCells('F5:F6')->setCellValue('E5', 'Bài đang học')
+            ->mergeCells('E5:E6')->setCellValue('F5', 'Giáo viên chủ nhiệm');
+
+        $activeSheet->getColumnDimension('A')->setWidth(6);
+        $activeSheet->getColumnDimension('B')->setWidth(15);
+        $activeSheet->getColumnDimension('C')->setWidth(15);
+        $activeSheet->getColumnDimension('D')->setWidth(8);
+        $activeSheet->getColumnDimension('E')->setWidth(15);
+        $activeSheet->getColumnDimension('F')->setWidth(25);
+
+        $listClasses = [];
+        $counter = 6;
+        foreach ($allClasses as $key => $jclass) {
+            $counter++;
+            $data = [
+                $key+1,
+                $jclass->name,
+                $jclass->start->i18nFormat('dd/MM/yyyy'),
+                $jclass->students ? count($jclass->students) : '0',
+                $lessons[$jclass->current_lesson],
+                $jclass->user->fullname
+            ];
+            array_push($listClasses, $data);
+        }
+        // debug($listClasses);
+        $activeSheet->fromArray($listClasses, NULL, 'A7');
+        $activeSheet->getStyle('A5:F'.$counter)->getAlignment()->setWrapText(true);
+        $activeSheet->getStyle('A5:F'.$counter)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Style\Border::BORDER_THIN,
+                ]
+            ],
+            'alignment' => [
+                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+        $activeSheet->getStyle('A5:F6')->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
+        $activeSheet->getStyle('A7:A'.$counter)->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
+        $spreadsheet = $this->ExportFile->generateFooter($spreadsheet, $counter+1, 'F');
+        $spreadsheet->getActiveSheet()->freezePane('A7');
+
+        // export XLSX file for download
+        $this->ExportFile->export($spreadsheet, $reportConfig['filename']);
+        exit;
     }
 }

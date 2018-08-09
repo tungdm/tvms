@@ -144,6 +144,22 @@ class CompaniesController extends AppController
         return $this->jsonResponse($resp);
     }
 
+    public function searchCompany()
+    {
+        $this->request->allowMethod('ajax');
+        $query = $this->request->getQuery();
+        $resp = [];
+        if (isset($query['q']) && !empty($query['q'])) {
+            $company = $this->Companies
+                ->find('list')
+                ->where(function (QueryExpression $exp, Query $q) use ($query) {
+                    return $exp->like('name_romaji', '%'.$query['q'].'%');
+                });
+            $resp['items'] = $company;
+        }
+        return $this->jsonResponse($resp);   
+    }
+
     /**
      * Add method
      *

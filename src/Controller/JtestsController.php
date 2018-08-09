@@ -57,10 +57,10 @@ class JtestsController extends AppController
 
             // supervisory can access to set score action
             if ($action == 'setScore') {
+                Log::write('debug', 'user set score');
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
-                    $record = $this->Jtests->JtestContents->find()->where(['jtest_id' => $target_id, 'user_id' => $user['id']])->toArray();
                     $jtest = $this->Jtests
                             ->find()
                             ->contain([
@@ -68,7 +68,7 @@ class JtestsController extends AppController
                                     return $q->where(['jtest_id' => $target_id, 'user_id' => $user['id']]);
                                 }
                             ])->first();
-                    if (!empty($jtest->jtest_contents) && $jtest->status !== '5') {
+                    if (!empty($jtest) && $jtest->status !== '5') {
                         return true;
                     }
                 }
@@ -189,10 +189,10 @@ class JtestsController extends AppController
         $lessons = Configure::read('lessons');
         $jclasses = $this->Jtests->Jclasses->find()
             ->map(function ($row) use ($lessons) {
-                $row->title = $row->name . ' ( ' . $lessons[$row->current_lesson] . ' )';
+                $row->name = $row->name . ' (Đang học ' . $lessons[$row->current_lesson] . ')';
                 return $row;
             })
-            ->combine('id', 'title')
+            ->combine('id', 'name')
             ->toArray();
         $userTable = TableRegistry::get('Users');
         $teachers = $userTable->find('list')->where(['role_id' => '3']);

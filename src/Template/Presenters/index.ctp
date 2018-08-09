@@ -63,17 +63,6 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <a class="btn btn-box-tool" href="javascript:;" onclick="showAddPresenterModal()"><i class="fa fa-plus"></i></a>
-                    <div class="btn-group">
-                        <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a data-toggle="modal" data-target="#setting-presenter-modal" href="#">Setting Show/Hide field</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <?= $this->Form->create(null, [
@@ -188,7 +177,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                                         </li>
                                         <?php if ($permission == 0): ?>
                                         <li>
-                                            <a href="#" id="edit-presenter-btn" onClick="editPresenter('<?= $presenter->id ?>')">
+                                            <a href="javascript:;" id="edit-presenter-btn" onClick="editPresenter('<?= $presenter->id ?>')">
                                             <i class="fa fa-edit"></i> Sửa</a>
                                         </li>
                                         <li>
@@ -249,7 +238,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="address">
                         <?= __('Địa chỉ') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('address', [
@@ -260,7 +249,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="phone">
                         <?= __('Số Điện Thoại') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('phone', [
@@ -329,7 +318,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="address">
                         <?= __('Địa chỉ') ?></label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('address', [
@@ -340,7 +329,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="phone">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="phone">
                         <?= __('Số Điện Thoại') ?></label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('phone', [
