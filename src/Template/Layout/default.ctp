@@ -76,32 +76,22 @@ use Cake\Core\Configure;
                                 <?php else: ?>
                                     <?= $this->Html->image($this->request->session()->read('Auth.User.image'), ['class' => 'user-image']) ?>
                                 <?php endif; ?>
-                                <?= $this->request->session()->read('Auth.User.username') ?>
+                                <?= $this->request->session()->read('Auth.User.fullname') ?>
                                 <span class="fa fa-angle-down"></span>
                             </a>
                             <ul class="dropdown-menu dropdown-usermenu pull-right">
                                 <li>
                                     <?= $this->Html->link(
-                                        __('Thông tin cá nhân'), 
-                                        ['controller' => 'Users', 'action' => 'edit', $this->request->session()->read('Auth.User.id')]
-                                        ) 
-                                    ?>
+                                        '<i class="fa fa-user"></i> Thông tin cá nhân', 
+                                        ['controller' => 'Users', 'action' => 'edit', $this->request->session()->read('Auth.User.id')],
+                                        ['escape' => false]) ?>
                                 </li>
                                 <li>
-                                    <a href="javascript:;">
-                                    <span class="badge bg-red pull-right">50%</span>
-                                    <span>Settings</span>
-                                    </a>
-                                </li>
-                                <li><a href="javascript:;">Help</a></li>
-                                <li>
-                                    <?=
-                                        $this->Html->link(
-                                            '<i class="fa fa-sign-out pull-right"></i> Đăng xuất',
-                                            ['controller' => 'Users', 'action' => 'logout'],
-                                            ['escape' => false]
-                                        )
-                                    ?>
+                                    <?= $this->Html->link(
+                                        '<i class="fa fa-sign-out"></i> Đăng xuất',
+                                        ['controller' => 'Users', 'action' => 'logout'],
+                                        ['escape' => false]
+                                        )?>
                                 </li>
                             </ul>
                         </li>
@@ -260,7 +250,7 @@ use Cake\Core\Configure;
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-deputy-romaji"></span><br/>
                                     <span id="view-deputy-kanji">
                                 </div>
@@ -269,22 +259,53 @@ use Cake\Core\Configure;
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <ol class="list-unstyled">
-                                        <li><span id="view-address-romaji"></span></li>
-                                        <li><span id="view-address-kanji"></span></li>
-                                    </ol>
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span id="view-address-romaji"></span><br/>
+                                    <span id="view-address-kanji"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span>(Việt Nam) <span id="view-phone-vn"></span></span><br/>
+                                    <span>(Nhật Bản) <span id="view-phone-jp"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <ol class="list-unstyled">
-                                        <li>(Việt Nam) <span id="view-phone-vn"></span></li>
-                                        <li>(Nhật Bản) <span id="view-phone-jp"></span></li>
-                                    </ol>
+                                    <span id="view-guild-created-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-guild-created"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12 " for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-guild-modified-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-guild-modified"></span>
                                 </div>
                             </div>
                         </div>
@@ -310,7 +331,7 @@ use Cake\Core\Configure;
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company-name"><?= __('Tên công ty') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-company-name-romaji"></span><br/>
                                     <span id="view-company-name-kanji"></span>
                                 </div>
@@ -319,7 +340,7 @@ use Cake\Core\Configure;
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-company-deputy-romaji"></span><br/>
                                     <span id="view-company-deputy-kanji">
                                 </div>
@@ -328,7 +349,7 @@ use Cake\Core\Configure;
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild-name"><?= __('Nghiệp đoàn') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-guild-name-romaji"></span><br/>
                                     <span id="view-guild-name-kanji"></span>
                                 </div>
@@ -337,22 +358,53 @@ use Cake\Core\Configure;
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <ol class="list-unstyled">
-                                        <li><span id="view-company-address-romaji"></span></li>
-                                        <li><span id="view-company-address-kanji"></span></li>
-                                    </ol>
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span id="view-company-address-romaji"></span><br/>
+                                    <span id="view-company-address-kanji"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span>(Việt Nam) <span id="view-company-phone-vn"></span></span><br/>
+                                    <span>(Nhật Bản) <span id="view-company-phone-jp"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <ol class="list-unstyled">
-                                        <li>(Việt Nam) <span id="view-company-phone-vn"></span></li>
-                                        <li>(Nhật Bản) <span id="view-company-phone-jp"></span></li>
-                                    </ol>
+                                    <span id="view-company-created-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-company-created"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12 " for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-company-modified-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-company-modified"></span>
                                 </div>
                             </div>
                         </div>
@@ -404,6 +456,41 @@ use Cake\Core\Configure;
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-presenter-type"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-created-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-created"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12 " for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-modified-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-presenter-modified"></span>
                                 </div>
                             </div>
                         </div>

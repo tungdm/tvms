@@ -34,6 +34,7 @@ $cardType = array_keys(Configure::read('cardType'));
 $bloodGroup = Configure::read('bloodGroup');
 $preferredHand = Configure::read('preferredHand');
 $relationship = Configure::read('relationship');
+$relationship = array_map('array_shift', $relationship);
 $interviewResult = Configure::read('interviewResult');
 $now = Time::now();
 
@@ -158,6 +159,14 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                                 <?= $gender[$student->gender] ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $yesNoQuestion[$student->exempt] ?>
                                             </div>
                                         </div>
                                     </div>
@@ -347,10 +356,18 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="purpose"><?= __('Thu nhập hiện tại') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->salary) ? $student->salary . '万円/月' : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="saving_expected"><?= __('Số tiền mong muốn') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->saving_expected) ? $student->saving_expected : 'N/A' ?>
+                                                <?= !empty($student->saving_expected) ? $student->saving_expected . '万円' : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -378,6 +395,14 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                                 <?= !empty($student->weakness) ? $student->weakness : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="genitive"><?= __('Tính cách') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->genitive) ? $student->genitive : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -469,8 +494,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6 col-xs-12 right-col">
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Tình trạng sức khỏe') ?></h3>
@@ -573,6 +596,51 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->created_by_user->fullname ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= h($student->created) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php if (!empty($student->modified_by_user)): ?>
+                                    <div class="ln_solid"></div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->modified_by_user->fullname ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= h($student->modified) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -833,7 +901,58 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                     <?php endif; ?>
-                    
+                    <?php if (!empty($student->jtests)): ?>
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Quá trình đào tạo') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body overview">
+                                    <ul id="jtest-tabs" class="nav nav-tabs">
+                                        <li class="active"><a href="#vocabulary" data-toggle="tab"><?= __('Từ vựng') ?></a></li>
+                                        <li><a href="#grammar" data-toggle="tab"><?= __('Ngữ pháp') ?></a></li>
+                                        <li><a href="#listening" data-toggle="tab"><?= __('Nghe hiểu') ?></a></li>
+                                        <li><a href="#conversation" data-toggle="tab"><?= __('Đàm thoại') ?></a></li>
+                                    </ul>
+                                    <div id="jtest-tabs-content" class="tab-content">
+                                        <div class="tab-pane fade in active" id="vocabulary">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                                    <canvas id="vocabulary-line-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="grammar">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                                    <canvas id="grammar-line-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="listening">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                                    <canvas id="listening-line-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="conversation">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                                    <canvas id="conversation-line-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">
@@ -1150,16 +1269,32 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <h3 class="box-title"><?= __('Kiểm tra IQ') ?></h3>
                                     <div class="box-tools pull-right">
                                         <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadChart()"><i class="fa fa-cloud-download"></i></a>
+                                        <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadIqChart()"><i class="fa fa-cloud-download"></i></a>
                                     </div>
                                 </div>
                                 <div class="box-body overview">
                                     <?php if (!empty($student->iq_tests)): ?>
-                                    <div class="row">
-                                        <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                            <canvas id="line-chart"></canvas>
+                                    <ul id="iqtest-tabs" class="nav nav-tabs">
+                                        <li class="active"><a href="#iq-vn" data-toggle="tab"><?= __('Tiếng Việt') ?></a></li>
+                                        <li><a href="#iq-jp" data-toggle="tab"><?= __('Tiếng Nhật') ?></a></li>
+                                    </ul>
+                                    <div id="iqtest-tabs-content" class="tab-content">
+                                        <div class="tab-pane fade in active" id="iq-vn">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                                    <canvas id="iq-vn-line-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="iq-jp">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
+                                                    <canvas id="iq-jp-line-chart"></canvas>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                    
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -1408,4 +1543,10 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
 <script type="text/javascript">
     var iqtests = <?= json_encode($student->iq_tests) ?>;
     var studentName = '<?= $studentName_EN ?>';
+    var studentNameVN = '<?= $studentName_VN ?>';
+
+    var vocabulary = <?= json_encode($vocabulary) ?>;
+    var grammar = <?= json_encode($grammar) ?>;
+    var listening = <?= json_encode($listening) ?>;
+    var conversation = <?= json_encode($conversation) ?>;
 </script>

@@ -104,7 +104,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
 
 <div class="form-horizontal form-label-left">
     <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin kì thi') ?></h3>
@@ -137,6 +137,52 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
+                    <div class="box-tools pull-right">
+                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= $jtest->created_by_user->fullname ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= h($jtest->created) ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php if (!empty($jtest->modified_by_user)): ?>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= $jtest->modified_by_user->fullname ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= h($jtest->modified) ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@
     -webkit-box-shadow: none;
     right: 0;
     left: auto;
-    width: 220px;
+    width: 200px;
 }
 
 .custom-table>thead>tr {
@@ -90,10 +90,8 @@ span.parsley-error {
 
 /* Student - info */
 ul.bar_tabs {
-    background: #ededed;
-}
-ul.bar_tabs>li.active {
-    border-left: 6px solid #D3D6DA;
+    /* background: #ededed; */
+    background: #367fa9;
 }
 .select2 {
     width:100%!important;
@@ -115,9 +113,10 @@ ul {
 }
 
 ul.sidebar-menu>li.active>a {
-    box-shadow: rgba(0,0,0,.25) 0 1px 0, inset rgba(255,255,255,.16) 1px 1px 5px;
+    /* box-shadow: rgba(0,0,0,.25) 0 1px 0, inset rgba(255,255,255,.16) 1px 1px 5px;
     text-shadow: rgba(0,0,0,.25) 0 -1px 0;
-    background: linear-gradient(#4f565d,#345779),#2d4863 !important;
+    background: linear-gradient(#4f565d,#345779),#2d4863 !important; */
+    background: #1abc9c !important;
 }
 
 ul.treeview-menu>li {
@@ -443,4 +442,23 @@ label.optional {
 
 #student-tabs {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+#student-tabs>li>a {
+    color: white;
+    border: none !important;
+    margin-right: 0px !important;
+    transition: 0.2s ease-out;
+}
+#student-tabs>li>a:hover, #student-tabs>li.active>a{
+    color: #444;
+    border: none !important;
+}
+
+.fit-div {
+    height: auto;
+}
+
+.login-input {
+    margin-bottom: 5px !important;
 }

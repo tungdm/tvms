@@ -13,7 +13,9 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
-
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $this->Html->css('flag-icon.css', ['block' => 'styleTop']);
 
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);

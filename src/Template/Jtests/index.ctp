@@ -12,7 +12,9 @@ $lessons = Configure::read('lessons');
 $testStatus = Configure::read('testStatus');
 
 $counter = 0;
-
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);

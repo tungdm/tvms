@@ -2,7 +2,7 @@
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('home.js', ['block' => 'scriptBottom']);
-$this->assign('title', 'TVMS | Trang Chủ');
+$this->assign('title', 'TVMS - Trang Chủ');
 ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
@@ -138,7 +138,7 @@ $this->assign('title', 'TVMS | Trang Chủ');
                 <h3 class="box-title"><?= __('TÌNH HÌNH TỔNG QUAN') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadChart()"><i class="fa fa-cloud-download"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadChart('line-chart')"><i class="fa fa-cloud-download"></i></a>
                 </div>
             </div>
             <div class="box-body overview">

@@ -114,10 +114,17 @@ class PresentersController extends AppController
         ];
 
         try {
-            $presenter = $this->Presenters->get($presenterId);
+            $presenter = $this->Presenters->get($presenterId, [
+                'contain' => [
+                    'CreatedByUsers',
+                    'ModifiedByUsers'
+                ]
+            ]);
             $resp = [
                 'status' => 'success',
-                'data' => $presenter
+                'data' => $presenter,
+                'created' => $presenter->created->i18nFormat('HH:mm, dd/MM/yyyy'),
+                'modified' => $presenter->modified->i18nFormat('HH:mm, dd/MM/yyyy')
             ];
         } catch (Exception $e) {
             //TODO: blacklist user
@@ -136,6 +143,8 @@ class PresentersController extends AppController
         $presenter = $this->Presenters->newEntity();
         if ($this->request->is('post')) {
             $presenter = $this->Presenters->patchEntity($presenter, $this->request->getData());
+            $presenter = $this->Presenters->setAuthor($presenter, $this->Auth->user('id'), $this->request->getParam('action'));
+
             if ($this->Presenters->save($presenter)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
                     'entity' => $this->entity,

@@ -132,7 +132,13 @@ class JclassesController extends AppController
     public function view($id = null)
     {
         $jclass = $this->Jclasses->get($id, [
-            'contain' => ['Students', 'Jtests', 'Users']
+            'contain' => [
+                'Students', 
+                'Jtests', 
+                'Users',
+                'CreatedByUsers',
+                'ModifiedByUsers'
+                ]
         ]);
 
         $this->set('jclass', $jclass);
@@ -148,7 +154,8 @@ class JclassesController extends AppController
             $students = $studentTable->find()
                 ->leftJoinWith('Jclasses')
                 ->select(['Jclasses.id', 'Students.id', 'Students.fullname'])
-                ->where(['Jclasses.id IS' => NULL])
+                ->where(['exempt <>' => 'Y'])
+                ->andWhere(['Jclasses.id IS' => NULL])
                 ->andWhere(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('fullname', '%'.$query['q'].'%');
                 });
@@ -214,6 +221,8 @@ class JclassesController extends AppController
         $className = $jclass->name;
         if ($this->request->is(['patch', 'post', 'put'])) {
             $jclass = $this->Jclasses->patchEntity($jclass, $this->request->getData());
+            $jclass = $this->Jclasses->setAuthor($jclass, $this->Auth->user('id'), $this->request->getParam('action'));
+
             if ($this->Jclasses->save($jclass)) {
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
                     'entity' => $this->entity,

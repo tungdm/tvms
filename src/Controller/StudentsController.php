@@ -72,11 +72,6 @@ class StudentsController extends AppController
             if (!isset($query['records']) || empty($query['records'])) {
                 $query['records'] = 10;
             }
-            if (isset($query['code']) && !empty($query['code'])) {
-                $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('code', '%'.$query['code'].'%');
-                });
-            }
             if (isset($query['student_name']) && !empty($query['student_name'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('fullname', '%'.$query['student_name'].'%');
@@ -113,7 +108,7 @@ class StudentsController extends AppController
             'contain' => [
                 'Presenters', 
             ],
-            'sortWhitelist' => ['code', 'fullname', 'email', 'enrolled_date'],
+            'sortWhitelist' => ['fullname', 'enrolled_date'],
             'limit' => $query['records']
         ];
         $students = $this->paginate($allStudents);
@@ -153,15 +148,51 @@ class StudentsController extends AppController
                 'Orders.Companies.Guilds',
                 'Histories' => ['sort' => ['Histories.created' => 'DESC']],
                 'Histories.UsersCreatedBy',
-                'Jtests'
+                'Jtests',
+                'CreatedByUsers',
+                'ModifiedByUsers'
             ]
         ]);
         $studentName_VN = mb_strtoupper($student->fullname);
         $studentName_EN = $this->Util->convertV2E($studentName_VN);
 
+        $vocabulary = [];
+        $grammar = [];
+        $listening = [];
+        $conversation = [];
+        if (!empty($student->jtests)) {
+            foreach ($student->jtests as $key => $value) {
+                $testDate = $value->test_date->i18nFormat('yyyy-MM-dd');
+                if (!empty($value->_joinData->vocabulary_score)) {
+                    array_push($vocabulary, [
+                        'date' => $testDate,
+                        'score' => $value->_joinData->vocabulary_score
+                    ]);
+                }
+                if (!empty($value->_joinData->grammar_score)) {
+                    array_push($grammar, [
+                        'date' => $testDate,
+                        'score' => $value->_joinData->grammar_score
+                    ]);
+                }
+                if (!empty($value->_joinData->listening_score)) {
+                    array_push($listening, [
+                        'date' => $testDate,
+                        'score' => $value->_joinData->listening_score
+                    ]);
+                }
+                if (!empty($value->_joinData->conversation_score)) {
+                    array_push($conversation, [
+                        'date' => $testDate,
+                        'score' => $value->_joinData->conversation_score
+                    ]);
+                }
+            }
+        }
+
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
-        $this->set(compact(['student', 'jobs', 'cities', 'studentName_EN']));
+        $this->set(compact(['student', 'jobs', 'cities', 'studentName_VN', 'studentName_EN', 'vocabulary', 'grammar', 'listening', 'conversation']));
     }
 
     public function getStudent()
@@ -182,13 +213,16 @@ class StudentsController extends AppController
             $student = $this->Students->get($candidateId, [
                 'contain' => [
                     'Addresses' => ['sort' => ['Addresses.type' => 'ASC']],
-                    'Addresses.Cities'
+                    'Addresses.Cities',
+                    'CreatedByUsers',
+                    'ModifiedByUsers'
                     ]
                 ]);
             
             $eduLevel = Configure::read('eduLevel');
             $eduLevel = array_map('array_shift', $eduLevel);
             $gender = Configure::read('gender');
+            $yesNoQuestion = Configure::read('yesNoQuestion');
 
             $resp = [
                 'status' => 'success',
@@ -197,6 +231,9 @@ class StudentsController extends AppController
                 'gender' => $gender[$student->gender],
                 'birthday' => $student->birthday->i18nFormat('yyyy-MM-dd'),
                 'appointment_date' => $student->appointment_date->i18nFormat('yyyy-MM-dd'),
+                'exempt' => $yesNoQuestion[$student->exempt],
+                'created' => $student->created->i18nFormat('HH:mm, dd/MM/yyyy'),
+                'modified' => $student->modified ? $student->modified->i18nFormat('HH:mm, dd/MM/yyyy') : ''
             ];
         } catch (Exception $e) {
             //TODO: blacklist user
@@ -441,6 +478,7 @@ class StudentsController extends AppController
                 ]);
             $data = $this->request->getData();
             $student = $this->Students->patchEntity($student, $data, ['associated' => ['Addresses']]);
+            $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $this->request->getParam('action'));
             
             if ($this->Students->save($student)) {
                 $resp = [
@@ -531,23 +569,23 @@ class StudentsController extends AppController
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
 
             // setting student code if first init
-            if (empty($student->code)) {
-                $lastestCode = $this->Students->find()->order(['id' => 'DESC'])->first();
-                $parsingCode = Text::tokenize($lastestCode, '-');
-                $codeTemplate = Configure::read('studentCodeTemplate');
-                $now = Time::now()->i18nFormat('yyyyMMdd');
-                if ($now === $parsingCode[1]) {
-                    $counter = (int)$parsingCode[2] + 1;
-                    $counter = str_pad((string)$counter, 3, '0', STR_PAD_LEFT);
-                } else {
-                    $counter = '001';
-                }
-                $newCode = Text::insert($codeTemplate, [
-                    'date' => $now, 
-                    'counter' => $counter
-                    ]);
-                $student->code = $newCode;
-            }
+            // if (empty($student->code)) {
+            //     $lastestCode = $this->Students->find()->order(['id' => 'DESC'])->first();
+            //     $parsingCode = Text::tokenize($lastestCode, '-');
+            //     $codeTemplate = Configure::read('studentCodeTemplate');
+            //     $now = Time::now()->i18nFormat('yyyyMMdd');
+            //     if ($now === $parsingCode[1]) {
+            //         $counter = (int)$parsingCode[2] + 1;
+            //         $counter = str_pad((string)$counter, 3, '0', STR_PAD_LEFT);
+            //     } else {
+            //         $counter = '001';
+            //     }
+            //     $newCode = Text::insert($codeTemplate, [
+            //         'date' => $now, 
+            //         'counter' => $counter
+            //         ]);
+            //     $student->code = $newCode;
+            // }
 
             try{
                 // save to db
@@ -1142,7 +1180,7 @@ class StudentsController extends AppController
             $birthday = Time::parse($student->birthday);
             $data = [
                 $student->id, 
-                $student->code, 
+                '', 
                 $student->fullname, 
                 Date::formattedPHPToExcel($birthday->year, $birthday->month, $birthday->day)
             ];

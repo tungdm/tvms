@@ -18,7 +18,9 @@ $cityJP = array_map('array_shift', $cityJP);
 $interviewStatus = Configure::read('interviewStatus');
 
 $counter = 0;
-
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
@@ -73,18 +75,6 @@ $this->assign('title', 'Quản lý đơn hàng');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <div class="btn-group">
-                        <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li>
-                                <a href="#">Action</a>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <?= $this->Form->create(null, [

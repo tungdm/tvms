@@ -49,6 +49,15 @@ class CompaniesTable extends Table
             'foreignKey' => 'company_id',
             'dependent' => true,
         ]);
+
+        $this->belongsTo('CreatedByUsers', [
+            'foreignKey' => 'created_by',
+            'className' => 'Users'
+        ]);
+        $this->belongsTo('ModifiedByUsers', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Users'
+        ]);
     }
 
     /**

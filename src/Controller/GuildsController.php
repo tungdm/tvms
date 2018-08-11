@@ -137,10 +137,17 @@ class GuildsController extends AppController
         ];
 
         try {
-            $guild = $this->Guilds->get($guildId);
+            $guild = $this->Guilds->get($guildId, [
+                'contain' => [
+                    'CreatedByUsers',
+                    'ModifiedByUsers'
+                ]
+            ]);
             $resp = [
                 'status' => 'success',
-                'data' => $guild
+                'data' => $guild,
+                'created' => $guild->created->i18nFormat('HH:mm, dd/MM/yyyy'),
+                'modified' => $guild->modified->i18nFormat('HH:mm, dd/MM/yyyy')
             ];
         } catch (Exception $e) {
             //TODO: blacklist user

@@ -56,6 +56,15 @@ class OrdersTable extends Table
         $this->belongsToMany('Students', [
             'through' => 'OrdersStudents'
         ]);
+
+        $this->belongsTo('CreatedByUsers', [
+            'foreignKey' => 'created_by',
+            'className' => 'Users'
+        ]);
+        $this->belongsTo('ModifiedByUsers', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Users'
+        ]);
     }
 
     /**

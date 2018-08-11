@@ -11,7 +11,7 @@ $permission = $this->request->session()->read($controller) ?? 0;
 $addressType = array_keys(Configure::read('addressType'));
 
 $gender = Configure::read('gender');
-
+$yesNoQuestion = Configure::read('yesNoQuestion');
 $eduLevel = Configure::read('eduLevel');
 $eduLevel = array_map('array_shift', $eduLevel);
 
@@ -19,6 +19,9 @@ $studentStatus = Configure::read('studentStatus');
 $recordsDisplay = Configure::read('recordsDisplay');
 
 $counter = 0;
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $currentUser = $this->request->session()->read('Auth.User');
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
@@ -91,20 +94,6 @@ $this->assign('title', 'Quản lý Lao động');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <div class="btn-group">
-                        <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li>
-                                <?= $this->Html->link('Xuất danh sách', [
-                                    'action' => 'exportXlsx'
-                                ]) ?>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <?= $this->Form->create(null, [
@@ -352,6 +341,21 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <?= $this->Form->control('exempt', [
+                            'options' => $yesNoQuestion, 
+                            'empty' => true, 
+                            'label' => false, 
+                            'required' => true, 
+                            'data-parsley-errors-container' => '#error-exempt',
+                            'data-parsley-class-handler' => '#select2-exempt',
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            ]) ?>
+                        <span id="error-exempt"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="phone"><?= __('Số điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
@@ -480,6 +484,14 @@ $this->assign('title', 'Quản lý Lao động');
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-exempt"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
@@ -524,6 +536,39 @@ $this->assign('title', 'Quản lý Lao động');
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12" style="height:unset;">
                                     <span id="view-candidate-note"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-created-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-created"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-modified-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-candidate-modified"></span>
                                 </div>
                             </div>
                         </div>
@@ -825,26 +870,6 @@ $this->assign('title', 'Quản lý Lao động');
                                     </tr>
                                 </tbody>
                             </table>
-                            <!-- <div class="checkbox">
-                                <label>
-                                    <input name="std[order]" type="checkbox" class="js-switch">  Đơn hàng
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input name="std[company]" type="checkbox" class="js-switch">  Công ty tiếp nhận
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input name="std[guild]" type="checkbox" class="js-switch">  Nghiệp đoàn quản lý
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input name="std[class]" type="checkbox" class="js-switch">  Lớp học
-                                </label>
-                            </div> -->
                         </div>
                     </div>
                 </div>

@@ -149,7 +149,10 @@ class JtestsController extends AppController
                 'Jclasses', 
                 'Students', 
                 'JtestContents' => ['sort' => ['skill' => 'ASC']], 
-                'JtestContents.Users']
+                'JtestContents.Users',
+                'CreatedByUsers',
+                'ModifiedByUsers'
+                ]
         ]);
 
         $this->set('jtest', $jtest);
@@ -169,6 +172,7 @@ class JtestsController extends AppController
             $event = $this->SystemEvent->create('THI TIẾNG NHẬT', $data['test_date']);
             $data['events'][0] = $event;
             $jtest = $this->Jtests->patchEntity($jtest, $data, ['associated' => ['JtestContents', 'Students', 'Events']]);
+            $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), $this->request->getParam('action'));
 
             // update flag
             $flag = '';
@@ -275,6 +279,8 @@ class JtestsController extends AppController
             $data['events'][0] = $event;
             
             $jtest = $this->Jtests->patchEntity($jtest, $data);
+            $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), $this->request->getParam('action'));
+
             if ($this->Jtests->save($jtest)) {
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
                     'entity' => $this->entity,

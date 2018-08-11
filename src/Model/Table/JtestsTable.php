@@ -41,6 +41,7 @@ class JtestsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Author');
 
         $this->belongsTo('Jclasses', [
             'foreignKey' => 'jclass_id',
@@ -55,6 +56,15 @@ class JtestsTable extends Table
         $this->hasMany('Events', [
             'foreignKey' => 'jtest_id',
             'dependent' => true,
+        ]);
+
+        $this->belongsTo('CreatedByUsers', [
+            'foreignKey' => 'created_by',
+            'className' => 'Users'
+        ]);
+        $this->belongsTo('ModifiedByUsers', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Users'
         ]);
     }
 

@@ -139,8 +139,10 @@ class OrdersController extends AppController
                 'Companies', 
                 'Companies.Guilds',
                 'Jobs', 
-                'Students'
-                ]
+                'Students',
+                'CreatedByUsers',
+                'ModifiedByUsers'
+            ]
         ]);
 
         $this->set('order', $order);
@@ -199,6 +201,7 @@ class OrdersController extends AppController
             }
             $data['events'][0] = $event;
             $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
+            $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
             
             if ($this->Orders->save($order)) {
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [

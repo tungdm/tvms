@@ -51,6 +51,15 @@ class JclassesTable extends Table
         $this->hasMany('Jtests', [
             'foreignKey' => 'jclass_id'
         ]);
+
+        $this->belongsTo('CreatedByUsers', [
+            'foreignKey' => 'created_by',
+            'className' => 'Users'
+        ]);
+        $this->belongsTo('ModifiedByUsers', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Users'
+        ]);
     }
 
     /**

@@ -13,7 +13,9 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
-
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $this->Html->css('user.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
@@ -69,14 +71,6 @@ $this->assign('title', 'Quản lý Nhân viên');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <div class="btn-group">
-                        <a href="#" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a data-toggle="modal" data-target="#setting-modal" href="#">Chọn mục quản lý</a></li>                            
-                            <li class="divider"></li>
-                            <li><a href="#">Xuất danh sách</a></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <?= $this->Form->create(null, [

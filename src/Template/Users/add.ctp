@@ -59,7 +59,7 @@ $this->assign('title', 'Thêm mới nhân viên');
                     ]) 
                 ?>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="username"><?= __('Tài khoản') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="username"><?= __('Tài khoản') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('username', [
                             'label' => false, 
@@ -69,18 +69,17 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="fullname"><?= __('Tên nhân viên') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="fullname"><?= __('Tên nhân viên') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('fullname', [
                             'label' => false,
-                            'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'placeholder' => 'Nhập họ tên của nhân viên'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email"><?= __('Email') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="email"><?= __('Email') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('email', [
                             'label' => false,
@@ -91,7 +90,7 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('gender', [
                             'options' => $gender, 
@@ -106,7 +105,7 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Điện thoại') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'required' => true,
@@ -118,7 +117,7 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="birthday"><?= __('Ngày sinh') ?></label>
                     <div class="col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group date" id="user-birthday">
                             <?= $this->Form->control('birthday', [
@@ -126,21 +125,19 @@ $this->assign('title', 'Thêm mới nhân viên');
                                 'label' => false, 
                                 'class' => 'form-control',
                                 'placeholder' => 'yyyy-mm-dd',
-                                'required' => true,
                                 'data-parsley-errors-container' => '#error-birthday'
                                 ])?>
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
-                        <span id="error-birthday"></span>
                     </div>
                 </div>
         
                 <div class="ln_solid"></div>
                 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Chức vụ') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="role"><?= __('Chức vụ') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('role_id', [
                             'options' => $roles, 
@@ -155,7 +152,7 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group permission-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="permission"><?= __('Permission') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="permission"><?= __('Quyền hạn') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12 table-responsive">
                         <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Thêm quyền') ?></button>
                         <table class="table table-bordered custom-table permission-table">

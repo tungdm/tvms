@@ -101,6 +101,15 @@ class StudentsTable extends Table
             'through' => 'JtestsStudents',
             'dependent' => true,
         ]);
+
+        $this->belongsTo('CreatedByUsers', [
+            'foreignKey' => 'created_by',
+            'className' => 'Users'
+        ]);
+        $this->belongsTo('ModifiedByUsers', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Users'
+        ]);
     }
 
     /**
@@ -114,11 +123,6 @@ class StudentsTable extends Table
         $validator
             ->integer('id')
             ->allowEmpty('id', 'create');
-
-        $validator
-            ->scalar('code')
-            ->maxLength('code', 255)
-            ->allowEmpty('code');
 
         $validator
             ->scalar('fullname')

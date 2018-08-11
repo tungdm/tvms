@@ -8,7 +8,9 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $recordsDisplay = Configure::read('recordsDisplay');
 $counter = 0;
-
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $this->Html->css('flag-icon.css', ['block' => 'styleTop']);
 
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
@@ -67,16 +69,6 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">  
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    <div class="btn-group">
-                        <a href="javascript:;" class="btn btn-box-tool dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a data-toggle="modal" data-target="#setting-guild-modal" href="#">Setting Show/Hide field</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <?= $this->Form->create(null, [

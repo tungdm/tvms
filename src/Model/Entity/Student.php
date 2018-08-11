@@ -51,9 +51,9 @@ class Student extends Entity
      * @var array
      */
     protected $_accessible = [
-        'code' => true,
         'fullname' => true,
         'fullname_kata' => true,
+        'exempt' => true,
         'email' => true,
         'phone' => true,
         'gender' => true,

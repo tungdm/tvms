@@ -15,41 +15,43 @@ if (typeof studentName !== 'undefined') {
     stName = studentName;
 }
 
-var lineChartOptions = {
-    responsive: true,
-    title: {
-        display: true,
-        text: 'クレペリン検査 * ' + stName + ' * ' +  testDate
-    },
-    tooltips: {
-        mode: 'index',
-        intersect: false,
-    },
-    hover: {
-        mode: 'nearest',
-        intersect: true
-    },
-    scales: {
-        xAxes: [{
-            display: true,
-            scaleLabel: {
-                display: false,
-            }
-        }],
-        yAxes: [{
-            display: true,
-            scaleLabel: {
-                display: false,
-            }
-        }]
-    },
-    animation: {
-        onComplete: function() {
-            isChartRendered = true
-        }
-    }
-}
 
+function generateChartOptions(title) {
+    return {
+        responsive: true,
+        title: {
+            display: true,
+            text: title
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+        },
+        hover: {
+            mode: 'nearest',
+            intersect: true
+        },
+        scales: {
+            xAxes: [{
+                display: true,
+                scaleLabel: {
+                    display: false,
+                }
+            }],
+            yAxes: [{
+                display: true,
+                scaleLabel: {
+                    display: false,
+                }
+            }]
+        },
+        animation: {
+            onComplete: function() {
+                isChartRendered = true
+            }
+        }
+    };
+}
 // init handlebars
 if ($('#family-template')[0]){
     var family_template = Handlebars.compile($('#family-template').html());
@@ -87,7 +89,6 @@ $(document).ready(function() {
     var changeCheckbox = document.getElementsByClassName('js-check-change');
     for(var i=0; i < changeCheckbox.length; i++) {
         changeCheckbox[i].onchange = function() {
-            console.log(this);
             if (this.checked) {
                 $('input[name="'+this.name+'"]').val('1');
             } else {
@@ -98,9 +99,83 @@ $(document).ready(function() {
 
     $('#student-tabs').tabCollapse();
 
-    if ($('#line-chart').length ) {
-        // renderIqLineGraph();
-        renderLineChart();
+    if ($('#iq-vn-line-chart').length) {
+        // iq chart
+        var chartId = 'iq-vn-line-chart';
+        var title = 'Biểu đồ điểm kiểm tra IQ * ' + studentNameVN + ' * ' +  testDate;
+        var labels = [
+            'Câu1', 'Câu2', 'Câu3', 'Câu4', 'Câu5', 'Câu6', 'Câu7', 'Câu8', 'Câu9', 'Câu10',
+            'Câu11', 'Câu12', 'Câu13', 'Câu14', 'Câu15', 'Câu16', 'Câu17', 'Câu18', 'Câu19', 'Câu20',
+            'Câu21', 'Câu22', 'Câu23', 'Câu24'
+        ];
+        var datasets = [
+            {
+                label: 'Điểm',
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: [
+                    iqtests[0].q1, iqtests[0].q2, iqtests[0].q3, iqtests[0].q4, iqtests[0].q5, iqtests[0].q6, iqtests[0].q7, iqtests[0].q8,
+                    iqtests[0].q9, iqtests[0].q10, iqtests[0].q11, iqtests[0].q12, iqtests[0].q13, iqtests[0].q14, iqtests[0].q15, iqtests[0].q16,
+                    iqtests[0].q17, iqtests[0].q18, iqtests[0].q19, iqtests[0].q20, iqtests[0].q12, iqtests[0].q22, iqtests[0].q23, iqtests[0].q24,
+                ],
+                fill: false,
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointHoverBackgroundColor: '#fff'
+            },
+        ];
+        renderLineChart(chartId, title, labels, datasets);
+    }
+
+    if ($('#iq-jp-line-chart').length) {
+        // iq chart
+        var chartId = 'iq-jp-line-chart';
+        var title = 'クレペリン検査 * ' + stName + ' * ' +  testDate;
+        var labels = [
+            '文1', '文2', '文3', '文4', '文5', '文6', '文7', '文8', '文9', '文10',
+            '文11', '文12', '文13', '文14', '文15', '文16', '文17', '文18', '文19', '文20',
+            '文21', '文22', '文23', '文24'
+        ];
+        var datasets = [
+            {
+                label: '点',
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: [
+                    iqtests[0].q1, iqtests[0].q2, iqtests[0].q3, iqtests[0].q4, iqtests[0].q5, iqtests[0].q6, iqtests[0].q7, iqtests[0].q8,
+                    iqtests[0].q9, iqtests[0].q10, iqtests[0].q11, iqtests[0].q12, iqtests[0].q13, iqtests[0].q14, iqtests[0].q15, iqtests[0].q16,
+                    iqtests[0].q17, iqtests[0].q18, iqtests[0].q19, iqtests[0].q20, iqtests[0].q12, iqtests[0].q22, iqtests[0].q23, iqtests[0].q24,
+                ],
+                fill: false,
+                pointBackgroundColor: 'rgb(54, 162, 235)',
+                pointHoverBackgroundColor: '#fff'
+            },
+        ];
+        renderLineChart(chartId, title, labels, datasets);
+    }
+
+    if ($('#vocabulary-line-chart').length && vocabulary.length) {
+        // vocabulary chart
+        var chartId = 'vocabulary-line-chart';
+        var title = 'Biểu đồ điểm thi tiếng Nhật - Từ vựng';
+        initChart(vocabulary, chartId, title)
+    }
+    if ($('#grammar-line-chart').length && grammar.length) {
+        // grammar chart
+        var chartId = 'grammar-line-chart';
+        var title = 'Biểu đồ điểm thi tiếng Nhật - Ngữ pháp';
+        initChart(grammar, chartId, title)
+    }
+    if ($('#listening-line-chart').length && listening.length) {
+        // listening chart
+        var chartId = 'listening-line-chart';
+        var title = 'Biểu đồ điểm thi tiếng Nhật - Nghe hiểu';
+        initChart(listening, chartId, title)
+    }
+    if ($('#conversation-line-chart').length && conversation.length) {
+        // conversation chart
+        var chartId = 'conversation-line-chart';
+        var title = 'Biểu đồ điểm thi tiếng Nhật - Đàm thoại';
+        initChart(conversation, chartId, title)
     }
 
     var focusTab = window.location.hash;
@@ -113,7 +188,6 @@ $(document).ready(function() {
         $('.iqtest_score').each(function() {
             total += parseInt($(this).val());
         });
-        console.log(total);
         $('#iqtest_total').val(total);
     });
 
@@ -399,6 +473,18 @@ function viewSCandidate(candidateId) {
                 $('#view-candidate-birthday').html(resp.birthday);
                 $('#view-candidate-address').html(resp.data.addresses[0].city.name);
                 $('#view-candidate-edu-level').html(resp.edu_level);
+                $('#view-candidate-exempt').html(resp.exempt);
+
+                $('#view-candidate-created-by').html(resp.data.created_by_user.fullname);
+                $('#view-candidate-created').html(resp.created);
+                if (resp.data.modified) {
+                    $('.modified').removeClass('hidden');
+                    $('#view-candidate-modified-by').html(resp.data.modified_by_user.fullname);
+                    $('#view-candidate-modified').html(resp.modified);
+                } else {
+                    $('.modified').addClass('hidden');
+                }
+
                 $('#view-candidate-note').html((resp.data.note).replace(/\r?\n/g,'<br/>'));
 
                 $('#view-candidate-modal').modal('toggle');
@@ -461,6 +547,7 @@ function showEditStudentModal(candidateId) {
                 $('input[name="birthday"]').val(resp.data.birthday).trigger('change');
                 $('#addresses-0-city-id').val(resp.data.addresses[0].city_id).trigger('change');
                 $('#educational-level').val(resp.data.educational_level).trigger('change');
+                $('#exempt').val(resp.data.exempt).trigger('change');
                 $('#note').val(resp.data.note);
 
                 // change modal title
@@ -1398,33 +1485,38 @@ function getIqScore(studentId) {
     });
 }
 
-function renderLineChart() {
+function initChart(testData, chartId, title) {
+    var labels = [];
+    var datasets = [
+        {
+            label: 'Điểm',
+            backgroundColor: 'rgb(54, 162, 235)',
+            borderColor: 'rgb(54, 162, 235)',
+            data: [],
+            fill: false,
+            pointBackgroundColor: 'rgb(54, 162, 235)',
+            pointHoverBackgroundColor: '#fff'
+        }
+    ];
+    testData.forEach(function(e) {
+        labels.push(e.date);
+        datasets[0].data.push(e.score);
+    });
+    renderLineChart(chartId, title, labels, datasets);
+}
+
+function renderLineChart(chartId, title, labels, datasets) {
+    var lineChartOptions = generateChartOptions(title);
     var config = {
         type: 'line',
         data: {
-            labels  : [
-                '文1', '文2', '文3', '文4', '文5', '文6', '文7', '文8', '文9', '文10',
-                '文11', '文12', '文13', '文14', '文15', '文16', '文17', '文18', '文19', '文20',
-                '文21', '文22', '文23', '文24'
-            ],
-            datasets: [
-                {
-                    label: '点',
-                    backgroundColor: 'rgb(54, 162, 235)',
-					borderColor: 'rgb(54, 162, 235)',
-                    data: [
-                        iqtests[0].q1, iqtests[0].q2, iqtests[0].q3, iqtests[0].q4, iqtests[0].q5, iqtests[0].q6, iqtests[0].q7, iqtests[0].q8,
-                        iqtests[0].q9, iqtests[0].q10, iqtests[0].q11, iqtests[0].q12, iqtests[0].q13, iqtests[0].q14, iqtests[0].q15, iqtests[0].q16,
-                        iqtests[0].q17, iqtests[0].q18, iqtests[0].q19, iqtests[0].q20, iqtests[0].q12, iqtests[0].q22, iqtests[0].q23, iqtests[0].q24,
-                    ],
-                    fill: false,
-                },
-            ]
+            labels: labels,
+            datasets: datasets
         },
         options: lineChartOptions
     };
 
-    var ctx = document.getElementById('line-chart').getContext('2d');
+    var ctx = document.getElementById(chartId).getContext('2d');
     window.myLine = new Chart(ctx, config);
 }
 
@@ -1455,4 +1547,9 @@ function reportStudent() {
     });
     // show modal
     $('#report-student-modal').modal('toggle');
+}
+
+function downloadIqChart() {
+    var chartId = $('#iqtest-tabs-content').find('div.active').find('canvas')[0].id;
+    downloadChart(chartId);
 }

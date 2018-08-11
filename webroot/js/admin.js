@@ -1141,6 +1141,18 @@ function globalViewGuild(guildId, overlayId) {
                 $('#view-license-number').html(resp.data.license_number);
                 $('#view-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-deputy-kanji').html(resp.data.deputy_name_kanji);
+
+                $('#view-guild-created-by').html(resp.data.created_by_user.fullname);
+                $('#view-guild-created').html(resp.created);
+
+                if (resp.data.modified_by_user) {
+                    $('.modified').removeClass('hidden');
+                    $('#view-guild-modified-by').html(resp.data.modified_by_user.fullname);
+                    $('#view-guild-modified').html(resp.modified);
+                } else {
+                    $('.modified').addClass('hidden');
+                }
+
                 $('#view-subsidy').html(resp.data.subsidy.toLocaleString());
 
                 $('#view-guild-modal').modal('toggle');
@@ -1199,6 +1211,17 @@ function globalViewCompany(companyId, overlayId) {
 
                 $('#view-company-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-company-deputy-kanji').html(resp.data.deputy_name_kanji);
+
+                $('#view-company-created-by').html(resp.data.created_by_user.fullname);
+                $('#view-company-created').html(resp.created);
+
+                if (resp.data.modified_by_user) {
+                    $('.modified').removeClass('hidden');
+                    $('#view-company-modified-by').html(resp.data.modified_by_user.fullname);
+                    $('#view-company-modified').html(resp.modified);
+                } else {
+                    $('.modified').addClass('hidden');
+                }
 
                 $('#view-company-modal').modal('toggle');
             } else {
@@ -1260,6 +1283,18 @@ function globalViewPresenter(presenterId, overlayId) {
                 }
 
                 $('#view-presenter-type').html(type);
+
+                $('#view-presenter-created-by').html(resp.data.created_by_user.fullname);
+                $('#view-presenter-created').html(resp.created);
+
+                if (resp.data.modified_by_user) {
+                    $('.modified').removeClass('hidden');
+                    $('#view-presenter-modified-by').html(resp.data.modified_by_user.fullname);
+                    $('#view-presenter-modified').html(resp.modified);
+                } else {
+                    $('.modified').addClass('hidden');
+                }
+
                 $('#view-presenter-modal').modal('toggle');
             } else {
                 var notice = new PNotify({
@@ -1593,9 +1628,9 @@ function getAllHistories(studentId, historyType, overlay) {
     });
 }
 
-function downloadChart() {
+function downloadChart(chartId) {
     if (!isChartRendered) return; // return if chart not rendered
-    var canvasElement = document.getElementById('line-chart');
+    var canvasElement = document.getElementById(chartId);
 
     var MIME_TYPE = "image/png";
 
@@ -1635,11 +1670,9 @@ $(document).ready(function() {
     // init tooltip
     $('[data-toggle="tooltip"]').tooltip();
     
-    // disable enter key
-    $(window).keydown(function (e) {
-        if (e.keyCode == 13) {
-            e.preventDefault();
-            return false;
+    $(document).on("keypress", ":input:not(textarea):not([type=submit]):not(button)", function(event) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
         }
     });
     // init history counter

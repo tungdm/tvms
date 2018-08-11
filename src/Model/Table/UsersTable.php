@@ -72,6 +72,69 @@ class UsersTable extends Table
             'foreignKey' => 'modified_by',
             'className' => 'Histories'
         ]);
+
+        $this->hasMany('StudentsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Students'
+        ]);
+        $this->hasMany('StudentsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Students'
+        ]);
+
+        $this->hasMany('OrdersCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Orders'
+        ]);
+        $this->hasMany('OrdersModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Orders'
+        ]);
+
+        $this->hasMany('JclassesCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Jclasses'
+        ]);
+        $this->hasMany('JclassesModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Jclasses'
+        ]);
+
+        $this->hasMany('JtestsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Jtests'
+        ]);
+        $this->hasMany('JtestsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Jtests'
+        ]);
+
+        $this->hasMany('GuildsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Guilds'
+        ]);
+        $this->hasMany('GuildsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Guilds'
+        ]);
+
+        $this->hasMany('CompaniesCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Companies'
+        ]);
+        $this->hasMany('CompaniesModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Companies'
+        ]);
+
+        $this->hasMany('PresentersCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Presenters'
+        ]);
+        $this->hasMany('PresentersModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Presenters'
+        ]);
     }
 
     /**
@@ -159,7 +222,7 @@ class UsersTable extends Table
     public function findAuth(Query $query, array $options)
     {
         $query
-            ->select(['id', 'username', 'password', 'image', 'role_id', 'Roles.name', 'email'])
+            ->select(['id', 'username', 'fullname', 'password', 'image', 'role_id', 'Roles.name', 'email'])
             ->contain(['Roles', 'Permissions']);
 
         return $query;

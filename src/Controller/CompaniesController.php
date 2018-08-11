@@ -131,11 +131,17 @@ class CompaniesController extends AppController
 
         try {
             $company = $this->Companies->get($companyId, [
-                'contain' => ['Guilds']
+                'contain' => [
+                    'Guilds',
+                    'CreatedByUsers',
+                    'ModifiedByUsers'
+                ]
             ]);
             $resp = [
                 'status' => 'success',
-                'data' => $company
+                'data' => $company,
+                'created' => $company->created->i18nFormat('HH:mm, dd/MM/yyyy'),
+                'modified' => $company->modified->i18nFormat('HH:mm, dd/MM/yyyy')
             ];
         } catch (Exception $e) {
             //TODO: blacklist user
@@ -170,6 +176,7 @@ class CompaniesController extends AppController
         $company = $this->Companies->newEntity();
         if ($this->request->is('post')) {
             $company = $this->Companies->patchEntity($company, $this->request->getData());
+            $company = $this->Companies->setAuthor($company, $this->Auth->user('id'), $this->request->getParam('action'));
             if ($this->Companies->save($company)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
                     'entity' => $this->entity,

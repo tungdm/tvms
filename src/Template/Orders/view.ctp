@@ -162,65 +162,114 @@ $this->assign('title', $order->name . ' - Thông tin chi tiết')
             </div>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-12">
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><?= __('Yêu cầu tuyển chọn') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+            <div class="row">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"><?= __('Yêu cầu tuyển chọn') ?></h3>
+                        <div class="box-tools pull-right">
+                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="experience"><?= __('Kinh nghiệm') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
+                                    <?= !empty($order->experience) ? nl2br($order->experience) : 'N/A' ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="male_num"><?= __('Số lượng nam') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->male_num ?></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="female_num"><?= __('Số lượng nữ') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->female_num ?></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="age_interval"><?= __('Độ tuổi') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= $order->age_from ?> ～ <?= $order->age_to ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="height"><?= __('Chiều cao') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= !empty($order->height) ? $order->height : 'N/A' ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="weight"><?= __('Cân nặng') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= !empty($order->weight) ? $order->weight : 'N/A' ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="requirement"><?= __('Yêu cầu khác') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
+                                    <?= !empty($order->requirement) ? nl2br($order->requirement) : 'N/A' ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="box-body">
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="experience"><?= __('Kinh nghiệm') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
-                                <?= !empty($order->experience) ? nl2br($order->experience) : 'N/A' ?>
+            </div>
+            <div class="row">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
+                        <div class="box-tools pull-right">
+                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                        </div>
+                    </div>
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= $order->created_by_user->fullname ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="male_num"><?= __('Số lượng nam') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->male_num ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="female_num"><?= __('Số lượng nữ') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->female_num ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="age_interval"><?= __('Độ tuổi') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $order->age_from ?> ～ <?= $order->age_to ?>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= h($order->created) ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="height"><?= __('Chiều cao') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= !empty($order->height) ? $order->height : 'N/A' ?>
+                        <?php if (!empty($order->modified_by_user)): ?>
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= $order->modified_by_user->fullname ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="weight"><?= __('Cân nặng') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= !empty($order->weight) ? $order->weight : 'N/A' ?>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <?= h($order->modified) ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="requirement"><?= __('Yêu cầu khác') ?>: </label>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
-                                <?= !empty($order->requirement) ? nl2br($order->requirement) : 'N/A' ?>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

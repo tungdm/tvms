@@ -11,7 +11,9 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
-
+if (!empty($query['page'])) {
+    $counter = ((int)$query['page'] -1) * $query['records'];
+}
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -22,7 +24,6 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
-
 $this->assign('title', 'Quản lý Cộng tác viên');
 ?>
 

@@ -241,6 +241,21 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('exempt', [
+                                            'options' => $yesNoQuestion, 
+                                            'required' => true, 
+                                            'empty' => true, 
+                                            'label' => false, 
+                                            'data-parsley-errors-container' => '#error-exempt',
+                                            'data-parsley-class-handler' => '#select2-exempt',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                            ]) ?>
+                                        <span id="error-exempt"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="email"><?= __('Email') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('email', [
