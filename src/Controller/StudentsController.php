@@ -156,43 +156,29 @@ class StudentsController extends AppController
         $studentName_VN = mb_strtoupper($student->fullname);
         $studentName_EN = $this->Util->convertV2E($studentName_VN);
 
-        $vocabulary = [];
-        $grammar = [];
-        $listening = [];
-        $conversation = [];
+        $jtestScore = [];
         if (!empty($student->jtests)) {
             foreach ($student->jtests as $key => $value) {
                 $testDate = $value->test_date->i18nFormat('yyyy-MM-dd');
-                if (!empty($value->_joinData->vocabulary_score)) {
-                    array_push($vocabulary, [
-                        'date' => $testDate,
-                        'score' => $value->_joinData->vocabulary_score
-                    ]);
-                }
-                if (!empty($value->_joinData->grammar_score)) {
-                    array_push($grammar, [
-                        'date' => $testDate,
-                        'score' => $value->_joinData->grammar_score
-                    ]);
-                }
-                if (!empty($value->_joinData->listening_score)) {
-                    array_push($listening, [
-                        'date' => $testDate,
-                        'score' => $value->_joinData->listening_score
-                    ]);
-                }
-                if (!empty($value->_joinData->conversation_score)) {
-                    array_push($conversation, [
-                        'date' => $testDate,
-                        'score' => $value->_joinData->conversation_score
-                    ]);
-                }
+                $vocScore = $value->_joinData->vocabulary_score;
+                $graScore = $value->_joinData->grammar_score;
+                $lisScore = $value->_joinData->listening_score;
+                $conScore = $value->_joinData->conversation_score;
+
+                $data = [
+                    'date' => $testDate,
+                    'vocabulary_score' => $vocScore,
+                    'grammar_score' => $graScore,
+                    'listening_score' => $lisScore,
+                    'conversation_score' => $conScore,
+                ];
+                array_push($jtestScore, $data);
             }
         }
-
+       
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
-        $this->set(compact(['student', 'jobs', 'cities', 'studentName_VN', 'studentName_EN', 'vocabulary', 'grammar', 'listening', 'conversation']));
+        $this->set(compact(['student', 'jobs', 'cities', 'studentName_VN', 'studentName_EN', 'jtestScore']));
     }
 
     public function getStudent()
@@ -1341,8 +1327,6 @@ class StudentsController extends AppController
                     });
                 }
             }
-            Log::write('debug', $allStudents->toArray());
-            // debug($allStudents->toArray());
             // load config
             $reportConfig = Configure::read('reportXlsx');
             $studentStatus = Configure::read('studentStatus');

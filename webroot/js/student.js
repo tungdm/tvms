@@ -153,29 +153,10 @@ $(document).ready(function() {
         renderLineChart(chartId, title, labels, datasets);
     }
 
-    if ($('#vocabulary-line-chart').length && vocabulary.length) {
-        // vocabulary chart
-        var chartId = 'vocabulary-line-chart';
-        var title = 'Biểu đồ điểm thi tiếng Nhật - Từ vựng';
-        initChart(vocabulary, chartId, title)
-    }
-    if ($('#grammar-line-chart').length && grammar.length) {
-        // grammar chart
-        var chartId = 'grammar-line-chart';
-        var title = 'Biểu đồ điểm thi tiếng Nhật - Ngữ pháp';
-        initChart(grammar, chartId, title)
-    }
-    if ($('#listening-line-chart').length && listening.length) {
-        // listening chart
-        var chartId = 'listening-line-chart';
-        var title = 'Biểu đồ điểm thi tiếng Nhật - Nghe hiểu';
-        initChart(listening, chartId, title)
-    }
-    if ($('#conversation-line-chart').length && conversation.length) {
-        // conversation chart
-        var chartId = 'conversation-line-chart';
-        var title = 'Biểu đồ điểm thi tiếng Nhật - Đàm thoại';
-        initChart(conversation, chartId, title)
+    if ($('#jtest-score-line-chart').length && $('#total-radar-chart').length && jtestScore.length) {
+        var chartId = ['jtest-score-line-chart', 'total-radar-chart'];
+        var title = ['Biểu đồ điểm thi tiếng Nhật', 'Biểu đồ đánh giá năng lực'];
+        initChart(jtestScore, chartId, title)
     }
 
     var focusTab = window.location.hash;
@@ -1487,22 +1468,119 @@ function getIqScore(studentId) {
 
 function initChart(testData, chartId, title) {
     var labels = [];
+    
+    var vocabularyScores = [];
+    var grammarScores = [];
+    var listeningScores = [];
+    var conversationScores = [];
+    var totalVocScore = totalGraScore = totalLisScore = totalConScore = 0;
+    var avgVoc = avgGra = avgLis = avgCon = 0;
+    var countVoc = countGra = countLis = countCon = 0;
+    
+    testData.forEach(function(e) {
+        labels.push(e.date);
+        // datasets[0].data.push(e.score)
+        if (e.vocabulary_score) {
+            vocabularyScores.push(e.vocabulary_score);
+            totalVocScore = totalVocScore + e.vocabulary_score;
+            countVoc++;
+        } else {
+            vocabularyScores.push(NaN);
+        }
+        if (e.grammar_score) {
+            grammarScores.push(e.grammar_score);
+            totalGraScore = totalGraScore + e.vocabulary_score;
+            countGra++;
+        } else {
+            grammarScores.push(NaN);
+        }
+        if (e.listening_score) {
+            listeningScores.push(e.listening_score);
+            totalLisScore = totalLisScore + e.vocabulary_score;
+            countLis++;
+        } else {
+            listeningScores.push(NaN);
+        }
+        if (e.conversation_score) {
+            conversationScores.push(e.conversation_score);
+            totalConScore = totalConScore + e.vocabulary_score;
+            countCon++;
+        } else {
+            conversationScores.push(NaN);
+        }
+    });
+
     var datasets = [
         {
-            label: 'Điểm',
+            label: 'Từ vựng',
+            spanGaps: false,
             backgroundColor: 'rgb(54, 162, 235)',
             borderColor: 'rgb(54, 162, 235)',
-            data: [],
+            data: vocabularyScores,
             fill: false,
-            pointBackgroundColor: 'rgb(54, 162, 235)',
+            pointHoverBackgroundColor: '#fff'
+        },
+        {
+            label: 'Ngữ pháp',
+            spanGaps: false,
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: grammarScores,
+            fill: false,
+            pointHoverBackgroundColor: '#fff'
+        },
+        {
+            label: 'Nghe hiểu',
+            spanGaps: false,
+            backgroundColor: 'rgb(255, 159, 64)',
+            borderColor: 'rgb(255, 159, 64)',
+            data: listeningScores,
+            fill: false,
+            pointHoverBackgroundColor: '#fff'
+        },
+        {
+            label: 'Đàm thoại',
+            spanGaps: false,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgb(75, 192, 192)',
+            data: conversationScores,
+            fill: false,
             pointHoverBackgroundColor: '#fff'
         }
     ];
-    testData.forEach(function(e) {
-        labels.push(e.date);
-        datasets[0].data.push(e.score);
-    });
-    renderLineChart(chartId, title, labels, datasets);
+    
+    if (countVoc != 0) {
+        avgVoc = totalVocScore / countVoc;
+    }
+    if (countGra != 0) {
+        avgGra = totalGraScore / countGra;
+    }
+    if (countLis != 0) {
+        avgLis = totalLisScore / countLis;
+    }
+    if (countCon != 0) {
+        avgCon = totalConScore / countCon;
+    }
+    var radarLabel = ['Từ vựng', 'Ngữ pháp', 'Nghe hiểu', 'Đàm thoại'];
+    var radarDatasets = [
+        {
+            label: 'Điểm trung bình',
+            fill: true,
+            backgroundColor: transparentize('rgb(54, 162, 235)'),
+            borderColor: 'rgb(54, 162, 235)',
+            pointBorderColor: "#fff",
+            pointBackgroundColor: "rgba(255,99,132,1)",
+            pointBorderColor: "#fff",
+            data: [avgVoc, avgGra, avgLis, avgCon]
+        },
+    ];
+    renderLineChart(chartId[0], title[0], labels, datasets);
+    renderRadarChart(chartId[1], title[1], radarLabel, radarDatasets);
+}
+
+function transparentize(color, opacity) {
+    var alpha = opacity === undefined ? 0.5 : 1 - opacity;
+    return Color(color).alpha(alpha).rgbString();
 }
 
 function renderLineChart(chartId, title, labels, datasets) {
@@ -1518,6 +1596,25 @@ function renderLineChart(chartId, title, labels, datasets) {
 
     var ctx = document.getElementById(chartId).getContext('2d');
     window.myLine = new Chart(ctx, config);
+}
+
+function renderRadarChart(chartId, title, label, datasets) {
+    var config = {
+        type: 'radar',
+        data: {
+            labels: label,
+            datasets: datasets
+        },
+        options: {
+            title: {
+                display: true,
+                text: title
+            }
+        }
+    };
+
+    var ctx = document.getElementById(chartId).getContext('2d');
+    window.radar = new Chart(ctx, config);
 }
 
 

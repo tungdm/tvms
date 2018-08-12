@@ -16,7 +16,7 @@ $workTime = Configure::read('workTime');
 $this->Html->css('order.css', ['block' => 'styleTop']);
 $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
-$this->assign('title', $order->name . ' - Thông tin chi tiết')
+$this->assign('title', $order->name . ' - Thông tin chi tiết');
 ?>
 
 <?php $this->start('content-header'); ?>

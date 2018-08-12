@@ -90,7 +90,6 @@ span.parsley-error {
 
 /* Student - info */
 ul.bar_tabs {
-    /* background: #ededed; */
     background: #367fa9;
 }
 .select2 {
@@ -461,4 +460,41 @@ label.optional {
 
 .login-input {
     margin-bottom: 5px !important;
+}
+
+.show-notification {
+    background: #fff;
+    box-shadow: 0 0 1px 2px rgba(0,0,0,.03), 0 -2px 1px -2px rgba(0,0,0,.02), 0 0 0 -1px rgba(0,0,0,.03);
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    transform: translateY(30px);
+    transition: all linear .3s;
+    visibility: hidden;
+    width: 14em;
+    list-style: none;
+    padding: 1px 0 0 0;
+}
+
+.show-notification>li>a {
+    color: #777;
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    white-space: nowrap;
+}
+.show-notification>li>a>.fa {
+    margin-right: 10px;
+}
+.show-notification>li>a:hover {
+    background-color: #e1e3e9;
+    color: #333;
+}
+.user-profile:hover .show-notification {
+    -webkit-transform: translateY(0px);
+    opacity: 1;
+    transform: translateY(0px);
+    visibility: visible;
 }

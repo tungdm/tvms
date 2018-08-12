@@ -9,7 +9,8 @@ use Cake\Log\Log;
 use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\Utility\Text;
-
+use PhpOffice\PhpSpreadsheet\Style;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * Jtests Controller
@@ -26,6 +27,8 @@ class JtestsController extends AppController
         parent::initialize();
         $this->entity = 'kì thi';
         $this->loadComponent('SystemEvent');
+        $this->loadComponent('ExportFile');
+        $this->loadComponent('Util');
     }
 
     public function isAuthorized($user)
@@ -420,5 +423,168 @@ class JtestsController extends AppController
         }
 
         return $this->jsonResponse($resp);
+    }
+
+    public function exportResult($id = null)
+    {
+        // load config
+        $reportConfig = Configure::read('reportXlsx');
+        $skills = Configure::read('skills');
+        $lessons = Configure::read('lessons');
+        $score = Configure::read('score');
+
+        // get test data
+        $jtest = $this->Jtests->get($id, [
+            'contain' => [
+                'Jclasses',
+                'JtestContents',
+                'JtestContents.Users',
+                'Students'
+            ]
+        ]);
+
+        // init worksheet
+        $spreadsheet = $this->ExportFile->setXlsxProperties();
+        $spreadsheet->setActiveSheetIndex(0);
+        $activeSheet = $spreadsheet->getActiveSheet();
+        $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
+        $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
+
+        $activeSheet->setShowGridLines(false);
+        $activeSheet->getSheetView()->setZoomScale(85);
+
+        $activeSheet->setCellValue('A1', $reportConfig['branch']);
+        $activeSheet->getStyle('A1:A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+        $activeSheet
+            ->mergeCells('A5:A6')->setCellValue('A5', 'STT')
+            ->mergeCells('B5:B6')->setCellValue('B5', 'Họ tên');
+        $activeSheet->getColumnDimension('A')->setWidth(6);
+        $activeSheet->getColumnDimension('B')->setWidth(25);
+
+        $col = 'C';
+        $testContents = [];
+        $teachers = [];
+
+        if (!empty($jtest->jtest_contents)) {
+            foreach ($jtest->jtest_contents as $key => $value) {
+                array_push($teachers, $value->user->fullname);
+                $testContents[$col] = [
+                    'skill' => $value->skill,
+                    'teacher' => $value->user->fullname,
+                    'total' => 0,
+                    'count' => 0
+                ];
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', $skills[$value->skill]);
+                $activeSheet->getColumnDimension($col)->setWidth(25);
+                $col++;
+            }
+        }
+        $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Tổng');
+        $activeSheet->getColumnDimension($col)->setWidth(25);
+
+        \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
+        $activeSheet->getRowDimension('3')->setRowHeight(70);
+        $activeSheet->mergeCells('A3:'.$col.'3');
+        $activeSheet->setCellValue('A3', Text::insert($reportConfig['testTitle'], [
+            'class' => $jtest->jclass->name,
+            'testDate' => $jtest->test_date->i18nFormat('dd-MM-yyyy'),
+            'testLessons' => mb_strtoupper($lessons[$jtest->lesson_from]) . ' - ' . mb_strtoupper($lessons[$jtest->lesson_to]) 
+        ]));
+        $activeSheet->getStyle('A3:A3')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 16,
+            ],
+            'alignment' => [
+                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $listStudents = [];
+        $counter = 6;
+        foreach ($jtest->students as $key => $student) {
+            $counter++;
+            $data = [
+                $key + 1,
+                $student->fullname
+            ];
+            $joinData = $student->_joinData;
+            $total = 0;
+            foreach ($testContents as $key => $value) {
+                $scoreCode = $score[$value['skill']];
+                $testContents[$key]['total'] += $joinData[$scoreCode];
+                $testContents[$key]['count']++;
+                $total += $joinData[$scoreCode];
+                array_push($data, $joinData[$scoreCode]);
+            }
+            array_push($data, $total);
+            array_push($listStudents, $data);
+        }
+
+        $avgScore = [];
+        $overallTotal = 0;
+
+        foreach ($testContents as $key => $value) {
+            $overallTotal += $value['total'];
+            array_push($avgScore, round($value['total']/$value['count'], 1));
+        }
+        array_push($avgScore, round($overallTotal/(count($listStudents)*count($testContents)), 1));
+
+        $counter++;
+        $activeSheet->fromArray($listStudents, NULL, 'A7');
+        $activeSheet->fromArray($avgScore, NULL, 'C'.$counter);
+        $activeSheet->getStyle('C'.$counter.':'.$col.$counter)->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
+
+        $activeSheet->mergeCells('A'.$counter.':B'.$counter)->setCellValue('A'.$counter, 'ĐIỂM TRUNG BÌNH');
+
+        $counter++;
+        $activeSheet->mergeCells('A'.$counter.':B'.$counter)->setCellValue('A'.$counter, 'GIÁO VIÊN');
+        $activeSheet->fromArray($teachers, NULL, 'C'.$counter);
+        $activeSheet->getStyle('C'.$counter.':'.$col.$counter)->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
+
+        $activeSheet->getStyle('A5:'. $col . $counter)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Style\Border::BORDER_THIN,
+                ]
+            ],
+            'alignment' => [
+                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+        $activeSheet->getStyle('A5:'.$col.'6')->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
+        $activeSheet->getStyle('A7:A'.$counter)->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ],
+        ]);
+
+        $footer = $counter+1;
+        $spreadsheet = $this->ExportFile->generateFooter($spreadsheet, $counter+1, $col);
+
+        $spreadsheet->getActiveSheet()->freezePane('A7');
+    
+        // export XLSX file for download
+        $this->ExportFile->export($spreadsheet, $reportConfig['filename']);
+        exit;
     }
 }

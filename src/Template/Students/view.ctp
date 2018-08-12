@@ -911,42 +911,12 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                                     </div>
                                 </div>
-                                <div class="box-body overview">
-                                    <ul id="jtest-tabs" class="nav nav-tabs">
-                                        <li class="active"><a href="#vocabulary" data-toggle="tab"><?= __('Từ vựng') ?></a></li>
-                                        <li><a href="#grammar" data-toggle="tab"><?= __('Ngữ pháp') ?></a></li>
-                                        <li><a href="#listening" data-toggle="tab"><?= __('Nghe hiểu') ?></a></li>
-                                        <li><a href="#conversation" data-toggle="tab"><?= __('Đàm thoại') ?></a></li>
-                                    </ul>
-                                    <div id="jtest-tabs-content" class="tab-content">
-                                        <div class="tab-pane fade in active" id="vocabulary">
-                                            <div class="row">
-                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                    <canvas id="vocabulary-line-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="grammar">
-                                            <div class="row">
-                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                    <canvas id="grammar-line-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="listening">
-                                            <div class="row">
-                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                    <canvas id="listening-line-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade" id="conversation">
-                                            <div class="row">
-                                                <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                    <canvas id="conversation-line-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="box-body">
+                                    <div class="col-md-4 col-xs-12">
+                                        <canvas id="total-radar-chart" height="300"></canvas>
+                                    </div>
+                                    <div class="col-md-8 col-xs-12">
+                                        <canvas id="jtest-score-line-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -1544,9 +1514,5 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
     var iqtests = <?= json_encode($student->iq_tests) ?>;
     var studentName = '<?= $studentName_EN ?>';
     var studentNameVN = '<?= $studentName_VN ?>';
-
-    var vocabulary = <?= json_encode($vocabulary) ?>;
-    var grammar = <?= json_encode($grammar) ?>;
-    var listening = <?= json_encode($listening) ?>;
-    var conversation = <?= json_encode($conversation) ?>;
+    var jtestScore = <?= json_encode($jtestScore) ?>;
 </script>

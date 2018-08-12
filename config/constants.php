@@ -835,6 +835,7 @@ return [
         'filename' => 'report.xlsx',
         'studentTitle' => 'DANH SÁCH LAO ĐỘNG',
         'classTitle' => 'DANH SÁCH LỚP HỌC',
+        'testTitle' => "KẾT QUẢ KIỂM TRA NĂNG LỰC NHẬT NGỮ LỚP :class\nNGÀY THI :testDate\nBÀI THI: :testLessons",
         'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
     ],
 

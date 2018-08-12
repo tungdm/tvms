@@ -268,7 +268,7 @@ $this->assign('title', 'Quản lý Lao động');
                                         <?php if ($student->status != '1'): ?>
                                             <li class="divider"></li>
                                             <li>
-                                                <a href="javascript" data-toggle="modal" data-target="#export-student-modal">
+                                                <a data-toggle="modal" data-target="#export-student-modal">
                                                     <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
                                                 </a>
                                             </li>

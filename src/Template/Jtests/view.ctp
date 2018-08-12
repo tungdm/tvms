@@ -5,6 +5,8 @@ use Cake\I18n\Time;
 $lessons = Configure::read('lessons');
 $skillsArr = Configure::read('skills');
 $score = Configure::read('score');
+$testStatus = Configure::read('testStatus');
+
 $skillTest = [];
 $teachers = [];
 $avg = [];
@@ -73,6 +75,18 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                         'escape' => false
                     ]) ?>
             </li>
+            <?php elseif ($status == 4): ?>
+            <li>
+                <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i>', 
+                ['action' => 'finish', $jtest->id], 
+                [
+                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                    'data-toggle' => 'tooltip',
+                    'title' => 'Đóng',
+                    'escape' => false, 
+                    'confirm' => __('Bạn có chắc chắn muốn đóng kì thi {0}?', $jtest->test_date)
+                ]) ?>
+            </li>
             <?php endif; ?>
             <li>
                 <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
@@ -97,6 +111,18 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                         'escape' => false
                     ]) ?>
             </li>
+            <?php endif; ?>
+            <?php if ($status == 4 || $status == 5): ?>
+                <li>
+                    <?= $this->Html->link('<i class="fa fa-book" aria-hidden="true"></i>', 
+                        ['action' => 'exportResult', $jtest->id],
+                        [
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out',
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Xuất kết quả',
+                            'escape' => false
+                        ]) ?>
+                </li>
             <?php endif; ?>
         </ul>
     </div>
@@ -134,6 +160,14 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                         <div class="ccol-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <?= h($lessons[$jtest->lesson_from]) ?> ～ <?= h($lessons[$jtest->lesson_to]) ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="status"><?= __('Trạng thái') ?>: </label>
+                        <div class="ccol-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= $testStatus[(string) $status] ?>
                             </div>
                         </div>
                     </div>

@@ -212,8 +212,7 @@ $this->assign('title', 'Quản lý thi cử');
                                     } elseif ($now < $jtest->test_date) {
                                         $status = 1;
                                         echo h($testStatus["1"]);
-                                    }
-                                    elseif ($now == $jtest->test_date) {
+                                    } elseif ($now == $jtest->test_date) {
                                         $status = 2;
                                         echo h($testStatus["2"]);
                                     } else {
@@ -258,12 +257,19 @@ $this->assign('title', 'Quản lý thi cử');
                                                 ]) ?>
                                             </li>
                                         <?php endif; ?>
-
                                         <?php if ($status < 5 && $status >= 2 && $supervisory == true): ?>
                                             <li class="divider"></li>
                                             <li>
                                                 <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i> Nhập điểm', 
                                                     ['action' => 'setScore', $jtest->id],
+                                                    ['escape' => false]) ?>
+                                            </li>
+                                        <?php endif; ?>
+                                        <?php if ($status == 4 || $status == 5): ?>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <?= $this->Html->link('<i class="fa fa-book" aria-hidden="true"></i> Xuất điểm', 
+                                                    ['action' => 'exportResult', $jtest->id],
                                                     ['escape' => false]) ?>
                                             </li>
                                         <?php endif; ?>
