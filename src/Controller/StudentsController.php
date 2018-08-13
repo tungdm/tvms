@@ -416,7 +416,7 @@ class StudentsController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lối',
                 'type' => 'error',
                 'message' => $this->errorMessage['error']
             ]
