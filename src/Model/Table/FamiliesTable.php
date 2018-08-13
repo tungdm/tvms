@@ -71,8 +71,7 @@ class FamiliesTable extends Table
 
         $validator
             ->date('birthday')
-            ->requirePresence('birthday', 'create')
-            ->notEmpty('birthday');
+            ->allowEmpty('birthday');
 
         $validator
             ->integer('relationship')
@@ -82,26 +81,22 @@ class FamiliesTable extends Table
         $validator
             ->scalar('address')
             ->maxLength('address', 255)
-            ->requirePresence('address', 'create')
-            ->notEmpty('address');
+            ->allowEmpty('address');
 
         $validator
             ->scalar('bank_num')
             ->maxLength('bank_num', 50)
-            ->requirePresence('bank_num', 'create')
-            ->notEmpty('bank_num');
+            ->allowEmpty('bank_num');
 
         $validator
             ->scalar('cmnd_num')
             ->maxLength('cmnd_num', 50)
-            ->requirePresence('cmnd_num', 'create')
-            ->notEmpty('cmnd_num');
+            ->allowEmpty('cmnd_num');
 
         $validator
             ->scalar('phone')
             ->maxLength('cmnd_num', 11)
-            ->requirePresence('phone', 'create')
-            ->notEmpty('phone');
+            ->allowEmpty('phone');
 
         $validator
             ->integer('created_by')

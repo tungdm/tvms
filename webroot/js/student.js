@@ -6,7 +6,7 @@ perData.langCounter = 0;
 var initGraph;
 
 var testDate = '';
-if (typeof iqtests !== 'undefined' && iqtests.length > 0) {
+if (typeof iqtests !== 'undefined' && iqtests.length > 0 && iqtests[0].test_date !== null) {
     testDate =  moment(iqtests[0].test_date).format('YYYY-MM-DD')
 }
 
@@ -727,6 +727,8 @@ function showEditMemberModal(ele) {
     // replace add-btn with edit-btn
     $('#add-member-btn').remove();
     $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="editMember('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-modal-btn');
+
+    $('#add-member-form').parsley().reset();
     
     // show modal
     $('#add-member-modal').modal('toggle');
@@ -913,6 +915,8 @@ function showEditEduHisModal(ele) {
     $('#add-edu-his-btn').remove();
     $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="editEduHis('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-edu-modal-btn');
     
+    // reset validation
+    $('#add-edu-his-form').parsley().reset();
     // show modal
     $('#add-edu-his-modal').modal('toggle');
 }
@@ -1037,6 +1041,8 @@ function deleteEduHisRow(delEl, hiddenId) {
 function resetEduHisModal() {
     $('#add-edu-his-form')[0].reset();
     $('#modal-edu-level').val(null).trigger('change');
+    $('#edu-his-from').data('DateTimePicker').maxDate(false);
+    $('#edu-his-to').data('DateTimePicker').minDate(false);
     $('#add-edu-his-form').parsley().reset();
 }
 // for read-only
@@ -1126,6 +1132,9 @@ function showEditExpModal(ele) {
     $('#add-exp-btn').remove();
     $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="editExp('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-exp-modal-btn');
     
+    // reset validation
+    $('#add-exp-form').parsley().reset();
+
     // show modal
     $('#add-exp-modal').modal('toggle');
 }
@@ -1229,6 +1238,10 @@ function deleteExpRow(delEl, hiddenId) {
 function resetExpModal() {
     $('#add-exp-form')[0].reset();
     $('#exp-job').val(null).trigger('change');
+
+    $('#exp-from').data('DateTimePicker').maxDate(false);
+    $('#exp-to').data('DateTimePicker').minDate(false);
+
     $('#add-exp-form').parsley().reset();
 }
 
@@ -1297,6 +1310,9 @@ function showEditLangModal(ele) {
     $('#add-lang-btn').remove();
     $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="editLang('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-lang-modal-btn');
     
+    // reset validate
+    $('#add-lang-form').parsley().reset();
+
     // show modal
     $('#add-lang-modal').modal('toggle');
 }
@@ -1400,6 +1416,8 @@ function deleteLangRow(delEl, hiddenId) {
 function resetLangModal() {
     $('#add-lang-form')[0].reset();
     $('#lang-name').val(null).trigger('change');
+    $('#lang-from').data('DateTimePicker').maxDate(false);
+    $('#lang-to').data('DateTimePicker').minDate(false);
     
     $('#add-lang-form').parsley().reset();
 }
@@ -1416,6 +1434,7 @@ function showEditDocModal(ele) {
     $('#modal-submit-date').val($(ele).closest('.row-document').find('.submit_date').val()).trigger('change');
     $('#modal-note').val($(ele).closest('.row-document').find('.submit_note').val());
     $('#document-form').parsley().reset();
+
     var rowIdArr = $(ele).closest('.row-document').attr('id').split('-');
 
     $('#submit-document-btn').remove();
@@ -1489,21 +1508,21 @@ function initChart(testData, chartId, title) {
         }
         if (e.grammar_score) {
             grammarScores.push(e.grammar_score);
-            totalGraScore = totalGraScore + e.vocabulary_score;
+            totalGraScore = totalGraScore + e.grammar_score;
             countGra++;
         } else {
             grammarScores.push(NaN);
         }
         if (e.listening_score) {
             listeningScores.push(e.listening_score);
-            totalLisScore = totalLisScore + e.vocabulary_score;
+            totalLisScore = totalLisScore + e.listening_score;
             countLis++;
         } else {
             listeningScores.push(NaN);
         }
         if (e.conversation_score) {
             conversationScores.push(e.conversation_score);
-            totalConScore = totalConScore + e.vocabulary_score;
+            totalConScore = totalConScore + e.conversation_score;
             countCon++;
         } else {
             conversationScores.push(NaN);
@@ -1610,7 +1629,7 @@ function renderRadarChart(chartId, title, label, datasets) {
                 display: true,
                 text: title
             }
-        }
+        },
     };
 
     var ctx = document.getElementById(chartId).getContext('2d');

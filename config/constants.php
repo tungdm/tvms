@@ -878,6 +878,7 @@ return [
         'add' => 'Đã lưu thông tin của :entity :name.',
         'edit' => 'Thông tin của :entity :name đã được cập nhật.',
         'delete' => 'Đã xóa dữ liệu của :entity :name.',
+        'deleteNoName' => 'Đã xóa dữ liệu thành công',
         'updateProfile' => 'Hồ sơ cá nhân của bạn đã được cập nhật.',
         'updatePassword' => 'Mật khẩu của bạn đã được cập nhật.',
         'changeClass' => 'Học viên :name đã được chuyển qua lớp :class',

@@ -215,8 +215,8 @@ class StudentsController extends AppController
                 'data' => $student,
                 'edu_level' => $eduLevel[$student->educational_level],
                 'gender' => $gender[$student->gender],
-                'birthday' => $student->birthday->i18nFormat('yyyy-MM-dd'),
-                'appointment_date' => $student->appointment_date->i18nFormat('yyyy-MM-dd'),
+                'birthday' => $student->birthday ? $student->birthday->i18nFormat('yyyy-MM-dd') : '',
+                'appointment_date' => $student->appointment_date ? $student->appointment_date->i18nFormat('yyyy-MM-dd') : '',
                 'exempt' => $yesNoQuestion[$student->exempt],
                 'created' => $student->created->i18nFormat('HH:mm, dd/MM/yyyy'),
                 'modified' => $student->modified ? $student->modified->i18nFormat('HH:mm, dd/MM/yyyy') : ''
@@ -554,6 +554,8 @@ class StudentsController extends AppController
             $student->expectation = $expectStr;
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
 
+            // debug($student);
+
             // setting student code if first init
             // if (empty($student->code)) {
             //     $lastestCode = $this->Students->find()->order(['id' => 'DESC'])->first();
@@ -703,10 +705,7 @@ class StudentsController extends AppController
                     'alert' => [
                         'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => Text::insert($this->successMessage['delete'], [
-                            'entity' => 'thành viên', 
-                            'name' => $memberName
-                            ])
+                        'message' => $this->successMessage['deleteNoName']
                     ]
                 ];
             }
@@ -727,9 +726,9 @@ class StudentsController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The euducation history could not be deleted. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
         
@@ -739,9 +738,9 @@ class StudentsController extends AppController
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The education history has been deleted.')
+                        'message' => $this->successMessage['deleteNoName']
                     ]
                 ];
             }
@@ -762,9 +761,9 @@ class StudentsController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The working experience could not be deleted. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
         
@@ -774,9 +773,9 @@ class StudentsController extends AppController
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The working experience has been deleted.')
+                        'message' => $this->successMessage['deleteNoName']
                     ]
                 ];
             }
@@ -797,9 +796,9 @@ class StudentsController extends AppController
         $resp = [
             'status' => 'error',
             'alert' => [
-                'title' => 'Error',
+                'title' => 'Lỗi',
                 'type' => 'error',
-                'message' => __('The ability could not be deleted. Please, try again.')
+                'message' => $this->errorMessage['error']
             ]
         ];
         
@@ -809,9 +808,9 @@ class StudentsController extends AppController
                 $resp = [
                     'status' => 'success',
                     'alert' => [
-                        'title' => 'Success',
+                        'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => __('The ability has been deleted.')
+                        'message' => $this->successMessage['deleteNoName']
                     ]
                 ];
             }

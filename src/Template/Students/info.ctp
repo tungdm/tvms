@@ -1864,7 +1864,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'min' => 0,
                                             'max' => 100,
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
                                             'placeholder' => 'Nhập điểm thi toán cơ bản'
                                             ]) ?>
                                     </div>

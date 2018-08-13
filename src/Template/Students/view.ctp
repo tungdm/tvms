@@ -45,7 +45,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
 ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 
 <?php $this->start('content-header'); ?>
 <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
