@@ -1062,7 +1062,7 @@ class StudentsController extends AppController
             $address = $mergeAddress['en'];
             $job = $job ? $job->job_name_jp : '';
             $guild = $guild ? $guild->name_kanji : '';
-            $company = $company ? $guild->name_kanji : '';
+            $company = $company ? $company->name_kanji : '';
         } else {
             $createdDay = Text::insert($vnDateFormatFull, [
                 'day' => date('d'), 
