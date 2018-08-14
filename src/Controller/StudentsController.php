@@ -553,7 +553,7 @@ class StudentsController extends AppController
             }
             $student->expectation = $expectStr;
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
-
+            
             // setting student code if first init
             // if (empty($student->code)) {
             //     $lastestCode = $this->Students->find()->order(['id' => 'DESC'])->first();

@@ -1076,6 +1076,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     'label' => false,
                                                     'class' => 'form-control address',
                                                     ]) ?>
+                                                <?= $this->Form->control('families.' . $key . '.living_at', [
+                                                    'options' => $country,
+                                                    'label' => false,
+                                                    'class' => 'form-control living_at',
+                                                    ])  ?>
                                             </td>
                                             <td class="hidden">
                                                 <?= $this->Form->control('families.' . $key . '.bank_num', [
