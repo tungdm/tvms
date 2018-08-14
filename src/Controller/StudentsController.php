@@ -515,7 +515,6 @@ class StudentsController extends AppController
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            debug($data);
             $student = $this->Students->patchEntity($student, $data, ['associated' => [
                 'Addresses', 
                 'Families', 

@@ -351,7 +351,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="purpose"><?= __('Mục đích XKLĐ') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                 <?= !empty($student->purpose) ? $student->purpose : 'N/A' ?>
                                             </div>
                                         </div>
@@ -375,7 +375,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="after_plan"><?= __('Dự định sau khi về') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                 <?= !empty($student->after_plan) ? $student->after_plan : 'N/A' ?>
                                             </div>
                                         </div>
@@ -386,7 +386,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="strength"><?= __('Điểm mạnh') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                 <?= !empty($student->strength) ? $student->strength : 'N/A' ?>
                                             </div>
                                         </div>
@@ -394,7 +394,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="weakness"><?= __('Điểm yếu') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                 <?= !empty($student->weakness) ? $student->weakness : 'N/A' ?>
                                             </div>
                                         </div>
@@ -402,7 +402,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="genitive"><?= __('Tính cách') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                 <?= !empty($student->genitive) ? $student->genitive : 'N/A' ?>
                                             </div>
                                         </div>
