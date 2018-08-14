@@ -1129,8 +1129,8 @@ class StudentsController extends AppController
         $studentName_EN = $this->Util->convertV2E($studentName_VN);
         $now = Time::now();
 
-        $this->tbs->VarRef['company'] = $student->orders[0]->company->name_kanji;
-        $this->tbs->VarRef['guild'] = $student->orders[0]->company->guild->name_kanji;
+        $this->tbs->VarRef['company'] = $student->orders ? $student->orders[0]->company->name_kanji : '';
+        $this->tbs->VarRef['guild'] = $student->orders ? $student->orders[0]->company->guild->name_kanji : '';
         $this->tbs->VarRef['fullname'] = $studentName_EN;
         $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
         $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);

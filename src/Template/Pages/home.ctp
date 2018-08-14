@@ -141,14 +141,56 @@ $this->assign('title', 'TVMS - Trang Chủ');
                     <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadChart('line-chart')"><i class="fa fa-cloud-download"></i></a>
                 </div>
             </div>
-            <div class="box-body overview">
+            <!-- <div class="box-body overview">
                 <div class="row">
-                    <div class="col-md-12 col-sm-12 col-xs-12" id="chart-container" style="width:75%;">
-                        <canvas id="line-chart"></canvas>
+                    <div class="col-md-12 col-sm-12 col-xs-12" id="chart-container" style="width:70%;">
+                        <canvas id="line-chart" height="200"></canvas>
+                    </div>
+                </div>
+            </div> -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-8 col-xs-12">
+                        <canvas id="line-chart" height="300"></canvas>
+                    </div>
+                    <div class="col-md-4 col-xs-12" style="padding-top:50px;">
+                        <div class="info-box bg-green">
+                            <span class="info-box-icon">
+                                <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                            </span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Đậu phỏng vấn</span>
+                                <span class="info-box-number"><?= $this->Number->format($data['totalPassedCount'], ['locale' => 'vn_VN']) ?></span>
+
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: <?=$data['rateImmi']?>%"></div>
+                                </div>
+                                <span class="progress-description">
+                                <?= $data['rateImmi'] ?>% lao động đã xuất cảnh
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-box bg-red">
+                            <span class="info-box-icon">
+                                <i class="fa fa-external-link" aria-hidden="true"></i>
+                            </span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text">Về nước</span>
+                                <span class="info-box-number"><?= $this->Number->format($data['totalReturn'], ['locale' => 'vn_VN']) ?></span>
+
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: <?=$data['rateWithdraw']?>%"></div>
+                                </div>
+                                <span class="progress-description">
+                                    <?=$data['rateWithdraw']?>% lao động rút hồ sơ
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="box-footer">
+            <!-- <div class="box-footer">
                 <div class="row">
                     <div class="col-sm-6 col-xs-12">
                         <div class="info-box bg-green">
@@ -188,7 +230,7 @@ $this->assign('title', 'TVMS - Trang Chủ');
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

@@ -1,5 +1,6 @@
 var lineChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     title: {
         display: true,
         text: 'Biểu đồ số lượng Lao động và Đơn hàng trong năm ' + moment().year()
@@ -125,6 +126,7 @@ function renderLineChart() {
     };
 
     var ctx = document.getElementById('line-chart').getContext('2d');
+    ctx.height = 300;
     window.myLine = new Chart(ctx, config);
 }
 
