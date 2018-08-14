@@ -585,7 +585,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="color_blind"><?= __('Mù màu') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->color_blind) ? $student->color_blind : 'N/A'  ?>
+                                                <?= !empty($student->color_blind) ? $yesNoQuestion[$student->color_blind] : 'N/A'  ?>
                                             </div>
                                         </div>
                                     </div>

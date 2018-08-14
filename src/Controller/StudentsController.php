@@ -553,7 +553,7 @@ class StudentsController extends AppController
             }
             $student->expectation = $expectStr;
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
-            
+
             // setting student code if first init
             // if (empty($student->code)) {
             //     $lastestCode = $this->Students->find()->order(['id' => 'DESC'])->first();
@@ -1052,17 +1052,17 @@ class StudentsController extends AppController
         $birthday = $student->birthday;
         $cmnd_from_date = $student->cards[0]->from_date;
         $mergeAddress = $this->mergeAddress($student->addresses[0]);
-        $job = $student->orders[0]->job;
-        $guild = $student->orders[0]->company->guild;
-        $company = $student->orders[0]->company;
+        $job = $student->orders ? $student->orders[0]->job : '';
+        $guild = $student->orders ? $student->orders[0]->company->guild : '';
+        $company = $student->orders ? $student->orders[0]->company : '';
         if ($lang == 'jp') {
             $createdDay = $now->i18nFormat('yyyy年MM月dd日');
             $birthday = $birthday->i18nFormat('yyyy年MM月dd日');
             $cmnd_from_date = $cmnd_from_date->i18nFormat('yyyy年MM月dd日');
             $address = $mergeAddress['en'];
-            $job = $job->job_name_jp;
-            $guild = $guild->name_kanji;
-            $company = $company->name_kanji;
+            $job = $job ? $job->job_name_jp : '';
+            $guild = $guild ? $guild->name_kanji : '';
+            $company = $company ? $guild->name_kanji : '';
         } else {
             $createdDay = Text::insert($vnDateFormatFull, [
                 'day' => date('d'), 
@@ -1077,9 +1077,9 @@ class StudentsController extends AppController
                 ]);
             $cmnd_from_date = $cmnd_from_date->i18nFormat('dd/MM/yyyy');
             $address = $mergeAddress['vn'];
-            $job = $job->job_name;
-            $guild = $guild->name_romaji;
-            $company = $company->name_romaji;
+            $job = $job ? $job->job_name : '';
+            $guild = $guild ? $guild->name_romaji : '';
+            $company = $company ? $company->name_romaji : '';
         }
         $studentName_VN = mb_strtoupper($student->fullname);
         $studentName_EN = $this->Util->convertV2E($studentName_VN);
