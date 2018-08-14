@@ -515,6 +515,7 @@ class StudentsController extends AppController
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
+            debug($data);
             $student = $this->Students->patchEntity($student, $data, ['associated' => [
                 'Addresses', 
                 'Families', 
@@ -553,8 +554,6 @@ class StudentsController extends AppController
             }
             $student->expectation = $expectStr;
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
-
-            // debug($student);
 
             // setting student code if first init
             // if (empty($student->code)) {

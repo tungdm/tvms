@@ -698,7 +698,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                     <?= $value->bank_num ?>
                                                 </td>
                                                 <td class="hidden family-bank-name">
-                                                    <?= $bank[$value->bank_name] ?>
+                                                    <?= $value->bank_name ? $bank[$value->bank_name]: '' ?>
                                                 </td>
                                                 <td class="hidden family-bank-branch">
                                                     <?= $value->bank_branch ?>
@@ -707,7 +707,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                     <?= $value->cmnd_num ?>
                                                 </td>
                                                 <td class="cell col-md-2 family-phone">
-                                                    <?= $this->Phone->makeEdit($value->phone) ?>
+                                                    <?= $this->Phone->makeEdit($value->phone)?>
                                                 </td>
                                                 <td class="cell action-btn actions">
                                                     <?= $this->Html->link(

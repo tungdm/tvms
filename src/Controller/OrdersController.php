@@ -381,7 +381,7 @@ class OrdersController extends AppController
             $now = Time::now();
             $candidates->formatResults(function ($results) use ($now) {
                 return $results->map(function ($row) use ($now) {
-                    $age = ($now->diff($row['birthday']))->y;
+                    $age = $row['birthday'] ? ($now->diff($row['birthday']))->y : 'N/A';
                     $row['age'] = $age;
                     return $row;
                 });
