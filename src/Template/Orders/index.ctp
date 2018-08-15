@@ -16,13 +16,16 @@ $recordsDisplay = Configure::read('recordsDisplay');
 $cityJP = Configure::read('cityJP');
 $cityJP = array_map('array_shift', $cityJP);
 $interviewStatus = Configure::read('interviewStatus');
-
+$settings = Configure::read('orders');
+$cellWidth = Configure::read('cellWidth');
 $counter = 0;
 if (!empty($query['page'])) {
     $counter = ((int)$query['page'] -1) * $query['records'];
 }
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
@@ -75,6 +78,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
                 <div class="box-tools pull-right">
                     <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    <a href="javascript:;" class="btn btn-box-tool"><i class="fa fa-wrench" onclick="settings()"></i></a>
                 </div>
             </div>
             <?= $this->Form->create(null, [
@@ -183,13 +187,12 @@ $this->assign('title', 'Quản lý đơn hàng');
                             </td>
                             <td class="col-md-1 statusCol">
                                 <?= $this->Form->control('status', [
-                                        'options' => $interviewStatus, 
-                                        'empty' => true,
-                                        'label' => false, 
-                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                        'value' => $query['status'] ?? ''
-                                        ])
-                                    ?>
+                                    'options' => $interviewStatus, 
+                                    'empty' => true,
+                                    'label' => false, 
+                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                    'value' => $query['status'] ?? ''
+                                    ]) ?>
                             </td>
                             <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
@@ -257,7 +260,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                                         <?php endif; ?>
                                         <li class="divider"></li>
                                         <li>
-                                            <a href="#" data-toggle="modal" data-target="#export-order-modal">
+                                            <a href="javascript:;" data-target="#export-order-modal" onclick="showExportModal(<?= $order->id ?>)">
                                                 <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
                                             </a>
                                         </li>
@@ -302,38 +305,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                                 <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cell"><?= __('1') ?></td>
-                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportDispatchLetter', $order->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('2') ?></td>
-                                <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
-                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportDispatchLetterXlsx', $order->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('3') ?></td>
-                                <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
-                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportCandidates', $order->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="export-container"></tbody>
                     </table>
                 </div>
                 <div class="clearfix"></div>
@@ -344,3 +316,117 @@ $this->assign('title', 'Quản lý đơn hàng');
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="setting-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">CẤU HÌNH HIỂN THỊ</h4>
+            </div>
+            <?php ?>
+            <?= $this->Form->create(null, [
+                'class' => 'form-horizontal form-label-left', 
+                'url' => ['action' => 'settingTable', ],
+                'id' => 'setting-form', 
+                'templates' => [
+                    'inputContainer' => '{{content}}'
+                    ]
+                ]) ?>
+            <?= $this->Form->unlockField('configuration') ?>
+            <?= $this->Form->hidden('user_id', ['value' => $currentUser['id']]) ?>
+            <?= $this->Form->hidden('table_name', ['value' => $controller]) ?>
+            <?= $this->Form->hidden('id', ['value' => $tableSettings['id']]) ?>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-6"><?= __('Tên trường') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Độ rộng') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach($settings as $key => $value): ?>
+                            <tr>
+                                <td><?= $key ?></td>
+                                <td>
+                                    <div class="checkbox">
+                                        <label>
+                                            <?php if (array_key_exists($value['field'], $tableSettings['configuration'])): ?>
+                                            <?= $this->Form->checkbox('configuration.'.$value['field'], [
+                                                'hiddenField' => false, 
+                                                'checked' => true,
+                                                'class' => 'js-switch'
+                                                ]) ?>
+                                            <?php else: ?>
+                                            <?= $this->Form->checkbox('configuration.'.$value['field'], [
+                                                'hiddenField' => false, 
+                                                'class' => 'js-switch'
+                                                ]) ?>
+                                            <?php endif; ?>
+                                            <?= $value['title'] ?>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <?php if (array_key_exists($value['field'], $tableSettings['configuration'])): ?>
+                                    <?= $this->Form->control('configuration.'.$value['field'].'.fieldwidth', [
+                                        'options' => $cellWidth, 
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12', 
+                                        'value' => $tableSettings['configuration'][$value['field']],
+                                        ]) ?>
+                                    <?php else: ?>
+                                    <?= $this->Form->control('configuration.'.$value['field'].'.fieldwidth', [
+                                        'options' => $cellWidth, 
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12', 
+                                        'value' => $value['defaultWidth'],
+                                        'disabled' => true
+                                        ]) ?>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+            <?= $this->Form->end() ?>
+        </div>
+    </div>
+</div>
+
+<script id="export-template" type="text/x-handlebars-template">
+    <tr>
+        <td class="cell"><?= __('1') ?></td>
+        <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+        <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/tvms/orders/export-dispatch-letter/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell"><?= __('2') ?></td>
+        <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+        <td class="actions cell">
+            <a href="/tvms/orders/export-dispatch-letter-xlsx/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell"><?= __('3') ?></td>
+        <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
+        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+        <td class="actions cell">
+            <a href="/tvms/orders/export-candidates/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+</script>

@@ -882,7 +882,8 @@ return [
         'updateProfile' => 'Hồ sơ cá nhân của bạn đã được cập nhật.',
         'updatePassword' => 'Mật khẩu của bạn đã được cập nhật.',
         'changeClass' => 'Học viên :name đã được chuyển qua lớp :class',
-        'setScore' => 'Đã lưu điểm của phần thi :skill'
+        'setScore' => 'Đã lưu điểm của phần thi :skill',
+        'setting' => 'Đã lưu cấu hình hiển thị'
     ],
     'errorMessage' => [
         'add' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
@@ -896,4 +897,132 @@ return [
         'setScore' => 'Không thể lưu điểm của phần thi :skill',
         'export' => ':missingField của :entity :name bị trống. Xin hãy nhập dữ liệu rồi thử lại sau.',
     ],
+
+    // table setting
+    'cellWidth' => [
+        '1' => '1',
+        '2' => '2',
+        '3' => '3',
+        '4' => '4',
+        '5' => '5',
+        '6' => '6',
+        '7' => '7',
+        '8' => '8',
+        '9' => '9',
+        '10' => '10',
+        '11' => '11',
+        '12' => '12',
+    ],
+    'orders' => [
+        1 => [
+            'field' => 'name',
+            'title' => 'Đơn hàng',
+            'defaultWidth' => 2
+        ],
+        2 => [
+            'field' => 'interview_date',
+            'title' => 'Ngày tuyển',
+            'defaultWidth' => 2
+        ],
+        3 => [
+            'field' => 'salary_from',
+            'title' => 'Mức lương (từ)',
+            'defaultWidth' => 2
+        ],
+        4 => [
+            'field' => 'salary_to',
+            'title' => 'Mức lương (đến)',
+            'defaultWidth' => 2
+        ],
+        5 => [
+            'field' => 'interview_type',
+            'title' => 'Hình thức phỏng vấn',
+            'defaultWidth' => 2
+        ],
+        6 => [
+            'field' => 'skill_test',
+            'title' => 'Thi tay nghề',
+            'defaultWidth' => 2
+        ],
+        7 => [
+            'field' => 'male_num',
+            'title' => 'Số lượng nam',
+            'defaultWidth' => 2
+        ],
+        8 => [
+            'field' => 'female_num',
+            'title' => 'Số lượng nữ',
+            'defaultWidth' => 2
+        ],
+        9 => [
+            'field' => 'height',
+            'title' => 'Chiều cao (cm)',
+            'defaultWidth' => 2
+        ],
+        10 => [
+            'field' => 'weight',
+            'title' => 'Cân nặng (kg)',
+            'defaultWidth' => 2
+        ],
+        11 => [
+            'field' => 'age_from',
+            'title' => 'Độ tuổi (từ)',
+            'defaultWidth' => 2
+        ],
+        12 => [
+            'field' => 'age_to',
+            'title' => 'Độ tuổi (đến)',
+            'defaultWidth' => 2
+        ],
+        13 => [
+            'field' => 'work_time',
+            'title' => 'Thời gian làm việc',
+            'defaultWidth' => 2
+        ],
+        14 => [
+            'field' => 'work_at',
+            'title' => 'Địa điểm làm việc',
+            'defaultWidth' => 2
+        ],
+        15 => [
+            'field' => 'departure_date',
+            'title' => 'Ngày xuất cảnh',
+            'defaultWidth' => 2
+        ],
+        16 => [
+            'field' => 'status',
+            'title' => 'Trạng thái',
+            'defaultWidth' => 2
+        ],
+        17 => [
+            'field' => 'company_id',
+            'title' => 'Công ty tiếp nhận',
+            'defaultWidth' => 2
+        ],
+        18 => [
+            'field' => 'job_id',
+            'title' => 'Nghề nghiệp',
+            'defaultWidth' => 2
+        ],
+        19 => [
+            'field' => 'created',
+            'title' => 'Thời gian khởi tạo',
+            'defaultWidth' => 2
+        ],
+        20 => [
+            'field' => 'created_by',
+            'title' => 'Người tạo',
+            'defaultWidth' => 2
+        ],
+        21 => [
+            'field' => 'modified',
+            'title' => 'Thời gian sửa cuối',
+            'defaultWidth' => 2
+        ],
+        22 => [
+            'field' => 'modified_by',
+            'title' => 'Người sửa cuối',
+            'defaultWidth' => 2
+        ],
+    ]
 ];

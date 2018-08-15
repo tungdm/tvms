@@ -1669,3 +1669,14 @@ function downloadIqChart() {
     var chartId = $('#iqtest-tabs-content').find('div.active').find('canvas')[0].id;
     downloadChart(chartId);
 }
+
+function showExportModal(studentId) {
+    var source = $("#export-template").html();
+    var template = Handlebars.compile(source);
+    var html = template({
+        'studentId': studentId
+    });
+    $('#export-container').html(html);
+    // show modal
+    $('#export-student-modal').modal('toggle');
+}

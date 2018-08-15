@@ -1055,6 +1055,7 @@ class StudentsController extends AppController
         $job = $student->orders ? $student->orders[0]->job : '';
         $guild = $student->orders ? $student->orders[0]->company->guild : '';
         $company = $student->orders ? $student->orders[0]->company : '';
+        $subsidy = $student->orders ? Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
         if ($lang == 'jp') {
             $createdDay = $now->i18nFormat('yyyy年MM月dd日');
             $birthday = $birthday->i18nFormat('yyyy年MM月dd日');
@@ -1101,7 +1102,7 @@ class StudentsController extends AppController
         $this->tbs->VarRef['job'] = $job;
         $this->tbs->VarRef['guild'] = $guild;
         $this->tbs->VarRef['company'] = $company;
-        $this->tbs->VarRef['subsidy'] = Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']);
+        $this->tbs->VarRef['subsidy'] = $subsidy;
         $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
         exit;
     }

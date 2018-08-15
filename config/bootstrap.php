@@ -223,3 +223,6 @@ Type::build('timestamp')
 if (Configure::read('debug')) {
     Plugin::load('DebugKit', ['bootstrap' => true]);
 }
+
+// custom json type
+Type::map('json', 'Cake\Database\Type\JsonType');

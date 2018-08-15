@@ -58,6 +58,7 @@ class OrdersController extends AppController
     {
         $query = $this->request->getQuery();
         $now = Time::now()->i18nFormat('yyyy-MM-dd');
+        $controller = $this->request->getParam('controller');
         
         if (!empty($query)) {
             $allOrders = $this->Orders->find();
@@ -122,7 +123,11 @@ class OrdersController extends AppController
         $companies = $this->Orders->Companies->find('list');
         $guilds = $this->Orders->Companies->Guilds->find('list');
 
-        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query'));
+        $settingTable = TableRegistry::get('Settings');
+        $tableSettings = $settingTable->find()->where(['table_name' => $controller, 'user_id' => $this->Auth->user('id')])->first();
+
+        // debug($tableSettings);
+        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query', 'tableSettings'));
     }
 
     /**
@@ -146,6 +151,25 @@ class OrdersController extends AppController
         ]);
 
         $this->set('order', $order);
+    }
+
+    public function settingTable()
+    {
+        $settingTable = TableRegistry::get('Settings');
+        $setting = $settingTable->newEntity();
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            if (isset($data['id'])) {
+                $setting = $settingTable->get($data['id']);
+            }
+            $setting = $settingTable->patchEntity($setting, $data);
+            if ($settingTable->save($setting)) {
+                $this->Flash->success($this->successMessage['setting']);
+            } else {
+                $this->Flash->error($this->errorMessage['error']);
+            }
+            return $this->redirect(['action' => 'index']);
+        }
     }
 
     /**

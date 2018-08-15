@@ -44,11 +44,6 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
-            <li data-toggle="tooltip" title="Xuất báo cáo">
-                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" onclick="exportReport()">
-                    <i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>
-                </a>
-            </li>
             <?php if ($permission == 0): ?>
             <li>
                 <a  data-toggle='tooltip' title='Thêm mới'

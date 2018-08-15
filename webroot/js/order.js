@@ -80,6 +80,23 @@ $(document).ready(function() {
             $('#add-order-form')[0].submit();
         }
     });
+
+    // init switchery
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html, {
+            size: 'small'
+        });
+    });
+
+    $('.js-switch').click(function(e) {
+        if ($(this)[0].checked) {
+            $(this).closest('tr').find('select').prop('disabled', false);
+        } else {
+            // clear select value
+            $(this).closest('tr').find('select').prop('disabled', true);
+        }
+    });
 });
 
 function showAddCandidateModal() {
@@ -416,4 +433,22 @@ function updateResultCounter() {
         }
     });
     return result;
+}
+
+function showExportModal(orderId) {
+    var source = $("#export-template").html();
+    var template = Handlebars.compile(source);
+    var html = template({
+        'orderId': orderId
+    });
+    $('#export-container').html(html);
+
+    // show modal
+    $('#export-order-modal').modal('toggle');
+}
+
+function settings() {
+
+    // show modal
+    $('#setting-modal').modal('toggle');
 }
