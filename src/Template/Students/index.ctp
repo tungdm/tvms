@@ -341,7 +341,7 @@ $this->assign('title', 'Quản lý Lao động');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="exempt"><?= __('Đăng ký miễn học') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('exempt', [
                             'options' => $yesNoQuestion, 
@@ -484,7 +484,7 @@ $this->assign('title', 'Quản lý Lao động');
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?>: </label>
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="exempt"><?= __('Đăng ký miễn học') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-candidate-exempt"></span>

@@ -241,7 +241,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="exempt"><?= __('Đăng ký phỏng vấn') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="exempt"><?= __('Đăng ký miễn học') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('exempt', [
                                             'options' => $yesNoQuestion, 
@@ -719,10 +719,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="street"><?= __('Số nhà - Đường') ?></label>
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="street"><?= __('Số nhà - Đường') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?= $this->Form->control('addresses.0.street', [
-                                                    'required' => true, 
                                                     'label' => false,
                                                     'class' => 'form-control col-md-7 col-xs-12',
                                                     'placeholder' => 'Nhập số nhà, đường'
@@ -803,10 +802,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="street"><?= __('Số nhà - Đường') ?></label>
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="street"><?= __('Số nhà - Đường') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?= $this->Form->control('addresses.1.street', [
-                                                    'required' => true, 
                                                     'label' => false,
                                                     'class' => 'form-control col-md-7 col-xs-12',
                                                     'placeholder' => 'Nhập số nhà, đường'
@@ -842,27 +840,37 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="height"><?= __('Chiều cao (cm)') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="height"><?= __('Chiều cao') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('height', [
-                                            'label' => false,
-                                            'min' => 0,
-                                            'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
-                                            'placeholder' => 'Nhập chiều cao của lao động'
-                                            ]) ?>
+                                        <div class="col-md-5" style="padding-left: 0px">
+                                            <?= $this->Form->control('height', [
+                                                'label' => false,
+                                                'min' => 0,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                'required' => true,
+                                                'placeholder' => 'Nhập chiều cao của lao động'
+                                                ]) ?>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="form-control form-control-view">đơn vị: centimet</div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="weight"><?= __('Cân nặng (kg)') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('weight', [
-                                            'label' => false,
-                                            'min' => 0,
-                                            'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
-                                            'placeholder' => 'Nhập cân nặng của lao động'
-                                            ]) ?>
+                                        <div class="col-md-5" style="padding-left: 0px">
+                                            <?= $this->Form->control('weight', [
+                                                'label' => false,
+                                                'min' => 0,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                'required' => true,
+                                                'placeholder' => 'Nhập cân nặng của lao động'
+                                                ]) ?>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="form-control form-control-view">đơn vị: kilogram</div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">

@@ -123,11 +123,7 @@ class OrdersController extends AppController
         $companies = $this->Orders->Companies->find('list');
         $guilds = $this->Orders->Companies->Guilds->find('list');
 
-        $settingTable = TableRegistry::get('Settings');
-        $tableSettings = $settingTable->find()->where(['table_name' => $controller, 'user_id' => $this->Auth->user('id')])->first();
-
-        // debug($tableSettings);
-        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query', 'tableSettings'));
+        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query'));
     }
 
     /**
@@ -151,25 +147,6 @@ class OrdersController extends AppController
         ]);
 
         $this->set('order', $order);
-    }
-
-    public function settingTable()
-    {
-        $settingTable = TableRegistry::get('Settings');
-        $setting = $settingTable->newEntity();
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
-            if (isset($data['id'])) {
-                $setting = $settingTable->get($data['id']);
-            }
-            $setting = $settingTable->patchEntity($setting, $data);
-            if ($settingTable->save($setting)) {
-                $this->Flash->success($this->successMessage['setting']);
-            } else {
-                $this->Flash->error($this->errorMessage['error']);
-            }
-            return $this->redirect(['action' => 'index']);
-        }
     }
 
     /**

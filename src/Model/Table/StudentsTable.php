@@ -187,19 +187,19 @@ class StudentsTable extends Table
             ->allowEmpty('preferred_hand');
 
         $validator
-            ->integer('left_eye_sight')
+            ->numeric('left_eye_sight')
             ->allowEmpty('left_eye_sight');
 
         $validator
-            ->integer('right_eye_sight')
+            ->numeric('right_eye_sight')
             ->allowEmpty('right_eye_sight');
 
         $validator
-            ->integer('left_eye_sight_hospital')
+            ->numeric('left_eye_sight_hospital')
             ->allowEmpty('left_eye_sight_hospital');
 
         $validator
-            ->integer('right_eye_sight_hospital')
+            ->numeric('right_eye_sight_hospital')
             ->allowEmpty('right_eye_sight_hospital');
 
         $validator
@@ -277,7 +277,7 @@ class StudentsTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->isUnique(['email']));
+        // $rules->add($rules->isUnique(['email']));
         $rules->add($rules->existsIn(['job_id'], 'Jobs'));
 
         return $rules;
