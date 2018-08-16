@@ -10,6 +10,18 @@ $(document).ready(function() {
         perData.selectedCounter++;
     });
 
+    $('.select-job').select2({
+        placeholder: 'Chọn thông tin',
+        allowClear: true,
+        theme: "bootstrap",
+        escapeMarkup: function (markup) { return markup; },
+        language: {
+            noResults: function() {
+                return "<a href='javascript:;' onclick='showCreateNewJobModal(this)'>Thêm mới nghề nghiệp</a>"
+            }
+        }
+    });
+
     $('.limit-min').change(function() {
         var targetId = $(this).attr('less-than');
         $(targetId).attr('min', $(this).val());

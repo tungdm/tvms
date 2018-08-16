@@ -946,6 +946,60 @@ function initSelect2() {
     });
 }
 
+function showCreateNewJobModal(ele) {
+    var newJob = $(ele).closest('.select2-container').find('input').val();
+    $('.select-job').select2("close");
+    // reset modal
+    $('#add-job-form')[0].reset();
+    $('#add-job-form').find('input[name="job_name"]').val(newJob);
+
+    // show modal add new job
+    $('#add-job-modal').modal('toggle');
+}
+
+function createJob() {
+    var validateResult = $('#add-job-form').parsley().validate();
+    if (validateResult) {
+        ajaxing = true;
+        $('#add-job-modal-overlay').removeClass('hidden');
+
+        $.ajax({
+            type: 'POST',
+            url: DOMAIN_NAME + '/students/addJob',
+            data: {
+                job_name: $('#add-job-form').find('input[name="job_name"]').val(),
+                job_name_jp: $('#add-job-form').find('input[name="job_name_jp"]').val(),
+                description: $('#add-job-form').find('textarea[name="description"]').val(),
+            },
+            success: function(resp){
+               if (resp.status == 'success') {
+                   
+               } else {
+                    var notice = new PNotify({
+                        title: '<strong>' + resp.flash.title + '</strong>',
+                        text: resp.flash.message,
+                        type: resp.flash.type,
+                        styling: 'bootstrap3',
+                        icon: resp.flash.icon,
+                        cornerclass: 'ui-pnotify-sharp',
+                        buttons: {
+                            closer: false,
+                            sticker: false
+                        }
+                    });
+                    notice.get().click(function() {
+                        notice.remove();
+                    });
+                }
+            },
+            complete: function() {
+                ajaxing = false;
+                $('#add-job-modal-overlay').addClass('hidden');
+            }
+        });
+    }
+}
+
 function initSelect2AjaxSearch(eleId, searchUrl, placeholder) {
     $('#' + eleId).select2({
         ajax: {

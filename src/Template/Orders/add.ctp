@@ -157,7 +157,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             'empty' => true, 
                             'required' => true, 
                             'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'class' => 'form-control col-md-7 col-xs-12 select-job',
                             'data-parsley-errors-container' => '#error-job',
                             'data-parsley-class-handler' => '#select2-job-id',
                             ]) ?>

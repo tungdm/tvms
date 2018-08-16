@@ -888,7 +888,7 @@ return [
         'updatePassword' => 'Mật khẩu của bạn đã được cập nhật.',
         'changeClass' => 'Học viên :name đã được chuyển qua lớp :class',
         'setScore' => 'Đã lưu điểm của phần thi :skill',
-        'setting' => 'Đã lưu cấu hình hiển thị'
+        'setting' => 'Đã lưu cấu hình hiển thị',
     ],
     'errorMessage' => [
         'add' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
@@ -901,6 +901,7 @@ return [
         'changeClass' => 'Không thể chuyển học viên :name sang lớp :class',
         'setScore' => 'Không thể lưu điểm của phần thi :skill',
         'export' => ':missingField của :entity :name bị trống. Xin hãy nhập dữ liệu rồi thử lại sau.',
+        'addJob' => 'Ngề :name đã tồn tại.'
     ],
 
     // table setting

@@ -258,6 +258,60 @@ class StudentsController extends AppController
         }
     }
 
+    public function addJob()
+    {
+        $this->request->allowMethod('ajax');
+        $jobTable = TableRegistry::get('Jobs');
+        $job = $jobTable->newEntity();
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+
+        try {
+            $data = $this->request->getData();
+            $checkExists = $jobTable->find()->where(['job_name' => $data['job_name']]);
+            if (!empty($checkExists)) {
+                $resp = [
+                    'status' => 'error',
+                    'flash' => [
+                        'title' => 'Lỗi',
+                        'type' => 'error',
+                        'icon' => 'fa fa-warning',
+                        'message' => Text::insert($this->errorMessage['addJob'], [
+                            'name' => $data['job_name']
+                            ])
+                    ]
+                ];
+            } else {
+                $job = $jobTable->patchEntity($job, $data);
+                if ($jobTable->save($job)) {
+                    $resp = [
+                        'status' => 'success',
+                        'newJobId' => $job->id,
+                        'flash' => [
+                            'title' => 'Thành Công',
+                            'type' => 'success',
+                            'icon' => 'fa fa-check-circle-o',
+                            'message' => Text::insert($this->successMessage['add'], [
+                                'entity' => 'nghề', 
+                                'name' => $job->job_name
+                                ])
+                        ]
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
     public function getHistory()
     {
         $this->request->allowMethod('ajax');

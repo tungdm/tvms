@@ -548,6 +548,70 @@
         </div>
     </div>
 
+    <div id="add-job-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content box">
+                <div class="overlay hidden" id="add-job-modal-overlay">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">THÊM NGHỀ NGHIỆP</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12 col-xs-12">
+                        <?= $this->Form->create(null, [
+                            'class' => 'form-horizontal form-label-left', 
+                            'id' => 'add-job-form', 
+                            'data-parsley-validate' => '',
+                            'templates' => [
+                                'inputContainer' => '{{content}}'
+                                ]
+                            ]) ?>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="job_name"><?= __('Nghề nghiệp') ?></label>
+                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                <?= $this->Form->control('job_name', [
+                                    'label' => false, 
+                                    'required' => true, 
+                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'placeholder' => 'Nhập tên nghề nghiệp bằng tiếng Việt'
+                                    ]) ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-3 col-md-9 col-sm-9 col-xs-12">
+                                <?= $this->Form->control('job_name_jp', [
+                                    'label' => false, 
+                                    'required' => true, 
+                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'placeholder' => 'Nhập tên nghề nghiệp bằng tiếng Nhật'
+                                    ]) ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="description"><?= __('Ghi chú') ?></label>
+                            <div class="col-md-9 col-sm-9 col-xs-12">
+                                <?= $this->Form->control('description', [
+                                    'label' => false, 
+                                    'type' => 'textarea',
+                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'placeholder' => 'Nhập ghi chú'
+                                    ]) ?>
+                            </div>
+                        </div>
+                        <?= $this->Form->end() ?>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="add-job-btn" onclick="createJob()">Hoàn tất</button>
+                    <button type="button" class="btn btn-default" id="close-job-modal-btn" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Global history template -->
     <script id="history-template" type="text/x-handlebars-template">
         <li class="history-detail" id="history-{{counter}}" history="{{id}}">
