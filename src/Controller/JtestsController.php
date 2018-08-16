@@ -53,28 +53,28 @@ class JtestsController extends AppController
                 }
             }
 
-            if ($user['role_id'] != 1 && ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view'])))) {
-                $session->write($controller, $userPermission->action);
-                return true;
-            }
-
             // supervisory can access to set score action
             if ($action == 'setScore') {
-                Log::write('debug', 'user set score');
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
-                    $jtest = $this->Jtests
+                    $jtestContent = $this->Jtests
                             ->find()
                             ->contain([
                                 'JtestContents' => function ($q) use ($target_id, $user) {
                                     return $q->where(['jtest_id' => $target_id, 'user_id' => $user['id']]);
                                 }
                             ])->first();
-                    if (!empty($jtest) && $jtest->status !== '5') {
-                        return true;
-                    }
+                    $jtest = $this->Jtests->get($target_id);
+                    if (empty($jtestContent) || $jtest->status == '5') {
+                        return false;
+                    } 
                 }
+            }
+
+            if ($user['role_id'] != 1 && ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view'])))) {
+                $session->write($controller, $userPermission->action);
+                return true;
             }
         }
         return parent::isAuthorized($user);

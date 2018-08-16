@@ -465,8 +465,11 @@ function viewSCandidate(candidateId) {
                 } else {
                     $('.modified').addClass('hidden');
                 }
-
-                $('#view-candidate-note').html((resp.data.note).replace(/\r?\n/g,'<br/>'));
+                if (resp.data.note.length == 0) {
+                    $('#view-candidate-note').html('N/A');
+                } else {
+                    $('#view-candidate-note').html((resp.data.note).replace(/\r?\n/g,'<br/>'));
+                }
 
                 $('#view-candidate-modal').modal('toggle');
             } else {

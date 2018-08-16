@@ -85,7 +85,6 @@ class StudentsController extends AppController
             if (isset($query['student_gender']) && !empty($query['student_gender'])) {
                 $allStudents->where(['gender' => $query['student_gender']]);
             }
-
             if (isset($query['presenter']) && !empty($query['presenter'])) {
                 $allStudents->where(['presenter_id' => $query['presenter']]);
             }
@@ -215,11 +214,11 @@ class StudentsController extends AppController
                 'data' => $student,
                 'edu_level' => $eduLevel[$student->educational_level],
                 'gender' => $gender[$student->gender],
-                'birthday' => $student->birthday ? $student->birthday->i18nFormat('yyyy-MM-dd') : '',
-                'appointment_date' => $student->appointment_date ? $student->appointment_date->i18nFormat('yyyy-MM-dd') : '',
+                'birthday' => $student->birthday ? $student->birthday->i18nFormat('yyyy-MM-dd') : 'N/A',
+                'appointment_date' => $student->appointment_date ? $student->appointment_date->i18nFormat('yyyy-MM-dd') : 'N/A',
                 'exempt' => $yesNoQuestion[$student->exempt],
                 'created' => $student->created->i18nFormat('HH:mm, dd/MM/yyyy'),
-                'modified' => $student->modified ? $student->modified->i18nFormat('HH:mm, dd/MM/yyyy') : ''
+                'modified' => $student->modified ? $student->modified->i18nFormat('HH:mm, dd/MM/yyyy') : 'N/A'
             ];
         } catch (Exception $e) {
             //TODO: blacklist user
@@ -387,6 +386,8 @@ class StudentsController extends AppController
                 $student = $this->Students->get($data['student_id']);
 
                 $history = $this->Students->Histories->patchEntity($history, $data);
+                $history = $this->Students->Histories->setAuthor($history, $this->Auth->user('id'), 'edit');
+
                 if ($this->Students->Histories->save($history)) {
                     $resp = [
                         'status' => 'success',
@@ -554,25 +555,6 @@ class StudentsController extends AppController
             $student->expectation = $expectStr;
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
 
-            // setting student code if first init
-            // if (empty($student->code)) {
-            //     $lastestCode = $this->Students->find()->order(['id' => 'DESC'])->first();
-            //     $parsingCode = Text::tokenize($lastestCode, '-');
-            //     $codeTemplate = Configure::read('studentCodeTemplate');
-            //     $now = Time::now()->i18nFormat('yyyyMMdd');
-            //     if ($now === $parsingCode[1]) {
-            //         $counter = (int)$parsingCode[2] + 1;
-            //         $counter = str_pad((string)$counter, 3, '0', STR_PAD_LEFT);
-            //     } else {
-            //         $counter = '001';
-            //     }
-            //     $newCode = Text::insert($codeTemplate, [
-            //         'date' => $now, 
-            //         'counter' => $counter
-            //         ]);
-            //     $student->code = $newCode;
-            // }
-
             try{
                 // save to db
                 if ($this->Students->save($student)) {
@@ -602,7 +584,6 @@ class StudentsController extends AppController
             }
         }
         
-        //TODO: get data from db
         $presenters = TableRegistry::get('Presenters')->find('list');
         $jobs = TableRegistry::get('Jobs')->find('list');
 
@@ -627,8 +608,6 @@ class StudentsController extends AppController
                 $districts = TableRegistry::get('Districts')->find('list')->where(['city_id' => $query['city']])->toArray();
                 if (!empty($districts)) {
                     $resp = $districts;
-                } else {
-                    //TODO: Blacklist current user
                 }
             }
             return $this->jsonResponse($resp);
@@ -644,8 +623,6 @@ class StudentsController extends AppController
                 $wards = TableRegistry::get('Wards')->find('list')->where(['district_id' => $query['district']])->toArray();
                 if (!empty($wards)) {
                     $resp = $wards;
-                } else {
-                    //TODO: Blacklist current user
                 }
             }
             return $this->jsonResponse($resp);
@@ -696,8 +673,10 @@ class StudentsController extends AppController
         
         try {
             $member = $families->get($memberId);
-            $memberName = $member->fullname;
-            if (!empty($member) && $families->delete($member)) {
+            $student = $this->Students->get($member->student_id);
+            $student = $this->Students->setAuthor($student, $this->Auth->user('id'), 'edit');
+
+            if (!empty($member) && $families->delete($member) && $this->Students->save($student)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
@@ -732,7 +711,9 @@ class StudentsController extends AppController
         
         try {
             $eduHis = $educations->get($eduId);
-            if (!empty($eduHis) && $educations->delete($eduHis)) {
+            $student = $this->Students->get($eduHis->student_id);
+            $student = $this->Students->setAuthor($student, $this->Auth->user('id'), 'edit');
+            if (!empty($eduHis) && $educations->delete($eduHis) && $this->Students->save($student)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
@@ -767,7 +748,9 @@ class StudentsController extends AppController
         
         try {
             $exp = $experiences->get($expId);
-            if (!empty($exp) && $experiences->delete($exp)) {
+            $student = $this->Students->get($exp->student_id);
+            $student = $this->Students->setAuthor($student, $this->Auth->user('id'), 'edit');
+            if (!empty($exp) && $experiences->delete($exp) && $this->Students->save($student)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
@@ -802,7 +785,9 @@ class StudentsController extends AppController
         
         try {
             $langAbl = $langAblTbl->get($langId);
-            if (!empty($langAbl) && $langAblTbl->delete($langAbl)) {
+            $student = $this->Students->get($langAbl->student_id);
+            $student = $this->Students->setAuthor($student, $this->Auth->user('id'), 'edit');
+            if (!empty($langAbl) && $langAblTbl->delete($langAbl) && $this->Students->save($student)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [

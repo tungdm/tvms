@@ -48,6 +48,7 @@ class JclassesController extends AppController
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
                     if ($this->Jclasses->get($target_id)->user_id == $user['id']) {
+                        $session->write($controller, $userPermission->action);
                         return true;
                     }
                 }

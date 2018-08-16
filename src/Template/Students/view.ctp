@@ -201,6 +201,8 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <div id="cropped_result" class="col-md-7 col-xs-12">
                                                 <?php if(!empty($student->image)):?>
                                                 <?= $this->Html->image($student->image) ?>
+                                                <?php else: ?>
+                                                N/A
                                                 <?php endif; ?>
                                             </div> 
                                         </div>
@@ -504,14 +506,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="blood_group"><?= __('Nhóm máu') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->blood_group) ? $bloodGroup[$student->blood_group] : 'N/A' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="height"><?= __('Chiều cao (cm)') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
@@ -524,6 +518,14 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                                 <?= !empty($student->weight) ? $student->weight : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="blood_group"><?= __('Nhóm máu') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->blood_group) ? $bloodGroup[$student->blood_group] : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>

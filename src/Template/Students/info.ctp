@@ -280,7 +280,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'empty' => true,
                                             'label' => false, 
                                             'data-parsley-errors-container' => '#error-status',
-                                            'data-parsley-class-handler' => '#select2-status',
+                                            'data-parsley-class-handler' => '#select2-student-status',
                                             'class' => 'form-control col-md-7 col-xs-12 select2-theme',
                                             'id' => 'student-status',
                                             'value' => $defaultStatus
@@ -400,11 +400,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="nation"><?= __('Dân tộc') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="nation"><?= __('Dân tộc') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('nation', [
                                             'options' => $nation, 
-                                            'required' => true, 
                                             'label' => false, 
                                             'empty' => true, 
                                             'data-parsley-errors-container' => '#error-nation',
@@ -415,11 +414,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="religion"><?= __('Tôn giáo') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="religion"><?= __('Tôn giáo') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('religion', [
                                             'options' => $religion, 
-                                            'required' => true, 
                                             'label' => false, 
                                             'empty' => true,
                                             'data-parsley-errors-container' => '#error-religion',
@@ -430,16 +428,16 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="country"><?= __('Quốc tịch') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="country"><?= __('Quốc tịch') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('country', [
                                             'options' => $country, 
-                                            'required' => true, 
                                             'label' => false, 
                                             'empty' => true,
                                             'data-parsley-errors-container' => '#error-country',
                                             'data-parsley-class-handler' => '#select2-country',
-                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => '01'
                                             ]) ?>
                                         <span id="error-country"></span>
                                     </div>
@@ -826,20 +824,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="blood_group"><?= __('Nhóm máu') ?></label>
-                                    <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('blood_group', [
-                                            'options' => $bloodGroup, 
-                                            'empty' => true, 
-                                            'label' => false, 
-                                            'data-parsley-errors-container' => '#error-blood-group',
-                                            'data-parsley-class-handler' => '#select2-blood-group',
-                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                            ]) ?>
-                                        <span id="error-blood-group"></span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="height"><?= __('Chiều cao') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="col-md-5" style="padding-left: 0px">
@@ -871,6 +855,20 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="col-md-7">
                                             <div class="form-control form-control-view">đơn vị: kilogram</div>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="blood_group"><?= __('Nhóm máu') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('blood_group', [
+                                            'options' => $bloodGroup, 
+                                            'empty' => true, 
+                                            'label' => false, 
+                                            'data-parsley-errors-container' => '#error-blood-group',
+                                            'data-parsley-class-handler' => '#select2-blood-group',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                            ]) ?>
+                                        <span id="error-blood-group"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -1166,18 +1164,17 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?php endif; ?>
                                 <?= $this->Form->hidden('cards.0.type', ['value' => $cardType[0]])?>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="code"><?= __('Số CMND') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="code"><?= __('Số CMND') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('cards.0.code', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
                                             'placeholder' => 'Nhập số chứng minh nhân dân'
                                             ]) ?>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="from_date"><?= __('Ngày cấp') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="from_date"><?= __('Ngày cấp') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="cmnd-from-date">
                                             <?= $this->Form->control('cards.0.from_date', [
@@ -1185,7 +1182,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 'label' => false, 
                                                 'class' => 'form-control',
                                                 'placeholder' => 'yyyy-mm-dd',
-                                                'required' => true,
                                                 'data-parsley-errors-container' => '#error-cmnd-from-date'
                                                 ])?>
                                             <span class="input-group-addon">
@@ -1196,12 +1192,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="issued_at"><?= __('Nơi cấp') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="issued_at"><?= __('Nơi cấp') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('cards.0.issued_at', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
                                             'placeholder' => 'Nhập nơi cấp CMND'
                                             ]) ?>
                                     </div>

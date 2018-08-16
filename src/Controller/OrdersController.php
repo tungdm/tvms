@@ -41,8 +41,23 @@ class OrdersController extends AppController
         $permissionsTable = TableRegistry::get('Permissions');
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
-        if (!empty($userPermission)) {
-            if ($userPermission->action == 0 || ($userPermission->action == 1 && (in_array($action, ['index', 'view']) || strpos($action, 'export') === 0))) {
+        if (!empty($userPermission) || $user['role_id'] == 1) {
+            if ($action == 'edit') {
+                $target_id = $this->request->getParam('pass');
+                if (!empty($target_id)) {
+                    $target_id = $target_id[0];
+                    $order = $this->Orders->get($target_id);
+                    Log::write('debug', $order);
+                    if ($order->status == '5') {
+                        return false;
+                    }
+                }
+            }
+            
+            if ($user['role_id'] != 1 && 
+                ($userPermission->action == 0 || 
+                    ($userPermission->action == 1 && 
+                        (in_array($action, ['index', 'view']) || strpos($action, 'export') === 0)))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -240,7 +255,6 @@ class OrdersController extends AppController
             $student->status = '2';
             $student->return_date = '';
         }
-        // $entities = $this->Orders->Students->patchEntities($interviewers);
         if ($this->Orders->Students->saveMany($order->students) && $this->Orders->delete($order)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
@@ -251,6 +265,26 @@ class OrdersController extends AppController
                 'entity' => $this->entity,
                 'name' => $order->name
                 ]));
+        }
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function close($id = null)
+    {
+        $this->request->allowMethod(['post']);
+        $order = $this->Orders->get($id);
+        if ($order->status !== '4') {
+            $this->Flash->error($this->errorMessage['unAuthor']);
+        } else {
+            $order->status = '5'; // close order
+            if ($this->Orders->save($order)) {
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity, 
+                    'name' => $order->name
+                    ]));
+            } else {
+                $this->Flash->error($this->errorMessage['error']);
+            }
         }
         return $this->redirect(['action' => 'index']);
     }
@@ -272,16 +306,19 @@ class OrdersController extends AppController
         try {
             $table = TableRegistry::get('OrdersStudents');
             $interview = $table->find()->where(['OrdersStudents.id' => $interviewId])->contain(['Students'])->first();
+            $order = $this->Orders->get($interview->order_id);
+            $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit');
+
             $candidateName = $interview->student->fullname;
-            if (!empty($interview) && $table->delete($interview)) {
+            if (!empty($interview) && $table->delete($interview) && $this->Orders->save($order)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
                         'title' => 'Thành Công',
                         'type' => 'success',
-                        'message' => Text::insert($this->successMessage['delete'], [
-                            'entity' => 'ứng viên', 
-                            'name' => $candidateName
+                        'message' => Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $order->name
                             ])
                     ]
                 ];
@@ -291,10 +328,7 @@ class OrdersController extends AppController
                     'alert' => [
                         'title' => 'Lỗi',
                         'type' => 'error',
-                        'message' => Text::insert($this->errorMessage['delete'], [
-                            'entity' => 'ứng viên', 
-                            'name' => $candidateName
-                            ])
+                        'message' => $this->errorMessage['error']
                     ]
                 ];
             }

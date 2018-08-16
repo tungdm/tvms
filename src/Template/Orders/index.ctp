@@ -222,15 +222,19 @@ $this->assign('title', 'Quản lý đơn hàng');
                                 <?php endif; ?>
                             </td>
                             <td class="cell statusCol">
-                                <?php if ($order->status == "4"): ?>
-                                    <?= h($interviewStatus["4"]) ?>
-                                <?php elseif ($now < $order->interview_date): ?>
-                                    <?= h($interviewStatus["1"]) ?>
-                                <?php elseif ($now == $order->interview_date) :?>
-                                    <?= h($interviewStatus["2"]) ?>
-                                <?php else: ?>
-                                    <?= h($interviewStatus["3"]) ?>
-                                <?php endif; ?>
+                                <?php if ($order->status == "4" || $order->status == "5") {
+                                    $status = (int) $order->status;
+                                    echo h($interviewStatus[$order->status]);
+                                } elseif ($now < $order->interview_date) {
+                                    $status = 1;
+                                    echo h($interviewStatus["1"]);
+                                } elseif ($now == $order->interview_date) {
+                                    $status = 2;
+                                    echo h($interviewStatus["2"]);
+                                } else {
+                                    $status = 3;
+                                    echo h($interviewStatus["3"]);
+                                } ?>
                             </td>
                             <td class="actions cell">
                                 <div class="btn-group">
@@ -243,18 +247,30 @@ $this->assign('title', 'Quản lý đơn hàng');
                                                 ['escape' => false]) ?>
                                         </li>
                                         <?php if ($permission == 0): ?>
+                                        <?php if ($status != 5): ?>
                                         <li>
                                             <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i> Sửa'), 
                                                 ['action' => 'edit', $order->id],
                                                 ['escape' => false]) ?>
                                         </li>
+                                        <?php endif; ?>
+                                        <?php if ($status == 4): ?>
+                                        <li>
+                                            <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i> Đóng'), 
+                                                ['action' => 'close', $order->id],
+                                                [
+                                                    'escape' => false,
+                                                    'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
+                                                ]) ?>
+                                        </li>
+                                        <?php endif; ?>
                                         <li>
                                             <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i> Xóa'), 
-                                            ['action' => 'delete', $order->id], 
-                                            [
-                                                'escape' => false, 
-                                                'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
-                                            ]) ?>
+                                                ['action' => 'delete', $order->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
+                                                ]) ?>
                                         </li>
                                         <?php endif; ?>
                                         <li class="divider"></li>

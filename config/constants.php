@@ -157,7 +157,11 @@ return [
         '6' => [
             'vn' => 'Đại học',
             'jp' => '大学'
-        ],      
+        ],
+        '7' => [
+            'vn' => 'Trung tâm',
+            'jp' => 'センター'
+        ],
     ],
     'maritalStatus' => [
         '1' => [
@@ -278,7 +282,8 @@ return [
         '1' => 'Chưa phỏng vấn',
         '2' => 'Đang phỏng vấn',
         '3' => 'Đã phỏng vấn',
-        '4' => 'Đã có kết quả'
+        '4' => 'Đã có kết quả',
+        '5' => 'Hoàn tất'
     ],
     'interviewResult' => [
         '0' => '-',

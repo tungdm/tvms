@@ -80,7 +80,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                 <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i>', 
                 ['action' => 'finish', $jtest->id], 
                 [
-                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
                     'data-toggle' => 'tooltip',
                     'title' => 'Đóng',
                     'escape' => false, 

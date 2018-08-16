@@ -40,6 +40,7 @@
 .custom-table>tbody>tr>td {
     position: relative;
     vertical-align: middle;
+    /* white-space: unset !important; */
 }
 .custom-table>tbody>tr>td span {
     line-height: unset;
@@ -330,10 +331,10 @@ label.optional {
 }
 
 .zoom-btn-edit {
-    background-color: #64b5f6;
+    background-color: #64b5f6c9;
 }
 .zoom-btn-edit:hover {
-    background-color: #2196F3;
+    background-color: #2196f3b8;
 }
 
 .zoom-btn-delete {
@@ -343,16 +344,16 @@ label.optional {
     background-color: #f44336b3;
 }
 .zoom-btn-report {
-    background-color: #ba68c8;
+    background-color: #ba68c8ba;
 }
 .zoom-btn-report:hover {
-    background-color: #9c27b0; 
+    background-color: #9c27b09c; 
 }
 .zoom-btn-save {
-    background-color: #81c784;
+    background-color: #81c784ad;
 }
 .zoom-btn-save:hover {
-    background-color: #00a65a; 
+    background-color: #00a65aa1; 
 }
 .zoom-btn-info {
     background-color: #85b6dfcf; 
@@ -497,4 +498,30 @@ label.optional {
     opacity: 1;
     transform: translateY(0px);
     visibility: visible;
+}
+
+.error-body {
+    color: #73879C;
+    background: #2A3F54;
+    font-family: "Helvetica Neue",Roboto,Arial,"Droid Sans",sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.471;
+    height: auto;
+}
+.col-middle {
+    margin-top: 5%;
+}
+
+.text-center {
+    text-align: center;
+}
+.error-number {
+    font-size: 90px;
+    line-height: 90px;
+    margin: 20px 0;
+}
+
+.go-back-link:hover, .go-back-link:active, .go-back-link:focus {
+    color: #7da2c3;
 }

@@ -36,8 +36,17 @@ if (Configure::read('debug')) :
     $this->end();
 endif;
 ?>
-<h2><?= __d('cake', 'An Internal Error Has Occurred') ?></h2>
-<p class="error">
-    <strong><?= __d('cake', 'Error') ?>: </strong>
-    <?= h($message) ?>
-</p>
+
+<div class="col-md-12">
+    <div class="col-middle">
+        <div class="text-center">
+            <h1 class="error-number">500</h1>
+            <h2>Đã có lỗi xảy ra</h2>
+            <p><?= __d('cake', 'Máy chủ đang có lỗi. Xin hãy thử lại sau.') ?></p>
+            <div id="footer">
+                <?= $this->Html->link(__('<i class="fa fa-arrow-left"></i> Quay lại'), 'javascript:history.back()', ['escape' => false, 'class="go-back-link"']) ?>
+            </div>
+        </div>
+    </div>
+</div>
+

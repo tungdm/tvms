@@ -31,8 +31,17 @@ endif;
 $this->end();
 endif;
 ?>
-<h2><?= h($message) ?></h2>
-<p class="error">
-    <strong><?= __d('cake', 'Error') ?>: </strong>
-    <?= __d('cake', 'The requested address {0} was not found on this server.', "<strong>'{$url}'</strong>") ?>
-</p>
+
+<div class="col-md-12">
+    <div class="col-middle">
+        <div class="text-center">
+            <h1 class="error-number">404</h1>
+            <h2>Trang không tồn tại</h2>
+            <p><?= __d('cake', 'Địa chỉ muốn truy cập không tồn tại. Xin hãy thử lại sau.', "<strong>'{$url}'</strong>") ?></p>
+            <div id="footer">
+                <?= $this->Html->link(__('<i class="fa fa-arrow-left"></i> Quay lại'), 'javascript:history.back()', ['escape' => false, 'class="go-back-link"']) ?>
+            </div>
+        </div>
+    </div>
+</div>
+
