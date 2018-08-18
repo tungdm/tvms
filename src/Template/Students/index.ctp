@@ -216,7 +216,13 @@ $this->assign('title', 'Quản lý Lao động');
                             <td class="cell fullnameCol"><?= h($student->fullname) ?><br><?= h($student->fullname_kata)?></td>
                             <td class="cell enrolledDateCol"><?= h($student->enrolled_date) ?></td>
                             <td class="cell genderCol"><?= h($gender[$student->gender]) ?></td>
-                            <td class="cell presenterCol"><?= $student->presenter ? $student->presenter->name : '' ?></td>
+                            <td class="cell presenterCol">
+                                <?php if (!empty($student->presenter)): ?>
+                                <a href="javascript:;" onclick="viewPresenter(<?= $student->presenter->id ?>)">
+                                    <?= $student->presenter->name ?>
+                                </a>
+                                <?php endif; ?>
+                            </td>
                             <td class="cell statusCol"><?= h($studentStatus[$student->status]) ?></td>
                             
                             <td class="actions cell">
@@ -839,7 +845,7 @@ $this->assign('title', 'Quản lý Lao động');
         <td class="cell"><?= __('Sơ yếu lý lịch') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
-            <a href="/tvms/students/export-resume/{{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./students/export-resume/{{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
@@ -847,7 +853,7 @@ $this->assign('title', 'Quản lý Lao động');
         <td class="cell"><?= __('Hợp đồng lao động (tiếng Nhật)') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
-            <a href="/tvms/students/export-contract/{{studentId}}?lang=jp"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./students/export-contract/{{studentId}}?lang=jp"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
@@ -855,7 +861,7 @@ $this->assign('title', 'Quản lý Lao động');
         <td class="cell"><?= __('Hợp đồng lao động (tiếng Việt)') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
-            <a href="/tvms/students/export-contract/{{studentId}}?lang=vn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./students/export-contract/{{studentId}}?lang=vn"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
@@ -863,7 +869,7 @@ $this->assign('title', 'Quản lý Lao động');
         <td class="cell"><?= __('Thủ tục công nhận kế hoạch đào tạo') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
-            <a href="/tvms/students/export-edu-plan/{{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./students/export-edu-plan/{{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
@@ -871,7 +877,7 @@ $this->assign('title', 'Quản lý Lao động');
         <td class="cell"><?= __('Tóm tắt và cam kết của tổ chức nước ngoài') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
-            <a href="/tvms/students/export-company-commitment/{{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./students/export-company-commitment/{{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
 </script>

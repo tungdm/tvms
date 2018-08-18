@@ -275,7 +275,7 @@ class StudentsController extends AppController
 
         try {
             $data = $this->request->getData();
-            $checkExists = $jobTable->find()->where(['job_name' => $data['job_name']]);
+            $checkExists = $jobTable->find()->where(['job_name' => $data['job_name']])->first();
             if (!empty($checkExists)) {
                 $resp = [
                     'status' => 'error',

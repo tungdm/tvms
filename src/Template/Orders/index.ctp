@@ -338,7 +338,7 @@ $this->assign('title', 'Quản lý đơn hàng');
         <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
-            <a href="/tvms/orders/export-dispatch-letter/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./orders/export-dispatch-letter/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
@@ -346,7 +346,7 @@ $this->assign('title', 'Quản lý đơn hàng');
         <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
         <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
         <td class="actions cell">
-            <a href="/tvms/orders/export-dispatch-letter-xlsx/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./orders/export-dispatch-letter-xlsx/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
@@ -354,7 +354,7 @@ $this->assign('title', 'Quản lý đơn hàng');
         <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
         <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
         <td class="actions cell">
-            <a href="/tvms/orders/export-candidates/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+            <a href="./orders/export-candidates/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
 </script>

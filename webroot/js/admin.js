@@ -944,22 +944,40 @@ function initSelect2() {
             }
         }
     });
+
+    $('.select-job').each(function(index) {
+        var currentEleId = $(this)[0].id;
+        $(this).select2({
+            placeholder: 'Chọn thông tin',
+            allowClear: true,
+            theme: "bootstrap",
+            escapeMarkup: function (markup) { return markup; },
+            language: {
+                noResults: function() {
+                    return "<a href='javascript:;' onclick='showCreateNewJobModal(this, \""+currentEleId+"\")'>Thêm mới nghề nghiệp</a>"
+                }
+            }
+        });
+    });
 }
 
-function showCreateNewJobModal(ele) {
+function showCreateNewJobModal(ele, selectId) {
     var newJob = $(ele).closest('.select2-container').find('input').val();
     $('.select-job').select2("close");
     // reset modal
     $('#add-job-form')[0].reset();
     $('#add-job-form').find('input[name="job_name"]').val(newJob);
 
+    $('#add-job-btn').remove();
+    $('<button type="button" class="btn btn-success" id="add-job-btn" onclick="createJob(\''+selectId+'\')">Hoàn tất</button>').insertBefore('#close-job-modal-btn');
     // show modal add new job
     $('#add-job-modal').modal('toggle');
 }
 
-function createJob() {
+function createJob(selectId) {
     var validateResult = $('#add-job-form').parsley().validate();
     if (validateResult) {
+        var newJob = $('#add-job-form').find('input[name="job_name"]').val();
         ajaxing = true;
         $('#add-job-modal-overlay').removeClass('hidden');
 
@@ -967,30 +985,40 @@ function createJob() {
             type: 'POST',
             url: DOMAIN_NAME + '/students/addJob',
             data: {
-                job_name: $('#add-job-form').find('input[name="job_name"]').val(),
+                job_name: newJob,
                 job_name_jp: $('#add-job-form').find('input[name="job_name_jp"]').val(),
                 description: $('#add-job-form').find('textarea[name="description"]').val(),
             },
             success: function(resp){
-               if (resp.status == 'success') {
-                   
-               } else {
-                    var notice = new PNotify({
-                        title: '<strong>' + resp.flash.title + '</strong>',
-                        text: resp.flash.message,
-                        type: resp.flash.type,
-                        styling: 'bootstrap3',
-                        icon: resp.flash.icon,
-                        cornerclass: 'ui-pnotify-sharp',
-                        buttons: {
-                            closer: false,
-                            sticker: false
+                if (resp.status == 'success') {
+                    // add new option
+                    $('.select-job').each(function() {
+                        var currentId = $(this)[0].id;
+                        if (currentId != selectId) {
+                            $('#'+currentId).append($('<option>', {value: resp.newJobId, text: newJob}));
+                        } else {
+                            var newOption = new Option(newJob, resp.newJobId, true, true);
+                            $('#'+currentId).append(newOption).trigger('change');
                         }
                     });
-                    notice.get().click(function() {
-                        notice.remove();
-                    });
+                    // hide modal
+                    $('#add-job-modal').modal('toggle');
                 }
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
             },
             complete: function() {
                 ajaxing = false;
@@ -1831,6 +1859,10 @@ Handlebars.registerHelper("trans", function (value, options) {
         return "Nam";
     }
     return "Nữ";
+});
+
+Handlebars.registerHelper('renderImg', function(value, option) {
+    return DOMAIN_NAME + '/img/' + value;
 });
 
 Handlebars.registerHelper("phoneFormat", function (value, options) {

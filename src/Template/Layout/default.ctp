@@ -40,12 +40,14 @@
     <div class="wrapper">
         <header class="main-header">
             <!-- Logo -->
-            <a href="/tvms/" class="logo">
-                <!-- mini logo for sidebar mini 50x50 pixels -->
-                <span class="logo-mini"><b>TV</b></span>
-                <!-- logo for regular state and mobile devices -->
-                <span class="logo-lg"><b>TVMS</b></span>
-            </a>
+            <?= $this->Html->link(
+                '<span class="logo-mini"><b>TV</b></span><span class="logo-lg"><b>TVMS</b></span>',
+                '/',
+                [
+                    'class' => 'logo',
+                    'escape' => false
+                ]
+            ) ?>
             <nav class="navbar navbar-static-top">
                 <!-- Sidebar toggle button-->
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
@@ -605,7 +607,7 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="add-job-btn" onclick="createJob()">Hoàn tất</button>
+                    <button type="button" class="btn btn-success" id="add-job-btn">Hoàn tất</button>
                     <button type="button" class="btn btn-default" id="close-job-modal-btn" data-dismiss="modal">Đóng</button>
                 </div>
             </div>
@@ -634,7 +636,7 @@
     <script id="all-histories-template" type="text/x-handlebars-template">
         {{#each this}}
             <li class="history-detail" id="history-{{@index}}" history="{{id}}">
-                <img src="/tvms/img/{{users_created_by.image}}" class="img-circle timeline-avatar" alt="">
+                <img src="{{renderImg users_created_by.image}}" class="img-circle timeline-avatar" alt="">
                 <div class="timeline-item">
                     <span class="time"><i class="fa fa-clock-o"></i> {{created}}</span>
                     <h3 class="timeline-header">{{title}}</h3>

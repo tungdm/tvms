@@ -466,7 +466,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'label' => false,
                                             'empty' => true,
                                             'multiple' => 'multiple',
-                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'class' => 'form-control col-md-7 col-xs-12 select-job',
                                             'value' => $expectArr
                                             ]) ?>
                                     </div>
@@ -2178,7 +2178,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     'label' => false, 
                                     'data-parsley-errors-container' => '#error-job',
                                     'data-parsley-class-handler' => '#select2-modal-job',
-                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                    'class' => 'form-control col-md-7 col-xs-12 select-job'
                                     ]) ?>
                                 <span id="error-job"></span>
                             </div>
@@ -2688,7 +2688,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 'label' => false, 
                                 'data-parsley-errors-container' => '#error-exp-job',
                                 'data-parsley-class-handler' => '#select2-exp-job',
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                'class' => 'form-control col-md-7 col-xs-12 select-job'
                                 ]) ?>
                             <span id="error-exp-job"></span>
                         </div>
