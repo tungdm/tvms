@@ -271,11 +271,16 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="subsidy">
                         <?= __('Tiền trợ cấp TTS') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('subsidy', [
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => '¥/tháng'
-                            ]) ?>
+                        <div class="col-md-5" style="padding-left: 0px">
+                            <?= $this->Form->control('subsidy', [
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => '¥'
+                                ]) ?>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="form-control form-control-view">đơn vị: ¥/tháng</div>
+                        </div>
                     </div>
                 </div>
 
@@ -391,12 +396,17 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="subsidy">
                         <?= __('Tiền trợ cấp TTS') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('subsidy', [
-                            'label' => false, 
-                            'id' => 'edit-subsidy',
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => '¥/tháng'
-                            ]) ?>
+                        <div class="col-md-5" style="padding-left: 0px">
+                            <?= $this->Form->control('subsidy', [
+                                'label' => false, 
+                                'id' => 'edit-subsidy',
+                                'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => '¥'
+                                ]) ?>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-control form-control-view">đơn vị: ¥/tháng</div>
+                            </div>
                     </div>
                 </div>
 

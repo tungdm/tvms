@@ -170,7 +170,7 @@ $this->assign('title', 'Quản lý thi cử');
                                     ])
                                 ?>
                             </td>
-                            <td class="filter-group-btn">
+                            <td class="filter-group-btn actions">
                                 <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
                                 <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
                             </td>

@@ -196,10 +196,10 @@ $this->assign('title', 'Lịch công tác');
                                 <td class="cell col-md-3">
                                     {{fullname}}
                                 </td>
-                                <td class="cell col-md-3">
+                                <td class="cell col-md-3 text-center">
                                     {{calAge birthday}}
                                 </td>
-                                <td class="cell col-md-2">
+                                <td class="cell col-md-2 text-center">
                                     {{trans gender}}
                                 </td>
                                 <td class="cell col-md-3">

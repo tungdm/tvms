@@ -625,8 +625,8 @@
                     {{{note}}}
                 </div>
                 <div class="timeline-footer">
-                    <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this)">Chỉnh sửa</button>
-                    <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this)">Xóa</button>
+                    <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this, '{{controller}}', '{{classId}}')">Chỉnh sửa</button>
+                    <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this, '{{controller}}', '{{classId}}')">Xóa</button>
                 </div>
             </div>
         </li>
@@ -645,8 +645,8 @@
                     </div>
                     <div class="timeline-footer">
                         {{#if owner}}
-                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this)">Chỉnh sửa</button>
-                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this)">Xóa</button>
+                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this, '{{controller}}', '{{classId}}')">Chỉnh sửa</button>
+                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this, '{{controller}}', '{{classId}}')">Xóa</button>
                         {{else}}
                         <span class="history-creater">Người tạo: {{users_created_by.fullname}}</span>
                         {{/if}}

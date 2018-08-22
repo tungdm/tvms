@@ -40,8 +40,15 @@ class StudentsController extends AppController
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
         if (!empty($userPermission)) {
+            if (in_array($action, ['addJob'])) {
+                $orderPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => 'Orders'])->first();
+                if (!empty($orderPermission) && $orderPermission->action == 0) {
+                    // current user have full access in order field => they can modified job
+                    return true;
+                }
+            }
             if ($userPermission->action == 0 
-            || ($userPermission->action == 1 && (in_array($action, ['index', 'view', 'getStudent']) || strpos($action, 'export') === 0))) {
+            || ($userPermission->action == 1 && (in_array($action, ['index', 'view', 'getStudent', 'getAllHistories']) || strpos($action, 'export') === 0))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -55,6 +62,7 @@ class StudentsController extends AppController
         $this->loadComponent('ExportFile');
         $this->loadComponent('Util');
         $this->entity = 'lao động';
+        $this->missingFields = '';
     }
 
     /**
@@ -145,7 +153,9 @@ class StudentsController extends AppController
                 'Orders' => ['sort' => ['Orders.created' => 'DESC']],
                 'Orders.Companies',
                 'Orders.Companies.Guilds',
-                'Histories' => ['sort' => ['Histories.created' => 'DESC']],
+                'Histories' => function($q) {
+                    return $q->where(['type' => 'main'])->order(['Histories.created' => 'DESC']);
+                },
                 'Histories.UsersCreatedBy',
                 'Jtests',
                 'CreatedByUsers',
@@ -358,6 +368,7 @@ class StudentsController extends AppController
                 ->order(['Histories.created' => 'DESC']);
             $histories->formatResults(function ($results) {
                 return $results->map(function ($row) {
+                    $row['controller'] = 'students';
                     $row['created'] = $row['created']->i18nFormat('HH:mm, dd/MM/yyyy');
                     $row['owner'] = $row['created_by'] == $this->Auth->user('id') ? true : false;
                     return $row;
@@ -367,6 +378,7 @@ class StudentsController extends AppController
             $resp = [
                 'status' => 'success',
                 'histories' => $histories,
+                'now' => Time::now()->i18nFormat('HH:mm, dd/MM/yyyy'),
                 'student_created' => $student->created->i18nFormat('dd/MM/yyyy')
             ];
         } catch (Exception $e) {
@@ -397,9 +409,11 @@ class StudentsController extends AppController
             if ($this->Students->Histories->save($history)) {
                 $history = $this->Students->Histories->get($history->id, ['contain' => ['UsersCreatedBy', 'UsersModifiedBy']]);
                 $history->created = $history->created->i18nFormat('HH:mm, dd/MM/yyyy');
+                $now = Time::now()->i18nFormat('HH:mm, dd/MM/yyyy');
                 $resp = [
                     'status' => 'success',
                     'history' => $history,
+                    'now' => $now,
                     'flash' => [
                         'title' => 'Thành Công',
                         'type' => 'success',
@@ -557,7 +571,9 @@ class StudentsController extends AppController
                     'Documents',
                     'InputTests',
                     'IqTests',
-                    'Histories' => ['sort' => ['Histories.created' => 'DESC']],
+                    'Histories' => function($q) {
+                        return $q->where(['type' => 'main'])->order(['Histories.created' => 'DESC']);
+                    },
                     'Histories.UsersCreatedBy',
                     ]
                 ]);
@@ -869,193 +885,213 @@ class StudentsController extends AppController
         $folderImgTemplate = Configure::read('folderImgTemplate');
         $language = Configure::read('language');
 
-        $student = $this->Students->get($id, [
-            'contain' => [
-                'Addresses' => function($q) {
-                    return $q->where(['Addresses.type' => '1']);
-                },
-                'Addresses.Cities',
-                'Addresses.Districts',
-                'Addresses.Wards',
-                'Educations',
-                'Experiences',
-                'Experiences.Jobs',
-                'LanguageAbilities'
-                ]
-            ]);
-
-        $template = WWW_ROOT . 'document' . DS . $resumeConfig['template'];
-        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-        
-        // Prepare data
-        $now = Time::now();
-        $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Util->convertV2E($studentName_VN);
-        $studentName = explode(' ', $studentName_EN);
-        $studentFirstName = array_pop($studentName);
-        $output_file_name = Text::insert($resumeConfig['filename'], [
-            'firstName' => $studentFirstName, 
-            ]);
-
-        $nation_VN = $country[$student->country]['vn'];
-        $nation_JP = $country[$student->country]['jp'];
-        
-        $male = $female = $folderImgTemplate . DS . 'circle.png';
-        if ($student->gender == 'M') {
-            $female = $folderImgTemplate . DS . 'blank.png';
-        } else {
-            $male = $folderImgTemplate . DS . 'blank.png';
-        }
-
-        $marital_y = $marital_n = $folderImgTemplate . DS . 'circle.png';
-        if ($student->marital_status == '2') {
-            $marital_n = $folderImgTemplate . DS . 'blank.png';
-        } else {
-            $marital_y = $folderImgTemplate . DS . 'blank.png';
-        }
-
-        $mergedAdd = $this->mergeAddress($student->addresses[0]);
-
-        $jplevel_JP = $jplevel_VN = $enlevel_JP = $enlevel_VN = "            ";
-        if (!empty($student->language_abilities)) {
-            foreach ($student->language_abilities as $key => $value) {
-                switch ($value->lang_code) {
-                    case '1':
-                        // japan
-                        $jplevel_JP = $value->certificate . '相当';
-                        $jplevel_VN = 'Tương đương ' . $value->certificate;
-                        break;
-                    case '2':
-                        // english
-                        $enlevel_JP = $value->certificate . '相当';
-                        $enlevel_VN = 'Tương đương ' . $value->certificate;
-                        break;
+        try {
+            $student = $this->Students->get($id, [
+                'contain' => [
+                    'Addresses' => function($q) {
+                        return $q->where(['Addresses.type' => '1']);
+                    },
+                    'Addresses.Cities',
+                    'Addresses.Districts',
+                    'Addresses.Wards',
+                    'Educations',
+                    'Experiences',
+                    'Experiences.Jobs',
+                    'LanguageAbilities'
+                    ]
+                ]);
+    
+            $template = WWW_ROOT . 'document' . DS . $resumeConfig['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+            
+            // Prepare data
+            $now = Time::now();
+            $studentName_VN = mb_strtoupper($student->fullname);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
+            $studentName = explode(' ', $studentName_EN);
+            $studentFirstName = array_pop($studentName);
+            $output_file_name = Text::insert($resumeConfig['filename'], [
+                'firstName' => $studentFirstName, 
+                ]);
+    
+            $nation_VN = $country[$student->country]['vn'];
+            $nation_JP = $country[$student->country]['jp'];
+            
+            $male = $female = $folderImgTemplate . DS . 'circle.png';
+            if ($student->gender == 'M') {
+                $female = $folderImgTemplate . DS . 'blank.png';
+            } else {
+                $male = $folderImgTemplate . DS . 'blank.png';
+            }
+    
+            $marital_y = $marital_n = $folderImgTemplate . DS . 'circle.png';
+            if ($student->marital_status == '2') {
+                $marital_n = $folderImgTemplate . DS . 'blank.png';
+            } else {
+                $marital_y = $folderImgTemplate . DS . 'blank.png';
+            }
+    
+            $mergedAdd = $this->mergeAddress($student->addresses[0]);
+    
+            $jplevel_JP = $jplevel_VN = $enlevel_JP = $enlevel_VN = "            ";
+            if (!empty($student->language_abilities)) {
+                foreach ($student->language_abilities as $key => $value) {
+                    switch ($value->lang_code) {
+                        case '1':
+                            // japan
+                            $jplevel_JP = $value->certificate . '相当';
+                            $jplevel_VN = 'Tương đương ' . $value->certificate;
+                            break;
+                        case '2':
+                            // english
+                            $enlevel_JP = $value->certificate . '相当';
+                            $enlevel_VN = 'Tương đương ' . $value->certificate;
+                            break;
+                    }
                 }
             }
-        }
-        $jplang = $enlang = $folderImgTemplate . DS . 'circle.png';
-        if (empty(str_replace(" ", "", $jplevel_JP))) {
-            $jplang = $folderImgTemplate . DS . 'blank.png';
-        }
-        if (empty(str_replace(" ", "", $enlevel_JP))) {
-            $enlang = $folderImgTemplate . DS . 'blank.png';
-        }
-        
-        $this->tbs->VarRef['y'] = $now->year;
-        $this->tbs->VarRef['m'] = $now->month;
-        $this->tbs->VarRef['d'] = $now->day;
-        $this->tbs->VarRef['studentname_en'] = $studentName_EN;
-        $this->tbs->VarRef['studentname_vn'] = $studentName_VN;
-
-        $this->tbs->VarRef['nation_jp'] = $nation_JP;
-        $this->tbs->VarRef['nation_vn'] = $nation_VN;
-        
-        $this->tbs->VarRef['male'] = $male;
-        $this->tbs->VarRef['female'] = $female;
-
-        $this->tbs->VarRef['maritalyes'] = $marital_y;  
-        $this->tbs->VarRef['maritalno'] = $marital_n;
-
-        $this->tbs->VarRef['jplevel_jp'] = $jplevel_JP;
-        $this->tbs->VarRef['jplevel_vn'] = $jplevel_JP;
-        $this->tbs->VarRef['enlevel_jp'] = $enlevel_JP;
-        $this->tbs->VarRef['enlevel_vn'] = $enlevel_VN;
-        $this->tbs->VarRef['jplang'] = $jplang;
-        $this->tbs->VarRef['enlang'] = $enlang;
+            $jplang = $enlang = $folderImgTemplate . DS . 'circle.png';
+            if (empty(str_replace(" ", "", $jplevel_JP))) {
+                $jplang = $folderImgTemplate . DS . 'blank.png';
+            }
+            if (empty(str_replace(" ", "", $enlevel_JP))) {
+                $enlang = $folderImgTemplate . DS . 'blank.png';
+            }
             
-        $this->tbs->VarRef['bd_y'] = $student->birthday->year;
-        $this->tbs->VarRef['bd_m'] = $student->birthday->month;
-        $this->tbs->VarRef['bd_d'] = $student->birthday->day;
-
-        $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
-
-        $this->tbs->VarRef['currentaddress_en'] = $mergedAdd['en'];
-        $this->tbs->VarRef['currentaddress_vn'] = $mergedAdd['vn'];
-
-        $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
-        if ($student->is_lived_in_japan === 'Y') {
-            $livedJapan_n = $folderImgTemplate . DS . 'blank.png';
-            $this->tbs->VarRef['lived_from'] = '     ' . $student->lived_from . '     ';
-            $this->tbs->VarRef['lived_to'] = '     ' . $student->lived_to . '     ';
-        } else {
-            $livedJapan_y = $folderImgTemplate . DS . 'blank.png';
-            $this->tbs->VarRef['lived_from'] = "                ";
-            $this->tbs->VarRef['lived_to'] = "                ";
-        }
-
-        $this->tbs->VarRef['livedjapanyes'] = $livedJapan_y;
-        $this->tbs->VarRef['livedjapanno'] = $livedJapan_n;
-
-        $reject_y = $reject_n = $folderImgTemplate . DS . 'circle.png';
-        if ($student->reject_stay === 'N') {
-            $reject_y = $folderImgTemplate . DS . 'blank.png';
-        } else {
-            $reject_n = $folderImgTemplate . DS . 'blank.png';
-        }
-
-        $this->tbs->VarRef['reject_y'] = $reject_y;
-        $this->tbs->VarRef['reject_n'] = $reject_n;
-        
-        $eduHis = [];
-        if (empty($student->educations)) {
-            $history = [
-                'title' => 'Quá trình học tập',
-                'time' => "",
-                'school' => ""
-            ];
-            array_push($eduHis, $history);
-        } else {
-            foreach ($student->educations as $key => $value) {
+            $this->tbs->VarRef['y'] = $now->year;
+            $this->tbs->VarRef['m'] = $now->month;
+            $this->tbs->VarRef['d'] = $now->day;
+            $this->tbs->VarRef['studentname_en'] = $studentName_EN;
+            $this->tbs->VarRef['studentname_vn'] = $studentName_VN;
+    
+            $this->tbs->VarRef['nation_jp'] = $nation_JP;
+            $this->tbs->VarRef['nation_vn'] = $nation_VN;
+            
+            $this->tbs->VarRef['male'] = $male;
+            $this->tbs->VarRef['female'] = $female;
+    
+            $this->tbs->VarRef['maritalyes'] = $marital_y;  
+            $this->tbs->VarRef['maritalno'] = $marital_n;
+    
+            $this->tbs->VarRef['jplevel_jp'] = $jplevel_JP;
+            $this->tbs->VarRef['jplevel_vn'] = $jplevel_JP;
+            $this->tbs->VarRef['enlevel_jp'] = $enlevel_JP;
+            $this->tbs->VarRef['enlevel_vn'] = $enlevel_VN;
+            $this->tbs->VarRef['jplang'] = $jplang;
+            $this->tbs->VarRef['enlang'] = $enlang;
+                
+            $this->tbs->VarRef['bd_y'] = $student->birthday->year;
+            $this->tbs->VarRef['bd_m'] = $student->birthday->month;
+            $this->tbs->VarRef['bd_d'] = $student->birthday->day;
+    
+            $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
+    
+            $this->tbs->VarRef['currentaddress_en'] = $mergedAdd['en'];
+            $this->tbs->VarRef['currentaddress_vn'] = $mergedAdd['vn'];
+    
+            $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
+            if ($student->is_lived_in_japan === 'Y') {
+                $livedJapan_n = $folderImgTemplate . DS . 'blank.png';
+                $this->tbs->VarRef['lived_from'] = '     ' . $student->lived_from . '     ';
+                $this->tbs->VarRef['lived_to'] = '     ' . $student->lived_to . '     ';
+            } else {
+                $livedJapan_y = $folderImgTemplate . DS . 'blank.png';
+                $this->tbs->VarRef['lived_from'] = "                ";
+                $this->tbs->VarRef['lived_to'] = "                ";
+            }
+    
+            $this->tbs->VarRef['livedjapanyes'] = $livedJapan_y;
+            $this->tbs->VarRef['livedjapanno'] = $livedJapan_n;
+    
+            $reject_y = $reject_n = $folderImgTemplate . DS . 'circle.png';
+            if ($student->reject_stay === 'N') {
+                $reject_y = $folderImgTemplate . DS . 'blank.png';
+            } else {
+                $reject_n = $folderImgTemplate . DS . 'blank.png';
+            }
+    
+            $this->tbs->VarRef['reject_y'] = $reject_y;
+            $this->tbs->VarRef['reject_n'] = $reject_n;
+            
+            $eduHis = [];
+            if (empty($student->educations)) {
                 $history = [
                     'title' => 'Quá trình học tập',
-                    'time' => $value->from_date . ' ～ ' . $value->to_date,
-                    'school' => Text::insert($schoolTemplate, [
-                        'schoolNameEN' => $this->Util->convertV2E($value->school),
-                        'eduLevelJP' => $eduLevel[$value->degree]['jp'],
-                        'schoolNameVN' => $value->school,
-                        'eduLevelVN' => $eduLevel[$value->degree]['vn']
-                    ])
+                    'time' => "",
+                    'school' => ""
                 ];
+                $this->checkData('', 'Quá trình học tập');
                 array_push($eduHis, $history);
+            } else {
+                foreach ($student->educations as $key => $value) {
+                    $history = [
+                        'title' => 'Quá trình học tập',
+                        'time' => $value->from_date . ' ～ ' . $value->to_date,
+                        'school' => Text::insert($schoolTemplate, [
+                            'schoolNameEN' => $this->Util->convertV2E($value->school),
+                            'eduLevelJP' => $eduLevel[$value->degree]['jp'],
+                            'schoolNameVN' => $value->school,
+                            'eduLevelVN' => $eduLevel[$value->degree]['vn']
+                        ])
+                    ];
+                    array_push($eduHis, $history);
+                }
             }
-        }
-        
-        $this->tbs->MergeBlock('a', $eduHis);
-        
-        $expHis = [];
-        if (empty($student->experiences)) {
-            $history = [
-                'title' => "Quá trình công tác",
-                'time' => "",
-                'company' => ""
+            
+            $this->tbs->MergeBlock('a', $eduHis);
+            
+            $expHis = [];
+            if (empty($student->experiences)) {
+                $history = [
+                    'title' => "Quá trình công tác",
+                    'time' => "",
+                    'company' => ""
+                ];
+                $this->checkData('', 'Kinh nghiệm làm việc');            
+                array_push($expHis, $history);
+            }
+            foreach ($student->experiences as $key => $value) {
+                $companyStr = '';
+                if (!empty($value->company_jp)) {
+                    $companyStr = $value->company_jp . "\n";
+                } elseif (!empty($value->company)) {
+                    $companyStr = $value->company . "\n";
+                }
+                $companyStr .= !empty($value->job->job_name_jp) ? "（" . $value->job->job_name_jp . "）\n" : "";
+    
+                if (!empty($value->company_jp) && !empty($value->company)) {
+                    $companyStr .= $value->company . "\n";
+                }
+                $companyStr .= !empty($value->job->job_name) ? "(" . $value->job->job_name . ")" : "";
+    
+                $history = [
+                    'title' => 'Quá trình công tác',
+                    'time' => $value->from_date . ' ～ ' . $value->to_date,
+                    'company' => $companyStr
             ];
-            array_push($expHis, $history);
-        }
-        foreach ($student->experiences as $key => $value) {
-            $companyStr = '';
-            if (!empty($value->company_jp)) {
-                $companyStr = $value->company_jp . "\n";
-            } elseif (!empty($value->company)) {
-                $companyStr = $value->company . "\n";
+                array_push($expHis, $history);
             }
-            $companyStr .= !empty($value->job->job_name_jp) ? "（" . $value->job->job_name_jp . "）\n" : "";
-
-            if (!empty($value->company_jp) && !empty($value->company)) {
-                $companyStr .= $value->company . "\n";
+            $this->tbs->MergeBlock('b', $expHis);
+    
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
             }
-            $companyStr .= !empty($value->job->job_name) ? "(" . $value->job->job_name . ")" : "";
-
-            $history = [
-                'title' => 'Quá trình công tác',
-                'time' => $value->from_date . ' ～ ' . $value->to_date,
-                'company' => $companyStr
-        ];
-            array_push($expHis, $history);
+    
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
         }
-        $this->tbs->MergeBlock('b', $expHis);
-
-        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
-        exit;
+        
     }
 
     public function exportContract($id = null)
@@ -1067,83 +1103,119 @@ class StudentsController extends AppController
         // load template
         $lang = $this->request->getQuery('lang');
         $filenameLang = 'filename_' . $lang;
-        $template = WWW_ROOT . 'document' . DS . 'contract_'. $lang .'.docx';
-        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+        try {
+            $template = WWW_ROOT . 'document' . DS . 'contract_'. $lang .'.docx';
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
 
-        $student = $this->Students->get($id, [
-            'contain' => [
-                'Cards' => function($q) {
-                    return $q->where(['Cards.type' => '1']);
-                },
-                'Orders',
-                'Orders.Jobs',
-                'Orders.Companies',
-                'Orders.Companies.Guilds',
-                'Addresses' => function($q) {
-                    return $q->where(['Addresses.type' => '1']);
-                },
-                'Addresses.Cities',
-                'Addresses.Districts',
-                'Addresses.Wards',
-            ]
-        ]);
-        $now = Time::now();
-        $birthday = $student->birthday;
-        $cmnd_from_date = $student->cards[0]->from_date;
-        $mergeAddress = $this->mergeAddress($student->addresses[0]);
-        $job = $student->orders ? $student->orders[0]->job : '';
-        $guild = $student->orders ? $student->orders[0]->company->guild : '';
-        $company = $student->orders ? $student->orders[0]->company : '';
-        $subsidy = $student->orders ? Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
-        if ($lang == 'jp') {
-            $createdDay = $now->i18nFormat('yyyy年MM月dd日');
-            $birthday = $birthday->i18nFormat('yyyy年MM月dd日');
-            $cmnd_from_date = $cmnd_from_date->i18nFormat('yyyy年MM月dd日');
-            $address = $mergeAddress['en'];
-            $job = $job ? $job->job_name_jp : '';
-            $guild = $guild ? $guild->name_kanji : '';
-            $company = $company ? $company->name_kanji : '';
-        } else {
-            $createdDay = Text::insert($vnDateFormatFull, [
-                'day' => date('d'), 
-                'month' => date('m'), 
-                'year' => date('Y'), 
-                ]);
-
-            $birthday = Text::insert($vnDateFormatShort, [
-                'day' => str_pad($birthday->day, 2, '0', STR_PAD_LEFT), 
-                'month' => str_pad($birthday->month, 2, '0', STR_PAD_LEFT), 
-                'year' => $birthday->year, 
-                ]);
-            $cmnd_from_date = $cmnd_from_date->i18nFormat('dd/MM/yyyy');
-            $address = $mergeAddress['vn'];
-            $job = $job ? $job->job_name : '';
-            $guild = $guild ? $guild->name_romaji : '';
-            $company = $company ? $company->name_romaji : '';
-        }
-        $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Util->convertV2E($studentName_VN);
-        $studentName = explode(' ', $studentName_EN);
-        $studentFirstName = array_pop($studentName);
-        $output_file_name = Text::insert($contractConfig[$filenameLang], [
-            'firstName' => $studentFirstName, 
+            $student = $this->Students->get($id, [
+                'contain' => [
+                    'Cards' => function($q) {
+                        return $q->where(['Cards.type' => '1']);
+                    },
+                    'Orders',
+                    'Orders.Jobs',
+                    'Orders.Companies',
+                    'Orders.Companies.Guilds',
+                    'Addresses' => function($q) {
+                        return $q->where(['Addresses.type' => '1']);
+                    },
+                    'Addresses.Cities',
+                    'Addresses.Districts',
+                    'Addresses.Wards',
+                ]
             ]);
-        $this->tbs->VarRef['created_day'] = $createdDay;
-        if ($lang == 'jp') {
-            $this->tbs->VarRef['student_name'] = $studentName_EN;
-        } else {
-            $this->tbs->VarRef['student_name'] = $studentName_VN;
+            $now = Time::now();
+            $birthday = $student->birthday;
+            $cmnd_from_date = $student->cards[0]->from_date ? $student->cards[0]->from_date->i18nFormat('yyyy年MM月dd日') : '';
+            $this->checkData($cmnd_from_date, 'Giấy chứng minh nhân dân');
+
+            $mergeAddress = $this->mergeAddress($student->addresses[0]);
+
+            $job = $student->orders ? $student->orders[0]->job : '';
+
+            $guild = $student->orders ? $student->orders[0]->company->guild : '';
+
+            $company = $student->orders ? $student->orders[0]->company : '';
+
+            $subsidy = $student->orders ? Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
+            $this->checkData($subsidy, 'Tiền trợ cấp thực tập sinh của nghiệp đoàn');
+
+            if ($lang == 'jp') {
+                $createdDay = $now->i18nFormat('yyyy年MM月dd日');
+                $birthday = $birthday->i18nFormat('yyyy年MM月dd日');
+                $cmnd_from_date = $cmnd_from_date;
+                $address = $mergeAddress['en'];
+                $job = $job ? $job->job_name_jp : '';
+                $this->checkData($job, 'Tên phiên âm nghề nghiệp phỏng vấn');
+
+                $guild = $guild ? $guild->name_kanji : '';
+                $this->checkData($guild, 'Tên phiên âm nghiệp đoàn quản lý');
+
+                $company = $company ? $company->name_kanji : '';
+                $this->checkData($company, 'Tên phiên âm công ty tiếp nhận');
+            } else {
+                $createdDay = Text::insert($vnDateFormatFull, [
+                    'day' => date('d'), 
+                    'month' => date('m'), 
+                    'year' => date('Y'), 
+                    ]);
+
+                $birthday = Text::insert($vnDateFormatShort, [
+                    'day' => str_pad($birthday->day, 2, '0', STR_PAD_LEFT), 
+                    'month' => str_pad($birthday->month, 2, '0', STR_PAD_LEFT), 
+                    'year' => $birthday->year, 
+                    ]);
+                // $cmnd_from_date = $cmnd_from_date->i18nFormat('dd/MM/yyyy');
+                $address = $mergeAddress['vn'];
+                $job = $job ? $job->job_name : '';
+                $this->checkData($job, 'Tên nghề nghiệp phỏng vấn');
+
+                $guild = $guild ? $guild->name_romaji : '';
+                $this->checkData($guild, 'Tên nghiệp đoàn quản lý');
+
+                $company = $company ? $company->name_romaji : '';
+                $this->checkData($company, 'Tên công ty tiếp nhận');
+            }
+            $studentName_VN = mb_strtoupper($student->fullname);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
+            $studentName = explode(' ', $studentName_EN);
+            $studentFirstName = array_pop($studentName);
+            $output_file_name = Text::insert($contractConfig[$filenameLang], [
+                'firstName' => $studentFirstName, 
+                ]);
+            $this->tbs->VarRef['created_day'] = $createdDay;
+            if ($lang == 'jp') {
+                $this->tbs->VarRef['student_name'] = $studentName_EN;
+            } else {
+                $this->tbs->VarRef['student_name'] = $studentName_VN;
+            }
+            $this->tbs->VarRef['birthday'] = $birthday;
+            $this->tbs->VarRef['cmnd'] = $student->cards[0]->code;
+            $this->tbs->VarRef['from_day'] = $cmnd_from_date;
+            $this->tbs->VarRef['address'] = $address;
+            $this->tbs->VarRef['job'] = $job;
+            $this->tbs->VarRef['guild'] = $guild;
+            $this->tbs->VarRef['company'] = $company;
+            $this->tbs->VarRef['subsidy'] = $subsidy;
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
         }
-        $this->tbs->VarRef['birthday'] = $birthday;
-        $this->tbs->VarRef['cmnd'] = $student->cards[0]->code;
-        $this->tbs->VarRef['from_day'] = $cmnd_from_date;
-        $this->tbs->VarRef['address'] = $address;
-        $this->tbs->VarRef['job'] = $job;
-        $this->tbs->VarRef['guild'] = $guild;
-        $this->tbs->VarRef['company'] = $company;
-        $this->tbs->VarRef['subsidy'] = $subsidy;
-        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
-        exit;
     }
 
     public function exportEduPlan($id = null)
@@ -1153,28 +1225,52 @@ class StudentsController extends AppController
         $jpKingYearStart = Configure::read('jpKingYearStart');
         $jpKingYearName = Configure::read('jpKingYearName');
 
-        $template = WWW_ROOT . 'document' . DS . $eduPlanConfig['template'];
-        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+        try {
+            $template = WWW_ROOT . 'document' . DS . $eduPlanConfig['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
 
-        $student = $this->Students->get($id, [
-            'contain' => [
-                'Orders',
-                'Orders.Jobs',
-                'Orders.Companies',
-                'Orders.Companies.Guilds',
-            ]
-        ]);
-        $output_file_name = $eduPlanConfig['filename'];
-        $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Util->convertV2E($studentName_VN);
-        $now = Time::now();
+            $student = $this->Students->get($id, [
+                'contain' => [
+                    'Orders',
+                    'Orders.Jobs',
+                    'Orders.Companies',
+                    'Orders.Companies.Guilds',
+                ]
+            ]);
+            $output_file_name = $eduPlanConfig['filename'];
+            $studentName_VN = mb_strtoupper($student->fullname);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
+            $now = Time::now();
 
-        $this->tbs->VarRef['company'] = $student->orders ? $student->orders[0]->company->name_kanji : '';
-        $this->tbs->VarRef['guild'] = $student->orders ? $student->orders[0]->company->guild->name_kanji : '';
-        $this->tbs->VarRef['fullname'] = $studentName_EN;
-        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
-        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
-        exit;
+            $company_name_kanji = $student->orders ? $student->orders[0]->company->name_kanji : '';
+            $this->checkData($company_name_kanji, 'Tên phiên âm công ty tiếp nhận');
+            $this->tbs->VarRef['company'] = $company_name_kanji;
+
+            $guild_name_kanji = $student->orders ? $student->orders[0]->company->guild->name_kanji : '';
+            $this->checkData($guild_name_kanji, 'Tên phiên âm nghiệp đoàn quản lý');
+            $this->tbs->VarRef['guild'] = $guild_name_kanji;
+
+            $this->tbs->VarRef['fullname'] = $studentName_EN;
+            $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
     }
 
     public function exportCompanyCommitment($id = null)
@@ -1473,10 +1569,10 @@ class StudentsController extends AppController
                 $data = [
                     $key+1,
                     $student->fullname,
-                    $student->birthday->i18nFormat('dd/MM/yyyy'),
+                    $student->birthday ? $student->birthday->i18nFormat('dd/MM/yyyy') : '',
                     $male,
                     $female,
-                    $student->addresses[0]->city->name,
+                    $student->addresses ? $student->addresses[0]->city->name : '',
                     $student->enrolled_date ? $student->enrolled_date->i18nFormat('dd/MM/yyyy') : '',
                     $student->presenter->name ?? '',
                     $studentStatus[$student->status]
@@ -1576,5 +1672,25 @@ class StudentsController extends AppController
         ];
 
         return $mergeAdd;
+    }
+
+    public function checkData($data, $field) 
+    {
+        if (empty($data)) {
+            $this->missingFields .= '<li>'. $field . '</li>';
+        }
+        return $data;
+    }
+
+    public function checkDataConcate($data, $field) 
+    {
+        if (empty($data)) {
+            if (!empty($this->studentError)) {
+                $this->studentError .= ', ' . $field;
+            } else {
+                $this->studentError .= $field;
+            }
+        }
+        return $data;
     }
 }

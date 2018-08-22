@@ -7,7 +7,7 @@ $this->assign('title', 'TVMS - Trang Chủ');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('BÁO CÁO NHANH MỖI THÁNG') ?></h1>
+    <h1><?= __('BÁO CÁO TÌNH HÌNH HOẠT ĐỘNG') ?></h1>
     <ol class="breadcrumb">
         <li class="active">
             <?= $this->Html->link(

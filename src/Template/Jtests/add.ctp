@@ -188,7 +188,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'data-parsley-class-handler' => '#select2-lesson-to',
                                 'data-parsley-max-message' => '',
                                 'data-parsley-min-message' => '',
-                                'data-parsley-range-message' => 'Please select option between lesson from and current lesson',
+                                'data-parsley-range-message' => 'Xin hãy chọn bài thi nằm trong khoảng bài đã chọn đến bài đang học',
                                 'class' => 'form-control col-md-7 col-xs-12 select2-theme select-lesson-to'
                                 ]) ?>
                             <span id="error-lesson-to"></span>

@@ -21,6 +21,17 @@ $yesNoQuestion = Configure::read('yesNoQuestion');
 $interviewType = Configure::read('interviewType');
 $workTime = Configure::read('workTime');
 
+$now = Time::now()->i18nFormat('yyyy-MM-dd');
+if ($order->status == "4" || $order->status == "5") {
+    $status = (int) $order->status;
+} elseif ($now < $order->interview_date) {
+    $status = 1;
+} elseif ($now == $order->interview_date) {
+    $status = 2;
+} else {
+    $status = 3;
+}
+
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
 $this->Html->css('order.css', ['block' => 'styleTop']);
@@ -78,13 +89,26 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
             <?php if ($action === 'edit'): ?>
-            <li data-toggle="tooltip" title="Xuất báo cáo">
+            <li data-toggle="tooltip" title="Xuất hồ sơ">
                 <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
                    data-toggle="modal" 
                    data-target="#export-order-modal">
                     <i class="fa fa-book" aria-hidden="true"></i>
                 </a>
             </li>
+            <?php if ($status == 4): ?>
+            <li>
+                <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i>'), 
+                    ['action' => 'close', $order->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Đóng',
+                        'escape' => false,
+                        'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
+                    ]) ?>
+            </li>
+            <?php endif; ?>
             <li>
                 <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
                     ['action' => 'view', $order->id],
@@ -460,16 +484,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 <td class="cell col-md-3">
                                     <a href="javascript:;" onclick="viewCandidate('<?=$value->id?>');"><?= h($value->fullname) ?></a>
                                 </td>
-                                <td class="cell col-md-1">
+                                <td class="cell col-md-1 text-center">
                                     <?= h(($now->diff($value->birthday))->y) ?>
                                 </td>
-                                <td class="cell col-md-1">
+                                <td class="cell col-md-1 text-center">
                                     <?= $gender[$value->gender]?>
                                 </td>
                                 <td class="cell col-md-3">
                                     <?= $this->Phone->makeEdit($value->phone) ?>
                                 </td>
-                                <td class="cell col-md-1">
+                                <td class="cell col-md-1 text-center">
                                     <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     <div class="hidden">
                                         <?= $this->Form->control('students.' . $key . '._joinData.result', [
@@ -497,7 +521,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                     <?= $this->Html->link('<i class="fa fa-2x fa-book"></i>',
                                         [
                                             'controller' => 'Orders', 
-                                            'action' => 'exportCv', 
+                                            'action' => 'exportCv',
                                             '?' => [
                                                 'studentId' => $value->id,
                                                 'serial' => $key+1
@@ -740,16 +764,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <td class="cell col-md-3">
             <a href="javascript:;" onclick="viewCandidate({{id}});">{{fullname}}</a>
         </td>
-        <td class="cell col-md-1">
+        <td class="cell col-md-1 text-center">
             {{age}}
         </td>
-        <td class="cell col-md-1">
+        <td class="cell col-md-1 text-center">
             {{trans gender}}
         </td>
         <td class="cell col-md-3">
             {{phoneFormat phone}}
         </td>
-        <td class="cell col-md-1">
+        <td class="cell col-md-1 text-center">
             <span class="result-text">-</span>
             <div class="hidden">
                 <?= $this->Form->control('students.{{row}}._joinData.result', [
@@ -822,7 +846,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2">
+        <td class="cell col-md-2 text-center">
             {{age}}
             <div class="hidden">
                 <?= $this->Form->control('age', [
@@ -833,7 +857,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2">
+        <td class="cell col-md-2 text-center">
             {{trans gender}}
             <div class="hidden">
                 <?= $this->Form->control('gender', [
@@ -891,7 +915,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-1">
+        <td class="cell col-md-1 text-center">
             {{age}}
             <div class="hidden">
                 <?= $this->Form->control('age', [
@@ -902,7 +926,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2">
+        <td class="cell col-md-2 text-center">
             {{trans gender}}
             <div class="hidden">
                 <?= $this->Form->control('gender', [

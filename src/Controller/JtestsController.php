@@ -297,7 +297,14 @@ class JtestsController extends AppController
                 'name' => $currentTestDate
             ]));
         }
-        $jclasses = $this->Jtests->Jclasses->find('list');
+        $lessons = Configure::read('lessons');
+        $jclasses = $this->Jtests->Jclasses->find()
+            ->map(function ($row) use ($lessons) {
+                $row->name = $row->name . ' (Đang học ' . $lessons[$row->current_lesson] . ')';
+                return $row;
+            })
+            ->combine('id', 'name')
+            ->toArray();
         $userTable = TableRegistry::get('Users');
         $teachers = $userTable->find('list')->where(['role_id' => '3']);
         $this->set(compact('jtest', 'jclasses', 'teachers'));
@@ -310,13 +317,15 @@ class JtestsController extends AppController
             'contain' => ['Students', 'JtestContents', 'JtestContents.Users']
         ]);
         $currentUserId = $this->Auth->user('id');
-        $skill = '';
+        $skill = [];
         $teacher = $this->Jtests->JtestContents->find()->where(['jtest_id' => $id, 'user_id' => $currentUserId])->toArray();
         if (empty($teacher)) {
             $this->Flash->error($this->errorMessage['unAuthor']);
             return $this->redirect(['controller' => 'Pages', 'action' => 'index']);
         } else {
-            $skill = $teacher[0]['skill'];
+            foreach ($teacher as $key => $value) {
+                array_push($skill, $value['skill']);
+            }
         }
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
@@ -326,21 +335,19 @@ class JtestsController extends AppController
                 ]);
             
             // update flag
-            $jtest->flag = str_replace($skill, '', $jtest->flag);
+            foreach ($skill as $key => $value) {
+                $jtest->flag = str_replace($value, '', $jtest->flag);
+            }
             if (empty($jtest->flag)) {
                 $jtest->status = '4'; // finish scoring
             }
             $skills = Configure::read('skills');
             if ($this->Jtests->save($jtest)) {
-                $this->Flash->success(Text::insert($this->successMessage['setScore'], [
-                    'skill' => $skills[$skill]
-                ]));
+                $this->Flash->success($this->successMessage['setScore']);
 
                 return $this->redirect(['action' => 'view', $jtest->id]);
             }
-            $this->Flash->error(Text::insert($this->errorMessage['setScore'], [
-                'skill' => $skills[$skill]
-            ]));
+            $this->Flash->error($this->errorMessage['error']);
         }
 
         $this->set(compact('jtest', 'skill'));

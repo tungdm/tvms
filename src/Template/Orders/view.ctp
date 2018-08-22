@@ -4,7 +4,7 @@ use Cake\I18n\Time;
 
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
-
+$now = Time::now()->i18nFormat('yyyy-MM-dd');
 $interviewStatus = Configure::read('interviewStatus');
 $gender = Configure::read('gender');
 $interviewResult = Configure::read('interviewResult');
@@ -339,16 +339,16 @@ if ($order->status == "4" || $order->status == "5") {
                                     <td class="cell col-md-3">
                                         <a href="javascript:;" onclick="viewCandidate(<?=$value->id?>);"><?= h($value->fullname) ?></a>
                                     </td>
-                                    <td class="cell col-md-1">
+                                    <td class="cell col-md-1 text-center">
                                         <?= h(($now->diff($value->birthday))->y) ?>
                                     </td>
-                                    <td class="cell col-md-1">
+                                    <td class="cell col-md-1 text-center">
                                         <?= $gender[$value->gender]?>
                                     </td>
                                     <td class="cell col-md-3">
                                         <?= $this->Phone->makeEdit($value->phone) ?>
                                     </td>
-                                    <td class="cell col-md-1">
+                                    <td class="cell col-md-1 text-center">
                                         <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     </td>
                                     <td class="actions cell">

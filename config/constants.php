@@ -887,7 +887,7 @@ return [
         'updateProfile' => 'Hồ sơ cá nhân của bạn đã được cập nhật.',
         'updatePassword' => 'Mật khẩu của bạn đã được cập nhật.',
         'changeClass' => 'Học viên :name đã được chuyển qua lớp :class',
-        'setScore' => 'Đã lưu điểm của phần thi :skill',
+        'setScore' => 'Đã lưu điểm thành công',
         'setting' => 'Đã lưu cấu hình hiển thị',
     ],
     'errorMessage' => [
@@ -900,7 +900,7 @@ return [
         'updatePassword' => 'Mật khẩu không đúng. Xin hãy nhập lại.',
         'changeClass' => 'Không thể chuyển học viên :name sang lớp :class',
         'setScore' => 'Không thể lưu điểm của phần thi :skill',
-        'export' => ':missingField của :entity :name bị trống. Xin hãy nhập dữ liệu rồi thử lại sau.',
+        'export' => '<p>Xuất file không thành công vì một số trường thiếu dữ liệu:</p><ul>:fields</ul>',
         'addJob' => 'Ngề :name đã tồn tại.'
     ],
 

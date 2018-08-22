@@ -26,6 +26,7 @@ class JclassesController extends AppController
         parent::initialize();
         $this->loadComponent('ExportFile');
         $this->entity = 'lớp';
+        $this->Auth->allow(['editHistory', 'deleteHistory']);
     }
 
     public function isAuthorized($user)
@@ -37,17 +38,19 @@ class JclassesController extends AppController
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
         if (!empty($userPermission)) {
-            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view', 'getAllHistories', 'exportReport']))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
 
-            // gvcn can access to edit action
-            if ($action == 'edit') {
+            // form teacher can access to edit action
+            if (in_array($action, ['edit', 'addHistory', 'getHistory'])) {
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
-                    if ($this->Jclasses->get($target_id)->user_id == $user['id']) {
+                    $formTeacher = $this->Jclasses->get($target_id)->user_id;
+                    if ($formTeacher == $user['id']) {
                         $session->write($controller, $userPermission->action);
                         return true;
                     }
@@ -85,7 +88,7 @@ class JclassesController extends AppController
                     ->select(['student_count' => 'COUNT(Students.id)'])
                     ->leftJoinWith('Students')
                     ->group('Jclasses.id')
-                    ->having(['student_count' => $query['num_students']]);
+                    ->having(['student_count >=' => $query['num_students']]);
             }
             if (isset($query['user_id']) && !empty($query['user_id'])) {
                 $allClasses->where(['Users.id' => $query['user_id']]);
@@ -135,6 +138,10 @@ class JclassesController extends AppController
         $jclass = $this->Jclasses->get($id, [
             'contain' => [
                 'Students', 
+                'Students.Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                },
+                'Students.Addresses.Cities',
                 'Jtests', 
                 'Users',
                 'CreatedByUsers',
@@ -165,6 +172,29 @@ class JclassesController extends AppController
         return $this->jsonResponse($resp);        
     }
 
+    public function recommendStudent()
+    {
+        $this->request->allowMethod('ajax');
+        $studentTable = TableRegistry::get('Students');
+        $students = $studentTable->find()
+                    ->contain([
+                        'Addresses' => function($q) {
+                            return $q->where(['Addresses.type' => '1']);
+                        },
+                        'Addresses.Cities',
+                        ])
+                    ->leftJoinWith('Jclasses')
+                    ->select(['Jclasses.id', 'Students.id', 'Students.fullname', 'Students.enrolled_date', 'Students.gender', 'Students.phone'])
+                    ->where(['exempt <>' => 'Y'])
+                    ->andWhere(['Jclasses.id IS' => NULL])
+                    ->toArray();        
+        $resp = [
+            'students' => $students
+        ];
+        
+        return $this->jsonResponse($resp); 
+    }
+
     public function getStudent()
     {
         $this->request->allowMethod('ajax');
@@ -179,6 +209,207 @@ class JclassesController extends AppController
             //TODO: blacklist user
             Log::write('debug', $e);
         }
+        return $this->jsonResponse($resp);
+    }
+
+    public function getHistory($classId = null)
+    {
+        $this->request->allowMethod('ajax');
+        $id = $this->request->getQuery('id');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $historyTable = TableRegistry::get('Histories');
+            $history = $historyTable->get($id);
+            $resp = [
+                'status' => 'success',
+                'history' => $history
+            ];
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function getAllHistories($classId = null)
+    {
+        $this->request->allowMethod('ajax');
+        $studentId = $this->request->getQuery('id');
+        $type = $this->request->getQuery('type');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $studentTable = TableRegistry::get('Students');
+            $histories = $studentTable->Histories->find()
+                ->contain(['UsersCreatedBy'])
+                ->where(['student_id' => $studentId, 'type' => $type])
+                ->order(['Histories.created' => 'DESC']);
+            $histories->formatResults(function ($results) use ($classId) {
+                return $results->map(function ($row) use ($classId) {
+                    $row['controller'] = 'jclasses';
+                    $row['classId'] = $classId;
+                    $row['created'] = $row['created']->i18nFormat('HH:mm, dd/MM/yyyy');
+                    $row['owner'] = $row['created_by'] == $this->Auth->user('id') ? true : false;
+                    return $row;
+                });
+            });
+            $student = $studentTable->get($studentId);
+            $resp = [
+                'status' => 'success',
+                'histories' => $histories,
+                'now' => Time::now()->i18nFormat('HH:mm, dd/MM/yyyy'),
+                'student_created' => $student->created->i18nFormat('HH:mm, dd/MM/yyyy')
+            ];
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function addHistory()
+    {
+        $this->request->allowMethod('ajax');
+        $data = $this->request->getData();
+        $studentTable = TableRegistry::get('Students');
+
+        $history = $studentTable->Histories->newEntity();
+        $history = $studentTable->Histories->patchEntity($history, $data);
+        $history = $studentTable->Histories->setAuthor($history, $this->Auth->user('id'), 'add');
+
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $student = $studentTable->get($data['student_id']);
+            if ($studentTable->Histories->save($history)) {
+                $history = $studentTable->Histories->get($history->id, ['contain' => ['UsersCreatedBy', 'UsersModifiedBy']]);
+                $history->created = $history->created->i18nFormat('HH:mm, dd/MM/yyyy');
+                $now = Time::now()->i18nFormat('HH:mm, dd/MM/yyyy');
+                $resp = [
+                    'status' => 'success',
+                    'history' => $history,
+                    'now' => $now,
+                    'flash' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'icon' => 'fa fa-check-circle-o',
+                        'message' => Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $student->fullname
+                            ])
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function editHistory($id = null)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $historyTable = TableRegistry::get('Histories');
+            $studentTable = TableRegistry::get('Students');
+
+            $history = $historyTable->find()->where([
+                'created_by' => $this->Auth->user('id'), 
+                'id' => $id
+                ])->first();
+            if (!empty($history)) {
+                $data = $this->request->getData();
+                $student = $studentTable->get($data['student_id']);
+
+                $history = $historyTable->patchEntity($history, $data);
+                $history = $historyTable->setAuthor($history, $this->Auth->user('id'), 'edit');
+
+                if ($historyTable->save($history)) {
+                    $resp = [
+                        'status' => 'success',
+                        'flash' => [
+                            'title' => 'Thành Công',
+                            'type' => 'success',
+                            'icon' => 'fa fa-check-circle-o',
+                            'message' => Text::insert($this->successMessage['edit'], [
+                                'entity' => $this->entity, 
+                                'name' => $student->fullname
+                                ])
+                        ]
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function deleteHistory()
+    {
+        $this->request->allowMethod('ajax');
+        $id = $this->request->getData('id');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lối',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        $historyTable = TableRegistry::get('Histories');
+        
+        try {
+            $history = $historyTable->find()->contain(['Students'])->where(['Histories.id' => $id, 'Histories.created_by' => $this->Auth->user('id')])->first();
+            if (!empty($history) && $historyTable->delete($history)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'message' => Text::insert($this->successMessage['edit'], [
+                            'entity' => $this->entity, 
+                            'name' => $history->student->fullname
+                            ])
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        
         return $this->jsonResponse($resp);
     }
 
@@ -198,7 +429,7 @@ class JclassesController extends AppController
                     'entity' => $this->entity,
                     'name' => $jclass->name
                 ]));
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'edit', $jclass->id]);
             }
             $this->Flash->error($this->errorMessage['add']);
         }
@@ -217,7 +448,14 @@ class JclassesController extends AppController
     public function edit($id = null)
     {
         $jclass = $this->Jclasses->get($id, [
-            'contain' => ['Students', 'Jtests', 'Users']
+            'contain' => [
+                'Students', 
+                'Students.Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                },
+                'Students.Addresses.Cities',
+                'Jtests', 
+                'Users']
         ]);
         $className = $jclass->name;
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -320,6 +558,24 @@ class JclassesController extends AppController
         }
 
         return $this->jsonResponse($resp);
+    }
+
+    public function checkTest($id = null) {
+        $this->request->allowMethod('ajax');
+        $jclass = $this->Jclasses->get($id, [
+            'contain' => ['Jtests']
+        ]);
+        $haveTest = 'false'; 
+        $now = Time::now()->i18nFormat('yyyy-MM-dd');
+        if (!empty($jclass->jtests)) {
+            foreach ($jclass->jtests as $key => $value) {
+                if ($now <= $value->test_date) {
+                    $haveTest = 'true';
+                    break;
+                }
+            }
+        }
+        return $this->jsonResponse($haveTest);
     }
 
     public function changeClass() {

@@ -31,6 +31,8 @@ class OrdersController extends AppController
         $this->loadComponent('SystemEvent');
         $this->loadComponent('Util');
         $this->loadComponent('ExportFile');
+        $this->missingFields = '';
+        $this->studentError = '';
     }
 
     public function isAuthorized($user)
@@ -406,12 +408,7 @@ class OrdersController extends AppController
                 Log::write('debug', $query['weight']);
                 $candidates->where(['weight >=' => (float) $query['weight']]);
             }
-
-            if (isset($query['job']) && !empty($query['job'])) {
-                $candidates->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('expectation', '%,'.$query['job'].',%');
-                });
-            }
+            
             $candidates->where(['status <' => '3']);
             $now = Time::now();
             $candidates->formatResults(function ($results) use ($now) {
@@ -465,234 +462,254 @@ class OrdersController extends AppController
         $smokedrink = Configure::read('smokedrink');
 
         $query = $this->request->getQuery();
-        // load template
-        $template = WWW_ROOT . 'document' . DS . $cvTemplateConfig['template'];
-        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-        $student = $this->Orders->Students->get($query['studentId'], [
-            'contain' => [
-                'Addresses' => function($q) {
-                    return $q->where(['Addresses.type' => '1']);
-                },
-                'Addresses.Cities',
-                'Addresses.Districts',
-                'Addresses.Wards',
-                'Educations' => ['sort' => ['Educations.degree' => 'ASC']],
-                'Experiences',
-                'Experiences.Jobs',
-                'LanguageAbilities',
-                'Families',
-                'Families.Jobs',
-                'Jclasses'
-            ]
-        ]);
-        $studentName_VN = mb_strtoupper($student->fullname);
-        $studentName_EN = $this->Util->convertV2E($studentName_VN);
-        $studentName = explode(' ', $studentName_EN);
-        $studentFirstName = array_pop($studentName);
-        $output_file_name = Text::insert($cvTemplateConfig['filename'], [
-            'firstName' => $studentFirstName, 
+
+        try {
+            // load template
+            $template = WWW_ROOT . 'document' . DS . $cvTemplateConfig['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+            $student = $this->Orders->Students->get($query['studentId'], [
+                'contain' => [
+                    'Addresses' => function($q) {
+                        return $q->where(['Addresses.type' => '1']);
+                    },
+                    'Addresses.Cities',
+                    'Addresses.Districts',
+                    'Addresses.Wards',
+                    'Educations' => ['sort' => ['Educations.degree' => 'ASC']],
+                    'Experiences',
+                    'Experiences.Jobs',
+                    'LanguageAbilities',
+                    'Families',
+                    'Families.Jobs',
+                    'Jclasses'
+                ]
             ]);
-        $now = Time::now();
-        if (empty($student->fullname_kata)) {
-            $this->Flash->error(Text::insert($this->errorMessage['export'], [
-                'missingField' => 'Tên phiên âm',
-                'entity' => 'lao động',
-                'name' => $student->fullname
-                ]));
-            // Redirect to edit page if the user has edit permission
-            if ($this->Auth->user('role_id') == '1' || $userPermission->action == 0) {
-                return $this->redirect(['controller' => 'Students', 'action' => 'info', $student->id]);
+            $studentName_VN = mb_strtoupper($student->fullname);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
+            $studentName = explode(' ', $studentName_EN);
+            $studentFirstName = array_pop($studentName);
+            $output_file_name = Text::insert($cvTemplateConfig['filename'], [
+                'firstName' => $studentFirstName, 
+                ]);
+            $now = Time::now();
+            $fullname_kata = $this->checkData($student->fullname_kata, 'Tên phiên âm');
+
+            // address
+            $household = $student->addresses[0];
+            $address = "";
+            $currentCity = $household->city->name;
+            $cityType = $household->city->type;
+            if ($cityType == 'Thành phố Trung ương') {
+                $address .= $this->Util->convertV2E(str_replace("Thành phố", "", $currentCity)) . " 市 ";
+            } else {
+                $address .= $this->Util->convertV2E(str_replace($cityType, "", $currentCity)) . " 省 ";
             }
-            return $this->redirect(['action' => 'index']);
-        }
 
-        // address
-        $household = $student->addresses[0];
-        $address = "";
-        $currentCity = $household->city->name;
-        $cityType = $household->city->type;
-        if ($cityType == 'Thành phố Trung ương') {
-            $address .= $this->Util->convertV2E(str_replace("Thành phố", "", $currentCity)) . " 市 ";
-        } else {
-            $address .= $this->Util->convertV2E(str_replace($cityType, "", $currentCity)) . " 省 ";
-        }
+            $currentDistrict = $household->district->name;
+            $districtType = $household->district->type;
+            $address .= $this->Util->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['jp']) . " ";
 
-        $currentDistrict = $household->district->name;
-        $districtType = $household->district->type;
-        $address .= $this->Util->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['jp']) . " ";
+            $currentWard = $household->ward->name;
+            $wardType = $household->ward->type;
+            $address .= $this->Util->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['jp']) . " ";
 
-        $currentWard = $household->ward->name;
-        $wardType = $household->ward->type;
-        $address .= $this->Util->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['jp']) . " ";
+            $cityCode = (int) $household->city->id;
+            if ($cityCode <= 37) {
+                $address .= "(北部)"; // north
+            } else if ($cityCode <= 69) {
+                $address .= "(中部)"; // middle
+            } else {
+                $address .= "(南部)"; // south
+            }
 
-        $cityCode = (int) $household->city->id;
-        if ($cityCode <= 37) {
-            $address .= "(北部)"; // north
-        } else if ($cityCode <= 69) {
-            $address .= "(中部)"; // middle
-        } else {
-            $address .= "(南部)"; // south
-        }
-
-        $eduHis = [];
-        $certificate = [];
-        if (empty($student->educations)) {
-            $history = [
-                'year' => "",
-                'month' => "",
-                'schoolName' => "",
-                'schoolJP' => "",
-            ];
-            array_push($eduHis, $history);
-        } else {
-            $maxLen = 0;
-            foreach ($student->educations as $key => $value) {
-                $newLen = strlen($value->school);
-                if ($newLen > $maxLen) {
-                    $maxLen = $newLen;
-                }
-                $fromDate = new Time($value->from_date);
-                $toDate = new Time($value->to_date);
-                $specialized = $value->specialized ? '（' . $value->specialized . '）' : ''; 
+            $eduHis = [];
+            $certificate = [];
+            if (empty($student->educations)) {
                 $history = [
-                    'year' => $fromDate->year . " ～ " . $toDate->year,
-                    'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
-                    'schoolName' => $this->Util->convertV2E($value->school),
-                    'schoolJP' => $eduLevel[$value->degree]['jp'] . "校卒業" . $specialized,
+                    'year' => "",
+                    'month' => "",
+                    'schoolName' => "",
+                    'schoolJP' => "",
                 ];
+                $this->checkData('', 'Quá trình học tập');
                 array_push($eduHis, $history);
+            } else {
+                $maxLen = 0;
+                foreach ($student->educations as $key => $value) {
+                    $newLen = strlen($value->school);
+                    if ($newLen > $maxLen) {
+                        $maxLen = $newLen;
+                    }
+                    $fromDate = new Time($value->from_date);
+                    $toDate = new Time($value->to_date);
+                    $specialized = $value->specialized ? '（' . $value->specialized . '）' : ''; 
+                    $history = [
+                        'year' => $fromDate->year . " ～ " . $toDate->year,
+                        'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
+                        'schoolName' => $this->Util->convertV2E($value->school),
+                        'schoolJP' => $eduLevel[$value->degree]['jp'] . "校卒業" . $specialized,
+                    ];
+                    array_push($eduHis, $history);
 
-                // certificate
-                if (!empty($value->certificate)) {
-                    $certificate = [];
-                    $certificateDate = new Time($value->certificate);
+                    // certificate
+                    if (!empty($value->certificate)) {
+                        $certificate = [];
+                        $certificateDate = new Time($value->certificate);
+                        $data = [
+                            'year' => $certificateDate->year,
+                            'month' => str_pad($certificateDate->month, 2, '0', STR_PAD_LEFT),
+                            'certificate' => $eduLevel[$value->degree]['jp'] . "校卒業証明書"
+                        ];
+                        array_push($certificate, $data);
+                    }
+                }
+
+                foreach ($eduHis as $key => $value) {
+                    $currentLen = strlen($value['schoolName']);
+                    $currentName = $value['schoolName'];
+                    if ($currentLen < $maxLen) {
+                        $padding = ($maxLen-$currentLen)*2 +1 + 14;
+                        $newName = $currentName . str_repeat(" " , $padding);
+                    } else {
+                        $newName = $currentName . str_repeat(" " , 14);;
+                    }
+                    $eduHis[$key]['schoolName'] = $newName . $value['schoolJP'];
+                }
+            }
+            $this->tbs->MergeBlock('a', $eduHis);
+
+            $expHis = [];
+            if (empty($student->experiences)) {
+                $history = [
+                    'year' => "",
+                    'month' => "",
+                    'company' => "",
+                ];
+                $this->checkData('', 'Kinh nghiệm làm việc');
+                array_push($expHis, $history);
+            } else {
+                foreach ($student->experiences as $key => $value) {
+                    $fromDate = new Time($value->from_date);
+                    $toDate = new Time($value->to_date);
+                    $history = [
+                        'year' => $fromDate->year . " ～ " . $toDate->year,
+                        'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
+                        'company' => $value->company . '（' . $value->job->job_name_jp . '）'  ,
+                    ];
+                    array_push($expHis, $history);
+                }
+            }
+            $this->tbs->MergeBlock('b', $expHis);
+
+            if (!empty($student->language_abilities)) {
+                foreach ($student->language_abilities as $key => $value) {
+                    $fromDate = new Time($value->from_date);
                     $data = [
-                        'year' => $certificateDate->year,
-                        'month' => str_pad($certificateDate->month, 2, '0', STR_PAD_LEFT),
-                        'certificate' => $eduLevel[$value->degree]['jp'] . "校卒業証明書"
+                        'year' => $fromDate->year,
+                        'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT),
+                        'certificate' => $value->certificate
                     ];
                     array_push($certificate, $data);
                 }
             }
-
-            foreach ($eduHis as $key => $value) {
-                $currentLen = strlen($value['schoolName']);
-                $currentName = $value['schoolName'];
-                if ($currentLen < $maxLen) {
-                    $padding = ($maxLen-$currentLen)*2 +1 + 14;
-                    $newName = $currentName . str_repeat(" " , $padding);
-                } else {
-                    $newName = $currentName . str_repeat(" " , 14);;
-                }
-                $eduHis[$key]['schoolName'] = $newName . $value['schoolJP'];
-            }
-        }
-        $this->tbs->MergeBlock('a', $eduHis);
-
-        $expHis = [];
-        if (empty($student->experiences)) {
-            $history = [
-                'year' => "",
-                'month' => "",
-                'company' => "",
-            ];
-            array_push($expHis, $history);
-        } else {
-            foreach ($student->experiences as $key => $value) {
-                $fromDate = new Time($value->from_date);
-                $toDate = new Time($value->to_date);
-                $history = [
-                    'year' => $fromDate->year . " ～ " . $toDate->year,
-                    'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
-                    'company' => $value->company . '（' . $value->job->job_name_jp . '）'  ,
-                ];
-                array_push($expHis, $history);
-            }
-        }
-        $this->tbs->MergeBlock('b', $expHis);
-
-        if (!empty($student->language_abilities)) {
-            foreach ($student->language_abilities as $key => $value) {
-                $fromDate = new Time($value->from_date);
-                $data = [
-                    'year' => $fromDate->year,
-                    'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT),
-                    'certificate' => $value->certificate
-                ];
-                array_push($certificate, $data);
-            }
-        }
-        
-        $this->tbs->MergeBlock('c', $certificate);
-
-        $families = [];
-        $memberInJP = false;
-        $memberInJPRel = '';
-        for ($i=0; $i <= 3; $i++) { 
-            $member = [
-                'name' => "",
-                'relationship' => "",
-                'age' => "",
-                'job' => "",
-            ];
-            if (!empty($student->families) && !empty($student->families[$i])) {
-                $value = $student->families[$i];
-                $member = [
-                    'name' => $this->Util->convertV2E($value->fullname),
-                    'relationship' => $relationship[$value->relationship]['jp'],
-                    'age' => ($now->diff($value->birthday))->y,
-                    'job' => $value->job->job_name_jp,
-                ];
-
-                if ($value->living_at == '02') {
-                    $memberInJP = true;
-                    $memberInJPRel = $relationship[$value->relationship]['jp'];
-                }
-            }
             
-            array_push($families, $member);
-        }
-        $studyTime = ($now->diff($student->enrolled_date))->m;
-        $families[0]['additional'] = $cvTemplateConfig['familyAdditional'][0] . "            ：" . $memberInJPRel;
-        $families[1]['additional'] = $cvTemplateConfig['familyAdditional'][1] . "    ：みんなの日本語";
-        $families[2]['additional'] = $cvTemplateConfig['familyAdditional'][2] . "    ：" . $studyTime . "ヶ月";
-        $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . ($student->jclasses ? $student->jclasses[0]->current_lesson : '0') . "課";
-        
-        $this->tbs->MergeBlock('d', $families);
+            $this->tbs->MergeBlock('c', $certificate);
 
-        $this->tbs->VarRef['serial'] = $query['serial'];
-        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日');
-        $this->tbs->VarRef['studentNameJP'] = $student->fullname_kata;
-        $this->tbs->VarRef['studentNameEN'] = $studentName_EN;
-        $this->tbs->VarRef['birthday'] = $student->birthday;
-        $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
-        $this->tbs->VarRef['gender'] = $genderJP[$student->gender];
-        $this->tbs->VarRef['address'] = $address;
-        $this->tbs->VarRef['livedJP'] = $yesNoJP[$student->is_lived_in_japan];
+            $families = [];
+            $memberInJP = false;
+            $memberInJPRel = '';
+            if (empty($student->families)) {
+                $this->checkData('', 'Quan hệ gia đình');
+            }
+            for ($i=0; $i <= 3; $i++) { 
+                $member = [
+                    'name' => "",
+                    'relationship' => "",
+                    'age' => "",
+                    'job' => "",
+                ];
+                if (!empty($student->families) && !empty($student->families[$i])) {
+                    $value = $student->families[$i];
+                    $member = [
+                        'name' => $this->Util->convertV2E($value->fullname),
+                        'relationship' => $relationship[$value->relationship]['jp'],
+                        'age' => $value->birthday ? ($now->diff($value->birthday))->y : 'N/A',
+                        'job' => $value->job->job_name_jp,
+                    ];
 
-        $avatar = $student->image ?? 'students/no_img.png';
-        $this->tbs->VarRef['avatar'] = ROOT . DS . 'webroot' . DS . 'img' . DS . $avatar;
-        $this->tbs->VarRef['livingJP'] = "在日親戚    ：" . ($memberInJP == true ? "有" : "無");
-        $this->tbs->VarRef['strength'] = $student->strength ?? '';
-        $this->tbs->VarRef['purpose'] = $student->purpose ?? '';
-        $this->tbs->VarRef['genitive'] = $student->genitive ?? '';
-        $this->tbs->VarRef['salary'] = $student->salary ?? '';
-        $this->tbs->VarRef['saving'] = $student->saving_expected ?? '';
-        $this->tbs->VarRef['maritalStatus'] = $maritalStatus[$student->marital_status]['jp'];
-        $this->tbs->VarRef['after_plan'] = $student->after_plan ?? '';
-        $this->tbs->VarRef['reh'] = $student->right_eye_sight_hospital ?? '';
-        $this->tbs->VarRef['leh'] = $student->left_eye_sight_hospital ?? '';
-        $this->tbs->VarRef['re'] = $student->right_eye_sight;
-        $this->tbs->VarRef['le'] = $student->left_eye_sight;
-        $this->tbs->VarRef['height'] = $student->height;
-        $this->tbs->VarRef['weight'] = $student->weight;
-        $this->tbs->VarRef['preferred_hand'] = $student->preferred_hand  == "1" ? "右" : "左";
-        $this->tbs->VarRef['color_blind'] = empty($student->color_blind) ? '' : $yesNoJP[$student->color_blind];
-        $this->tbs->VarRef['smoke'] = empty($student->smoke) ? '' : $smokedrink[$student->smoke]['jp'];
-        $this->tbs->VarRef['drink'] = empty($student->drink) ? '' : $smokedrink[$student->drink]['jp'];
+                    if ($value->living_at == '02') {
+                        $memberInJP = true;
+                        $memberInJPRel = $relationship[$value->relationship]['jp'];
+                    }
+                }
+                
+                array_push($families, $member);
+            }
+            $studyTime = ($now->diff($student->enrolled_date))->m;
+            $families[0]['additional'] = $cvTemplateConfig['familyAdditional'][0] . "            ：" . $memberInJPRel;
+            $families[1]['additional'] = $cvTemplateConfig['familyAdditional'][1] . "    ：みんなの日本語";
+            $families[2]['additional'] = $cvTemplateConfig['familyAdditional'][2] . "    ：" . $studyTime . "ヶ月";
+            $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . ($student->jclasses ? $student->jclasses[0]->current_lesson : '0') . "課";
+            
+            $this->tbs->MergeBlock('d', $families);
 
-        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
-        exit();
+            $this->tbs->VarRef['serial'] = $query['serial'];
+            $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日');
+            $this->tbs->VarRef['studentNameJP'] = $fullname_kata;
+            $this->tbs->VarRef['studentNameEN'] = $studentName_EN;
+            $this->tbs->VarRef['birthday'] = $student->birthday;
+            $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
+            $this->tbs->VarRef['gender'] = $genderJP[$student->gender];
+            $this->tbs->VarRef['address'] = $address;
+            $this->tbs->VarRef['livedJP'] = $yesNoJP[$student->is_lived_in_japan];
+
+            $avatar = $student->image ?? 'students/no_img.png';
+            $this->tbs->VarRef['avatar'] = ROOT . DS . 'webroot' . DS . 'img' . DS . $avatar;
+            $this->tbs->VarRef['livingJP'] = "在日親戚    ：" . ($memberInJP == true ? "有" : "無");
+            $this->tbs->VarRef['strength'] = $this->checkData($student->strength, 'Điểm mạnh');
+            $this->tbs->VarRef['purpose'] = $this->checkData($student->purpose, 'Mục đích xuất khẩu lao động');
+            $this->tbs->VarRef['genitive'] = $this->checkData($student->genitive, 'Tính cách');
+            $this->tbs->VarRef['salary'] = $this->checkData($student->salary, 'Thu nhập hiện tại');
+            $this->tbs->VarRef['saving'] = $this->checkData($student->saving_expected, 'Số tiền mong muốn');
+            $this->tbs->VarRef['maritalStatus'] = $maritalStatus[$student->marital_status]['jp'];
+            $this->tbs->VarRef['after_plan'] = $this->checkData($student->after_plan, 'Dự định sau khi về nước');
+            $this->tbs->VarRef['reh'] = $this->checkData($student->right_eye_sight_hospital, 'Thị lực mắt phải đo tại bệnh viện');
+            $this->tbs->VarRef['leh'] = $this->checkData($student->left_eye_sight_hospital, 'Thị lực mắt trái đo tại bệnh viện');
+            $this->tbs->VarRef['re'] = $this->checkData($student->right_eye_sight, 'Thị lực mắt phải');
+            $this->tbs->VarRef['le'] = $this->checkData($student->left_eye_sight, 'Thị lực mắt trái');
+            $this->tbs->VarRef['height'] = $student->height;
+            $this->tbs->VarRef['weight'] = $student->weight;
+
+            $preferred_hand = $this->checkData($student->preferred_hand, 'Tay thuận');
+            $this->tbs->VarRef['preferred_hand'] = $preferred_hand  == "1" ? "右" : "左";
+            
+            $this->checkData($student->color_blind, 'Mù màu');
+            $this->tbs->VarRef['color_blind'] = empty($student->color_blind) ? '' : $yesNoJP[$student->color_blind];
+
+            $this->checkData($student->smoke, 'Hút thuốc');
+            $this->tbs->VarRef['smoke'] = empty($student->smoke) ? '' : $smokedrink[$student->smoke]['jp'];
+
+            $this->checkData($student->drink, 'Uống rượu');
+            $this->tbs->VarRef['drink'] = empty($student->drink) ? '' : $smokedrink[$student->drink]['jp'];
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit();
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }  
     }
 
     public function exportDispatchLetter($id = null)
@@ -712,92 +729,109 @@ class OrdersController extends AppController
                 }
             ]
         ]);
-        $template = WWW_ROOT . 'document' . DS . $dispatchLetterConfig['template'];
-        $guildJP = $order->company->guild->name_kanji;
-        $guildVN = $order->company->guild->name_romaji;
 
-        // check data exists - sample
-        $guildLicenseNum = $order->company->guild->license_number;
-        if (empty($guildLicenseNum)) {
-            $this->Flash->error(Text::insert($this->errorMessage['export'], [
-                'missingField' => 'Số giấy phép',
-                'entity' => 'Nghiệp đoàn',
-                'name' => $guildVN
-                ]), ['escape' => false]);
+        try {
+            $template = WWW_ROOT . 'document' . DS . $dispatchLetterConfig['template'];
+            $missingFields = [];
+            $guildJP = $this->checkData($order->company->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+            $guildVN = $this->checkData($order->company->guild->name_romaji, 'Tên nghiệp đoàn');
+
+            $guildLicenseNum = $this->checkData($order->company->guild->license_number, 'Số giấy phép của nghiệp đoàn');
+
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $guildDeputyJP = $this->checkData($order->company->guild->deputy_name_kanji, 'Tên phiên âm người đại diện nghiệp đoàn');
+            $guildDeputyVN = $order->company->guild->deputy_name_romaji;
+
+            $guildAddressJP = $this->checkData($order->company->guild->address_kanji, 'Địa chỉ phiên âm của nghiệp đoàn');
+            $guildAddressVN = $order->company->guild->address_romaji;
+
+            $guildPhone = $order->company->guild->phone_jp;
+
+            $this->tbs->VarRef['guildJP'] = $guildJP;
+            $this->tbs->VarRef['guildVN'] = $guildVN;
+            $this->tbs->VarRef['licenseNum'] = $guildLicenseNum;
+            $this->tbs->VarRef['guildDeputyJP'] = $guildDeputyJP;
+            $this->tbs->VarRef['guildDeputyVN'] = $guildDeputyVN;
+            $this->tbs->VarRef['guildAddressJP'] = $guildAddressJP;
+            $this->tbs->VarRef['guildAddressVN'] = $guildAddressVN;
+            $this->tbs->VarRef['guildPhone'] = $guildPhone;
+
+            $companyJP = $this->checkData($order->company->name_kanji, 'Tên phiên âm của công ty tiếp nhận');
+            $companyVN = $order->company->name_romaji;
+
+            $companyDeputyJP = $this->checkData($order->company->deputy_name_kanji, 'Tên phiên âm người đại diện công ty tiếp nhận');
+            $companyDeputyVN = $order->company->deputy_name_romaji;
+
+            $companyAddressJP = $this->checkData($order->company->address_kanji, 'Địa chỉ phiên âm của công ty tiếp nhận');
+            $companyAddressVN = $order->company->address_romaji;
+
+            $companyPhone = $order->company->phone_jp;
+
+            $this->tbs->VarRef['companyJP'] = $companyJP;
+            $this->tbs->VarRef['companyVN'] = $companyVN;
+            $this->tbs->VarRef['companyDeputyJP'] = $companyDeputyJP;
+            $this->tbs->VarRef['companyDeputyVN'] = $companyDeputyVN;
+            $this->tbs->VarRef['companyAddressJP'] = $companyAddressJP;
+            $this->tbs->VarRef['companyAddressVN'] = $companyAddressVN;
+            $this->tbs->VarRef['companyPhone'] = $companyPhone;
+
+            $this->tbs->VarRef['worktime'] = $order->work_time;
+            $listJP = $listVN = [];
+            foreach ($order->students as $key => $student) {
+                $studentName_VN = mb_strtoupper($student->fullname);
+                $studentName_EN = $this->Util->convertV2E($studentName_VN);
+                $departureDate = strtotime($order->departure_date);
+
+                $studentJP = [
+                    'no' => $key + 1,
+                    'studentName' => $studentName_EN,
+                    'birthday' => $student->birthday->i18nFormat('yyyy年MM月dd日'),
+                    'gender' => $genderJP[$student->gender],
+                    'job' => $order->job->job_name_jp,
+                    'departureDate' => date('Y年m月', $departureDate)
+                ];
+                $studentVN = [
+                    'no' => $key + 1,
+                    'studentName' => $studentName_VN,
+                    'birthday' => $student->birthday->i18nFormat('yyyy年MM月dd日'),
+                    'gender' => $gender[$student->gender],
+                    'job' => $order->job->job_name,
+                    'departureDate' => date('m/Y', $departureDate)
+                ];
+                array_push($listJP, $studentJP);
+                array_push($listVN, $studentVN);
+            }
+            $this->tbs->MergeBlock('a', $listJP);
+            $this->tbs->MergeBlock('b', $listVN);
+
+            $vnDateFormatShort = Configure::read('vnDateFormatShort');
+            $createdDayJP = Time::now()->i18nFormat('yyyy年MM月dd日');
+            $createdDayVN =  Text::insert($vnDateFormatShort, [
+                'day' => date('d'), 
+                'month' => date('m'), 
+                'year' => date('Y'), 
+                ]);
+            $this->tbs->VarRef['createdDayJP'] = $createdDayJP;
+            $this->tbs->VarRef['createdDayVN'] = $createdDayVN;
+            
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
             return $this->redirect(['action' => 'index']);
         }
-        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-
-        $guildDeputyJP = $order->company->guild->deputy_name_kanji;
-        $guildDeputyVN = $order->company->guild->deputy_name_romaji;
-        $guildAddressJP = $order->company->guild->address_kanji;
-        $guildAddressVN = $order->company->guild->address_romaji;
-        $guildPhone = $order->company->guild->phone_jp;
-        $this->tbs->VarRef['guildJP'] = $guildJP;
-        $this->tbs->VarRef['guildVN'] = $guildVN;
-        $this->tbs->VarRef['licenseNum'] = $guildLicenseNum;
-        $this->tbs->VarRef['guildDeputyJP'] = $guildDeputyJP;
-        $this->tbs->VarRef['guildDeputyVN'] = $guildDeputyVN;
-        $this->tbs->VarRef['guildAddressJP'] = $guildAddressJP;
-        $this->tbs->VarRef['guildAddressVN'] = $guildAddressVN;
-        $this->tbs->VarRef['guildPhone'] = $guildPhone;
-
-        $companyJP = $order->company->name_kanji;
-        $companyVN = $order->company->name_romaji;
-        $companyDeputyJP = $order->company->deputy_name_kanji;
-        $companyDeputyVN = $order->company->deputy_name_romaji;
-        $companyAddressJP = $order->company->address_kanji;
-        $companyAddressVN = $order->company->address_romaji;
-        $companyPhone = $order->company->phone_jp;
-        $this->tbs->VarRef['companyJP'] = $companyJP;
-        $this->tbs->VarRef['companyVN'] = $companyVN;
-        $this->tbs->VarRef['companyDeputyJP'] = $companyDeputyJP;
-        $this->tbs->VarRef['companyDeputyVN'] = $companyDeputyVN;
-        $this->tbs->VarRef['companyAddressJP'] = $companyAddressJP;
-        $this->tbs->VarRef['companyAddressVN'] = $companyAddressVN;
-        $this->tbs->VarRef['companyPhone'] = $companyPhone;
-
-        $this->tbs->VarRef['worktime'] = $order->work_time;
-        $listJP = $listVN = [];
-        foreach ($order->students as $key => $student) {
-            $studentName_VN = mb_strtoupper($student->fullname);
-            $studentName_EN = $this->Util->convertV2E($studentName_VN);
-            $departureDate = strtotime($order->departure_date);
-
-            $studentJP = [
-                'no' => $key + 1,
-                'studentName' => $studentName_EN,
-                'birthday' => $student->birthday->i18nFormat('yyyy年MM月dd日'),
-                'gender' => $genderJP[$student->gender],
-                'job' => $order->job->job_name_jp,
-                'departureDate' => date('Y年m月', $departureDate)
-            ];
-            $studentVN = [
-                'no' => $key + 1,
-                'studentName' => $studentName_VN,
-                'birthday' => $student->birthday->i18nFormat('yyyy年MM月dd日'),
-                'gender' => $gender[$student->gender],
-                'job' => $order->job->job_name,
-                'departureDate' => date('m/Y', $departureDate)
-            ];
-            array_push($listJP, $studentJP);
-            array_push($listVN, $studentVN);
-        }
-        $this->tbs->MergeBlock('a', $listJP);
-        $this->tbs->MergeBlock('b', $listVN);
-
-        $vnDateFormatShort = Configure::read('vnDateFormatShort');
-        $createdDayJP = Time::now()->i18nFormat('yyyy年MM月dd日');
-        $createdDayVN =  Text::insert($vnDateFormatShort, [
-            'day' => date('d'), 
-            'month' => date('m'), 
-            'year' => date('Y'), 
-            ]);
-        $this->tbs->VarRef['createdDayJP'] = $createdDayJP;
-        $this->tbs->VarRef['createdDayVN'] = $createdDayVN;
-        
-        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
-        exit;
     }
 
     public function exportDispatchLetterXlsx($id = null)
@@ -805,174 +839,182 @@ class OrdersController extends AppController
         // load config
         $dispatchLetterXlsx = Configure::read('dispatchLetterXlsx');
         $cityJP = Configure::read('cityJP');
-        // get data
-        $order = $this->Orders->get($id, [
-            'contain' => [
-                'Students',
-                'Students.Addresses' => function($q) {
-                    return $q->where(['Addresses.type' => '1']);
-                },
-                'Students.Addresses.Cities',
-                'Students.Addresses.Districts',
-                'Students.Addresses.Wards',
-                'Jobs',
-                'Companies',
-                'Companies.Guilds'
-            ]
-        ]);
-        // init worksheet
-        $spreadsheet = $this->ExportFile->setXlsxProperties();
-        $spreadsheet->setActiveSheetIndex(0);
-        $spreadsheet->getActiveSheet()->getSheetView()->setZoomScale(85);
-        $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
-        $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
 
-        $spreadsheet->getActiveSheet()->setShowGridLines(false);
-        $spreadsheet->getActiveSheet()->setCellValue('A1', 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)');
-        $spreadsheet->getActiveSheet()->getStyle('A1:A1')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 12,
-            ],
-        ]);
-
-        $spreadsheet->getActiveSheet()->getRowDimension('3')->setRowHeight(30);
-        $spreadsheet->getActiveSheet()->mergeCells('A3:M3');
-        $spreadsheet->getActiveSheet()->setCellValue('A3', 'ĐỀ NGHỊ CẤP THƯ PHÁI CỬ');
-        $spreadsheet->getActiveSheet()->getStyle('A3:A3')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 16,
-            ],
-            'alignment' => [
-                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => Style\Alignment::VERTICAL_CENTER,
-            ],
-        ]);
-
-        $spreadsheet->getActiveSheet()->mergeCells('A4:M4');
-        $spreadsheet->getActiveSheet()->setCellValue('A4', '(Kiêm biên bản giao nhận giấy tờ)');
-        $spreadsheet->getActiveSheet()->getStyle('A4:A4')->applyFromArray([
-            'font' => [
-                'bold' => true,
-                'size' => 12,
-            ],
-            'alignment' => [
-                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => Style\Alignment::VERTICAL_CENTER,
-            ],
-        ]);
-        $richText = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
-        $dear = $richText->createTextRun('Kính gửi:');
-        $dear->getFont()->setBold(true)->setItalic(true)->setUnderline(true);
-        $richText->createText(' Công ty CP XNK tổng hợp và CGCN Việt Nam');
-        $spreadsheet->getActiveSheet()->setCellValue('A5', $richText);
-        $spreadsheet->getActiveSheet()->setCellValue('A6', 'Chi nhánh TP HCM xin đề nghị cấp thư phái cử cho các Tu nghiệp sinh Nhật bản theo danh sách sau:');
-        
-        $spreadsheet->getActiveSheet()
-            ->mergeCells('A8:A9')->setCellValue('A8', 'STT')
-            ->mergeCells('B8:B9')->setCellValue('B8', 'Họ và tên')
-            ->mergeCells('C8:C9')->setCellValue('C8', 'Ngày sinh')
-            ->mergeCells('D8:E8')->setCellValue('D8', 'Giới tính')->setCellValue('D9', 'Nam')->setCellValue('E9', 'Nữ')
-            ->mergeCells('F8:H8')->setCellValue('F8', 'Quê quán')->setCellValue('F9', 'Xã')->setCellValue('G9', 'Huyện')->setCellValue('H9', 'Tỉnh,TP')
-            ->mergeCells('I8:I9')->setCellValue('I8', 'Thời hạn HĐ')
-            ->mergeCells('J8:J9')->setCellValue('J8', 'Nơi làm việc')
-            ->mergeCells('K8:K9')->setCellValue('K8', 'Ngành nghề')
-            ->mergeCells('L8:L9')->setCellValue('L8', 'Nghiệp đoàn')
-            ->mergeCells('M8:M9')->setCellValue('M8', 'Ghi chú');
-        
-        $spreadsheet->getActiveSheet()->getStyle('I8')->getAlignment()->setWrapText(true);
-        $spreadsheet->getActiveSheet()->getRowDimension('8')->setRowHeight(34);
-        $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(5);
-        $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(32);
-        $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(12);
-        $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(5);
-        $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(5);
-        $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(20);
-        $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(20);
-        $spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(20);
-        $spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(6);
-        $spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(12);
-        $spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(20);
-        $spreadsheet->getActiveSheet()->getColumnDimension('L')->setWidth(26);
-        $spreadsheet->getActiveSheet()->getColumnDimension('M')->setWidth(10);
-
-        $listWorkers = [];
-        $counter = 9;
-        foreach ($order->students as $key => $student) {
-            $counter++;
-            $spreadsheet->getActiveSheet()->getRowDimension((string)$counter)->setRowHeight(54);
-            if ($student->gender == 'M') {
-                $male = 'x';
-                $female = '';
-            } else {
-                $male = '';
-                $female = 'x';
-            }
-            $ward = trim(str_replace($student->addresses[0]->ward->type, "", $student->addresses[0]->ward->name));
-            $district = trim(str_replace($student->addresses[0]->district->type, "", $student->addresses[0]->district->name));
-            if ($student->addresses[0]->city->type == "Tỉnh") {
-                $city = trim(str_replace($student->addresses[0]->city->type, "", $student->addresses[0]->city->name));
-            } else {
-                $city = trim(str_replace("Thành phố", "", $student->addresses[0]->city->name));
-            }
-            $data = [
-                $key+1,
-                mb_strtoupper($student->fullname),
-                $student->birthday->i18nFormat('dd/MM/yyyy'),
-                $male,
-                $female,
-                mb_strtoupper($ward),
-                mb_strtoupper($district),
-                mb_strtoupper($city),
-                str_pad($order->work_time, 2, '0', STR_PAD_LEFT),
-                mb_strtoupper($cityJP[$order->work_at]['rmj']),
-                mb_strtoupper($order->job->job_name),
-                mb_strtoupper($order->company->guild->name_romaji),
-            ];
-            array_push($listWorkers, $data);
-        }
-        // fill data to table
-        $spreadsheet->getActiveSheet()->fromArray($listWorkers, NULL, 'A10');
-        $spreadsheet->getActiveSheet()->getStyle('A8:M'. $counter)->getAlignment()->setWrapText(true);
-        $spreadsheet->getActiveSheet()->getStyle('A8:M'.$counter)->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Style\Border::BORDER_THIN,
+        try {
+            // get data
+            $order = $this->Orders->get($id, [
+                'contain' => [
+                    'Students',
+                    'Students.Addresses' => function($q) {
+                        return $q->where(['Addresses.type' => '1']);
+                    },
+                    'Students.Addresses.Cities',
+                    'Students.Addresses.Districts',
+                    'Students.Addresses.Wards',
+                    'Jobs',
+                    'Companies',
+                    'Companies.Guilds'
                 ]
-            ],
-            'alignment' => [
-                'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => Style\Alignment::VERTICAL_CENTER,
-            ],
-        ]);
-        $spreadsheet->getActiveSheet()->getStyle('A8:M9')->applyFromArray([
-            'font' => [
-                'bold' => true,
-            ],
-        ]);
-        $spreadsheet->getActiveSheet()->getStyle('A10:A'.$counter)->applyFromArray([
-            'font' => [
-                'bold' => true,
-            ],
-        ]);
+            ]);
+            // init worksheet
+            $spreadsheet = $this->ExportFile->setXlsxProperties();
+            $spreadsheet->setActiveSheetIndex(0);
+            $spreadsheet->getActiveSheet()->getSheetView()->setZoomScale(85);
+            $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
+            $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
+
+            $spreadsheet->getActiveSheet()->setShowGridLines(false);
+            $spreadsheet->getActiveSheet()->setCellValue('A1', 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)');
+            $spreadsheet->getActiveSheet()->getStyle('A1:A1')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+
+            $spreadsheet->getActiveSheet()->getRowDimension('3')->setRowHeight(30);
+            $spreadsheet->getActiveSheet()->mergeCells('A3:M3');
+            $spreadsheet->getActiveSheet()->setCellValue('A3', 'ĐỀ NGHỊ CẤP THƯ PHÁI CỬ');
+            $spreadsheet->getActiveSheet()->getStyle('A3:A3')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 16,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            $spreadsheet->getActiveSheet()->mergeCells('A4:M4');
+            $spreadsheet->getActiveSheet()->setCellValue('A4', '(Kiêm biên bản giao nhận giấy tờ)');
+            $spreadsheet->getActiveSheet()->getStyle('A4:A4')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $richText = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+            $dear = $richText->createTextRun('Kính gửi:');
+            $dear->getFont()->setBold(true)->setItalic(true)->setUnderline(true);
+            $richText->createText(' Công ty CP XNK tổng hợp và CGCN Việt Nam');
+            $spreadsheet->getActiveSheet()->setCellValue('A5', $richText);
+            $spreadsheet->getActiveSheet()->setCellValue('A6', 'Chi nhánh TP HCM xin đề nghị cấp thư phái cử cho các Tu nghiệp sinh Nhật bản theo danh sách sau:');
+            
+            $spreadsheet->getActiveSheet()
+                ->mergeCells('A8:A9')->setCellValue('A8', 'STT')
+                ->mergeCells('B8:B9')->setCellValue('B8', 'Họ và tên')
+                ->mergeCells('C8:C9')->setCellValue('C8', 'Ngày sinh')
+                ->mergeCells('D8:E8')->setCellValue('D8', 'Giới tính')->setCellValue('D9', 'Nam')->setCellValue('E9', 'Nữ')
+                ->mergeCells('F8:H8')->setCellValue('F8', 'Quê quán')->setCellValue('F9', 'Xã')->setCellValue('G9', 'Huyện')->setCellValue('H9', 'Tỉnh,TP')
+                ->mergeCells('I8:I9')->setCellValue('I8', 'Thời hạn HĐ')
+                ->mergeCells('J8:J9')->setCellValue('J8', 'Nơi làm việc')
+                ->mergeCells('K8:K9')->setCellValue('K8', 'Ngành nghề')
+                ->mergeCells('L8:L9')->setCellValue('L8', 'Nghiệp đoàn')
+                ->mergeCells('M8:M9')->setCellValue('M8', 'Ghi chú');
+            
+            $spreadsheet->getActiveSheet()->getStyle('I8')->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getRowDimension('8')->setRowHeight(34);
+            $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(5);
+            $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(32);
+            $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(12);
+            $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(5);
+            $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(5);
+            $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(6);
+            $spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(12);
+            $spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('L')->setWidth(26);
+            $spreadsheet->getActiveSheet()->getColumnDimension('M')->setWidth(10);
+
+            $listWorkers = [];
+            $counter = 9;
+            foreach ($order->students as $key => $student) {
+                $counter++;
+                $spreadsheet->getActiveSheet()->getRowDimension((string)$counter)->setRowHeight(54);
+                if ($student->gender == 'M') {
+                    $male = 'x';
+                    $female = '';
+                } else {
+                    $male = '';
+                    $female = 'x';
+                }
+                $ward = trim(str_replace($student->addresses[0]->ward->type, "", $student->addresses[0]->ward->name));
+                $district = trim(str_replace($student->addresses[0]->district->type, "", $student->addresses[0]->district->name));
+                if ($student->addresses[0]->city->type == "Tỉnh") {
+                    $city = trim(str_replace($student->addresses[0]->city->type, "", $student->addresses[0]->city->name));
+                } else {
+                    $city = trim(str_replace("Thành phố", "", $student->addresses[0]->city->name));
+                }
+                $data = [
+                    $key+1,
+                    mb_strtoupper($student->fullname),
+                    $student->birthday->i18nFormat('dd/MM/yyyy'),
+                    $male,
+                    $female,
+                    mb_strtoupper($ward),
+                    mb_strtoupper($district),
+                    mb_strtoupper($city),
+                    str_pad($order->work_time, 2, '0', STR_PAD_LEFT),
+                    mb_strtoupper($cityJP[$order->work_at]['rmj']),
+                    mb_strtoupper($order->job->job_name),
+                    mb_strtoupper($order->company->guild->name_romaji),
+                ];
+                array_push($listWorkers, $data);
+            }
+            // fill data to table
+            $spreadsheet->getActiveSheet()->fromArray($listWorkers, NULL, 'A10');
+            $spreadsheet->getActiveSheet()->getStyle('A8:M'. $counter)->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('A8:M'.$counter)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Style\Border::BORDER_THIN,
+                    ]
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A8:M9')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A10:A'.$counter)->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
+            ]);
+            
+            $footer = $counter+1;
+            $now = Time::now();
+            $day = str_pad((string) $now->day, 2, '0', STR_PAD_LEFT);
+            $month = str_pad((string) $now->month, 2, '0', STR_PAD_LEFT);
+            $spreadsheet->getActiveSheet()->mergeCells('A'.$footer.':M'.$footer)
+                ->setCellValue('A'.$footer, 'TPHCM, ngày ' . $day . ' tháng ' . $month . ' năm ' . $now->year);
+            $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getFont()->setItalic(true);
+            $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+
+            $end = $footer + 2;
+            $spreadsheet->getActiveSheet()->setCellValue('A'.$end, '(Phòng NV Cty đã nhận đủ hồ sơ theo DS trên)');
+            $spreadsheet->getActiveSheet()->setSelectedCells('A1');
+
+            // export XLSX file for download
+            $this->ExportFile->export($spreadsheet, $dispatchLetterXlsx['filename']);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
         
-        $footer = $counter+1;
-        $now = Time::now();
-        $day = str_pad((string) $now->day, 2, '0', STR_PAD_LEFT);
-        $month = str_pad((string) $now->month, 2, '0', STR_PAD_LEFT);
-        $spreadsheet->getActiveSheet()->mergeCells('A'.$footer.':M'.$footer)
-            ->setCellValue('A'.$footer, 'TPHCM, ngày ' . $day . ' tháng ' . $month . ' năm ' . $now->year);
-        $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getFont()->setItalic(true);
-        $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
-
-        $end = $footer + 2;
-        $spreadsheet->getActiveSheet()->setCellValue('A'.$end, '(Phòng NV Cty đã nhận đủ hồ sơ theo DS trên)');
-        $spreadsheet->getActiveSheet()->setSelectedCells('A1');
-
-        // export XLSX file for download
-        $this->ExportFile->export($spreadsheet, $dispatchLetterXlsx['filename']);
-        exit;
     }
 
     public function exportCandidates($id)
@@ -1071,8 +1113,6 @@ class OrdersController extends AppController
         
         $listCandidates = [];
         $now = Time::now();
-        $permissionsTable = TableRegistry::get('Permissions');
-        $userPermission = $permissionsTable->find()->where(['user_id' => $this->Auth->user('id'), 'scope' => 'Students'])->first();
         $maritalStatus = Configure::read('maritalStatus');
         $maritalStatus = array_map('array_pop', $maritalStatus);
 
@@ -1081,23 +1121,13 @@ class OrdersController extends AppController
         foreach ($order->students as $key => $student) {
             $noCell = $key + 1;
             $counter++;
-            // check fullname_kana
-            if (empty($student->fullname_kata)) {
-                $this->Flash->error(Text::insert($this->errorMessage['export'], [
-                    'missingField' => 'Tên phiên âm',
-                    'entity' => 'lao động',
-                    'name' => $student->fullname
-                    ]));
-                // Redirect to edit page if the user has edit permission
-                if ($this->Auth->user('role_id') == '1' || $userPermission->action == 0) {
-                    return $this->redirect(['controller' => 'Students', 'action' => 'info', $student->id]);
-                }
-                return $this->redirect(['action' => 'index']);
-            }
-            $studentName_VN = mb_strtoupper($student->fullname);
+            $error = '';
+            $fullname = $student->fullname;
+            $fullname_kata = $this->checkDataConcate($student->fullname_kata, 'Tên phiên âm');
+            $studentName_VN = mb_strtoupper($fullname);
             $studentName_EN = $this->Util->convertV2E($studentName_VN);
 
-            $nameCell = $student->fullname_kata . "\n" . $studentName_EN;
+            $nameCell = $fullname_kata . "\n" . $studentName_EN;
             $ageCell = ($now->diff($student->birthday))->y;
             $marriageCell = $student->marital_status ? $maritalStatus[$student->marital_status] : '';
             $data = [
@@ -1106,14 +1136,18 @@ class OrdersController extends AppController
                 $student->birthday->i18nFormat('yyyy年MM月dd日'),
                 $ageCell,
                 $marriageCell,
-                $student->input_tests[2]->score ?? '',
-                $student->input_tests[0]->score ?? '',
-                $student->iq_tests[0]->total ?? '',
-                $student->right_hand_force,
-                $student->left_hand_force,
-                $student->back_force,
-                $student->blood_group
+                $this->checkDataConcate($student->input_tests[2]->score, 'Điểm tính toán cơ bản'),
+                $this->checkDataConcate($student->input_tests[0]->score, 'Điểm thi tiếng nhật'),
+                $this->checkDataConcate($student->iq_tests[0]->total, 'Điểm thi iq'),
+                $this->checkDataConcate($student->right_hand_force, 'Lực bóp tay phải'),
+                $this->checkDataConcate($student->left_hand_force, 'Lực bóp tay trái'),
+                $this->checkDataConcate($student->back_force, 'Lực kéo lưng'),
+                $this->checkDataConcate($student->blood_group, 'Nhóm máu')
             ];
+            if (!empty($this->studentError)) {
+                $this->missingFields .= '<li>' . $this->studentError . ' của lao động '.$fullname.'</li>';
+                $this->studentError = '';
+            }
             array_push($listCandidates, $data);
         }
         \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
@@ -1152,8 +1186,38 @@ class OrdersController extends AppController
 
         $spreadsheet->getActiveSheet()->freezePane('A8');
 
+        if (!empty($this->missingFields)) {
+            $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                'fields' => $this->missingFields,
+                ]), 
+                [
+                    'escape' => false,
+                    'params' => ['showButtons' => true, 'width' => 600]
+                ]);
+            return $this->redirect(['action' => 'index']);
+        }
         // export XLSX file for download
         $this->ExportFile->export($spreadsheet, $listCandidatesXlsx['filename']);
         exit;
+    }
+
+    public function checkData($data, $field) 
+    {
+        if (empty($data)) {
+            $this->missingFields .= '<li>'. $field . '</li>';
+        }
+        return $data;
+    }
+
+    public function checkDataConcate($data, $field) 
+    {
+        if (empty($data)) {
+            if (!empty($this->studentError)) {
+                $this->studentError .= ', ' . $field;
+            } else {
+                $this->studentError .= $field;
+            }
+        }
+        return $data;
     }
 }

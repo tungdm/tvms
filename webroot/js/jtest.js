@@ -38,7 +38,7 @@ $(document).ready(function() {
                     return $(this).html(); 
                 } 
             });
-            $('.select-lesson-to').attr('data-parsley-min-message', 'Please choose option after ' + optionTxt[0]);
+            $('.select-lesson-to').attr('data-parsley-min-message', 'Xin hãy chọn bài thi sau ' + optionTxt[0]);
         }
     });
 
@@ -53,7 +53,7 @@ $(document).ready(function() {
                     return $(this).html(); 
                 } 
             });
-            $('.select-lesson-from').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
+            $('.select-lesson-from').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
         }
     });
 
@@ -118,8 +118,8 @@ $(document).ready(function() {
                         return $(this).html(); 
                     } 
                 });
-                $('.select-lesson-to').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
-                $('.select-lesson-from').attr('data-parsley-max-message', 'Please choose option before ' + optionTxt[0]);
+                $('.select-lesson-to').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
+                $('.select-lesson-from').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
 
                 if ($('.select-lesson-from').val()) {
                     $('.select-lesson-from').parsley().validate();
@@ -202,7 +202,7 @@ function addSkill() {
 function editSkill(rowId, initSkill) {
     var skillId = parseInt($('#modal-skill').val());
     if (perData.skillSelected.indexOf(skillId) >= 0) {
-        alert('You have already selected this skill. Please choose another skill!');
+        alert('Bạn đã chọn kỹ năng này. Xin hãy chọn lại.');
         return;
     }
 

@@ -14,50 +14,6 @@ $(document).ready(function() {
         perData.selected.push(parseInt($(this).find('input').val()));
     });
 
-    $('#student-name').select2({
-        ajax: {
-            url: DOMAIN_NAME + '/jclasses/search-student',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    q: params.term, // search term
-                    page: params.page
-                };
-            },
-            processResults: function (data, params) {
-                params.page = params.page || 1;
-                var processedOptions = $.map(data.items, function(obj, index) {
-                    return {id: obj.id, text: obj.fullname};
-                });
-                return {
-                    results: processedOptions,
-                    pagination: {
-                        more: (params.page * 30) < data.total_count
-                    }
-                };
-            },
-            cache: true
-        },
-        placeholder: 'Tìm kiếm học viên',
-        minimumInputLength: 1,
-        allowClear: true,
-        theme: "bootstrap",
-        language: {
-            noResults: function() {
-                return "Không tìm thấy kết quả";
-            },
-            searching: function() {
-                return "Đang tìm kiếm...";
-            },
-            inputTooShort: function (args) {
-                var remainingChars = args.minimum - args.input.length;
-                var message = 'Vui lòng nhập ít nhất ' + remainingChars + ' kí tự';
-                return message;
-            },
-        }
-    });
-
     $('.submit-class-btn').click(function () {
         var validateResult = $('#add-class-form').parsley().validate();
         if (validateResult) {
@@ -97,13 +53,71 @@ $(document).ready(function() {
     });
 });
 
+function search() {
+    var filter = $('#studentname').val().toUpperCase();
+    $('#pre-add-student-container').find('.row-pre').each(function() {
+        var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        if (fullname.indexOf(filter) > -1) {
+            $(this).removeClass('hidden');
+        } else {
+            $(this).addClass('hidden');
+        }
+    })
+}
+
 function showAddStudentModal() {
     // reset modal
     $('#student-name').val(null).trigger('change');
-    $('#pre-add-student-container').empty();
-    // reset selected counter
-    perData.preAddCounter = 0;
-    $('#add-student-modal').modal('toggle');
+    // get list student
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#list-student-class-overlay').removeClass('hidden');
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/jclasses/recommendStudent',
+        success: function(resp) {
+            $('#pre-add-student-container').empty();
+            
+            var students = resp.students;
+            var removeIndexes = [];
+
+            $.each(students, function(index, value) {
+                if (perData.selected.indexOf(value.id) >= 0) {
+                    removeIndexes.push(index);
+                }
+            });
+            // remove duplicate candidate
+            for (let index = removeIndexes.length-1; index >= 0; index--) {
+                students.splice(removeIndexes[index], 1);
+            }
+
+            perData.preAddCounter = students.length;
+            if (students.length > 0) {
+                var source = $("#recommend-student-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(students);
+                $('#pre-add-student-container').html(html);
+    
+                // init switchery
+                var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+                elems.forEach(function (html) {
+                    var switchery = new Switchery(html, {
+                        size: 'small'
+                    });
+                });
+            }
+            // show modal
+            $('#add-student-modal').modal('toggle');
+        }, 
+        complete: function() {
+            ajaxing = false;
+            $('#list-student-class-overlay').addClass('hidden');
+        }
+    });
 }
 
 function preAddStudent() {
@@ -172,7 +186,7 @@ function addStudent() {
             var row = $(e).closest('.row-pre');
             data['row'] = perData.selected.length;
             data['id'] = row.find('#studentid').val();
-            data['code'] = row.find('#studentcode').val();
+            data['city'] = row.find('#city').html();
             data['fullname'] = row.find('#fullname').val();
             data['gender'] = row.find('#gender').val();
             data['phone'] = row.find('#phone').val();
@@ -204,7 +218,7 @@ function showHistoryModal(studentId) {
     $('#list-student-class-overlay').removeClass('hidden');
     $.ajax({
         type: 'GET',
-        url: DOMAIN_NAME + '/students/getAllHistories/',
+        url: DOMAIN_NAME + '/jclasses/getAllHistories/' + classId,
         data: {
             id: studentId,
             type: 'education'
@@ -224,8 +238,8 @@ function showHistoryModal(studentId) {
 
                 $('#add-history').remove();
                 $('#refresh-history').remove();
-                $('<a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal('+studentId+', \'education\')" id="add-history"><i class="fa fa-plus"></i></a>').insertBefore('#close-history');
-                $('<a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories('+studentId+', \'education\', \'list-history-overlay\')" id="refresh-history"><i class="fa fa-refresh"></i></a>').insertBefore('#close-history');
+                $('<a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal('+studentId+', \'education\', \'jclasses\', '+classId+')" id="add-history"><i class="fa fa-plus"></i></a>').insertBefore('#close-history');
+                $('<a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories('+studentId+', \'education\', \'list-history-overlay\', \'jclasses\')" id="refresh-history"><i class="fa fa-refresh"></i></a>').insertBefore('#close-history');
 
                 // show modal
                 $('#all-histories-modal').modal('toggle');
@@ -254,32 +268,43 @@ function showHistoryModal(studentId) {
     });
 }
 
-
 function editStudent(rowId) {
     $('#row-student-'+rowId).find('.note').val($('#modal-note').val());
     $('#edit-student-modal').modal('toggle');
 }
 
 function showChangeClassModal(ele) {
-    if ($('input[name="have_test"]').val() === "true") {
-        swal({
-            title: 'Cảnh báo!',
-            text: "Lớp học sắp có cuộc thi năng lực tiếng Nhật. Bạn không thể thực hiện việc chuyển lớp vào lúc này.",
-            type: 'warning',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Ok'
-        });
-    } else {
-        // reset form
-        $('#modal-class').val(null).trigger('change');
+    // check if current class have test or not
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/jclasses/checkTest/' + classId,
+        success: function(resp) {
+            if (resp) {
+                swal({
+                    title: 'Cảnh báo!',
+                    text: "Lớp học sắp có cuộc thi năng lực tiếng Nhật. Bạn không thể thực hiện việc chuyển lớp vào lúc này.",
+                    type: 'warning',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Ok'
+                });
+            } else {
+                // reset form
+                $('#modal-class').val(null).trigger('change');
 
-        var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
-        var rowId = rowIdArr[rowIdArr.length-1];
-        $('#change-class-btn').remove();
-        $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Hoàn tất</button>').insertBefore('#close-change-class-modal-btn');
+                var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length-1];
+                $('#change-class-btn').remove();
+                $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Hoàn tất</button>').insertBefore('#close-change-class-modal-btn');
 
-        $('#change-class-modal').modal('toggle');
-    }
+                $('#change-class-modal').modal('toggle');
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+        }
+    });
+    
+  
 }
 
 function changeClass(rowId) {

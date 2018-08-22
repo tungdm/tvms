@@ -5,6 +5,7 @@ $gender = Configure::read('gender');
 $lessons = Configure::read('lessons');
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
+$currentUser = $this->request->session()->read('Auth.User');
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
 $this->Html->script('class.js', ['block' => 'scriptBottom']);
@@ -34,7 +35,7 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
-            <?php if ($permission == 0): ?>
+            <?php if ($permission == 0 || $currentUser['id'] == $jclass->user_id): ?>
             <li>
                 <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
                     ['action' => 'edit', $jclass->id],
@@ -45,6 +46,8 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                         'escape' => false
                     ]) ?>
             </li>
+            <?php endif; ?>
+            <?php if ($permission == 0): ?>
             <li>
                 <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
                     ['action' => 'delete', $jclass->id], 
@@ -167,34 +170,34 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                     <table class="table table-bordered custom-table students-table">
                         <thead>
                             <tr>
-                                <th scope="col"><?= __('STT') ?></th>
-                                <th scope="col"><?= __('Mã TTS') ?></th>
-                                <th scope="col"><?= __('Họ và tên') ?></th>
-                                <th scope="col"><?= __('Giới tính') ?></th>
-                                <th scope="col"><?= __('Số điện thoại') ?></th>
-                                <th scope="col"><?= __('Ngày nhập học') ?></th>
+                                <th scope="col col-md-1"><?= __('STT') ?></th>
+                                <th scope="col col-md-2"><?= __('Họ tên') ?></th>
+                                <th scope="col col-md-1"><?= __('Giới tính') ?></th>
+                                <th scope="col col-md-2"><?= __('Số điện thoại') ?></th>
+                                <th scope="col col-md-3"><?= __('Ngày nhập học') ?></th>
+                                <th scope="col col-md-3"><?= __('Quê quán') ?></th>
                             </tr>
                         </thead>
                         <tbody id="student-container">
                         <?php foreach ($jclass->students as $key => $value): ?>
                             <tr class="row-std">
-                                <td class="cell col-md-1 stt-col">
+                                <td class="cell stt-col">
                                     <?= $key+1 ?>
                                 </td>
-                                <td class="cell col-md-2">
-                                    <?= h($value->code) ?>
-                                </td>
-                                <td class="cell col-md-3">
+                                <td class="cell">
                                     <a href="javascript:;" onclick="viewStudent(<?=$value->id?>);"><?= h($value->fullname) ?></a>
                                 </td>
-                                <td class="cell col-md-1">
+                                <td class="cell text-center">
                                     <?= $gender[$value->gender]?>
                                 </td>
-                                <td class="cell col-md-2">
+                                <td class="cell">
                                     <?= $this->Phone->makeEdit($value->phone) ?>
                                 </td>
-                                <td class="cell col-md-1" style="width: 12.499999995%;">
+                                <td class="cell">
                                     <?= !empty($value->enrolled_date) ? $value->enrolled_date : 'N/A' ?>
+                                </td>
+                                <td class="cell">
+                                    <?= h($value->addresses[0]->city->name) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

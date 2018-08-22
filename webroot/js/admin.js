@@ -381,6 +381,13 @@ if (typeof jQuery === 'undefined') {
             $('body').addClass(ClassName.expandFeature)
         }
 
+        var activeSidebar = localStorage.getItem('sidebar');
+        if (activeSidebar === 'true') {
+            this.open();
+        } else {
+            this.close();
+        }
+
         $(Selector.contentWrapper).click(function () {
             // Enable hide menu when clicking on the content-wrapper on small screens
             if ($(window).width() <= this.options.collapseScreenSize && $('body').hasClass(ClassName.open)) {
@@ -826,10 +833,14 @@ if (typeof NProgress != 'undefined') {
 var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
     $SIDEBAR_MENU = $('.main-sidebar');
 
-var DOMAIN_NAME = '/tvms';
+var DOMAIN_NAME = '';
 var ajaxing = false;
 var historyCounter = 0;
 var isChartRendered = false;
+var activeSidebar = localStorage.getItem('sidebar');
+if (activeSidebar === null) {
+    localStorage.setItem('sidebar', true);
+}
 // var formChanged = false;
 
 function init_sidebar() {
@@ -1220,7 +1231,11 @@ function globalViewGuild(guildId, overlayId) {
                 $('#view-phone-vn').html(str2Phone(resp.data.phone_vn));
                 $('#view-phone-jp').html(resp.data.phone_jp);
 
-                $('#view-license-number').html(resp.data.license_number);
+                if (resp.data.license_number) {
+                    $('#view-license-number').html(resp.data.license_number);
+                } else {
+                    $('#view-license-number').html('N/A');
+                }
                 $('#view-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-deputy-kanji').html(resp.data.deputy_name_kanji);
 
@@ -1234,8 +1249,12 @@ function globalViewGuild(guildId, overlayId) {
                 } else {
                     $('.modified').addClass('hidden');
                 }
-
-                $('#view-subsidy').html(resp.data.subsidy.toLocaleString());
+                if (resp.data.subsidy) {
+                    $('#view-subsidy').html(resp.data.subsidy.toLocaleString());
+                } else {
+                    $('#view-subsidy').html('N/A');
+                }
+                
 
                 $('#view-guild-modal').modal('toggle');
             } else {
@@ -1404,6 +1423,9 @@ function globalViewPresenter(presenterId, overlayId) {
 }
 
 function str2Phone(value) {
+    if (value === null || typeof value === 'undefined') {
+        return '';
+    }
     if (value.length == 10) {
         return value.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
     } else if (value.length == 11) {
@@ -1416,7 +1438,7 @@ function str2Phone(value) {
 }
 
 // History action
-function showAddHistoryModal(studentId, historyType) {
+function showAddHistoryModal(studentId, historyType, controller, classId) {
     // reset form
     $('#add-edit-history-form')[0].reset();
 
@@ -1424,24 +1446,28 @@ function showAddHistoryModal(studentId, historyType) {
     $('#add-edit-history-form').find('#history-student-id').val(studentId);
 
     $('#submit-history-btn').remove();
-    $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="addHistory()">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
+    $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="addHistory(\''+controller+'\', \''+classId+'\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
     // show modal
     $('#history-modal').modal('toggle');
 }
 
-function addHistory() {
+function addHistory(controller, classId) {
     if (ajaxing) {
         // still requesting
         return;
     }
-    
     var validateResult = $('#add-edit-history-form').parsley().validate();
     if (validateResult) {
         ajaxing = true;
         $('#history-modal-overlay').removeClass('hidden');
+        if (controller == 'jclasses') {
+            var url = DOMAIN_NAME + '/' + controller + '/addHistory/'+classId;
+        } else {
+            var url = DOMAIN_NAME + '/' + controller + '/addHistory';
+        }
         $.ajax({
             type: 'POST',
-            url: DOMAIN_NAME + '/students/addHistory',
+            url: url,
             data: {
                 'title': $('#add-edit-history-form').find('#history-title').val(),
                 'type': $('#add-edit-history-form').find('#history-type').val(),
@@ -1471,17 +1497,25 @@ function addHistory() {
                     // add new history
                     var source = $("#history-template").html();
                     var template = Handlebars.compile(source);
+                    if (resp.history.users_created_by.image) {
+                        var avatar = resp.history.users_created_by.image;
+                    } else {
+                        var avatar = 'no_avatar.png';
+                    }
                     var html = template({
                         'counter': historyCounter,
                         'id' : resp.history.id,
-                        'image': DOMAIN_NAME + '/img/' + resp.history.users_created_by.image,
+                        'image': DOMAIN_NAME + '/img/' + avatar,
                         'created': resp.history.created,
                         'title': resp.history.title,
-                        'note': (resp.history.note).replace(/\r?\n/g,'<br/>')
+                        'note': (resp.history.note).replace(/\r?\n/g,'<br/>'),
+                        'controller': controller,
+                        'classId': classId
                     });
                     // update couter
                     historyCounter++;
                     $(html).insertAfter('#now-tl');
+                    $('#now-tl span').html(resp.now);
                 }
                 // hide modal
                 $('#history-modal').modal('toggle');
@@ -1494,16 +1528,21 @@ function addHistory() {
     }
 }
 
-function showEditHistoryModal(ele) {
+function showEditHistoryModal(ele, controller, classId) {
     if (ajaxing) {
         // still requesting
         return;
     }
     ajaxing = true;
     var historyId = $(ele).closest('li').attr('history');
+    if (controller == 'jclasses') {
+        var url = DOMAIN_NAME + '/' + controller + '/getHistory/'+classId;
+    } else {
+        var url = DOMAIN_NAME + '/' + controller + '/getHistory';
+    }
     $.ajax({
         type: 'GET',
-        url: DOMAIN_NAME + '/students/getHistory',
+        url: url,
         data: {
             id: historyId
         },
@@ -1526,7 +1565,7 @@ function showEditHistoryModal(ele) {
 
                 var rowId = $(ele).closest('li').attr('id');
                 $('#submit-history-btn').remove();
-                $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="editHistory(\''+rowId+'\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
+                $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="editHistory(\''+rowId+'\', \''+controller+'\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
                 // show modal
                 $('#history-modal').modal('toggle');
             } else {
@@ -1553,7 +1592,7 @@ function showEditHistoryModal(ele) {
     });
 }
 
-function editHistory(rowId) {
+function editHistory(rowId, controller) {
     if (ajaxing) {
         // still requesting
         return;
@@ -1562,13 +1601,14 @@ function editHistory(rowId) {
     var validateResult = $('#add-edit-history-form').parsley().validate();
     if (validateResult) {
         ajaxing = true;
+
         var historyId = $('#add-edit-history-form').find('#history-id').val();
         var title = $('#add-edit-history-form').find('#history-title').val();
         var note = $('#add-edit-history-form').find('#history-note').val();
         $('#history-modal-overlay').removeClass('hidden');
         $.ajax({
             type: 'POST',
-            url: DOMAIN_NAME + '/students/editHistory/' + historyId,
+            url: DOMAIN_NAME + '/'+ controller +'/editHistory/' + historyId,
             data: {
                 'id': historyId,
                 'student_id': $('#add-edit-history-form').find('#history-student-id').val(),
@@ -1610,7 +1650,7 @@ function editHistory(rowId) {
     }
 }
 
-function deleteHistory(ele) {
+function deleteHistory(ele, controller) {
     if (ajaxing) {
         // still requesting
         return;
@@ -1630,7 +1670,7 @@ function deleteHistory(ele) {
             var historyId = $(ele).closest('li').attr('history');
             $.ajax({
                 type: 'POST',
-                url: DOMAIN_NAME + '/students/deleteHistory',
+                url: DOMAIN_NAME + '/'+controller+'/deleteHistory',
                 data: {
                     'id': historyId
                 },
@@ -1661,7 +1701,7 @@ function deleteHistory(ele) {
     })
 }
 
-function getAllHistories(studentId, historyType, overlay) {
+function getAllHistories(studentId, historyType, overlay, controller) {
     if (ajaxing) {
         // still requesting
         return;
@@ -1670,7 +1710,7 @@ function getAllHistories(studentId, historyType, overlay) {
     $('#'+overlay).removeClass('hidden');
     $.ajax({
         type: 'GET',
-        url: DOMAIN_NAME + '/students/getAllHistories/',
+        url: DOMAIN_NAME + '/'+controller+'/getAllHistories/',
         data: {
             id: studentId,
             type: historyType
@@ -1686,6 +1726,7 @@ function getAllHistories(studentId, historyType, overlay) {
                 var html = template(resp.histories);
                 $('.history-detail').remove();
                 $(html).insertAfter('#now-tl');
+                $('#now-tl span').html(resp.now);
                 $('#student-created').html(resp.student_created)
             } else {
                 var notice = new PNotify({
@@ -1750,6 +1791,16 @@ $(document).ready(function() {
     initSelect2();
     initDatetimePicker();
     initFloatingButton();
+
+    // set state for sidebar
+    $('.sidebar-toggle').click(function() {
+        var oldState = localStorage.getItem('sidebar');
+        var newState = true;
+        if (oldState === 'true') {
+            newState = false;
+        }
+        localStorage.setItem('sidebar', newState);
+    });
 
     // init tooltip
     $('[data-toggle="tooltip"]').tooltip();
@@ -1862,6 +1913,9 @@ Handlebars.registerHelper("trans", function (value, options) {
 });
 
 Handlebars.registerHelper('renderImg', function(value, option) {
+    if (value == null) {
+        value = 'no_avatar.png';
+    }
     return DOMAIN_NAME + '/img/' + value;
 });
 

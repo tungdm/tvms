@@ -11,7 +11,7 @@ $lessons = Configure::read('lessons');
 $currentUser = $this->request->session()->read('Auth.User');
 
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
-$historyNow = Time::now()->i18nFormat('dd/MM/yyyy');
+$historyNow = Time::now();
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
@@ -113,19 +113,6 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
     ]) ?>
 <?= $this->Form->unlockField('students') ?>
 
-<?php 
-    $testing = 'false'; 
-    if (!empty($jclass->jtests)) {
-        foreach ($jclass->jtests as $key => $value) {
-            if ($now <= $value->test_date) {
-                $testing = 'true';
-                break;
-            }
-        }
-    }
-?>
-<?= $this->Form->hidden('have_test', ['value' => $testing])?>
-
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -139,7 +126,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name"><?= __('Tên lớp') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <?php if ($jclass->user_id == $currentUser['id']): ?>
+                        <?php if ($jclass->user_id == $currentUser['id'] && $permission != 0): ?>
                         <div class="form-control form-control-view col-md-7 col-xs-12">
                             <?= h($jclass->name) ?>
                         </div>
@@ -157,7 +144,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="start"><?= __('Ngày bắt đầu') ?></label>
                     <div class="col-md-3 col-sm-6 col-xs-12">
-                        <?php if ($jclass->user_id == $currentUser['id']): ?>
+                        <?php if ($jclass->user_id == $currentUser['id'] && $permission != 0): ?>
                         <div class="form-control form-control-view col-md-7 col-xs-12">
                             <?= h($jclass->start) ?>
                         </div>
@@ -182,7 +169,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="user_id"><?= __('Giáo viên chủ nhiệm') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                        <?php if ($jclass->user_id == $currentUser['id']): ?>
+                        <?php if ($jclass->user_id == $currentUser['id'] && $permission != 0): ?>
                         <div class="form-control form-control-view col-md-7 col-xs-12">
                             <?= h($jclass->user->fullname) ?>
                         </div>
@@ -234,19 +221,19 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
             <div class="box-body table-responsive">
                 <?php if ($permission == 0): ?>
                 <button type="button" class="btn btn-primary btn-student" id="add-student" onclick="showAddStudentModal();">
-                    <?= __('Thêm học sinh') ?>
+                    <?= __('Thêm học viên') ?>
                 </button>
                 <?php endif; ?>
                 <table class="table table-bordered custom-table students-table">
                     <thead>
                         <tr>
-                            <th scope="col"><?= __('STT') ?></th>
-                            <th scope="col"><?= __('Mã TTS') ?></th>
-                            <th scope="col"><?= __('Họ tên') ?></th>
-                            <th scope="col"><?= __('Giới tính') ?></th>
-                            <th scope="col"><?= __('Số điện thoại') ?></th>
-                            <th scope="col"><?= __('Ngày nhập học') ?></th>
-                            <th scope="col" class="actions"><?= h('Thao tác') ?></th>
+                            <th scope="col col-md-1"><?= __('STT') ?></th>
+                            <th scope="col col-md-2"><?= __('Họ tên') ?></th>
+                            <th scope="col col-md-1"><?= __('Giới tính') ?></th>
+                            <th scope="col col-md-2"><?= __('Số điện thoại') ?></th>
+                            <th scope="col col-md-2"><?= __('Ngày nhập học') ?></th>
+                            <th scope="col col-md-2"><?= __('Quê quán') ?></th>
+                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody id="student-container">
@@ -260,7 +247,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->hidden('students.' . $key . '._joinData.id') ?>
                             </div>
                             <tr class="row-std" id="row-student-<?=$counter?>">
-                                <td class="cell col-md-1 stt-col">
+                                <td class="cell stt-col">
                                     <?= $counter+1 ?>
                                 </td>
                                 <td class="cell hidden">
@@ -270,20 +257,20 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                         'class' => 'form-control col-md-7 col-xs-12 note', 
                                         ]) ?>
                                 </td>
-                                <td class="cell col-md-2">
-                                    <?= h($value->code) ?>
-                                </td>
-                                <td class="cell col-md-3">
+                                <td class="cell">
                                     <a href="javascript:;" onclick="viewStudent('<?=$value->id?>');"><?= h($value->fullname) ?></a>
                                 </td>
-                                <td class="cell col-md-1">
+                                <td class="cell text-center">
                                     <?= $gender[$value->gender]?>
                                 </td>
-                                <td class="cell col-md-2">
+                                <td class="cell">
                                     <?= $this->Phone->makeEdit($value->phone) ?>
                                 </td>
-                                <td class="cell col-md-1" style="width: 12.499999995%;">
+                                <td class="cell">
                                     <?= !empty($value->enrolled_date) ? $value->enrolled_date : 'N/A' ?>
+                                </td>
+                                <td class="cell">
+                                    <?= h($value->addresses[0]->city->name) ?>
                                 </td>
                                 <td class="cell actions">
                                     <div class="btn-group">
@@ -342,7 +329,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
         <div class="modal-content box">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">THÊM HỌC VIÊN</h4>
+                <h4 class="modal-title">DANH SÁCH HỌC VIÊN CHƯA ĐƯỢC XẾP LỚP</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -360,16 +347,8 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                     <div class="form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="input-group">
-                                <?= $this->Form->control('student.name', [
-                                    'label' => false, 
-                                    'options' => [],
-                                    'class' => 'form-control col-md-7 col-xs-12', 
-                                    ]) ?>
-                                <span class="input-group-btn">
-                                    <button type="button" onclick="preAddStudent()" class="btn btn-primary btn-flat">
-                                        <i class="fa fa-fw fa-plus"></i>
-                                    </button>
-                                </span>
+                                <input type="text" class="form-control" id="studentname" onkeyup="search()" placeholder="Tìm kiếm học viên">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
                             </div>
                         </div>
                     </div>
@@ -381,8 +360,8 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                         <th scope="col" class="col-md-1"><?= __('STT') ?></th>
                                         <th scope="col" class="col-md-4"><?= __('Họ tên') ?></th>
                                         <th scope="col" class="col-md-2"><?= __('Giới tính') ?></th>
-                                        <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
-                                        <th scope="col" class="actions"></th>
+                                        <th scope="col" class="col-md-2"><?= __('Số điện thoại') ?></th>
+                                        <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="pre-add-student-container">
@@ -494,7 +473,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 
 <script id="pre-add-student-template" type="text/x-handlebars-template">
     <tr class="row-pre" id="row-student-{{counter}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell stt-col">
             {{row}}
         </td>
         <td class="hidden">
@@ -504,13 +483,6 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 'class' => 'form-control',
                 'value' => '{{id}}'
                 ])?>
-            
-            <?= $this->Form->control('studentCode', [
-                'type' => 'text',
-                'label' => false,
-                'class' => 'form-control',
-                'value' => '{{code}}'
-                ])?>
 
             <?= $this->Form->control('studentEnrolledDate', [
                 'type' => 'text',
@@ -519,7 +491,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 'value' => '{{enrolledDate}}'
                 ])?>
         </td>
-        <td class="cell col-md-4">
+        <td class="cell">
             <a href="javascript:;" onclick="viewStudent({{id}});">{{fullname}}</a>
             <div class="hidden">
                 <?= $this->Form->control('fullname', [
@@ -530,7 +502,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2">
+        <td class="cell">
             {{trans gender}}
             <div class="hidden">
                 <?= $this->Form->control('gender', [
@@ -541,7 +513,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell">
             {{phoneFormat phone}}
             <div class="hidden">
                 <?= $this->Form->control('phone', [
@@ -561,7 +533,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 <script id="add-student-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-std" id="row-student-{{row}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell stt-col">
             {{inc row}}
         </td>
         <td class="cell hidden">
@@ -577,21 +549,19 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                 'class' => 'form-control col-md-7 col-xs-12 note', 
                 ]) ?>
         </td>
-        <td class="cell col-md-2">
-            {{code}}
-        </td>
-        <td class="cell col-md-3">
+        <td class="cell">
             <a href="javascript:;" onclick="viewStudent({{id}});">{{fullname}}</a>
         </td>
-        <td class="cell col-md-1">
+        <td class="cell text-center">
             {{trans gender}}
         </td>
-        <td class="cell col-md-2">
+        <td class="cell">
             {{phoneFormat phone}}
         </td>
-        <td class="cell col-md-1" style="width: 12.499999995%;">
-            {{enrolledDate}}
+        <td class="cell">
+            {{dateTimeFormat enrolledDate}}
         </td>
+        <td>{{city}}</td>
         <td class="actions cell">
             <div class="btn-group">
                 <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">
@@ -649,3 +619,70 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
         </div>
     </div>
 </div>
+
+<!-- Template for recommend student -->
+<script id="recommend-student-template" type="text/x-handlebars-template">
+    {{#each this}}
+    <tr class="row-pre" id="row-student-{{@index}}">
+        <td class="cell stt-col">
+            {{inc @index}}
+        </td>
+        <td class="hidden">
+            <?= $this->Form->control('studentId', [
+                'type' => 'text',
+                'label' => false,
+                'class' => 'form-control',
+                'value' => '{{id}}'
+                ])?>
+
+            <?= $this->Form->control('studentEnrolledDate', [
+                'type' => 'text',
+                'label' => false,
+                'class' => 'form-control',
+                'value' => '{{enrolled_date}}'
+                ])?>
+            <span id="city">{{addresses.0.city.name}}</span>
+        </td>
+        <td class="cell">
+            <a href="javascript:;" onclick="viewStudent({{id}});">{{fullname}}</a>
+            <div class="hidden">
+                <?= $this->Form->control('fullname', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control',
+                    'value' => '{{fullname}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell">
+            {{trans gender}}
+            <div class="hidden">
+                <?= $this->Form->control('gender', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control',
+                    'value' => '{{gender}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell">
+            {{phoneFormat phone}}
+            <div class="hidden">
+                <?= $this->Form->control('phone', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control',
+                    'value' => '{{phone}}'
+                    ])?>
+            </div>
+        </td>
+        <td>
+            <input name="student-{{index}}" type="checkbox" id="std-{{id}}" class="js-switch">
+        </td>
+    </tr>
+    {{/each}}
+</script>
+
+<script type="text/javascript">
+    var classId = <?= $jclass->id ?? 0 ?>;
+</script>

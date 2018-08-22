@@ -1282,7 +1282,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <h3 class="box-title"><?= __('Lịch sử hoạt động') ?></h3>
                                     <div class="box-tools pull-right">
                                         <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay')"><i class="fa fa-refresh"></i></a>
+                                        <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay', 'students')"><i class="fa fa-refresh"></i></a>
                                     </div>
                                 </div>
                                 <div class="box-body">
@@ -1296,7 +1296,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <?php foreach($student->histories as $key => $value): ?>
                                         <li class="history-detail" id="history-<?= $key ?>" history="<?= $value->id ?>">
                                             <?php if (empty($value->users_created_by->image)): ?>
-                                                <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'user-image']) ?>
+                                                <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'img-circle timeline-avatar']) ?>
                                             <?php else: ?>
                                                 <?= $this->Html->image($value->users_created_by->image, ['class' => 'img-circle timeline-avatar']) ?>
                                             <?php endif; ?>
@@ -1308,8 +1308,8 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 </div>
                                                 <div class="timeline-footer">
                                                     <?php if ($currentUser['id'] == $value->created_by): ?>
-                                                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this)">Chỉnh sửa</button>
-                                                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this)">Xóa</button>
+                                                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this, 'students')">Chỉnh sửa</button>
+                                                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this, 'students')">Xóa</button>
                                                     <?php else: ?>
                                                     <span class="history-creater">Người tạo: <?= h($value->users_created_by->fullname) ?></span>
                                                     <?php endif;?>

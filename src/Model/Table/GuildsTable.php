@@ -74,8 +74,7 @@ class GuildsTable extends Table
         $validator
             ->scalar('name_kanji')
             ->maxLength('name_kanji', 255)
-            ->requirePresence('name_kanji', 'create')
-            ->notEmpty('name_kanji');    
+            ->allowEmpty('name_kanji');    
 
         $validator
             ->scalar('phone_vn')

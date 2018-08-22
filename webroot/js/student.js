@@ -42,6 +42,10 @@ function generateChartOptions(title) {
                 display: true,
                 scaleLabel: {
                     display: false,
+                },
+                ticks: {
+                    beginAtZero:true,
+                    max: 15
                 }
             }]
         },
@@ -458,7 +462,7 @@ function viewSCandidate(candidateId) {
 
                 $('#view-candidate-created-by').html(resp.data.created_by_user.fullname);
                 $('#view-candidate-created').html(resp.created);
-                if (resp.data.modified) {
+                if (resp.data.modified_by) {
                     $('.modified').removeClass('hidden');
                     $('#view-candidate-modified-by').html(resp.data.modified_by_user.fullname);
                     $('#view-candidate-modified').html(resp.modified);

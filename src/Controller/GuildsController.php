@@ -224,6 +224,7 @@ class GuildsController extends AppController
                         'name' => $guild->name_romaji
                         ]));
                 } else {
+                    Log::write('debug', $guild->errors());
                     $resp = [
                         'status' => 'error',
                         'flash' => [

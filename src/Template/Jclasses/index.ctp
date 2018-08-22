@@ -112,7 +112,7 @@ $this->assign('title', 'Quản lý lớp học');
                                 <?= $this->Paginator->sort('start', 'Ngày bắt đầu') ?>
                             </th>
                             <th scope="col" class="numStudentsCol">
-                                <?= $this->Paginator->sort('num_students', 'Sĩ số') ?>
+                                <?= __('Sĩ số') ?>
                             </th>
                             <th scope="col" class="userCol">
                                 <?= __('Giáo viên chủ nhiệm') ?>
@@ -193,9 +193,10 @@ $this->assign('title', 'Quản lý lớp học');
                         <?php foreach ($jclasses as $jclass): ?>
                         <?php 
                             $counter++;
+                            $formTeacher = false;
                             if ($currentUser['id'] == $jclass->user_id && $permission != 0) {
-                                // current user only have read access but they are the main teacher
-                                $permission = 0.1;
+                                // current user only have read access but they are the form teacher
+                                $formTeacher = true;
                             }
                         ?>
                         <tr>
@@ -215,7 +216,7 @@ $this->assign('title', 'Quản lý lớp học');
                                                 ['action' => 'view', $jclass->id],
                                                 ['escape' => false]) ?>
                                         </li>
-                                        <?php if ($permission < 1): ?>
+                                        <?php if ($permission == 0 || $formTeacher == true): ?>
                                         <li>
                                             <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
                                                 ['action' => 'edit', $jclass->id],

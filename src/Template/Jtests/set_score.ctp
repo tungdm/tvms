@@ -6,7 +6,7 @@ $score = Configure::read('score');
 
 $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
 
-$this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi ' . $skillsArr[$skill]);
+$this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi');
 ?>
 
 <?php $this->start('content-header'); ?>
@@ -25,7 +25,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi 
                 'action' => 'index'
             ]) ?>
         </li>
-        <li class="active">Nhập điểm thi  <?= $skillsArr[$skill] ?></li>
+        <li class="active">Nhập điểm thi</li>
     </ol>
 <?php $this->end(); ?>
 
@@ -75,7 +75,9 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi 
                         <tr>
                             <th scope="col" class="col-md-1"><?= __('STT') ?></th>
                             <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
-                            <th scope="col">Điểm thi <?=$skillsArr[$skill] ?></th>
+                            <?php foreach($skill as $value): ?>
+                            <th scope="col">Điểm thi <?=$skillsArr[$value] ?></th>
+                            <?php endforeach; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,9 +87,10 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi 
                         <tr>
                             <td class="cell"><?= $key + 1 ?></td>
                             <td class="cell"><?= $value->fullname ?></td>
+                            <?php foreach($skill as $value): ?>
                             <td class="cell">
                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                    <?= $this->Form->control('students.' . $key . '._joinData.' . $score[$skill], [
+                                    <?= $this->Form->control('students.' . $key . '._joinData.' . $score[$value], [
                                         'label' => false,
                                         'class' => 'form-control col-md-7 col-xs-12',
                                         'required' => true,
@@ -97,6 +100,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi 
                                         ]) ?>
                                 </div>
                             </td>
+                            <?php endforeach; ?>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
