@@ -217,7 +217,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="interview_date"><?= __('Ngày phỏng vấn') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="input-group date input-picker gt-now" id="interview-date">
+                        <!-- <div class="input-group date input-picker gt-now" id="interview-date"> -->
+                        <div class="input-group date input-picker" id="interview-date"> <!-- Remove validate for user input past data -->
                             <?= $this->Form->control('interview_date', [
                                 'type' => 'text',
                                 'label' => false, 
@@ -311,7 +312,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="input-group date input-picker gt-now month-mode" id="departure-date-div">
+                        <!-- <div class="input-group date input-picker gt-now month-mode" id="departure-date-div"> -->
+                        <div class="input-group date input-picker month-mode" id="departure-date-div"> <!-- Remove validate for user input past data -->
                             <?= $this->Form->control('departure_date', [
                                 'type' => 'text',
                                 'label' => false, 

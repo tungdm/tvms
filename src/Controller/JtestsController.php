@@ -68,7 +68,9 @@ class JtestsController extends AppController
                     $jtest = $this->Jtests->get($target_id);
                     if (empty($jtestContent) || $jtest->status == '5') {
                         return false;
-                    } 
+                    } else {
+                        return true;
+                    }
                 }
             }
 

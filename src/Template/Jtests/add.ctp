@@ -130,7 +130,8 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="test_date"><?= __('Ngày thi') ?></label>
                     <div class="col-md-3 col-sm-7 col-xs-12" style="padding-right:5px;">
-                        <div class="input-group date input-picker gt-now" id="class-start">
+                        <!-- <div class="input-group date input-picker gt-now" id="class-start"> -->
+                        <div class="input-group date input-picker" id="class-start"> <!-- Remove validate for user input past data -->
                             <?= $this->Form->control('test_date', [
                                 'type' => 'text',
                                 'label' => false, 

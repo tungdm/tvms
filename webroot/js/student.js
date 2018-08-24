@@ -16,7 +16,7 @@ if (typeof studentName !== 'undefined') {
 }
 
 
-function generateChartOptions(title) {
+function generateChartOptions(title, maximum) {
     return {
         responsive: true,
         title: {
@@ -45,7 +45,7 @@ function generateChartOptions(title) {
                 },
                 ticks: {
                     beginAtZero:true,
-                    max: 15
+                    max: maximum
                 }
             }]
         },
@@ -127,7 +127,7 @@ $(document).ready(function() {
                 pointHoverBackgroundColor: '#fff'
             },
         ];
-        renderLineChart(chartId, title, labels, datasets);
+        renderLineChart(chartId, title, labels, datasets, 15);
     }
 
     if ($('#iq-jp-line-chart').length) {
@@ -154,7 +154,7 @@ $(document).ready(function() {
                 pointHoverBackgroundColor: '#fff'
             },
         ];
-        renderLineChart(chartId, title, labels, datasets);
+        renderLineChart(chartId, title, labels, datasets, 15);
     }
 
     if ($('#jtest-score-line-chart').length && $('#total-radar-chart').length && jtestScore.length) {
@@ -1600,7 +1600,8 @@ function initChart(testData, chartId, title) {
             data: [avgVoc, avgGra, avgLis, avgCon]
         },
     ];
-    renderLineChart(chartId[0], title[0], labels, datasets);
+    var maximum = 100;
+    renderLineChart(chartId[0], title[0], labels, datasets, maximum);
     renderRadarChart(chartId[1], title[1], radarLabel, radarDatasets);
 }
 
@@ -1609,8 +1610,8 @@ function transparentize(color, opacity) {
     return Color(color).alpha(alpha).rgbString();
 }
 
-function renderLineChart(chartId, title, labels, datasets) {
-    var lineChartOptions = generateChartOptions(title);
+function renderLineChart(chartId, title, labels, datasets, maximum) {
+    var lineChartOptions = generateChartOptions(title, maximum);
     var config = {
         type: 'line',
         data: {

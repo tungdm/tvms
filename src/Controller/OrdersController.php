@@ -177,8 +177,8 @@ class OrdersController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             // create system event
-            $event = $this->SystemEvent->create('PHỎNG VẤN', $data['interview_date']);
-            $data['events'][0] = $event;
+            // $event = $this->SystemEvent->create('PHỎNG VẤN', $data['interview_date']);
+            // $data['events'][0] = $event;
             $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
             if ($this->Orders->save($order)) {
@@ -212,7 +212,9 @@ class OrdersController extends AppController
         $currentInterviewDate = $order->interview_date;
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            $newInterviewDate = new Time($data['interview_date']);
+            debug($data);
+            $newInterviewDate = date('d/m/Y', strtotime('23/08/2018'));
+            debug($newInterviewDate);
             if ($currentInterviewDate !== $newInterviewDate) {
                 // uppdate system event
                 $event = $this->SystemEvent->update($order->events[0]->id, $data['interview_date']);
@@ -542,7 +544,7 @@ class OrdersController extends AppController
                     }
                     $fromDate = new Time($value->from_date);
                     $toDate = new Time($value->to_date);
-                    $specialized = $value->specialized ? '（' . $value->specialized . '）' : ''; 
+                    $specialized = $value->specialized_jp ? '（' . $value->specialized_jp . '）' : ''; 
                     $history = [
                         'year' => $fromDate->year . " ～ " . $toDate->year,
                         'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
