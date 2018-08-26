@@ -60,25 +60,21 @@ class EducationsTable extends Table
 
         $validator
             ->scalar('from_date')
-            ->requirePresence('from_date', 'create')
-            ->notEmpty('from_date');
+            ->allowEmpty('from_date');
 
         $validator
             ->scalar('to_date')
-            ->requirePresence('to_date', 'create')
-            ->notEmpty('to_date');
+            ->allowEmpty('to_date');
 
         $validator
             ->scalar('degree')
             ->maxLength('degree', 255)
-            ->requirePresence('degree', 'create')
-            ->notEmpty('degree');
+            ->allowEmpty('degree');
 
         $validator
             ->scalar('school')
             ->maxLength('school', 255)
-            ->requirePresence('school', 'create')
-            ->notEmpty('school');
+            ->allowEmpty('school');
 
         $validator
             ->scalar('specialized')
