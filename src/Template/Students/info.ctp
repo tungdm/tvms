@@ -1105,6 +1105,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                     ]) ?>
                                                 <?= $this->Form->control('families.' . $key . '.bank_name', [
                                                     'options' => $bank,
+                                                    'empty' => true,
                                                     'label' => false,
                                                     'class' => 'form-control bank_name',
                                                     ]) ?>
@@ -2343,6 +2344,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 ]) ?>
             <?= $this->Form->control('{{bankName}}', [
                 'options' => $bank,
+                'epty' => true,
                 'label' => false,
                 'class' => 'form-control bank_name',
                 ]) ?>

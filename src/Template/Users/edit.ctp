@@ -75,22 +75,20 @@ $this->assign('title', 'Cập nhật hồ sơ cá nhân');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email"><?= __('Email') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="email"><?= __('Email') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('email', [
                             'label' => false,
-                            'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12',
                             'placeholder' => 'Nhập địa chỉ mail của bạn'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="phone"><?= __('Số điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'label' => false, 
-                            'required' => true,
                             'class' => 'form-control col-md-7 col-xs-12',
                             'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                             'placeholder' => 'Nhập số điện thoại của bạn'
@@ -99,7 +97,7 @@ $this->assign('title', 'Cập nhật hồ sơ cá nhân');
                 </div>
 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="birthday"><?= __('Ngày sinh') ?></label>
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="birthday"><?= __('Ngày sinh') ?></label>
                     <div class="col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group date" id="user-birthday">
                             <?= $this->Form->control('birthday', [
@@ -107,7 +105,6 @@ $this->assign('title', 'Cập nhật hồ sơ cá nhân');
                                 'label' => false, 
                                 'class' => 'form-control',
                                 'placeholder' => 'yyyy-mm-dd',
-                                'required' => true,
                                 'data-parsley-errors-container' => '#error-birthday'
                                 ])?>
                             <span class="input-group-addon">

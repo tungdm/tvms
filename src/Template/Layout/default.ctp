@@ -660,7 +660,6 @@
     <?= $this->Html->script('fastclick.js') ?>
     <?= $this->Html->script('nprogress.js') ?>
     <?= $this->Html->script('pnotify.js') ?>
-    <?= $this->Html->script('hammer.js') ?>
     <?= $this->Html->script('pnotify.buttons.js') ?>
     <?= $this->Html->script('pnotify.nonblock.js') ?>
 

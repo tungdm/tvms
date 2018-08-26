@@ -79,11 +79,10 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="email"><?= __('Email') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="email"><?= __('Email') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('email', [
                             'label' => false,
-                            'required' => true,                            
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'placeholder' => 'Nhập địa chỉ mail của nhân viên'
                             ]) ?>
@@ -105,10 +104,9 @@ $this->assign('title', 'Thêm mới nhân viên');
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Điện thoại') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="phone"><?= __('Điện thoại') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
-                            'required' => true,
                             'label' => false, 
                             'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                             'class' => 'form-control col-md-7 col-xs-12',
