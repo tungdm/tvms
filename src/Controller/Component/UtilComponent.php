@@ -27,4 +27,9 @@ class UtilComponent extends Component
     {
         return date("Y-m-t", strtotime($month));
     }
+
+    public function convertDate($value)
+    {
+        return date('Y-m-d', strtotime($value));
+    }
 }

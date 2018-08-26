@@ -136,7 +136,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'dd-mm-yyyy',
                                 'required' => true,
                                 'data-parsley-errors-container' => '#error-test-date'
                                 ])?>

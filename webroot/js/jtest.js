@@ -17,6 +17,14 @@ $(document).ready(function() {
     $('.submit-test-btn').click(function () {
         var validateResult = $('#add-test-form').parsley().validate();
         if (validateResult) {
+            if (perData.skillSelected.length == 0) {
+                swal({
+                    title: 'Kĩ năng thi hiện đang bỏ trống',
+                    text: "Xin vui lòng kiểm tra lại!",
+                    type: 'error',
+                });
+                return;
+            }
             $('#add-test-form')[0].submit();
         }
     });
@@ -201,7 +209,7 @@ function addSkill() {
 
 function editSkill(rowId, initSkill) {
     var skillId = parseInt($('#modal-skill').val());
-    if (perData.skillSelected.indexOf(skillId) >= 0) {
+    if (skillId != initSkill && perData.skillSelected.indexOf(skillId) >= 0) {
         alert('Bạn đã chọn kỹ năng này. Xin hãy chọn lại.');
         return;
     }

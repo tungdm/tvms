@@ -70,7 +70,7 @@ class FamiliesTable extends Table
             ->notEmpty('fullname');
 
         $validator
-            ->date('birthday')
+            // ->date('birthday')
             ->allowEmpty('birthday');
 
         $validator

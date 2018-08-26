@@ -64,15 +64,15 @@ class CardsTable extends Table
             ->allowEmpty('code');
 
         $validator
-            ->date('registration_date')
+            // ->date('registration_date')
             ->allowEmpty('registration_date');
         
         $validator
-            ->date('from_date')
+            // ->date('from_date')
             ->allowEmpty('from_date');
 
         $validator
-            ->date('to_date')
+            // ->date('to_date')
             ->allowEmpty('to_date');
 
         $validator

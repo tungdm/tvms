@@ -183,7 +183,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         <?php foreach ($companies as $company): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell"><?= h($counter) ?></td>
+                            <td class="cell text-center"><?= h($counter) ?></td>
                             <td class="cell nameCol"><?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?></td>
                             <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
                             <td class="cell guildCol">

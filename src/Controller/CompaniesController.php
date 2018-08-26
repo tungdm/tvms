@@ -140,8 +140,8 @@ class CompaniesController extends AppController
             $resp = [
                 'status' => 'success',
                 'data' => $company,
-                'created' => $company->created->i18nFormat('HH:mm, dd/MM/yyyy'),
-                'modified' => $company->modified->i18nFormat('HH:mm, dd/MM/yyyy')
+                'created' => $company->created->i18nFormat('dd-MM-yyyy HH:mm:ss'),
+                'modified' => $company->modified->i18nFormat('dd-MM-yyyy HH:mm:ss')
             ];
         } catch (Exception $e) {
             //TODO: blacklist user

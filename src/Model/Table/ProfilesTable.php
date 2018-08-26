@@ -70,7 +70,7 @@ class ProfilesTable extends Table
             ->notEmpty('gender');
 
         $validator
-            ->date('birthday')
+            // ->date('birthday')
             ->allowEmpty('birthday');
 
         $validator

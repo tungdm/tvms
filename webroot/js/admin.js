@@ -381,12 +381,17 @@ if (typeof jQuery === 'undefined') {
             $('body').addClass(ClassName.expandFeature)
         }
 
-        var activeSidebar = localStorage.getItem('sidebar');
-        if (activeSidebar === 'true') {
-            this.open();
-        } else {
+        if ($(window).width() <= this.options.collapseScreenSize) {
             this.close();
+        } else {
+            var activeSidebar = localStorage.getItem('sidebar');
+            if (activeSidebar === 'true') {
+                this.open();
+            } else {
+                this.close();
+            }
         }
+        
 
         $(Selector.contentWrapper).click(function () {
             // Enable hide menu when clicking on the content-wrapper on small screens
@@ -1102,9 +1107,10 @@ function initDatetimePicker() {
         } else {
             $('#' + ele.id).datetimepicker({
                 useCurrent: false,
-                date: inputDate,
-                format: 'YYYY-MM-DD',
-                // format: 'DD/MM/YYYY',
+                // date: inputDate,
+                date: moment(inputDate, ['DD-MM-YYYY']),
+                // format: 'YYYY-MM-DD',
+                format: 'DD-MM-YYYY',
                 locale: 'vi'
             });
         }
@@ -1785,6 +1791,8 @@ function initFloatingButton() {
     });
 }
 
+
+
 $(document).ready(function() {
     init_sidebar();
     tableHover();
@@ -1924,7 +1932,7 @@ Handlebars.registerHelper("phoneFormat", function (value, options) {
 });
 
 Handlebars.registerHelper("dateTimeFormat", function (value, options) {
-    return moment(value).format('YYYY-MM-DD');
+    return moment(value).format('DD-MM-YYYY');
 });
 
 Handlebars.registerHelper("calAge", function (value, options) {
@@ -1937,3 +1945,7 @@ Handlebars.registerHelper("calAge", function (value, options) {
 Handlebars.registerHelper("nl2br", function (value, options) {
     return value.replace(/\r?\n/g,'<br/>');
 });
+
+function convertDate(value) {
+    return moment(value).format('DD-MM-YYYY');
+}

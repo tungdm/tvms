@@ -81,7 +81,7 @@ class JclassesTable extends Table
             ->notEmpty('name');
 
         $validator
-            ->date('start')
+            // ->date('start')
             ->requirePresence('start', 'create')
             ->notEmpty('start');
 

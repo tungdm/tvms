@@ -25,6 +25,7 @@ class JclassesController extends AppController
     {
         parent::initialize();
         $this->loadComponent('ExportFile');
+        $this->loadComponent('Util');
         $this->entity = 'lớp';
         $this->Auth->allow(['editHistory', 'deleteHistory']);
     }
@@ -79,7 +80,8 @@ class JclassesController extends AppController
                 });
             }
             if (isset($query['start']) && !empty($query['start'])) {
-                $allClasses->where(['start >=' => $query['start']]);
+                $start_date = $this->Util->convertDate($query['start']);
+                $allClasses->where(['start >=' => $start_date]);
             }
             if (isset($query['num_students']) && $query['num_students'] != NULL) {
                 $allClasses
@@ -262,7 +264,7 @@ class JclassesController extends AppController
                 return $results->map(function ($row) use ($classId) {
                     $row['controller'] = 'jclasses';
                     $row['classId'] = $classId;
-                    $row['created'] = $row['created']->i18nFormat('HH:mm, dd/MM/yyyy');
+                    $row['created'] = $row['created']->i18nFormat('dd-MM-yyyy HH:mm:ss');
                     $row['owner'] = $row['created_by'] == $this->Auth->user('id') ? true : false;
                     return $row;
                 });
@@ -271,8 +273,8 @@ class JclassesController extends AppController
             $resp = [
                 'status' => 'success',
                 'histories' => $histories,
-                'now' => Time::now()->i18nFormat('HH:mm, dd/MM/yyyy'),
-                'student_created' => $student->created->i18nFormat('HH:mm, dd/MM/yyyy')
+                'now' => Time::now()->i18nFormat('dd-MM-yyyy HH:mm:ss'),
+                'student_created' => $student->created->i18nFormat('dd-MM-yyyy HH:mm:ss')
             ];
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -303,8 +305,8 @@ class JclassesController extends AppController
             $student = $studentTable->get($data['student_id']);
             if ($studentTable->Histories->save($history)) {
                 $history = $studentTable->Histories->get($history->id, ['contain' => ['UsersCreatedBy', 'UsersModifiedBy']]);
-                $history->created = $history->created->i18nFormat('HH:mm, dd/MM/yyyy');
-                $now = Time::now()->i18nFormat('HH:mm, dd/MM/yyyy');
+                $history->created = $history->created->i18nFormat('dd-MM-yyyy HH:mm:ss');
+                $now = Time::now()->i18nFormat('dd-MM-yyyy HH:mm:ss');
                 $resp = [
                     'status' => 'success',
                     'history' => $history,

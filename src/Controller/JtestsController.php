@@ -45,7 +45,7 @@ class JtestsController extends AppController
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
-                    $testDate = $this->Jtests->get($target_id)->test_date;
+                    $testDate = $this->Jtests->get($target_id)->test_date->i18nFormat('yyyy-MM-dd');
                     if ($testDate <= $now) {
                         // can not modified
                         return false;
@@ -97,7 +97,8 @@ class JtestsController extends AppController
                 $query['records'] = 10;
             }
             if (isset($query['test_date']) && !empty($query['test_date'])) {
-                $allTest->where(['test_date >=' => $query['test_date']]);
+                $test_date = $this->Util->convertDate($query['test_date']);
+                $allTest->where(['test_date >=' => $test_date]);
             }
             if (isset($query['lesson_from']) && !empty($query['lesson_from'])) {
                 $allTest->where(['lesson_from >=' => $query['lesson_from']]);
@@ -180,11 +181,13 @@ class JtestsController extends AppController
             $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), $this->request->getParam('action'));
 
             // update flag
-            $flag = '';
-            foreach ($data['jtest_contents'] as $key => $value) {
-                $flag = $flag . $value['skill'];
+            if (!empty($data['jtest_contents'])) {
+                $flag = '';
+                foreach ($data['jtest_contents'] as $key => $value) {
+                    $flag = $flag . $value['skill'];
+                }
+                $jtest->flag = $flag;
             }
-            $jtest->flag = $flag;
             if ($this->Jtests->save($jtest)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
                     'entity' => $this->entity,
@@ -284,6 +287,15 @@ class JtestsController extends AppController
             $data['events'][0] = $event;
             
             $jtest = $this->Jtests->patchEntity($jtest, $data);
+            // update flag
+            if (!empty($data['jtest_contents'])) {
+                $flag = '';
+                foreach ($data['jtest_contents'] as $key => $value) {
+                    $flag = $flag . $value['skill'];
+                }
+                $jtest->flag = $flag;
+            }
+
             $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), $this->request->getParam('action'));
 
             if ($this->Jtests->save($jtest)) {

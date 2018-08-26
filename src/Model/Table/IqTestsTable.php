@@ -59,7 +59,7 @@ class IqTestsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->date('test_date')
+            // ->date('test_date')
             ->allowEmpty('test_date');
 
         $validator

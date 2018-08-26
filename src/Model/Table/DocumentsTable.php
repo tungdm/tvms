@@ -69,7 +69,7 @@ class DocumentsTable extends Table
             ->allowEmpty('status');
 
         $validator
-            ->date('submit_date')
+            // ->date('submit_date')
             ->allowEmpty('submit_date');
 
         $validator

@@ -191,10 +191,10 @@ $this->assign('title', 'Quản lý Nhân viên');
                         <?php foreach ($users as $user): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell"><?= h($counter) ?></td>
+                            <td class="cell text-center"><?= h($counter) ?></td>
                             <td class="cell usernameCol"><?= h($user->username) ?></td>
                             <td class="cell emailCol hidden"><?= h($user->email) ?></td>
-                            <td class="cell genderCol"><?= h($gender[$user->gender]) ?></td>
+                            <td class="cell genderCol text-center"><?= h($gender[$user->gender]) ?></td>
                             <td class="cell phoneCol"><?= h($this->Phone->makeEdit($user->phone)) ?></td>
                             <td class="cell fullnameCol"><?= h($user->fullname) ?></td>
                             <td class="cell roleCol"><?= h($user->role->name_vn) ?></td>

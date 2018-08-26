@@ -165,7 +165,7 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                         <?php foreach ($guilds as $guild): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell"><?= h($counter) ?></td>
+                            <td class="cell text-center"><?= h($counter) ?></td>
                             <td class="cell nameCol"><?= h($guild->name_romaji) ?><br/><?= h($guild->name_kanji) ?></td>
                             <td class="cell addressCol"><?= h($guild->address_romaji) ?></td>
                             <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($guild->phone_vn)) ?></td>

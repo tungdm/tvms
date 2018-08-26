@@ -49,7 +49,6 @@ class OrdersController extends AppController
                 if (!empty($target_id)) {
                     $target_id = $target_id[0];
                     $order = $this->Orders->get($target_id);
-                    Log::write('debug', $order);
                     if ($order->status == '5') {
                         return false;
                     }
@@ -89,7 +88,8 @@ class OrdersController extends AppController
                 });
             }
             if (isset($query['interview_date']) && !empty($query['interview_date'])) {
-                $allOrders->where(['interview_date >=' => $query['interview_date']]);
+                $interview_date = $this->Util->convertDate($query['interview_date']);
+                $allOrders->where(['interview_date >=' => $interview_date]);
             }
             if (isset($query['work_at']) && !empty($query['work_at'])) {
                 $allOrders->where(['work_at' => $query['work_at']]);
@@ -177,8 +177,8 @@ class OrdersController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             // create system event
-            // $event = $this->SystemEvent->create('PHỎNG VẤN', $data['interview_date']);
-            // $data['events'][0] = $event;
+            $event = $this->SystemEvent->create('PHỎNG VẤN', $this->Util->convertDate($data['interview_date']));
+            $data['events'][0] = $event;
             $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
             if ($this->Orders->save($order)) {
@@ -209,17 +209,15 @@ class OrdersController extends AppController
             'contain' => ['Students', 'Events']
         ]);
         $orderName = $order->name;
-        $currentInterviewDate = $order->interview_date;
+        $currentInterviewDate = $order->interview_date->i18nFormat('yyyy-MM-dd');
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            debug($data);
-            $newInterviewDate = date('d/m/Y', strtotime('23/08/2018'));
-            debug($newInterviewDate);
+            $newInterviewDate = $this->Util->convertDate($data['interview_date']);
             if ($currentInterviewDate !== $newInterviewDate) {
                 // uppdate system event
                 $event = $this->SystemEvent->update($order->events[0]->id, $data['interview_date']);
+                $data['events'][0] = $event;
             }
-            $data['events'][0] = $event;
             $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
             

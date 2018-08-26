@@ -28,11 +28,12 @@ if (!empty($jtest->jtest_contents)) {
 }
 $status = 0;
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
+$test_date = $jtest->test_date->i18nFormat('yyyy-MM-dd');
 if ($jtest->status == "4" || $jtest->status == "5") {
     $status = (int) $jtest->status;
-} elseif ($now < $jtest->test_date) {
+} elseif ($now < $test_date) {
     $status = 1;
-} elseif ($now == $jtest->test_date) {
+} elseif ($now == $test_date) {
     $status = 2;
 } else {
     $status = 3;

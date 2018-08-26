@@ -86,7 +86,7 @@ class OrdersTable extends Table
             ->notEmpty('name');
 
         $validator
-            ->date('interview_date')
+            // ->date('interview_date')
             ->requirePresence('interview_date', 'create')
             ->notEmpty('interview_date');
 

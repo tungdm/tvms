@@ -157,7 +157,7 @@ $this->assign('title', 'Quản lý Lao động');
                                     <?= $this->Form->control('enrolled_date', [
                                         'type' => 'text',
                                         'label' => false,
-                                        'placeholder' => 'yyyy-mm-dd',
+                                        'placeholder' => 'dd-mm-yyyy',
                                         'class' => 'form-control col-md-7 col-xs-12',
                                         'value' => $query['enrolled_date'] ?? ''
                                         ]) 
@@ -212,10 +212,10 @@ $this->assign('title', 'Quản lý Lao động');
                         <?php foreach ($students as $student): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell"><?= h($counter) ?></td>
+                            <td class="cell text-center"><?= h($counter) ?></td>
                             <td class="cell fullnameCol"><?= h($student->fullname) ?><br><?= h($student->fullname_kata)?></td>
                             <td class="cell enrolledDateCol"><?= h($student->enrolled_date) ?></td>
-                            <td class="cell genderCol"><?= h($gender[$student->gender]) ?></td>
+                            <td class="cell genderCol text-center"><?= h($gender[$student->gender]) ?></td>
                             <td class="cell presenterCol">
                                 <?php if (!empty($student->presenter)): ?>
                                 <a href="javascript:;" onclick="viewPresenter(<?= $student->presenter->id ?>)">
@@ -380,7 +380,7 @@ $this->assign('title', 'Quản lý Lao động');
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'dd-mm-yyyy',
                                 'data-parsley-errors-container' => '#errors-appointment-date'
                                 ])
                             ?>
@@ -399,7 +399,7 @@ $this->assign('title', 'Quản lý Lao động');
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'dd-mm-yyyy',
                                 'data-parsley-errors-container' => '#picker-errors'
                                 ])
                             ?>
@@ -752,7 +752,7 @@ $this->assign('title', 'Quản lý Lao động');
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="cell">1</td>
+                                        <td class="cell text-center">1</td>
                                         <td class="cell">
                                             <div class="checkbox">
                                                 <label>
@@ -770,7 +770,7 @@ $this->assign('title', 'Quản lý Lao động');
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="cell">2</td>
+                                        <td class="cell text-center">2</td>
                                         <td class="cell">
                                             <div class="checkbox">
                                                 <label>
@@ -788,7 +788,7 @@ $this->assign('title', 'Quản lý Lao động');
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="cell">3</td>
+                                        <td class="cell text-center">3</td>
                                         <td class="cell">
                                             <div class="checkbox">
                                                 <label>
@@ -796,7 +796,7 @@ $this->assign('title', 'Quản lý Lao động');
                                                 </label>
                                             </div>
                                         </td>
-                                        <td class="cell">
+                                        <td class="cell text-center">
                                             <?= $this->Form->control('std.guild.name', [
                                                 'label' => false, 
                                                 'options' => [],
@@ -806,7 +806,7 @@ $this->assign('title', 'Quản lý Lao động');
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="cell">4</td>
+                                        <td class="cell text-center">4</td>
                                         <td class="cell">
                                             <div class="checkbox">
                                                 <label>

@@ -123,8 +123,8 @@ class PresentersController extends AppController
             $resp = [
                 'status' => 'success',
                 'data' => $presenter,
-                'created' => $presenter->created->i18nFormat('HH:mm, dd/MM/yyyy'),
-                'modified' => $presenter->modified->i18nFormat('HH:mm, dd/MM/yyyy')
+                'created' => $presenter->created->i18nFormat('dd-MM-yyyy HH:mm:ss'),
+                'modified' => $presenter->modified->i18nFormat('dd-MM-yyyy HH:mm:ss')
             ];
         } catch (Exception $e) {
             //TODO: blacklist user

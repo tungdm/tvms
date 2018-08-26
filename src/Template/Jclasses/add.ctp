@@ -10,7 +10,6 @@ $gender = Configure::read('gender');
 $lessons = Configure::read('lessons');
 $currentUser = $this->request->session()->read('Auth.User');
 
-$now = Time::now()->i18nFormat('yyyy-MM-dd');
 $historyNow = Time::now();
 
 $this->Html->css('class.css', ['block' => 'styleTop']);
@@ -154,7 +153,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'dd-mm-yyyy',
                                 'required' => true,
                                 'data-parsley-errors-container' => '#error-start'
                                 ])?>

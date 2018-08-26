@@ -152,7 +152,7 @@ class StudentsTable extends Table
             ->allowEmpty('image');
 
         $validator
-            ->date('birthday')
+            // ->date('birthday')
             ->allowEmpty('birthday');
 
         $validator
@@ -250,7 +250,7 @@ class StudentsTable extends Table
             ->allowEmpty('status');
         
         $validator
-            ->date('enrolled_date')
+            // ->date('enrolled_date')
             ->allowEmpty('enrolled_date');
 
         $validator

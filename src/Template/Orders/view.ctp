@@ -19,11 +19,13 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
 $this->assign('title', $order->name . ' - Thông tin chi tiết');
 
+$interview_date = $order->interview_date->i18nFormat('yyyy-MM-dd');
+
 if ($order->status == "4" || $order->status == "5") {
     $status = (int) $order->status;
-} elseif ($now < $order->interview_date) {
+} elseif ($now < $interview_date) {
     $status = 1;
-} elseif ($now == $order->interview_date) {
+} elseif ($now == $interview_date) {
     $status = 2;
 } else {
     $status = 3;

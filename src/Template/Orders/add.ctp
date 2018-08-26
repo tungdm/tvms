@@ -22,15 +22,19 @@ $interviewType = Configure::read('interviewType');
 $workTime = Configure::read('workTime');
 
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
-if ($order->status == "4" || $order->status == "5") {
-    $status = (int) $order->status;
-} elseif ($now < $order->interview_date) {
-    $status = 1;
-} elseif ($now == $order->interview_date) {
-    $status = 2;
-} else {
-    $status = 3;
+if (!empty($order->interview_date)) {
+    $interview_date = $order->interview_date->i18nFormat('yyyy-MM-dd');
+    if ($order->status == "4" || $order->status == "5") {
+        $status = (int) $order->status;
+    } elseif ($now < $interview_date) {
+        $status = 1;
+    } elseif ($now == $interview_date) {
+        $status = 2;
+    } else {
+        $status = 3;
+    }
 }
+
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
 $this->Html->css('switchery.min.css', ['block' => 'styleTop']);
@@ -223,7 +227,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'dd-mm-yyyy',
                                 'required' => true,
                                 'data-parsley-errors-container' => '#error-interview-date'
                                 ])?>

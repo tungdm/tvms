@@ -124,7 +124,7 @@ $this->assign('title', 'Thêm mới nhân viên');
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm-dd',
+                                'placeholder' => 'dd-mm-yyyy',
                                 'data-parsley-errors-container' => '#error-birthday'
                                 ])?>
                             <span class="input-group-addon">

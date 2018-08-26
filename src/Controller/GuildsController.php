@@ -146,8 +146,8 @@ class GuildsController extends AppController
             $resp = [
                 'status' => 'success',
                 'data' => $guild,
-                'created' => $guild->created->i18nFormat('HH:mm, dd/MM/yyyy'),
-                'modified' => $guild->modified->i18nFormat('HH:mm, dd/MM/yyyy')
+                'created' => $guild->created->i18nFormat('dd-MM-yyyy HH:mm:ss'),
+                'modified' => $guild->modified->i18nFormat('dd-MM-yyyy HH:mm:ss')
             ];
         } catch (Exception $e) {
             //TODO: blacklist user

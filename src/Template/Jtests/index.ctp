@@ -117,7 +117,7 @@ $this->assign('title', 'Quản lý thi cử');
                                     <?= $this->Form->control('test_date', [
                                         'type' => 'text',
                                         'label' => false,
-                                        'placeholder' => 'yyyy-mm-dd',
+                                        'placeholder' => 'dd-mm-yyyy',
                                         'class' => 'form-control col-md-7 col-xs-12',
                                         'value' => $query['test_date'] ?? ''
                                         ]) 
@@ -193,7 +193,7 @@ $this->assign('title', 'Quản lý thi cử');
                             }
                         ?>
                         <tr>
-                            <td class="cell"><?= $counter ?></td>
+                            <td class="cell text-center"><?= $counter ?></td>
                             <td class="cell testDateCol">
                                 <?= h($jtest->test_date) ?>
                             </td>
@@ -206,13 +206,14 @@ $this->assign('title', 'Quản lý thi cử');
                             <td class="cell statusCol">
                                 <?php 
                                     $status = 0;
+                                    $test_date = $jtest->test_date->i18nFormat('yyyy-MM-dd');
                                     if ($jtest->status == "4" || $jtest->status == "5") {
                                         $status = (int) $jtest->status;
                                         echo h($testStatus[$jtest->status]);
-                                    } elseif ($now < $jtest->test_date) {
+                                    } elseif ($now < $test_date) {
                                         $status = 1;
                                         echo h($testStatus["1"]);
-                                    } elseif ($now == $jtest->test_date) {
+                                    } elseif ($now == $test_date) {
                                         $status = 2;
                                         echo h($testStatus["2"]);
                                     } else {

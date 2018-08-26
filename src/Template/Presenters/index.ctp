@@ -160,7 +160,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                         <?php foreach ($presenters as $presenter): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell"><?= h($counter) ?></td>
+                            <td class="cell text-center"><?= h($counter) ?></td>
                             <td class="cell nameCol"><?= h($presenter->name) ?></td>
                             <td class="cell addressCol"><?= h($presenter->address) ?></td>
                             <td class="cell phoneCol"><?= h($this->Phone->makeEdit($presenter->phone)) ?></td>

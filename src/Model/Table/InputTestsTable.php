@@ -68,7 +68,7 @@ class InputTestsTable extends Table
             ->allowEmpty('score');
 
         $validator
-            ->date('test_date')
+            // ->date('test_date')
             ->allowEmpty('test_date');
 
         $validator

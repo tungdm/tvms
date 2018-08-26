@@ -81,7 +81,7 @@ class JtestsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->date('test_date')
+            // ->date('test_date')
             ->requirePresence('test_date', 'create')
             ->notEmpty('test_date');
 

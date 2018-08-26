@@ -100,7 +100,9 @@ class StudentsController extends AppController
                 $allStudents->where(['status' => $query['student_status']]);
             }
             if (isset($query['enrolled_date']) && !empty($query['enrolled_date'])) {
-                $allStudents->where(['Students.enrolled_date >=' => $query['enrolled_date']]);
+                $enrolled_date = $this->Util->convertDate($query['enrolled_date']);
+                $query['enrolled_date'] = date('d-m-Y', strtotime($enrolled_date));                
+                $allStudents->where(['Students.enrolled_date >=' => $enrolled_date]);
             }
             if (isset($query['return_from']) && !empty($query['return_from']) && isset($query['return_to']) && !empty($query['return_to'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -227,8 +229,8 @@ class StudentsController extends AppController
                 'birthday' => $student->birthday ? $student->birthday->i18nFormat('yyyy-MM-dd') : 'N/A',
                 'appointment_date' => $student->appointment_date ? $student->appointment_date->i18nFormat('yyyy-MM-dd') : 'N/A',
                 'exempt' => $yesNoQuestion[$student->exempt],
-                'created' => $student->created->i18nFormat('HH:mm, dd/MM/yyyy'),
-                'modified' => $student->modified ? $student->modified->i18nFormat('HH:mm, dd/MM/yyyy') : 'N/A'
+                'created' => $student->created->i18nFormat('dd-MM-yyyy HH:mm:ss'),
+                'modified' => $student->modified ? $student->modified->i18nFormat('dd-MM-yyyy HH:mm:ss') : 'N/A'
             ];
         } catch (Exception $e) {
             //TODO: blacklist user
@@ -259,6 +261,7 @@ class StudentsController extends AppController
                     'name' => $student->fullname
                 ]));
             } else {
+                Log::write('debug', $student->errors());
                 $this->Flash->error($this->errorMessage['add']);
             }
             return $this->redirect(['action' => 'index']);
@@ -369,7 +372,7 @@ class StudentsController extends AppController
             $histories->formatResults(function ($results) {
                 return $results->map(function ($row) {
                     $row['controller'] = 'students';
-                    $row['created'] = $row['created']->i18nFormat('HH:mm, dd/MM/yyyy');
+                    $row['created'] = $row['created']->i18nFormat('dd-MM-yyyy HH:mm:ss');
                     $row['owner'] = $row['created_by'] == $this->Auth->user('id') ? true : false;
                     return $row;
                 });
@@ -378,7 +381,7 @@ class StudentsController extends AppController
             $resp = [
                 'status' => 'success',
                 'histories' => $histories,
-                'now' => Time::now()->i18nFormat('HH:mm, dd/MM/yyyy'),
+                'now' => Time::now()->i18nFormat('dd-MM-yyyy HH:mm:ss'),
                 'student_created' => $student->created->i18nFormat('dd/MM/yyyy')
             ];
         } catch (Exception $e) {
@@ -408,8 +411,8 @@ class StudentsController extends AppController
             $student = $this->Students->get($data['student_id']);
             if ($this->Students->Histories->save($history)) {
                 $history = $this->Students->Histories->get($history->id, ['contain' => ['UsersCreatedBy', 'UsersModifiedBy']]);
-                $history->created = $history->created->i18nFormat('HH:mm, dd/MM/yyyy');
-                $now = Time::now()->i18nFormat('HH:mm, dd/MM/yyyy');
+                $history->created = $history->created->i18nFormat('dd-MM-yyyy HH:mm:ss');
+                $now = Time::now()->i18nFormat('dd-MM-yyyy HH:mm:ss');
                 $resp = [
                     'status' => 'success',
                     'history' => $history,
@@ -624,7 +627,7 @@ class StudentsController extends AppController
             }
             $student->expectation = $expectStr;
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
-
+            // debug($student);
             try{
                 // save to db
                 if ($this->Students->save($student)) {
@@ -640,6 +643,8 @@ class StudentsController extends AppController
                         ]));
                     }
                     return $this->redirect(['action' => 'info', $student->id]);
+                } else {
+                    Log::write('debug', $student->errors());
                 }
             } catch (Exception $e) {
                 Log::write('debug', $e);
@@ -1357,9 +1362,7 @@ class StudentsController extends AppController
                     $zoomScale = $zoomScale - 5;
                     if (!empty($condition['order']['name'])) {
                         $zoomScale = $zoomScale - 5;
-                        // select all students belong to the query order
-                        Log::write('debug', 'select all students belong to the query order');
-
+                        // select all students assigned to the order
                         $allStudents->contain([
                             'Orders' => function($q) use ($condition) {
                                 return $q->where(['Orders.id' => $condition['order']['name']]);
@@ -1370,7 +1373,6 @@ class StudentsController extends AppController
                             return $q->where(['Orders.id' => $condition['order']['name']]);
                         });
                     } else {
-                        Log::write('debug', 'select all student passed the interview');
                         // select all student passed the interview
                         $allStudents->contain([
                             'Orders' => function($q) {
@@ -1378,6 +1380,11 @@ class StudentsController extends AppController
                             }, 
                             'Orders.Jobs'
                             ]);
+                        $allStudents->matching('Orders', function($q) {
+                            return $q->where([
+                                'result' => '1',
+                                ]);
+                        });
                     }
                 }
                 
@@ -1385,20 +1392,22 @@ class StudentsController extends AppController
                     $zoomScale = $zoomScale - 5;
                     Log::write('debug', 'select all student with company info if passed the interview');
                     $allStudents->contain([
-                        'Orders', 
+                        'Orders',
                         'Orders.Companies'
                         ]);
-
                     if (!empty($condition['company']['name'])) {
+                        Log::write('debug', 'select all student in company ' . $condition['company']['name']);
+
                         // select all students passed the interview and belong to the query company
                         $allStudents->matching('Orders.Companies', function($q) use ($condition) {
                             return $q->where([
                                 'Companies.id' => $condition['company']['name'],
-                                'result' => '1'
+                                // 'result' => '1'
                                 ]);
                         });
                     }
                 }
+
                 if (isset($condition['guild']) && !empty($condition['guild'])) {
                     $zoomScale = $zoomScale - 5;
                     Log::write('debug', 'select all student with guild info if passed the interview');

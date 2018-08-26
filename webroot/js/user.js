@@ -70,8 +70,8 @@ $(document).ready(function() {
     var birthday = $('#birthday').val();
     $('#user-birthday').datetimepicker({
         useCurrent: false,
-        date: birthday,
-        format: 'YYYY-MM-DD',
+        date: moment(birthday, ['DD-MM-YYYY']),
+        format: 'DD-MM-YYYY',
         locale: 'vi'
     });
     $('#user-birthday').on('dp.change', function(e) {

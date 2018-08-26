@@ -46,7 +46,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script> -->
 
 <?php $this->start('content-header'); ?>
 <h1><?= __('THÔNG TIN CHI TIẾT') ?></h1>
@@ -919,7 +918,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <canvas id="total-radar-chart" height="300"></canvas>
                                     </div>
                                     <div class="col-md-8 col-xs-12">
-                                        <canvas id="jtest-score-line-chart"></canvas>
+                                        <canvas id="jtest-score-line-chart" height="300"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -1255,14 +1254,14 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="tab-pane fade in active" id="iq-vn">
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                    <canvas id="iq-vn-line-chart"></canvas>
+                                                    <canvas id="iq-vn-line-chart" height="300"></canvas>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="iq-jp">
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                    <canvas id="iq-jp-line-chart"></canvas>
+                                                    <canvas id="iq-jp-line-chart" height="300"></canvas>
                                                 </div>
                                             </div>
                                         </div>

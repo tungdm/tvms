@@ -139,7 +139,7 @@ $this->assign('title', 'Quản lý lớp học');
                                     <?= $this->Form->control('start', [
                                         'type' => 'text',
                                         'label' => false,
-                                        'placeholder' => 'yyyy-mm-dd',
+                                        'placeholder' => 'dd-mm-yyyy',
                                         'class' => 'form-control col-md-7 col-xs-12',
                                         'value' => $query['start'] ?? ''
                                         ]) 
@@ -200,7 +200,7 @@ $this->assign('title', 'Quản lý lớp học');
                             }
                         ?>
                         <tr>
-                            <td class="cell"><?= $counter ?></td>
+                            <td class="cell text-center"><?= $counter ?></td>
                             <td class="cell nameCol"><?= h($jclass->name) ?></td>
                             <td class="cell startCol"><?= h($jclass->start) ?></td>
                             <td class="cell numStudentsCol"><?= count($jclass->students) ?></td>

@@ -21,7 +21,8 @@ function generateChartOptions(title, maximum) {
         responsive: true,
         title: {
             display: true,
-            text: title
+            text: title,
+            fontSize: 14
         },
         tooltips: {
             mode: 'index',
@@ -106,7 +107,7 @@ $(document).ready(function() {
     if ($('#iq-vn-line-chart').length) {
         // iq chart
         var chartId = 'iq-vn-line-chart';
-        var title = 'Biểu đồ điểm kiểm tra IQ * ' + studentNameVN + ' * ' +  testDate;
+        var title = ['Biểu đồ điểm kiểm tra IQ * ' + studentNameVN + ' * ' +  testDate, 'Tổng điểm: ' + iqtests[0].total];
         var labels = [
             'Câu1', 'Câu2', 'Câu3', 'Câu4', 'Câu5', 'Câu6', 'Câu7', 'Câu8', 'Câu9', 'Câu10',
             'Câu11', 'Câu12', 'Câu13', 'Câu14', 'Câu15', 'Câu16', 'Câu17', 'Câu18', 'Câu19', 'Câu20',
@@ -127,13 +128,13 @@ $(document).ready(function() {
                 pointHoverBackgroundColor: '#fff'
             },
         ];
-        renderLineChart(chartId, title, labels, datasets, 15);
+        renderLineChart(chartId, title, labels, datasets, 16);
     }
 
     if ($('#iq-jp-line-chart').length) {
         // iq chart
         var chartId = 'iq-jp-line-chart';
-        var title = 'クレペリン検査 * ' + stName + ' * ' +  testDate;
+        var title = ['クレペリン検査 * ' + stName + ' * ' +  testDate, '合計: ' + iqtests[0].total];
         var labels = [
             '文1', '文2', '文3', '文4', '文5', '文6', '文7', '文8', '文9', '文10',
             '文11', '文12', '文13', '文14', '文15', '文16', '文17', '文18', '文19', '文20',
@@ -154,7 +155,7 @@ $(document).ready(function() {
                 pointHoverBackgroundColor: '#fff'
             },
         ];
-        renderLineChart(chartId, title, labels, datasets, 15);
+        renderLineChart(chartId, title, labels, datasets, 16);
     }
 
     if ($('#jtest-score-line-chart').length && $('#total-radar-chart').length && jtestScore.length) {
@@ -454,8 +455,8 @@ function viewSCandidate(candidateId) {
                 $('#view-candidate-name').html(resp.data.fullname);
                 $('#view-candidate-gender').html(resp.gender);
                 $('#view-candidate-phone').html(str2Phone(resp.data.phone));
-                $('#view-candidate-appointment-date').html(resp.appointment_date);
-                $('#view-candidate-birthday').html(resp.birthday);
+                $('#view-candidate-appointment-date').html(convertDate(resp.appointment_date));
+                $('#view-candidate-birthday').html(convertDate(resp.birthday));
                 $('#view-candidate-address').html(resp.data.addresses[0].city.name);
                 $('#view-candidate-edu-level').html(resp.edu_level);
                 $('#view-candidate-exempt').html(resp.exempt);
@@ -531,8 +532,8 @@ function showEditStudentModal(candidateId) {
                 $('#fullname').val(resp.data.fullname);
                 $('#gender').val(resp.data.gender).trigger('change');
                 $('#phone').val(resp.data.phone);
-                $('input[name="appointment_date"]').val(resp.data.appointment_date).trigger('change');
-                $('input[name="birthday"]').val(resp.data.birthday).trigger('change');
+                $('input[name="appointment_date"]').val(convertDate(resp.data.appointment_date)).trigger('change');
+                $('input[name="birthday"]').val(convertDate(resp.data.birthday)).trigger('change');
                 $('#addresses-0-city-id').val(resp.data.addresses[0].city_id).trigger('change');
                 $('#educational-level').val(resp.data.educational_level).trigger('change');
                 $('#exempt').val(resp.data.exempt).trigger('change');

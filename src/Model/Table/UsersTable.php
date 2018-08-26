@@ -172,7 +172,7 @@ class UsersTable extends Table
             ->allowEmpty('gender');
 
         $validator
-            ->date('birthday')
+            // ->date('birthday')
             ->allowEmpty('birthday');
 
         $validator

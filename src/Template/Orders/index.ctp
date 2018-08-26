@@ -144,7 +144,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                                     <?= $this->Form->control('interview_date', [
                                         'type' => 'text',
                                         'label' => false,
-                                        'placeholder' => 'yyyy-mm-dd',
+                                        'placeholder' => 'dd-mm-yyyy',
                                         'class' => 'form-control col-md-7 col-xs-12',
                                         'value' => $query['interview_date'] ?? ''
                                         ]) 
@@ -207,9 +207,9 @@ $this->assign('title', 'Quản lý đơn hàng');
                         <?php foreach ($orders as $order): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell"><?= $counter ?></td>
+                            <td class="cell text-center"><?= $counter ?></td>
                             <td class="cell nameCol"><?= h($order->name) ?></td>
-                            <td class="cell interviewDateCol"><?= h($order->interview_date) ?></td>
+                            <td class="cell interviewDateCol"><?= h($order->interview_date->i18nFormat('dd-MM-yyyy')) ?></td>
                             <td class="cell workAtCol"><?= h($cityJP[$order->work_at]) ?></td>
                             <td class="cell guildIdCol">
                                 <?php if (!empty($order->company->guild)): ?>
@@ -222,13 +222,16 @@ $this->assign('title', 'Quản lý đơn hàng');
                                 <?php endif; ?>
                             </td>
                             <td class="cell statusCol">
-                                <?php if ($order->status == "4" || $order->status == "5") {
+                                <?php 
+                                $interview_date = $order->interview_date->i18nFormat('yyyy-MM-dd');
+
+                                if ($order->status == "4" || $order->status == "5") {
                                     $status = (int) $order->status;
                                     echo h($interviewStatus[$order->status]);
-                                } elseif ($now < $order->interview_date) {
+                                } elseif ($now < $interview_date) {
                                     $status = 1;
                                     echo h($interviewStatus["1"]);
-                                } elseif ($now == $order->interview_date) {
+                                } elseif ($now == $interview_date) {
                                     $status = 2;
                                     echo h($interviewStatus["2"]);
                                 } else {
