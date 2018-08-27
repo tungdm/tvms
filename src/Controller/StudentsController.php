@@ -85,9 +85,9 @@ class StudentsController extends AppController
                     return $exp->like('fullname', '%'.$query['student_name'].'%');
                 });
             }
-            if (isset($query['email']) && !empty($query['email'])) {
+            if (isset($query['zalo']) && !empty($query['zalo'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('email', '%'.$query['email'].'%');
+                    return $exp->like('zalo', '%'.$query['zalo'].'%');
                 });
             }
             if (isset($query['student_gender']) && !empty($query['student_gender'])) {

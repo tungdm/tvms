@@ -10,7 +10,7 @@ use Cake\ORM\Entity;
  * @property string $code
  * @property string $fullname
  * @property string $fullname_kata
- * @property string $email
+ * @property string $zalo
  * @property string $phone
  * @property string $gender
  * @property string $image
@@ -54,7 +54,7 @@ class Student extends Entity
         'fullname' => true,
         'fullname_kata' => true,
         'exempt' => true,
-        'email' => true,
+        'zalo' => true,
         'phone' => true,
         'gender' => true,
         'image' => true,

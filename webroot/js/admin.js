@@ -1437,7 +1437,7 @@ function str2Phone(value) {
     } else if (value.length == 11) {
         return value.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
     } else if (value.length == 0) {
-        return 'N/A';
+        return '';
     } else {
         return value;
     }

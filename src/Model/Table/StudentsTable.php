@@ -135,8 +135,8 @@ class StudentsTable extends Table
             ->allowEmpty('fullname_kata');
 
         $validator
-            ->email('email')
-            ->allowEmpty('email');
+            ->scalar('zalo')
+            ->allowEmpty('zalo');
 
         $validator
             ->scalar('phone')
@@ -277,9 +277,7 @@ class StudentsTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
-        // $rules->add($rules->isUnique(['email']));
         $rules->add($rules->existsIn(['job_id'], 'Jobs'));
-
         return $rules;
     }
 }
