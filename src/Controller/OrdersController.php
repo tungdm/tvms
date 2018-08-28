@@ -844,7 +844,9 @@ class OrdersController extends AppController
             // get data
             $order = $this->Orders->get($id, [
                 'contain' => [
-                    'Students',
+                    'Students' => function($q) {
+                        return $q->where(['result' => '1']);
+                    },
                     'Students.Addresses' => function($q) {
                         return $q->where(['Addresses.type' => '1']);
                     },
@@ -1139,10 +1141,10 @@ class OrdersController extends AppController
                 $this->checkDataConcate($student->input_tests[2]->score, 'Điểm tính toán cơ bản'),
                 $this->checkDataConcate($student->input_tests[0]->score, 'Điểm thi tiếng nhật'),
                 $this->checkDataConcate($student->iq_tests[0]->total, 'Điểm thi iq'),
-                $this->checkDataConcate($student->right_hand_force, 'Lực bóp tay phải'),
-                $this->checkDataConcate($student->left_hand_force, 'Lực bóp tay trái'),
-                $this->checkDataConcate($student->back_force, 'Lực kéo lưng'),
-                $this->checkDataConcate($student->blood_group, 'Nhóm máu')
+                $student->right_hand_force ?? '',
+                $student->left_hand_force ?? '',
+                $student->back_force ?? '',
+                $student->blood_group ?? '',
             ];
             if (!empty($this->studentError)) {
                 $this->missingFields .= '<li>' . $this->studentError . ' của lao động '.$fullname.'</li>';
