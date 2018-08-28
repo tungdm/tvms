@@ -427,7 +427,6 @@ class UsersController extends AppController
         $this->request->allowMethod('ajax');
         $data = $this->request->getData();
         $currentPassword = $this->Users->find('password', ['userId' => $this->Auth->user('id')])->first();
-        Log::write('debug', $data);
         $resp = [
             'status' => 'error',
             'flash' => [
@@ -454,5 +453,22 @@ class UsersController extends AppController
             }
         }
         return $this->jsonResponse($resp);
+    }
+
+    public function resetPassword($id = null)
+    {
+        $user = $this->Users->get($id);
+        $user->password = Configure::read('passwordDefault');
+
+        if ($this->Users->save($user)) {
+            $this->Flash->success(Text::insert($this->successMessage['resetPassword'], [
+                'name' => $user->fullname
+                ]));
+        } else {
+            $this->Flash->error($this->errorMessage['error']);
+        }
+        $this->Flash->error($this->errorMessage['error']);
+
+        return $this->redirect(['action' => 'index']);
     }
 }

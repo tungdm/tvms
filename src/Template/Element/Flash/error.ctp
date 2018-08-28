@@ -35,7 +35,7 @@ $(document).ready(function() {
         }
     });
 
-    if (showButtons == 'false') {
+    if (showButtons === false || typeof showButtons == 'undefined') {
         notice.get().click(function() {
             notice.remove();
         });

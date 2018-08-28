@@ -314,7 +314,7 @@ class JclassesController extends AppController
                     'flash' => [
                         'title' => 'Thành Công',
                         'type' => 'success',
-                        'icon' => 'fa fa-check-circle-o',
+                        'icon' => 'fa fa-check',
                         'message' => Text::insert($this->successMessage['edit'], [
                             'entity' => $this->entity, 
                             'name' => $student->fullname
@@ -362,7 +362,7 @@ class JclassesController extends AppController
                         'flash' => [
                             'title' => 'Thành Công',
                             'type' => 'success',
-                            'icon' => 'fa fa-check-circle-o',
+                            'icon' => 'fa fa-check',
                             'message' => Text::insert($this->successMessage['edit'], [
                                 'entity' => $this->entity, 
                                 'name' => $student->fullname

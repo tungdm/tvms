@@ -310,7 +310,7 @@ class StudentsController extends AppController
                         'flash' => [
                             'title' => 'Thành Công',
                             'type' => 'success',
-                            'icon' => 'fa fa-check-circle-o',
+                            'icon' => 'fa fa-check',
                             'message' => Text::insert($this->successMessage['add'], [
                                 'entity' => 'nghề', 
                                 'name' => $job->job_name
@@ -420,7 +420,7 @@ class StudentsController extends AppController
                     'flash' => [
                         'title' => 'Thành Công',
                         'type' => 'success',
-                        'icon' => 'fa fa-check-circle-o',
+                        'icon' => 'fa fa-check',
                         'message' => Text::insert($this->successMessage['edit'], [
                             'entity' => $this->entity, 
                             'name' => $student->fullname
@@ -465,7 +465,7 @@ class StudentsController extends AppController
                         'flash' => [
                             'title' => 'Thành Công',
                             'type' => 'success',
-                            'icon' => 'fa fa-check-circle-o',
+                            'icon' => 'fa fa-check',
                             'message' => Text::insert($this->successMessage['edit'], [
                                 'entity' => $this->entity, 
                                 'name' => $student->fullname

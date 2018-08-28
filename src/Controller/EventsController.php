@@ -233,7 +233,7 @@ class EventsController extends AppController
                     'flash' => [
                         'title' => 'Thành Công',
                         'type' => 'success',
-                        'icon' => 'fa fa-check-circle-o',
+                        'icon' => 'fa fa-check',
                         'message' => Text::insert($this->successMessage['add'], [
                             'entity' => $this->entity,
                             'name' => $event->title
@@ -289,7 +289,7 @@ class EventsController extends AppController
                         'flash' => [
                             'title' => 'Thành Công',
                             'type' => 'success',
-                            'icon' => 'fa fa-check-circle-o',
+                            'icon' => 'fa fa-check',
                             'message' => Text::insert($this->successMessage['edit'], [
                                 'entity' => $this->entity,
                                 'name' => $event->title
@@ -344,7 +344,7 @@ class EventsController extends AppController
                         'flash' => [
                             'title' => 'Thành Công',
                             'type' => 'success',
-                            'icon' => 'fa fa-check-circle-o',
+                            'icon' => 'fa fa-check',
                             'message' => Text::insert($this->successMessage['edit'], [
                                 'entity' => $this->entity,
                                 'name' => $event->title
@@ -391,7 +391,7 @@ class EventsController extends AppController
                         'flash' => [
                             'title' => 'Thành Công',
                             'type' => 'success',
-                            'icon' => 'fa fa-check-circle-o',
+                            'icon' => 'fa fa-check',
                             'message' => Text::insert($this->successMessage['delete'], [
                                 'entity' => $this->entity,
                                 'name' => $eventTitle

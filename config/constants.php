@@ -889,6 +889,7 @@ return [
         'changeClass' => 'Học viên :name đã được chuyển qua lớp :class',
         'setScore' => 'Đã lưu điểm thành công',
         'setting' => 'Đã lưu cấu hình hiển thị',
+        'resetPassword' => 'Đã khôi phục mật khẩu mặc định cho nhân viên :name thành công'
     ],
     'errorMessage' => [
         'add' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',

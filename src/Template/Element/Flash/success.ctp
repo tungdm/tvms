@@ -10,7 +10,7 @@ $(document).ready(function() {
         text: '<?= $message ?>',
         type: 'success',
         styling: 'bootstrap3',
-        icon: 'fa fa-check-circle-o',
+        icon: 'fa fa-check',
         cornerclass: 'ui-pnotify-sharp',
         buttons: {
             closer: false,

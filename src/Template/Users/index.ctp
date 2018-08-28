@@ -210,6 +210,14 @@ $this->assign('title', 'Quản lý Nhân viên');
                                             </a>
                                         </li>
                                         <li>
+                                            <?= $this->Form->postLink('<i class="fa fa-key" aria-hidden="true"></i> Khôi phục mật khẩu', 
+                                                ['action' => 'resetPassword', $user->id], 
+                                                [
+                                                    'escape' => false, 
+                                                    'confirm' => __('Bạn có chắc chắn muốn khôi phục mật khẩu mặc định cho nhân viên {0}?', $user->fullname)
+                                                ]) ?>
+                                        </li>
+                                        <li>
                                             <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
                                                 ['action' => 'delete', $user->id], 
                                                 [
