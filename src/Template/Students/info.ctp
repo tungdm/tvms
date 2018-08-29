@@ -596,7 +596,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="ln_solid"></div>
 
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="strength"><?= __('Điểm mạnh') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="strength"><?= __('Điểm mạnh - Chuyên môn') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('strength', [
                                             'label' => false,
