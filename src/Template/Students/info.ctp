@@ -256,12 +256,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="zalo"><?= __('Zalo') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="zalo"><?= __('Zalo/Facebook') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('zalo', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Nhập tài khoản zalo của lao động'
+                                            'placeholder' => 'Nhập tài khoản zalo/facebook của lao động'
                                             ]) ?>
                                     </div>
                                 </div>
@@ -289,14 +289,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="enrolled_date"><?= __('Ngày nhập học') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="enrolled_date"><?= __('Ngày nhập học') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="enrolled-date">
                                             <?= $this->Form->control('enrolled_date', [
                                                 'type' => 'text',
                                                 'label' => false,
                                                 'class' => 'form-control',
-                                                'required' => true, 
                                                 'placeholder' => 'dd-mm-yyyy',
                                                 'data-parsley-errors-container' => '#error-enrolled-date'
                                             ])?>
@@ -606,12 +605,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="weakness"><?= __('Điểm yếu') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="weakness"><?= __('Sở thích') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('weakness', [
                                             'label' => false,
                                             'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Nhập thông tin điểm yếu'
+                                            'placeholder' => 'Nhập thông tin sở thích'
                                             ]) ?>
                                     </div>
                                 </div>

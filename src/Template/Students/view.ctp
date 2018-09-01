@@ -171,7 +171,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="zalo"><?= __('Zalo') ?>: </label>
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="zalo"><?= __('Zalo/Facebook') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                                 <?= $student->zalo ?? 'N/A' ?>
@@ -393,7 +393,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="weakness"><?= __('Điểm yếu') ?>: </label>
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="weakness"><?= __('Sở thích') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                 <?= !empty($student->weakness) ? $student->weakness : 'N/A' ?>

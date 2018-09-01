@@ -706,7 +706,7 @@ return [
     // student
     'studentStatus' => [
         '1' => 'Lịch hẹn',
-        '2' => 'Học viên',
+        '2' => 'Chưa đậu phỏng vấn',
         '3' => 'Đậu phỏng vấn',
         '4' => 'Đã xuất cảnh',
         '5' => 'Về nước',

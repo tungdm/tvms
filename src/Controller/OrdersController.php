@@ -645,7 +645,7 @@ class OrdersController extends AppController
                 
                 array_push($families, $member);
             }
-            $studyTime = ($now->diff($student->enrolled_date))->m;
+            $studyTime = $student->enrolled_date ? ($now->diff($student->enrolled_date))->m : 0;
             $families[0]['additional'] = $cvTemplateConfig['familyAdditional'][0] . "            ：" . $memberInJPRel;
             $families[1]['additional'] = $cvTemplateConfig['familyAdditional'][1] . "    ：みんなの日本語";
             $families[2]['additional'] = $cvTemplateConfig['familyAdditional'][2] . "    ：" . $studyTime . "ヶ月";

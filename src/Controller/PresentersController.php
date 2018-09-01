@@ -73,9 +73,9 @@ class PresentersController extends AppController
                     return $exp->like('phone', '%'.$query['phone'].'%');
                 });
             }
-            if (isset($query['type']) && !empty($query['type'])) {
+            if (isset($query['presenter_type']) && !empty($query['presenter_type'])) {
                 $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->like('type', '%'.$query['type'].'%');
+                    return $exp->like('type', '%'.$query['presenter_type'].'%');
                 });
             }
         } else {
