@@ -351,7 +351,7 @@ if ($order->status == "4" || $order->status == "5") {
                                         <?= $this->Phone->makeEdit($value->phone) ?>
                                     </td>
                                     <td class="cell col-md-1 text-center">
-                                        <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>
+                                        <span class="result-text <?= $value->_joinData->result == '1' ? 'bold-text' : '' ?>"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     </td>
                                     <td class="actions cell">
                                         <?= $this->Html->link('<i class="fa fa-2x fa-book"></i>',
