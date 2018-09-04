@@ -352,41 +352,6 @@ $(document).ready(function() {
         }
         
         if (validateResult) {
-            // check family not empty
-            if (perData.familyCounter == 0) {
-                swal({
-                    title: 'Quan hệ gia đình hiện đang bỏ trống',
-                    text: "Xin vui lòng kiểm tra lại!",
-                    type: 'error',
-                }).then((result) => {
-                    $('#student-tabs a[href="#tab_content1"]').tab('show');
-                })
-                return;
-            }
-            // check education not empty
-            if (perData.eduCounter == 0) {
-                swal({
-                    title: 'Học vấn hiện chưa có thông tin',
-                    text: "Xin vui lòng kiểm tra lại!",
-                    type: 'error',
-                }).then((result) => {
-                    $('#student-tabs a[href="#tab_content3"]').tab('show');
-                })
-                return;
-            }
-            // check experiences not empty
-            if (perData.expCounter == 0) {
-                swal({
-                    title: 'Kinh nghiệm làm việc chưa có thông tin',
-                    text: "Xin vui lòng kiểm tra lại!",
-                    type: 'error',
-                }).then((result) => {
-                    $('#student-tabs a[href="#tab_content3"]').tab('show'); 
-                })
-                              
-                return;
-            }
-            
             // submit form
             $('#create-student-form').submit();
         } else {

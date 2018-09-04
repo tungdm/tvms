@@ -40,7 +40,7 @@ $this->assign('title', 'Quản lý Nhân viên');
             '/',
             ['escape' => false]) ?>
     </li>
-    <li class="active">Danh sách nhân niên</li>
+    <li class="active">Danh sách nhân viên</li>
 </ol>
 <?php $this->end(); ?>
 
