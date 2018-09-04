@@ -500,7 +500,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                     <?= $this->Phone->makeEdit($value->phone) ?>
                                 </td>
                                 <td class="cell col-md-1 text-center">
-                                    <span class="result-text"><?= $interviewResult[$value->_joinData->result] ?></span>
+                                    <span class="result-text <?= $value->_joinData->result == '1' ? 'bold-text' : '' ?>"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     <div class="hidden">
                                         <?= $this->Form->control('students.' . $key . '._joinData.result', [
                                             'options' => $interviewResult,

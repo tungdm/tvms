@@ -525,3 +525,7 @@ label.optional {
 .go-back-link:hover, .go-back-link:active, .go-back-link:focus {
     color: #7da2c3;
 }
+
+.bold-text {
+    font-weight: bold;
+}

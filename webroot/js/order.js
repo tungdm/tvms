@@ -312,6 +312,7 @@ function setInterviewResult(rowId) {
 
         // show edit doc button when pass interview
         if ($('#result').val() === '1') {
+            $('#row-candidate-'+rowId).find('.result-text').addClass('bold-text');
             // set return date
             var returnDate = calReturnDate($('select[name="work_time"]').val(), $('input[name="departure_date"]').val());
             $('#row-candidate-'+rowId).find('.return_date').val(returnDate);
@@ -319,6 +320,8 @@ function setInterviewResult(rowId) {
                 $('#row-candidate-'+rowId).find('.status').val('3');
             }
         } else {
+            $('#row-candidate-'+rowId).find('.result-text').removeClass('bold-text');
+
             // set return date
             $('#row-candidate-'+rowId).find('.return_date').val('');
             if ($('#row-candidate-'+rowId).find('.status').val() == '3') {

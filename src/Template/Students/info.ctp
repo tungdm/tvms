@@ -353,11 +353,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="phone"><?= __('Số điện thoại') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="phone"><?= __('Số điện thoại') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('phone', [
                                             'label' => false, 
-                                            'required' => true, 
                                             'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
                                             'class' => 'form-control col-md-7 col-xs-12',
                                             'placeholder' => 'Nhập số điện thoại của lao động'
@@ -825,14 +824,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="height"><?= __('Chiều cao') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="height"><?= __('Chiều cao') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="col-md-5" style="padding-left: 0px">
                                             <?= $this->Form->control('height', [
                                                 'label' => false,
                                                 'min' => 0,
                                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                                'required' => true,
                                                 'placeholder' => 'Nhập chiều cao của lao động'
                                                 ]) ?>
                                         </div>
@@ -842,14 +840,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="weight"><?= __('Cân nặng (kg)') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="weight"><?= __('Cân nặng (kg)') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="col-md-5" style="padding-left: 0px">
                                             <?= $this->Form->control('weight', [
                                                 'label' => false,
                                                 'min' => 0,
                                                 'class' => 'form-control col-md-7 col-xs-12', 
-                                                'required' => true,
                                                 'placeholder' => 'Nhập cân nặng của lao động'
                                                 ]) ?>
                                         </div>
