@@ -253,21 +253,36 @@ class OrdersController extends AppController
         $order = $this->Orders->get($id, [
             'contain' => ['Students', 'Events']
         ]);
-        foreach ($order->students as $key => $student) {
-            $student->status = '2';
-            $student->return_date = '';
-        }
-        if ($this->Orders->Students->saveMany($order->students) && $this->Orders->delete($order)) {
-            $this->Flash->success(Text::insert($this->successMessage['delete'], [
-                'entity' => $this->entity, 
-                'name' => $order->name
-                ]));
+        if (!empty($order->students)) {
+            foreach ($order->students as $key => $student) {
+                $student->status = '2';
+                $student->return_date = '';
+            }
+            if ($this->Orders->Students->saveMany($order->students) && $this->Orders->delete($order)) {
+                $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                    'entity' => $this->entity, 
+                    'name' => $order->name
+                    ]));
+            } else {
+                $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                    'entity' => $this->entity,
+                    'name' => $order->name
+                    ]));
+            }
         } else {
-            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
-                'entity' => $this->entity,
-                'name' => $order->name
-                ]));
+            if ($this->Orders->delete($order)) {
+                $this->Flash->success(Text::insert($this->successMessage['delete'], [
+                    'entity' => $this->entity, 
+                    'name' => $order->name
+                    ]));
+            } else {
+                $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                    'entity' => $this->entity,
+                    'name' => $order->name
+                    ]));
+            }
         }
+        
         return $this->redirect(['action' => 'index']);
     }
 

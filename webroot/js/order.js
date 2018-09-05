@@ -77,14 +77,6 @@ $(document).ready(function() {
     $('.submit-order-btn').click(function () {
         var validateResult = $('#add-order-form').parsley().validate();
         if (validateResult) {
-            if (perData.selected.length == 0) {
-                swal({
-                    title: 'Danh sách ứng viên hiện đang bỏ trống',
-                    text: "Xin vui lòng kiểm tra lại!",
-                    type: 'error',
-                });
-                return;
-            }
             $('#add-order-form')[0].submit();
         }
     });

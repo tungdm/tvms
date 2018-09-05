@@ -193,7 +193,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="salary"><?= __('Mức lương') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="salary"><?= __('Mức lương') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
                             <?= $this->Form->control('salary_from', [
@@ -201,7 +201,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'min' => '0',
                                 'less-than' => '#salary-to',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-min', 
-                                'required' => true,
                                 'placeholder' => '¥/tháng'
                                 ]) ?>
                         </div>
@@ -212,7 +211,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'min' => '0',
                                 'greater-than' => '#salary-from',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-max',
-                                'required' => true,
                                 'placeholder' => '¥/tháng'
                                 ]) ?>
                         </div>
@@ -314,7 +312,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh (dự kiến)') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <!-- <div class="input-group date input-picker gt-now month-mode" id="departure-date-div"> -->
                         <div class="input-group date input-picker month-mode" id="departure-date-div"> <!-- Remove validate for user input past data -->
@@ -331,6 +329,22 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             </span>
                         </div>
                         <span id="error-departure-date"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="departure"><?= __('Ngày bay chính thức') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="departure-div">
+                            <?= $this->Form->control('departure', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -380,7 +394,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="age_interval"><?= __('Độ tuổi') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="age_interval"><?= __('Độ tuổi') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
                             <?= $this->Form->control('age_from', [
@@ -389,7 +403,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'max' => '100',
                                 'less-than' => '#age-to',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-min', 
-                                'required' => true,
                                 'placeholder' => 'Tuổi từ'
                                 ]) ?>
                         </div>
@@ -401,7 +414,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'max' => '100',
                                 'greater-than' => '#age-from',
                                 'class' => 'form-control col-md-7 col-xs-12 limit-max', 
-                                'required' => true,
                                 'placeholder' => 'Tuổi đến'
                                 ]) ?>
                         </div>

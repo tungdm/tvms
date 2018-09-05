@@ -181,9 +181,15 @@ if ($order->status == "4" || $order->status == "5") {
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh') ?>: </label>
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh (dự kiến)') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->departure_date ?></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure"><?= __('Ngày bay chính thức') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->departure ?? 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">

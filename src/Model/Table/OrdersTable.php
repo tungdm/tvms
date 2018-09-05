@@ -92,13 +92,11 @@ class OrdersTable extends Table
 
         $validator
             ->numeric('salary_from')
-            ->requirePresence('salary_from', 'create')
-            ->notEmpty('salary_from');
+            ->allowEmpty('salary_from');
 
         $validator
             ->numeric('salary_to')
-            ->requirePresence('salary_to', 'create')
-            ->notEmpty('salary_to');
+            ->allowEmpty('salary_to');
 
         $validator
             ->scalar('interview_type')
@@ -138,13 +136,11 @@ class OrdersTable extends Table
 
         $validator
             ->integer('age_from')
-            ->requirePresence('age_from', 'create')
-            ->notEmpty('age_from');
+            ->allowEmpty('age_from');
 
         $validator
             ->integer('age_to')
-            ->requirePresence('age_to', 'create')
-            ->notEmpty('age_to');
+            ->allowEmpty('age_to');
 
         $validator
             ->scalar('work_time')
