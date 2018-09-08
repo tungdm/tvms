@@ -1793,6 +1793,9 @@ function initFloatingButton() {
 
 function toDate(dateStr) {
     var parts = dateStr.split("-");
+    if (parts.length == 2) {
+        return new Date(dateStr);
+    }
     return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
