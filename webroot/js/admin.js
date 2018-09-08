@@ -1791,7 +1791,10 @@ function initFloatingButton() {
     });
 }
 
-
+function toDate(dateStr) {
+    var parts = dateStr.split("-");
+    return new Date(parts[2], parts[1] - 1, parts[0]);
+}
 
 $(document).ready(function() {
     init_sidebar();
@@ -1847,12 +1850,12 @@ $(document).ready(function() {
     //custom validator
     window.Parsley.addValidator('beforeDate', {
         validateString: function(value, requirement, parsleyField) {
-            var srcDate = new Date(value);
+            var srcDate = toDate(value);
             var dstValue = $(requirement).val();
             if (dstValue === '') {
                 return true;
             }
-            var dstDate = new Date(dstValue);
+            var dstDate = toDate(dstValue);
             return srcDate <= dstDate;
         },
         messages: {
@@ -1865,12 +1868,12 @@ $(document).ready(function() {
             if (value === '') {
                 return true;
             }
-            var srcDate = new Date(value);
+            var srcDate = toDate(value);
             var dstValue = $(requirement).val();
             if (dstValue === '') {
                 return true;
             }
-            var dstDate = new Date(dstValue);
+            var dstDate = toDate(dstValue);
             return srcDate >= dstDate;
         },
         messages: {
