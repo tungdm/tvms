@@ -108,7 +108,11 @@ $this->assign('title', 'Thêm mới nhân viên');
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('phone', [
                             'label' => false, 
-                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            // 'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'type' => 'text',
+                            'minLength' => 10,
+                            'maxlength' => 11,
+                            'data-parsley-type' => 'digits',
                             'class' => 'form-control col-md-7 col-xs-12',
                             'placeholder' => 'Nhập số điện thoại của nhân viên'
                             ]) ?>

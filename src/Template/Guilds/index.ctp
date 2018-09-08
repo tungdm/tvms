@@ -323,7 +323,10 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                         <?= $this->Form->control('phone_vn', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'type' => 'text',
+                            'minLength' => 10,
+                            'maxlength' => 11,
+                            'data-parsley-type' => 'digits',
                             'placeholder' => 'Nhập số điện thoại tại Việt Nam']) ?>
                     </div>
                 </div>

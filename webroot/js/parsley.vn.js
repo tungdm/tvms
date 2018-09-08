@@ -5,7 +5,7 @@ Parsley.addMessages('vn', {
     url:          "Xin vui lòng nhập đúng đường truyền url.",
     number:       "Giá trị không hợp lệ.",
     integer:      "Vui lòng nhập số nguyên.",
-    digits:       "Vui lòng nhập ký tự.",
+    digits:       "Vui lòng nhập số hợp lệ.",
     alphanum:     "Vui lòng nhập chữ số."
   },
   notblank:       "Xin vui lòng không để trống.",

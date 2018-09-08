@@ -326,7 +326,10 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('phone_vn', [
                             'label' => false, 
-                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                            'type' => 'text',
+                            'minLength' => 10,
+                            'maxlength' => 11,
+                            'data-parsley-type' => 'digits',
                             'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập số điện thoại tại Việt Nam'
                             ]) ?>
                     </div>
@@ -460,9 +463,12 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         <?= __('Số Điện Thoại') ?></label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
                         <?= $this->Form->control('phone_vn', ['label' => false, 
-                        'id' => 'edit-phone-vn',
-                        'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
-                        'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập số điện thoại tại Việt Nam']) ?>
+                            'id' => 'edit-phone-vn',
+                            'type' => 'text',
+                            'minLength' => 10,
+                            'maxlength' => 11,
+                            'data-parsley-type' => 'digits',
+                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập số điện thoại tại Việt Nam']) ?>
                     </div>
                 </div>
                 <div class="form-group">

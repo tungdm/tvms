@@ -357,7 +357,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('phone', [
                                             'label' => false, 
-                                            'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                                            'type' => 'text',
+                                            'minLength' => 10,
+                                            'maxlength' => 11,
+                                            'data-parsley-type' => 'digits',
                                             'class' => 'form-control col-md-7 col-xs-12',
                                             'placeholder' => 'Nhập số điện thoại của lao động'
                                             ]) ?>
@@ -2253,7 +2256,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->control('modal.phone', [
                                     'label' => false, 
                                     'class' => 'form-control col-md-7 col-xs-12', 
-                                    'pattern' => '^(09.|011.|012.|013.|014.|015.|016.|017.|018.|019.|08.)\d{7}$',
+                                    'type' => 'text',
+                                    'minLength' => 10,
+                                    'maxlength' => 11,
+                                    'data-parsley-type' => 'digits',
                                     'placeholder' => 'Nhập số điện thoại của thành viên'
                                     ]) ?>
                             </div>
