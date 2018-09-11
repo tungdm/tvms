@@ -717,7 +717,7 @@ $this->assign('title', 'Quản lý Lao động');
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control from-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'data-parsley-before-date' => '#std-reportto'
                                         ])?>
                                     <span class="input-group-addon">
@@ -732,7 +732,7 @@ $this->assign('title', 'Quản lý Lao động');
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control to-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'data-parsley-after-date' => '#std-reportfrom'
                                         ])?>
                                     <span class="input-group-addon">
@@ -834,7 +834,7 @@ $this->assign('title', 'Quản lý Lao động');
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success" id="export-report-btn" onclick="">Tải về</button>
+                <button type="submit" class="btn btn-success" id="export-report-btn">Tải về</button>
                 <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
             <?= $this->Form->end() ?>

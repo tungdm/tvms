@@ -309,32 +309,13 @@ $(document).ready(function() {
    
     $('select[name="is_lived_in_japan"]').change(function () {
         if ($(this).val() == 'Y') {
-            // fill data
-            if ($('#lived-from').val()) {
-                $('#jp-from-date').val($('#lived-from').val()).trigger('change');
-            }
-            if ($('#lived-to').val()) {
-                $('#jp-to-date').val($('#lived-to').val()).trigger('change');
-            }
-            // reset form
-            $('#set-lived-japan-form')[0].reset();
-            $('#set-lived-japan-form').parsley().reset();
-
-            // show modal
-            $('#lived-japan-modal').modal('toggle');
+            // show time input
+            $('.time-lived-jp').removeClass('hidden');
         } else {
             // remove data
             $('.time-lived-jp').addClass('hidden');
-            $('.time-lived').empty();
             $('#lived-from').val('');
             $('#lived-to').val('');
-        }
-    });
-
-    $('#lived-japan-modal').on('hidden.bs.modal', function() {
-        var validateResult = $('#set-lived-japan-form').parsley().validate();
-        if (!validateResult) {
-            $('select[name="is_lived_in_japan"]').val('N').trigger('change');
         }
     });
 
@@ -836,10 +817,12 @@ function createEduHisTemplate(counter) {
         'counter': counter,
         
         'fromdate': 'educations[' + counter + '][from_date]',
-        'fromdateVal': $('#edu-from-date').val(),
+        'fromdateTxt': $('#edu-from-date').val(),
+        'fromdateVal': moment($('#edu-from-date').val(), 'MM-YYYY').format('YYYY-MM'),
         
-        'todate': 'educations[' + counter + '][to_date]',        
-        'todateVal': $('#edu-to-date').val(),
+        'todate': 'educations[' + counter + '][to_date]',
+        'todateTxt': $('#edu-to-date').val(),
+        'todateVal': moment($('#edu-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
 
         'degree': 'educations[' + counter + '][degree]',
         'degreeText': $('#modal-edu-level option:selected').html(),
@@ -857,7 +840,7 @@ function createEduHisTemplate(counter) {
         'specializedJPVal': $('#edu-specialized-jp').val(),
 
         'certificate': 'educations[' + counter + '][certificate]',
-        'certificateVal': $('#edu-certificate').val(),
+        'certificateVal': moment($('#edu-certificate').val(), 'MM-YYYY').format('YYYY-MM'),
     });
     return edu_html;
 }
@@ -874,14 +857,24 @@ function showAddEduHisModal() {
 
 function showEditEduHisModal(ele) {
     // fill data to modal form
-    $('#edu-from-date').val($(ele).closest('.row-edu-his').find('.from_date').val()).trigger('change');
-    $('#edu-to-date').val($(ele).closest('.row-edu-his').find('.to_date').val()).trigger('change');
+    var eduFrom = $(ele).closest('.row-edu-his').find('.from_date').val();
+    $('#edu-from-date').val(moment(eduFrom, 'YYYY-MM').format('MM-YYYY'));
+
+    var eduTo = $(ele).closest('.row-edu-his').find('.to_date').val();
+    $('#edu-to-date').val(moment(eduTo, 'YYYY-MM').format('MM-YYYY'));
+
     $('#modal-edu-level').val($(ele).closest('.row-edu-his').find('.degree').val()).trigger('change');
     $('#edu-school').val($(ele).closest('.row-edu-his').find('.school').val());
     $('#edu-address').val($(ele).closest('.row-edu-his').find('.address').val());
     $('#edu-specialized').val($(ele).closest('.row-edu-his').find('.specialized').val());
     $('#edu-specialized-jp').val($(ele).closest('.row-edu-his').find('.specialized_jp').val());
-    $('#edu-certificate').val($(ele).closest('.row-edu-his').find('.certificate').val());
+
+    var eduCert = $(ele).closest('.row-edu-his').find('.certificate').val();
+    if (eduCert) {
+        $('#edu-certificate').val(moment(eduCert, 'YYYY-MM').format('MM-YYYY'));
+    } else {
+        $('#edu-certificate').val('');
+    }
     var rowIdArr = $(ele).closest('.row-edu-his').attr('id').split('-');
 
     // replace add-btn with edit-btn
@@ -1036,10 +1029,12 @@ function createExpTemplate(counter) {
         'counter': counter,
         
         'fromdate': 'experiences[' + counter + '][from_date]',
-        'fromdateVal': $('#exp-from-date').val(),
+        'fromdateVal': moment($('#exp-from-date').val(), 'MM-YYYY').format('YYYY-MM'),
+        'fromdateTxt': $('#exp-from-date').val(),
         
         'todate': 'experiences[' + counter + '][to_date]',
-        'todateVal': $('#exp-to-date').val(),
+        'todateVal': moment($('#exp-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
+        'todateTxt': $('#exp-to-date').val(),
 
         'job': 'experiences[' + counter + '][job_id]',
         'jobText': $('#exp-job option:selected').html(),
@@ -1092,8 +1087,12 @@ function addExp() {
 
 function showEditExpModal(ele) {
     // fill data to modal form
-    $('#exp-from-date').val($(ele).closest('.row-exp').find('.from_date').val()).trigger('change');
-    $('#exp-to-date').val($(ele).closest('.row-exp').find('.to_date').val()).trigger('change');
+    var expFrom = $(ele).closest('.row-exp').find('.from_date').val();
+    $('#exp-from-date').val(moment(expFrom, 'YYYY-MM').format('MM-YYYY'));
+
+    var expTo = $(ele).closest('.row-exp').find('.to_date').val();
+    $('#exp-to-date').val(moment(expTo, 'YYYY-MM').format('MM-YYYY'));
+
     $('#exp-job').val($(ele).closest('.row-exp').find('.job_id').val()).trigger('change');
     $('#exp-company').val($(ele).closest('.row-exp').find('.company').val());
     $('#exp-company-jp').val($(ele).closest('.row-exp').find('.company_jp').val());
@@ -1231,10 +1230,12 @@ function createLangTemplate(counter) {
         'certVal': $('#lang-certificate').val(),
 
         'fromdate': 'language_abilities[' + counter + '][from_date]',
-        'fromdateVal': $('#lang-from-date').val(),
+        'fromdateTxt': $('#lang-from-date').val(),
+        'fromdateVal': moment($('#lang-from-date').val(), 'MM-YYYY').format('YYYY-MM'),
         
         'todate': 'language_abilities[' + counter + '][to_date]',
-        'todateVal': $('#lang-to-date').val(),
+        'todateTxt': $('#lang-to-date').val(),
+        'todateVal': moment($('#lang-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
 
     });
     return lang_html;
@@ -1273,8 +1274,12 @@ function addLang() {
 
 function showEditLangModal(ele) {
     // fill data to modal form
-    $('#lang-from-date').val($(ele).closest('.row-lang').find('.from_date').val()).trigger('change');
-    $('#lang-to-date').val($(ele).closest('.row-lang').find('.to_date').val()).trigger('change');
+    var langFrom = $(ele).closest('.row-lang').find('.from_date').val();
+    $('#lang-from-date').val(moment(langFrom, 'YYYY-MM').format('MM-YYYY'));
+
+    var langTo = $(ele).closest('.row-lang').find('.to_date').val();
+    $('#lang-to-date').val(moment(langTo, 'YYYY-MM').format('MM-YYYY'));
+
     $('#lang-name').val($(ele).closest('.row-lang').find('.lang_code').val()).trigger('change');
     $('#lang-certificate').val($(ele).closest('.row-lang').find('.certificate').val());
     var rowIdArr = $(ele).closest('.row-lang').attr('id').split('-');

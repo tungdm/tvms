@@ -1100,8 +1100,11 @@ function initDatetimePicker() {
             $('#' + ele.id).datetimepicker({
                 useCurrent: false,
                 viewMode: 'months',
-                date: inputDate,
-                format: 'YYYY-MM',
+                // date: inputDate,
+                date: moment(inputDate, 'YYYY-MM'),
+                // date: moment(inputDate, 'MM-YYYY'),
+                format: 'MM-YYYY',
+                // format: 'MM-YYYY',
                 locale: 'vi'
             });
         } else {
@@ -1120,11 +1123,6 @@ function initDatetimePicker() {
 
         // re-validate when user change picker
         $('#' + ele.id).on('dp.change', function(e) {
-            // change form state
-            // if ($(this).closest('form').hasClass('form-check-status')) {
-            //     console.log('changed');
-            //     formChanged = true;
-            // }
             $('#' + ele.id + ' input').parsley().validate();
 
             // validate relation input when current input pass the validation
@@ -1794,7 +1792,8 @@ function initFloatingButton() {
 function toDate(dateStr) {
     var parts = dateStr.split("-");
     if (parts.length == 2) {
-        return new Date(dateStr);
+        var fixDate = parts[1] + '-' + parts[0];
+        return new Date(fixDate);
     }
     return new Date(parts[2], parts[1] - 1, parts[0]);
 }

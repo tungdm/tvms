@@ -499,24 +499,40 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group time-lived-jp<?php if (empty($student->is_lived_in_japan) || $student->is_lived_in_japan !== 'Y'): ?> hidden <?php endif; ?>">
-                                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="time_lived_in_japan"><?= __('Thời gian') ?></label>
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="time_lived_in_japan"><?= __('Thời gian') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <div class="time-lived">
-                                            <?php if($student->is_lived_in_japan === 'Y'): ?>
-                                            <?= $student->lived_from ?> ～ <?= $student->lived_to ?>
-                                            <?php endif;?>
+                                        <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                            <div class="input-group date input-picker month-mode" id="lived-from-div">
+                                                <?= $this->Form->control('lived_from', [
+                                                    'type' => 'text',
+                                                    'label' => false, 
+                                                    'class' => 'form-control from-date-picker',
+                                                    'placeholder' => 'mm-yyyy',
+                                                    'data-parsley-errors-container' => '#error-jp-lived-from',
+                                                    'data-parsley-before-date' => '#lived-to'
+                                                    ])?>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                            <span id="error-jp-lived-from"></span>
                                         </div>
-                                        <div class="hidden">
-                                            <?= $this->Form->control('lived_from', [
-                                                'type' => 'text',
-                                                'label' => false,
-                                                'class' => 'form-control',
-                                                ])?>
-                                            <?= $this->Form->control('lived_to', [
-                                                'type' => 'text',
-                                                'label' => false,
-                                                'class' => 'form-control',
-                                                ])?>
+                                        <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
+                                        <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
+                                            <div class="input-group date input-picker month-mode" id="lived-to-div">
+                                                <?= $this->Form->control('lived_to', [
+                                                    'type' => 'text',
+                                                    'label' => false, 
+                                                    'class' => 'form-control to-date-picker',
+                                                    'placeholder' => 'mm-yyyy',
+                                                    'data-parsley-errors-container' => '#error-jp-lived-to',
+                                                    'data-parsley-after-date' => '#lived-from'
+                                                    ])?>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                            <span id="error-jp-lived-to"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -1043,7 +1059,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <?= $this->Form->hidden('families.'  . $key . '.id', ['value' => $value->id]) ?>
                                         <div>
                                         <tr class="row-member" id="row-member-<?=$counter?>">
-                                            <td class="cell col-md-1 stt-col">
+                                            <td class="cell col-md-1 stt-col text-center">
                                                 <?php echo $counter + 1; ?>
                                             </td>
                                             <td class="cell col-md-2">
@@ -1409,7 +1425,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <th scope="col" class="col-md-2"><?= __('Cấp học') ?></th>
                                             <th scope="col" class="col-md-3"><?= __('Tên trường') ?></th>
                                             <th scope="col" class="col-md-3"><?= __('Chuyên ngành') ?></th>
-                                            <th scope="col" class="actions"></th>
+                                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                         </tr>
                                     </thead>
                                     <tbody id="edu-container">
@@ -1420,11 +1436,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <?= $this->Form->hidden('educations.'  . $key . '.id', ['value' => $value->id]) ?>
                                         <div>
                                         <tr class="row-edu-his" id="row-edu-his-<?=$counter?>">
-                                            <td class="cell col-md-1 stt-col">
+                                            <td class="cell col-md-1 stt-col text-center">
                                                 <?php echo $counter + 1; ?>
                                             </td>
                                             <td class="cell col-md-2">
-                                                <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('educations.' . $key . '.from_date', [
                                                         'type' => 'text',
@@ -1533,7 +1549,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <th scope="col" class="col-md-2"><?= __('Ngôn ngữ') ?></th>
                                             <th scope="col" class="col-md-4"><?= __('Bằng cấp') ?></th>
                                             <th scope="col" class="col-md-4"><?= __('Thời hạn hiệu lực') ?></th>
-                                            <th scope="col" class="actions"></th>
+                                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                         </tr>
                                     </thead>
                                     <tbody id="lang-container">
@@ -1544,7 +1560,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <?= $this->Form->hidden('language_abilities.'  . $key . '.id', ['value' => $value->id]) ?>
                                         <div>
                                         <tr class="row-lang" id="row-lang-<?=$counter?>">
-                                            <td class="cell col-md-1 stt-col">
+                                            <td class="cell col-md-1 stt-col text-center">
                                                 <?php echo $counter + 1; ?>
                                             </td>
                                             <td class="cell col-md-2">
@@ -1568,7 +1584,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 </div>
                                             </td>
                                             <td class="cell col-md-4">
-                                                <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('language_abilities.' . $key . '.from_date', [
                                                         'type' => 'text',
@@ -1631,7 +1647,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <th scope="col" class="col-md-2"><?= __('Công việc') ?></th>
                                             <th scope="col" class="col-md-3"><?= __('Công ty') ?></th>
                                             <th scope="col" class="col-md-3"><?= __('Mức lương') ?></th>
-                                            <th scope="col" class="actions"></th>
+                                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                         </tr>
                                     </thead>
                                     <tbody id="exp-container">
@@ -1642,11 +1658,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <?= $this->Form->hidden('experiences.'  . $key . '.id', ['value' => $value->id]) ?>
                                         <div>
                                         <tr class="row-exp" id="row-exp-<?=$counter?>">
-                                            <td class="cell col-md-1 stt-col">
+                                            <td class="cell col-md-1 stt-col text-center">
                                                 <?php echo $counter + 1; ?>
                                             </td>
                                             <td class="cell col-md-2">
-                                                <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('experiences.' . $key . '.from_date', [
                                                         'type' => 'text',
@@ -1767,7 +1783,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <?php endif;?>
                                     <?php foreach($document as $key => $value): ?>
                                     <tr class="row-document" id="row-document-<?=$counter?>">
-                                        <td class="cell col-md-1 stt-col">
+                                        <td class="cell col-md-1 stt-col text-center">
                                             <?php echo $counter + 1; ?>
                                             <div class="hidden">
                                                 <?= $this->Form->control('documents.' . $counter . '.type', [
@@ -2281,7 +2297,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 
 <script id="family-template" type="text/x-handlebars-template">    
     <tr class="row-member" id="row-member-{{counter}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{row}}
         </td>
         <td class="cell col-md-2">
@@ -2422,7 +2438,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control from-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-edu-his-from',
                                         'data-parsley-before-date' => '#edu-to-date'
@@ -2440,7 +2456,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control to-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-edu-his-to',
                                         'data-parsley-after-date' => '#edu-from-date'
@@ -2477,7 +2493,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     'type' => 'text',
                                     'label' => false, 
                                     'class' => 'form-control',
-                                    'placeholder' => 'yyyy-mm',
+                                    'placeholder' => 'mm-yyyy',
                                     'data-parsley-errors-container' => '#error-certificate',
                                     ])?>
                                 <span class="input-group-addon">
@@ -2545,11 +2561,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 
 <script id="edu-template" type="text/x-handlebars-template">
     <tr class="row-edu-his" id="row-edu-his-{{counter}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{row}}
         </td>
         <td class="cell col-md-2">
-            {{fromdateVal}} ～ {{todateVal}}
+            {{fromdateTxt}} ～ {{todateTxt}}
             <div class="hidden">
                 <?= $this->Form->control('{{fromdate}}', [
                     'type' => 'text',
@@ -2661,7 +2677,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control from-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-exp-from',
                                         'data-parsley-before-date' => '#exp-to-date'
@@ -2679,7 +2695,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control to-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-exp-to',
                                         'data-parsley-after-date' => '#exp-from-date'
@@ -2764,11 +2780,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 
 <script id="exp-template" type="text/x-handlebars-template">
     <tr class="row-exp" id="row-exp-{{counter}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{row}}
         </td>
         <td class="cell col-md-2">
-            {{fromdateVal}} ～ {{todateVal}}
+            {{fromdateTxt}} ～ {{todateTxt}}
             <div class="hidden">
                 <?= $this->Form->control('{{fromdate}}', [
                     'type' => 'text',
@@ -2880,7 +2896,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control from-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-lived-from',
                                         'data-parsley-before-date' => '#jp-to-date'
@@ -2898,7 +2914,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control to-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-lived-to',
                                         'data-parsley-after-date' => '#jp-from-date'
@@ -2978,7 +2994,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control from-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-lang-from',
                                         'data-parsley-before-date' => '#lang-to-date'
@@ -2996,7 +3012,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'type' => 'text',
                                         'label' => false, 
                                         'class' => 'form-control to-date-picker',
-                                        'placeholder' => 'yyyy-mm',
+                                        'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-lang-to',
                                         'data-parsley-after-date' => '#lang-from-date'
@@ -3027,7 +3043,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 
 <script id="lang-template" type="text/x-handlebars-template">
     <tr class="row-lang" id="row-lang-{{counter}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{row}}
         </td>
         <td class="cell col-md-2">
@@ -3052,7 +3068,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
             </div>
         </td>
         <td class="cell col-md-4">
-            {{fromdateVal}} ～ {{todateVal}}
+            {{fromdateTxt}} ～ {{todateTxt}}
             <div class="hidden">
                 <?= $this->Form->control('{{fromdate}}', [
                     'type' => 'text',

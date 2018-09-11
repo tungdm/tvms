@@ -38,5 +38,6 @@ class AppView extends View
     {
         parent::initialize();
         $this->loadHelper('Phone');
+        $this->loadHelper('Month');
     }
 }

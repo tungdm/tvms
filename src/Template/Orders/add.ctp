@@ -320,7 +320,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'type' => 'text',
                                 'label' => false, 
                                 'class' => 'form-control',
-                                'placeholder' => 'yyyy-mm',
+                                'placeholder' => 'mm-yyyy',
                                 'required' => true,
                                 'data-parsley-errors-container' => '#error-departure-date'
                                 ])?>

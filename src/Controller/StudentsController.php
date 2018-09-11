@@ -589,6 +589,8 @@ class StudentsController extends AppController
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
+            $data['lived_from'] = $this->Util->reverseStr($data['lived_from']);
+            $data['lived_to'] = $this->Util->reverseStr($data['lived_to']);
             $student = $this->Students->patchEntity($student, $data, ['associated' => [
                 'Addresses', 
                 'Families', 
@@ -1454,16 +1456,19 @@ class StudentsController extends AppController
                 
                 // enrolled date filter
                 if (!empty($condition['reportfrom']) && empty($condition['reportto'])) {
-                    $start = $condition['reportfrom'] . '-01';
+                    $start = $this->Util->reverseStr($condition['reportfrom']) . '-01';
+                    Log::write('debug', 'start:'.$start);
                     $allStudents->where(['Students.enrolled_date >=' => $start]);
                 } else if (empty($condition['reportfrom']) && !empty($condition['reportto'])) {
-                    $reportto = $condition['reportto'] . '-01';
+                    $reportto = $this->Util->reverseStr($condition['reportto']) . '-01';
                     $end = $this->Util->getLastDayOfMonth($reportto);
+                    Log::write('debug', 'end:'.$end);
                     $allStudents->where(['Students.enrolled_date <=' => $end]);
                 } else if (!empty($condition['reportfrom']) && !empty($condition['reportto'])) {
-                    $start = $condition['reportfrom'] . '-01';
-                    $reportto = $condition['reportto'] . '-01';
+                    $start = $this->Util->reverseStr($condition['reportfrom']) . '-01';
+                    $reportto = $this->Util->reverseStr($condition['reportto']) . '-01';
                     $end = $this->Util->getLastDayOfMonth($reportto);
+                    Log::write('debug', 'start:'.$start.', end:'.$end);
                     $allStudents->where(function (QueryExpression $exp, Query $q) use($start, $end) {
                         return $exp->between('Students.enrolled_date', $start, $end, 'date');
                     });

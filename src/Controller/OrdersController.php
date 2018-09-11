@@ -176,6 +176,7 @@ class OrdersController extends AppController
         $order = $this->Orders->newEntity();
         if ($this->request->is('post')) {
             $data = $this->request->getData();
+            $data['departure_date'] = $this->Util->reverseStr($data['departure_date']);
             // create system event
             $event = $this->SystemEvent->create('PHỎNG VẤN', $this->Util->convertDate($data['interview_date']));
             $data['events'][0] = $event;
@@ -212,6 +213,7 @@ class OrdersController extends AppController
         $currentInterviewDate = $order->interview_date->i18nFormat('yyyy-MM-dd');
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
+            $data['departure_date'] = $this->Util->reverseStr($data['departure_date']);
             $newInterviewDate = $this->Util->convertDate($data['interview_date']);
             if ($currentInterviewDate !== $newInterviewDate) {
                 // uppdate system event

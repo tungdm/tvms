@@ -32,4 +32,13 @@ class UtilComponent extends Component
     {
         return date('Y-m-d', strtotime($value));
     }
+
+    public function reverseStr($str)
+    {
+        if (empty($str)) {
+            return '';
+        }
+        $exp = explode('-', $str);
+        return trim($exp[1]) . '-' . trim($exp[0]);
+    }
 }
