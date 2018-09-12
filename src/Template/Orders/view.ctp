@@ -183,7 +183,7 @@ if ($order->status == "4" || $order->status == "5") {
                     <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh (dự kiến)') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->departure_date ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $this->Month->makeEdit($order->departure_date) ?></div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -341,7 +341,7 @@ if ($order->status == "4" || $order->status == "5") {
                                     <?= $this->Form->hidden('students.'  . $key . '.id', ['value' => $value->id]) ?>
                                 </div>
                                 <tr class="row-rec" id="row-candidate-<?=$counter?>">
-                                    <td class="cell col-md-1 stt-col">
+                                    <td class="cell col-md-1 stt-col text-center">
                                         <?= $counter+1 ?>
                                     </td>
                                     <td class="cell col-md-3">

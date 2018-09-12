@@ -153,13 +153,13 @@ $this->assign('title', 'TVMS - Trang Chủ');
                             </span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Đậu phỏng vấn</span>
-                                <span class="info-box-number"><?= $this->Number->format($data['totalPassedCount'], ['locale' => 'vn_VN']) ?></span>
+                                <span class="info-box-number"><?= $this->Number->format($data['totalPassed'], ['locale' => 'vn_VN']) ?> người</span>
 
                                 <div class="progress">
-                                    <div class="progress-bar" style="width: <?=$data['rateImmi']?>%"></div>
+                                    <div class="progress-bar" style="width:100%"></div>
                                 </div>
                                 <span class="progress-description">
-                                <?= $data['rateImmi'] ?>% lao động đã xuất cảnh
+                                <?= $data['rateImmi'] ?>% lao động đã xuất cảnh <?= $data['rateImmi'] != 0 ? '(' . $data['totalImmigrationCount'] . ' người)' : '' ?>
                                 </span>
                             </div>
                         </div>
@@ -170,13 +170,13 @@ $this->assign('title', 'TVMS - Trang Chủ');
 
                             <div class="info-box-content">
                                 <span class="info-box-text">Về nước</span>
-                                <span class="info-box-number"><?= $this->Number->format($data['totalReturn'], ['locale' => 'vn_VN']) ?></span>
+                                <span class="info-box-number"><?= $this->Number->format($data['totalReturn'], ['locale' => 'vn_VN']) ?> người</span>
 
                                 <div class="progress">
-                                    <div class="progress-bar" style="width: <?=$data['rateWithdraw']?>%"></div>
+                                    <div class="progress-bar" style="width:100%"></div>
                                 </div>
                                 <span class="progress-description">
-                                    <?=$data['rateWithdraw']?>% lao động rút hồ sơ
+                                    <?=$data['rateWithdraw']?>% lao động rút hồ sơ <?= $data['rateWithdraw'] != 0 ? '(' . $data['totalWithdraw'] . ' người)': '' ?>
                                 </span>
                             </div>
                         </div>

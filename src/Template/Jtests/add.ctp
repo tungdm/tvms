@@ -216,7 +216,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                     <?= $this->Form->hidden('jtest_contents.'  . $key . '.id') ?>
                                 </div>
                                 <tr class="row-skill" id="row-skill-<?=$key?>">
-                                    <td class="cell col-md-2 stt-col">
+                                    <td class="cell col-md-2 stt-col text-center">
                                         <?= $key+1 ?>
                                     </td>
                                     <td class="cell col-md-3">
@@ -350,7 +350,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
 
 <script id="skill-template" type="text/x-handlebars-template">
     <tr class="row-skill" id="row-skill-{{counter}}">
-        <td class="cell col-md-2 stt-col">
+        <td class="cell col-md-2 stt-col text-center">
             {{row}}
         </td>
         <td class="cell col-md-3">

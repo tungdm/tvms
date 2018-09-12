@@ -173,7 +173,7 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                                 <th scope="col col-md-1"><?= __('STT') ?></th>
                                 <th scope="col col-md-2"><?= __('Họ tên') ?></th>
                                 <th scope="col col-md-1"><?= __('Giới tính') ?></th>
-                                <th scope="col col-md-2"><?= __('Số điện thoại') ?></th>
+                                <th scope="col col-md-2"><?= __('Ngày sinh') ?></th>
                                 <th scope="col col-md-3"><?= __('Ngày nhập học') ?></th>
                                 <th scope="col col-md-3"><?= __('Quê quán') ?></th>
                             </tr>
@@ -181,7 +181,7 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                         <tbody id="student-container">
                         <?php foreach ($jclass->students as $key => $value): ?>
                             <tr class="row-std">
-                                <td class="cell stt-col">
+                                <td class="cell stt-col text-center">
                                     <?= $key+1 ?>
                                 </td>
                                 <td class="cell">
@@ -191,7 +191,7 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                                     <?= $gender[$value->gender]?>
                                 </td>
                                 <td class="cell">
-                                    <?= $this->Phone->makeEdit($value->phone) ?>
+                                    <?= $value->birthday ?>
                                 </td>
                                 <td class="cell">
                                     <?= !empty($value->enrolled_date) ? $value->enrolled_date : 'N/A' ?>

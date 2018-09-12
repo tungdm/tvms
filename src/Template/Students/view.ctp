@@ -329,7 +329,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <div class="time-lived">
                                                 <?php if($student->is_lived_in_japan === 'Y'): ?>
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= $student->lived_from ?> ～ <?= $student->lived_to ?>
+                                                    <?= $this->Month->makeEdit($student->lived_from) ?> ～ <?= $this->Month->makeEdit($student->lived_to) ?>
                                                 </div>
                                                 <?php endif;?>
                                             </div>
@@ -677,7 +677,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 <?= $this->Form->hidden('families.'  . $key . '.id', ['value' => $value->id]) ?>
                                             <div>
                                             <tr class="row-member" id="row-member-<?=$counter?>">
-                                                <td class="cell col-md-1 stt-col">
+                                                <td class="cell col-md-1 stt-col text-center">
                                                     <?php echo $counter + 1; ?>
                                                 </td>
                                                 <td class="cell col-md-2 family-fullname">
@@ -885,7 +885,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <?php foreach ($student->orders as $key => $value): ?>
                                             <tr>
                                                 <td><?= $key + 1?></td>
-                                                <td><?= h($value->name) ?></td>
+                                                <td><?= $this->Html->link($value->name, ['controller' => 'Orders', 'action' => 'view', $value->id]) ?></td>
                                                 <td><?= h($value->interview_date) ?></td>
                                                 <td>
                                                     <a href="javascript:;" onclick="viewGuild(<?= $value->company->guild->id ?>)"><?= h($value->company->guild->name_romaji) ?></a>
@@ -949,11 +949,11 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <?php $counter = 0 ?>
                                             <?php foreach ($student->educations as $key => $value): ?>
                                             <tr class="row-edu-his" id="row-edu-his-<?=$counter?>">
-                                                <td class="cell col-md-1 stt-col">
+                                                <td class="cell col-md-1 stt-col text-center">
                                                     <?php echo $counter + 1; ?>
                                                 </td>
                                                 <td class="cell col-md-2 edu-from-to">
-                                                    <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                    <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
                                                 </td>
                                                 <td class="cell col-md-2 edu-level">
                                                     <?= $eduLevel[$value->degree] ?>
@@ -1001,7 +1001,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <?php $counter = 0 ?>
                                             <?php foreach ($student->language_abilities as $key => $value): ?>
                                             <tr class="row-lang" id="row-lang-<?=$counter?>">
-                                                <td class="cell col-md-1 stt-col">
+                                                <td class="cell col-md-1 stt-col text-center">
                                                     <?php echo $counter + 1; ?>
                                                 </td>
                                                 <td class="cell col-md-2">
@@ -1011,7 +1011,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                     <?= $value->certificate ?>
                                                 </td>
                                                 <td class="cell col-md-4">
-                                                    <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                    <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
                                                 </td>
                                                 <?php $counter++; ?>
                                             </tr>
@@ -1049,11 +1049,11 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <?php $counter = 0 ?>
                                             <?php foreach ($student->experiences as $key => $value): ?>
                                             <tr class="row-exp" id="row-exp-<?=$counter?>">
-                                                <td class="cell col-md-1 stt-col">
+                                                <td class="cell col-md-1 stt-col text-center">
                                                     <?php echo $counter + 1; ?>
                                                 </td>
                                                 <td class="cell col-md-2">
-                                                    <?= $value->from_date ?> ～ <?= $value->to_date ?>
+                                                    <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
                                                 </td>
                                                 <td class="cell col-md-2">
                                                     <?= $value->job->job_name ?>
@@ -1106,7 +1106,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <?php $counter = 0; ?>
                                         <?php foreach($document as $key => $value): ?>
                                         <tr class="row-document" id="row-document-<?=$counter?>">
-                                            <td class="cell col-md-1 stt-col">
+                                            <td class="cell col-md-1 stt-col text-center">
                                                 <?php echo $counter + 1; ?>
                                             </td>
                                             <td class="cell col-md-3">

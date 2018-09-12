@@ -206,13 +206,16 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box-body">
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname"><?= __('Họ tên (VN)') ?></label>
-                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                    <div class="col-md-7 col-sm-7 col-xs-12 input-group check-duplicate">
                                         <?= $this->Form->control('fullname', [
                                             'label' => false, 
                                             'class' => 'form-control col-md-7 col-xs-12', 
                                             'required' => true,
                                             'placeholder' => 'Nhập họ tên của lao động bằng tiếng Việt'
                                             ]) ?>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-info btn-flat" onclick="checkDuplicate()">Kiểm tra</button>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="form-group">

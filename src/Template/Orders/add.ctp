@@ -282,11 +282,10 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="skill_test"><?= __('Thi tay nghề') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="skill_test"><?= __('Thi tay nghề') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('skill_test', [
                             'options' => $yesNoQuestion,
-                            'required' => true,
                             'empty' => true,
                             'label' => false,
                             'data-parsley-errors-container' => '#error-skill-test',
@@ -297,11 +296,10 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="interview_type"><?= __('Hình thức phỏng vấn') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="interview_type"><?= __('Hình thức phỏng vấn') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('interview_type', [
                             'options' => $interviewType,
-                            'required' => true,
                             'empty' => true,
                             'label' => false,
                             'data-parsley-errors-container' => '#error-interview-type',
@@ -312,7 +310,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh (dự kiến)') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="departure_date"><?= __('Ngày xuất cảnh (dự kiến)') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <!-- <div class="input-group date input-picker gt-now month-mode" id="departure-date-div"> -->
                         <div class="input-group date input-picker month-mode" id="departure-date-div"> <!-- Remove validate for user input past data -->
@@ -321,7 +319,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 'label' => false, 
                                 'class' => 'form-control',
                                 'placeholder' => 'mm-yyyy',
-                                'required' => true,
                                 'data-parsley-errors-container' => '#error-departure-date'
                                 ])?>
                             <span class="input-group-addon">
@@ -372,23 +369,21 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="male_num"><?= __('Số lượng nam') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="male_num"><?= __('Số lượng nam') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('male_num', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true,
                             'placeholder' => 'Nhập số lượng nam cần tuyển'
                             ]) ?>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="female_num"><?= __('Số lượng nữ') ?></label>
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="female_num"><?= __('Số lượng nữ') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('female_num', [
-                            'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
-                            'required' => true,
+                            'label' => false,
+                            'class' => 'form-control col-md-7 col-xs-12',
                             'placeholder' => 'Nhập số lượng nữ cần tuyển'
                             ]) ?>
                     </div>
@@ -495,7 +490,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->hidden('students.' . $key . '._joinData.id') ?>
                             </div>
                             <tr class="row-rec" id="row-candidate-<?=$counter?>">
-                                <td class="cell col-md-1 stt-col">
+                                <td class="cell col-md-1 stt-col text-center">
                                     <?= $counter+1 ?>
                                 </td>
                                 <td class="cell hidden"></td>
@@ -581,7 +576,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">THÊM ỨNG VIÊN PHỎNG VẤN</h4>
+                <h4 class="modal-title">DANH SÁCH HỌC VIÊN CHƯA ĐẬU PHỎNG VẤN</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -596,16 +591,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     <div class="form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="input-group">
-                                <?= $this->Form->control('candidate.name', [
-                                    'label' => false, 
-                                    'options' => [],
-                                    'class' => 'form-control col-md-7 col-xs-12', 
-                                    ]) ?>
-                                <span class="input-group-btn">
-                                    <button type="button" onclick="addCandidate()" class="btn btn-primary btn-flat">
-                                        <i class="fa fa-fw fa-plus"></i>
-                                    </button>
-                                </span>
+                                <input type="text" class="form-control" id="studentname" onkeyup="search()" placeholder="Tìm kiếm học viên">
+                                <span class="input-group-addon"><i class="fa fa-search"></i></span>
                             </div>
                         </div>
                     </div>
@@ -768,7 +755,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 <script id="selected-candidate-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-rec" id="row-candidate-{{row}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{inc row}}
         </td>
         <td class="cell hidden">
@@ -842,7 +829,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 <script id="recommend-candidate-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-rec" id="row-candidate-{{@index}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{inc @index}}
         </td>
         <td class="hidden">
@@ -902,7 +889,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </div>
         </td>
-        <td>
+        <td class="cell text-center">
             <input name="candidate-{{@index}}" id="cdd-{{id}}" type="checkbox" class="js-switch">
         </td>
     </tr>
@@ -911,7 +898,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 
 <script id="add-recommend-candidate-template" type="text/x-handlebars-template">
     <tr class="row-rec" id="row-candidate-{{counter}}">
-        <td class="cell col-md-1 stt-col">
+        <td class="cell col-md-1 stt-col text-center">
             {{row}}
         </td>
         <td class="hidden">

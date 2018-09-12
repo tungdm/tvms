@@ -1659,3 +1659,47 @@ function showExportModal(studentId) {
     // show modal
     $('#export-student-modal').modal('toggle');
 }
+
+function checkDuplicate() {
+    var fullname = $('#fullname').val();
+    if (fullname == '' || fullname == null) {
+        return;
+    }
+
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+
+    // check if current class have test or not
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/students/checkDuplicate/',
+        data: {
+            'q': $('#fullname').val()
+        },
+        success: function(resp) {
+            if (resp) {
+                swal({
+                    title: 'Cảnh báo!',
+                    text: "Học viên " + $('#fullname').val() + " đã tồn tại.",
+                    type: 'warning',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Ok'
+                });
+            } else {
+                swal({
+                    title: 'Thông tin!',
+                    text: "Học viên " + $('#fullname').val() + " chưa tồn tại.",
+                    type: 'success',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Ok'
+                });
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+        }
+    });
+}

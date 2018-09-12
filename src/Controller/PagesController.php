@@ -101,26 +101,15 @@ class PagesController extends AppController
         $southPopulation = $this->getAreaPopulation(['from' => '70', 'to' => '96']);
         
         // third row data
-        $totalPassed = $orderStudentsTable->find()->where(['result' => '1']);
-        $totalPassedCount = $totalPassed->count();
-        $totalImmigrationCount = $totalPassed->contain(['Students'])->where(function (QueryExpression $exp, Query $q) {
-                return $exp->between('status', '4', '8');
-            })->count();
-        if ($totalPassedCount == 0) {
-            $rateImmi = 0;
-        } else {
-            $rateImmi = round($totalImmigrationCount/$totalPassedCount, 2) * 100;
-        }
+        $totalStudent = $studentTable->find()->count();
+
+        $totalPassed = $studentTable->find()->where(['status' => '3'])->count();
+        $totalImmigrationCount = $studentTable->find()->where(['status' => '5'])->count();
+        $rateImmi = round($totalImmigrationCount/$totalStudent, 4) * 100;
         
-        $totalReturn = $studentTable->find()->where(function (QueryExpression $exp, Query $q) {
-                return $exp->between('status', '5', '8');
-            })->count();
-        if ($totalReturn == 0) {
-            $totalWithdraw = $rateWithdraw = 0;
-        } else {
-            $totalWithdraw = $studentTable->find()->where(['status' => '7'])->count();
-            $rateWithdraw = round($totalWithdraw/$totalReturn, 2) * 100;
-        }
+        $totalReturn = $studentTable->find()->where(['status IN' => ['5', '8']])->count();
+        $totalWithdraw = $studentTable->find()->where(['status' => '7'])->count();
+        $rateWithdraw = round($totalWithdraw/$totalStudent, 4) * 100;
         
         for ($i=1; $i < $month; $i++) {
             $pastMonth = $year . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
@@ -129,7 +118,7 @@ class PagesController extends AppController
 
             $monthlyNewOrder = $orderTable->find()
                 ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfMonthTmp, $lastDayOfMonthTmp) {
-                    return $exp->between('created', $firstDayOfMonthTmp, $lastDayOfMonthTmp, 'date');
+                    return $exp->between('interview_date', $firstDayOfMonthTmp, $lastDayOfMonthTmp, 'date');
                 })->count();
             $monthlyNewStudent = $studentTable->find()
                 ->where(function (QueryExpression $exp, Query $q) use($firstDayOfMonthTmp, $lastDayOfMonthTmp) {
@@ -154,7 +143,7 @@ class PagesController extends AppController
             'returnStudent' => $returnStudent,
             'newPassedCount' => $newPassedCount,
             'totalData' => $totalData,
-            'totalPassedCount' => $totalPassedCount,
+            'totalPassed' => $totalPassed,
             'totalImmigrationCount' => $totalImmigrationCount,
             'rateImmi' => $rateImmi,
             'totalReturn' => $totalReturn,

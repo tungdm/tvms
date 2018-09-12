@@ -385,6 +385,7 @@ function fillData(resp, mode) {
             var source = $("#interview-template").html();
             var template = Handlebars.compile(source);
             description = template({
+                'admin': resp.admin,
                 'orderName': resp.order.name,
                 'guild': resp.order.company.guild.name_romaji,
                 'company': resp.order.company.name_romaji,

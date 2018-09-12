@@ -795,6 +795,8 @@ class OrdersController extends AppController
 
             $this->tbs->VarRef['worktime'] = $order->work_time;
             $listJP = $listVN = [];
+            $this->checkData($order->departure_date, 'Ngày xuất cảnh (dự kiến)');
+
             foreach ($order->students as $key => $student) {
                 $studentName_VN = mb_strtoupper($student->fullname);
                 $studentName_EN = $this->Util->convertV2E($studentName_VN);

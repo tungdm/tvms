@@ -100,15 +100,11 @@ class OrdersTable extends Table
 
         $validator
             ->scalar('interview_type')
-            ->maxLength('interview_type', 2)
-            ->requirePresence('interview_type', 'create')
-            ->notEmpty('interview_type');
+            ->allowEmpty('interview_type');
 
         $validator
             ->scalar('skill_test')
-            ->maxLength('skill_test', 2)
-            ->requirePresence('skill_test', 'create')
-            ->notEmpty('skill_test');
+            ->allowEmpty('skill_test');
 
         $validator
             ->scalar('requirement')
@@ -156,8 +152,7 @@ class OrdersTable extends Table
 
         $validator
             ->scalar('departure_date')
-            ->requirePresence('departure_date', 'create')
-            ->notEmpty('departure_date');
+            ->allowEmpty('departure_date');
 
         $validator
             ->integer('created_by')

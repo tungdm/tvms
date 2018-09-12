@@ -274,6 +274,12 @@ function editStudent(rowId) {
 }
 
 function showChangeClassModal(ele) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    
     // check if current class have test or not
     $.ajax({
         type: 'GET',
@@ -303,8 +309,6 @@ function showChangeClassModal(ele) {
             ajaxing = false;
         }
     });
-    
-  
 }
 
 function changeClass(rowId) {

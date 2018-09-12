@@ -706,6 +706,19 @@ class StudentsController extends AppController
         }
     }
 
+    public function checkDuplicate()
+    {
+        $this->request->allowMethod('ajax');
+        $stdName = $this->request->getQuery('q');
+        $query = $this->Students->find()->where(['fullname' => $stdName])->first();
+        $resp = false;
+
+        if (!empty($query)) {
+            $resp = true;
+        }     
+        return $this->jsonResponse($resp);
+    }
+
     /**
      * Delete method
      *

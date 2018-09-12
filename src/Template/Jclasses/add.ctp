@@ -229,7 +229,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                             <th scope="col col-md-1"><?= __('STT') ?></th>
                             <th scope="col col-md-2"><?= __('Họ tên') ?></th>
                             <th scope="col col-md-1"><?= __('Giới tính') ?></th>
-                            <th scope="col col-md-2"><?= __('Số điện thoại') ?></th>
+                            <th scope="col col-md-2"><?= __('Ngày sinh') ?></th>
                             <th scope="col col-md-2"><?= __('Ngày nhập học') ?></th>
                             <th scope="col col-md-2"><?= __('Quê quán') ?></th>
                             <th scope="col" class="actions"><?= __('Thao tác') ?></th>
@@ -246,7 +246,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->hidden('students.' . $key . '._joinData.id') ?>
                             </div>
                             <tr class="row-std" id="row-student-<?=$counter?>">
-                                <td class="cell stt-col">
+                                <td class="cell stt-col text-center">
                                     <?= $counter+1 ?>
                                 </td>
                                 <td class="cell hidden">
@@ -263,7 +263,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                     <?= $gender[$value->gender]?>
                                 </td>
                                 <td class="cell">
-                                    <?= $this->Phone->makeEdit($value->phone) ?>
+                                    <?= $value->birthday ?>
                                 </td>
                                 <td class="cell">
                                     <?= !empty($value->enrolled_date) ? $value->enrolled_date : 'N/A' ?>
@@ -472,7 +472,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 
 <script id="pre-add-student-template" type="text/x-handlebars-template">
     <tr class="row-pre" id="row-student-{{counter}}">
-        <td class="cell stt-col">
+        <td class="cell stt-col text-center">
             {{row}}
         </td>
         <td class="hidden">
@@ -523,7 +523,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td>
+        <td class="cell text-center">
             <input name="student-{{row}}" type="checkbox" id="std-{{id}}" class="js-switch">
         </td>
     </tr>
@@ -532,7 +532,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 <script id="add-student-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-std" id="row-student-{{row}}">
-        <td class="cell stt-col">
+        <td class="cell stt-col text-center">
             {{inc row}}
         </td>
         <td class="cell hidden">
@@ -623,7 +623,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
 <script id="recommend-student-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-pre" id="row-student-{{@index}}">
-        <td class="cell stt-col">
+        <td class="cell stt-col text-center">
             {{inc @index}}
         </td>
         <td class="hidden">

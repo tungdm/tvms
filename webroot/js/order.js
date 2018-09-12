@@ -21,12 +21,12 @@ $(document).ready(function() {
     });
 
     $('#work-time').change(function() {
-        var returnDate = calReturnDate($('#work-time').val(), $('#departure-date').val());
+        var returnDate = calReturnDate($('#work-time').val(), $('#departure').val());
         setReturnDate(returnDate);
     });
 
-    $('#departure-date-div').on('dp.change', function() {
-        var returnDate = calReturnDate($('#work-time').val(), $('#departure-date').val());
+    $('#departure-div').on('dp.change', function() {
+        var returnDate = calReturnDate($('#work-time').val(), $('#departure').val());
         setReturnDate(returnDate);
     });
 
@@ -272,8 +272,11 @@ function setPassed(ele) {
 }
 
 function calReturnDate(workTime, departureDate) {
+    if (departureDate == '') {
+        return '';
+    }
     var duration = moment.duration(parseInt(workTime), 'years');
-    return moment(departureDate).add(duration).format('YYYY-MM'); 
+    return moment(departureDate, 'DD-MM-YYYY').add(duration).format('YYYY-MM');
 }
 
 function setReturnDate(returnDate) {
@@ -306,7 +309,7 @@ function setInterviewResult(rowId) {
         if ($('#result').val() === '1') {
             $('#row-candidate-'+rowId).find('.result-text').addClass('bold-text');
             // set return date
-            var returnDate = calReturnDate($('select[name="work_time"]').val(), $('input[name="departure_date"]').val());
+            var returnDate = calReturnDate($('select[name="work_time"]').val(), $('input[name="departure"]').val());
             $('#row-candidate-'+rowId).find('.return_date').val(returnDate);
             if ($('#row-candidate-'+rowId).find('.status').val() != '3') {
                 $('#row-candidate-'+rowId).find('.status').val('3');
@@ -454,4 +457,16 @@ function settings() {
 
     // show modal
     $('#setting-modal').modal('toggle');
+}
+
+function search() {
+    var filter = $('#studentname').val().toUpperCase();
+    $('#recommend-container').find('.row-rec').each(function() {
+        var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        if (fullname.indexOf(filter) > -1) {
+            $(this).removeClass('hidden');
+        } else {
+            $(this).addClass('hidden');
+        }
+    })
 }

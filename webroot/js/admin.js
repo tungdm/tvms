@@ -1925,6 +1925,13 @@ Handlebars.registerHelper("trans", function (value, options) {
     return "Nữ";
 });
 
+Handlebars.registerHelper("class", function (value, options) {
+    if (typeof value == 'undefined' || value == null) {
+        value = 'Bên ngoài';
+    }
+    return value;
+});
+
 Handlebars.registerHelper('renderImg', function(value, option) {
     if (value == null) {
         value = 'no_avatar.png';

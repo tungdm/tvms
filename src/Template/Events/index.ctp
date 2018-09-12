@@ -168,8 +168,10 @@ $this->assign('title', 'Lịch công tác');
 <script id="interview-template" type="text/x-handlebars-template">
     <ul>
         <li><strong>Tên đơn hàng: </strong>{{orderName}}</li>
-        <li><strong>Nghiệp đoàn tiếp nhận: </strong>{{guild}}</li>
+        {{#if admin}}
+        <li><strong>Nghiệp đoàn quản lý: </strong>{{guild}}</li>
         <li><strong>Công ty tiếp nhận: </strong>{{company}}</li>
+        {{/if}}
         <li><strong>Nghề nghiệp: </strong>{{job}}</li>
         <li><strong>Nơi làm việc: </strong>{{work_at}}</li>
         <li><strong>Thi tay nghề: </strong>{{skill_test}}</li>
@@ -180,31 +182,33 @@ $this->assign('title', 'Lịch công tác');
                 <table class="table table-bordered custom-table candidate-table">
                     <thead>
                         <tr>
-                            <th scope="col">STT</th>
-                            <th scope="col">Họ tên</th>
-                            <th scope="col">Tuổi</th>
-                            <th scope="col">Giới tính</th>
-                            <th scope="col"><?= __('Số ĐT') ?></th>
+                            <th scope="col col-md-1">STT</th>
+                            <th scope="col col-md-3">Họ tên</th>
+                            <th scope="col col-md-1">Tuổi</th>
+                            <th scope="col col-md-2">Giới tính</th>
+                            <th scope="col col-md-3">Quê quán</th>
+                            <th scope="col col-md-2">Lớp học</th>
                         </tr>
                     </thead>
                     <tbody id="candidate-container">
                         {{#each candidates}}
                             <tr class="row-rec">
-                                <td class="cell col-md-1 stt-col">
+                                <td class="cell stt-col text-center">
                                     {{inc @index}}
                                 </td>
-                                <td class="cell col-md-3">
+                                <td class="cell">
                                     {{fullname}}
                                 </td>
-                                <td class="cell col-md-3 text-center">
+                                <td class="cell text-center">
                                     {{calAge birthday}}
                                 </td>
-                                <td class="cell col-md-2 text-center">
+                                <td class="cell text-center">
                                     {{trans gender}}
                                 </td>
-                                <td class="cell col-md-3">
-                                    {{phoneFormat phone}}
+                                <td class="cell">
+                                    {{addresses.0.city.name}}
                                 </td>
+                                <td class="cell text-center">{{class jclasses.0.name}}</td>
                             </tr>
                         {{/each}}
                     </tbody>
@@ -234,7 +238,7 @@ $this->assign('title', 'Lịch công tác');
                     <tbody id="skill-container">
                         {{#each skills}}
                             <tr class="row-rec">
-                                <td class="cell col-md-1 stt-col">
+                                <td class="cell col-md-1 stt-col text-center">
                                     {{inc @index}}
                                 </td>
                                 <td class="cell col-md-3">

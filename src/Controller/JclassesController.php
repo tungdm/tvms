@@ -567,12 +567,12 @@ class JclassesController extends AppController
         $jclass = $this->Jclasses->get($id, [
             'contain' => ['Jtests']
         ]);
-        $haveTest = 'false'; 
+        $haveTest = false; 
         $now = Time::now()->i18nFormat('yyyy-MM-dd');
         if (!empty($jclass->jtests)) {
             foreach ($jclass->jtests as $key => $value) {
                 if ($now <= $value->test_date) {
-                    $haveTest = 'true';
+                    $haveTest = true;
                     break;
                 }
             }

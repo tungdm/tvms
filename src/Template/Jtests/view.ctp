@@ -251,7 +251,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                             <?php foreach ($jtest->students as $key => $value): ?>
                             <?php $total = 0; ?>
                             <tr class="row-score">
-                                <td class="cell stt-col">
+                                <td class="cell stt-col text-center">
                                     <?= $key+1 ?>
                                 </td>
                                 <td class="cell col-md-2">

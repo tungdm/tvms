@@ -133,6 +133,11 @@ class EventsController extends AppController
                     'Users', 
                     'Orders', 
                     'Orders.Students', 
+                    'Orders.Students.Jclasses', 
+                    'Orders.Students.Addresses' => function($q) {
+                        return $q->where(['Addresses.type' => '1']);
+                    }, 
+                    'Orders.Students.Addresses.Cities',
                     'Orders.Companies', 
                     'Orders.Companies.Guilds', 
                     'Orders.Jobs',
@@ -162,6 +167,7 @@ class EventsController extends AppController
             $resp = $event;
             $resp['all_day'] == "true" ? true : false;
             $resp['owner'] = empty($event->user_id) ? 'Thông báo từ hệ thống' : $event->user->fullname;
+            $resp['admin'] = $this->Auth->user('role_id') == 1;
         } catch (Exception $e) {
             //TODO: blacklist user
             Log::write('debug', $e);
