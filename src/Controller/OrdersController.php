@@ -411,7 +411,7 @@ class OrdersController extends AppController
                 ) {
                 $candidates->where(function (QueryExpression $exp, Query $q) use ($query) {
                     $minDate = Time::now()->subYears((int) $query['ageTo'])->year . '-01-01';
-                    $maxDate = Time::now()->subYears((int) $query['ageFrom'])->year . '-01-01';
+                    $maxDate = Time::now()->subYears((int) $query['ageFrom'])->year . '-12-31';
                     return $exp->between('birthday', $minDate, $maxDate, 'date');
                 });
             }

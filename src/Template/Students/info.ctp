@@ -206,16 +206,20 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box-body">
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="fullname"><?= __('Họ tên (VN)') ?></label>
-                                    <div class="col-md-7 col-sm-7 col-xs-12 input-group check-duplicate">
-                                        <?= $this->Form->control('fullname', [
-                                            'label' => false, 
-                                            'class' => 'form-control col-md-7 col-xs-12', 
-                                            'required' => true,
-                                            'placeholder' => 'Nhập họ tên của lao động bằng tiếng Việt'
-                                            ]) ?>
-                                        <span class="input-group-btn">
-                                            <button type="button" class="btn btn-info btn-flat" onclick="checkDuplicate()">Kiểm tra</button>
-                                        </span>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="input-group check-duplicate">
+                                            <?= $this->Form->control('fullname', [
+                                                'label' => false, 
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                'required' => true,
+                                                'placeholder' => 'Nhập họ tên của lao động bằng tiếng Việt',
+                                                'data-parsley-errors-container' => '#error-fullname',
+                                                ]) ?>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-info btn-flat" onclick="checkDuplicate()">Kiểm tra</button>
+                                            </span>
+                                        </div>
+                                        <span id="error-fullname"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -755,11 +759,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <?php endif; ?>
                                         <?= $this->Form->hidden('addresses.1.type', ['value' => $addressType[1]]) ?>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="city"><?= __('Tỉnh/Thành phố') ?></label>
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="city"><?= __('Tỉnh/Thành phố') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                                 <?= $this->Form->control('addresses.1.city_id', [
                                                     'options' => $cities, 
-                                                    'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
                                                     'data-parsley-errors-container' => '#error-city-1',
@@ -770,12 +773,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="district"><?= __('Quận/Huyện') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                             <?php if (!empty($student->addresses[1]->city_id)): ?>
                                                 <?= $this->Form->control('addresses.1.district_id', [
                                                     'options' => $districts[1], 
-                                                    'required' => true, 
                                                     'empty' => true, 
                                                     'label' => false,
                                                     'data-parsley-errors-container' => '#error-district-1',
@@ -784,7 +786,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <?php else: ?>
                                                 <?= $this->Form->control('addresses.1.district_id', [
                                                     'options' => [], 
-                                                    'required' => true, 
                                                     'empty' => true, 
                                                     'disabled' => true,
                                                     'label' => false,
@@ -796,12 +797,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
+                                            <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="ward"><?= __('Phường/Xã') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
                                             <?php if (!empty($student->addresses[1]->district_id)): ?>
                                                 <?= $this->Form->control('addresses.1.ward_id', [
                                                     'options' => $wards[1], 
-                                                    'required' => true,
                                                     'empty' => true,
                                                     'label' => false,
                                                     'data-parsley-errors-container' => '#error-ward-1',
@@ -810,7 +810,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <?php else: ?>
                                                 <?= $this->Form->control('addresses.1.ward_id', [
                                                     'options' => [], 
-                                                    'required' => true, 
                                                     'empty' => true, 
                                                     'disabled' => true,
                                                     'label' => false,

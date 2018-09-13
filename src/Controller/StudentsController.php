@@ -588,7 +588,7 @@ class StudentsController extends AppController
         }
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
+            $data = $this->request->getData();            
             $data['lived_from'] = $this->Util->reverseStr($data['lived_from']);
             $data['lived_to'] = $this->Util->reverseStr($data['lived_to']);
             $student = $this->Students->patchEntity($student, $data, ['associated' => [

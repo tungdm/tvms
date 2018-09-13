@@ -54,7 +54,7 @@ $(document).ready(function() {
 });
 
 function search() {
-    var filter = $('#studentname').val().toUpperCase();
+    var filter = $('#studentname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     $('#pre-add-student-container').find('.row-pre').each(function() {
         var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         if (fullname.indexOf(filter) > -1) {
@@ -279,7 +279,7 @@ function showChangeClassModal(ele) {
         return;
     }
     ajaxing = true;
-    
+
     // check if current class have test or not
     $.ajax({
         type: 'GET',

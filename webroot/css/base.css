@@ -529,8 +529,3 @@ label.optional {
 .bold-text {
     font-weight: bold;
 }
-
-.check-duplicate {
-    padding-right: 15px !important;
-    padding-left: 15px !important;
-}

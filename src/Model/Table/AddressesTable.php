@@ -4,6 +4,7 @@ namespace App\Model\Table;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\Rule\ExistsIn;
 use Cake\Validation\Validator;
 
 /**
@@ -80,6 +81,18 @@ class AddressesTable extends Table
             ->allowEmpty('street');
 
         $validator
+            ->scalar('city_id')
+            ->allowEmpty('city_id');
+
+        $validator
+            ->scalar('district_id')
+            ->allowEmpty('district_id');
+
+        $validator
+            ->scalar('ward_id')
+            ->allowEmpty('ward_id');
+
+        $validator
             ->integer('created_by')
             ->allowEmpty('created_by');
 
@@ -100,9 +113,24 @@ class AddressesTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->existsIn(['student_id'], 'Students'));
-        $rules->add($rules->existsIn(['ward_id'], 'Wards'));
-        $rules->add($rules->existsIn(['district_id'], 'Districts'));
-        $rules->add($rules->existsIn(['city_id'], 'Cities'));
+
+        // $rules->add($rules->existsIn(['ward_id'], 'Wards'));
+        $rules->add(function ($entity, $options) {
+            $rule = new ExistsIn(['ward_id'], 'Wards');
+            return $entity->ward_id === '' || $rule($entity, $options);
+        });
+
+        // $rules->add($rules->existsIn(['district_id'], 'Districts'));
+        $rules->add(function ($entity, $options) {
+            $rule = new ExistsIn(['district_id'], 'Districts');
+            return $entity->district_id === '' || $rule($entity, $options);
+        });
+
+        // $rules->add($rules->existsIn(['city_id'], 'Cities'));
+        $rules->add(function ($entity, $options) {
+            $rule = new ExistsIn(['city_id'], 'Cities');
+            return $entity->city_id === '' || $rule($entity, $options);
+        });
 
         return $rules;
     }

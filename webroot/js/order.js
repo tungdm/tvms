@@ -460,7 +460,7 @@ function settings() {
 }
 
 function search() {
-    var filter = $('#studentname').val().toUpperCase();
+    var filter = $('#studentname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     $('#recommend-container').find('.row-rec').each(function() {
         var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         if (fullname.indexOf(filter) > -1) {
