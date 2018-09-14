@@ -812,6 +812,10 @@ function showMemberModal(ele) {
 }
 // Education Manager
 function createEduHisTemplate(counter) {
+    var certificateVal = '';
+    if ($('#edu-certificate').val()) {
+        certificateVal = moment($('#edu-certificate').val(), 'MM-YYYY').format('YYYY-MM');
+    }
     var edu_html = edu_template({
         'row': counter + 1,
         'counter': counter,
@@ -840,7 +844,7 @@ function createEduHisTemplate(counter) {
         'specializedJPVal': $('#edu-specialized-jp').val(),
 
         'certificate': 'educations[' + counter + '][certificate]',
-        'certificateVal': moment($('#edu-certificate').val(), 'MM-YYYY').format('YYYY-MM'),
+        'certificateVal': certificateVal,
     });
     return edu_html;
 }
