@@ -505,6 +505,10 @@ return [
             'en' => 'Town',
             'jp' => '町'
         ],
+        'Thị xã' => [
+            'en' => 'Town',
+            'jp' => '町'
+        ],
     ],
 
     'addressJPLevel' => [

@@ -130,7 +130,7 @@ if ($order->status == "4" || $order->status == "5") {
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="salary"><?= __('Mức lương') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $this->Number->format($order->salary_from, ['locale' => 'vn_VN']) ?> ～ <?= $this->Number->format($order->salary_to, ['locale' => 'vn_VN']) ?> (¥/tháng)
+                                <?= $order->salary_from ? $this->Number->format($order->salary_from, ['locale' => 'vn_VN']) : 'N/A' ?> ～ <?= $order->salary_to ? $this->Number->format($order->salary_to, ['locale' => 'vn_VN']) : 'N/A' ?> (¥/tháng)
                             </div>
                         </div>
                     </div>
@@ -171,19 +171,19 @@ if ($order->status == "4" || $order->status == "5") {
                     <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="skill_test"><?= __('Thi tay nghề') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $yesNoQuestion[$order->skill_test] ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->skill_test ? $yesNoQuestion[$order->skill_test] : 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="interview_type"><?= __('Hình thức phỏng vấn') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $interviewType[$order->interview_type] ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->interview_type ? $interviewType[$order->interview_type] : 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure_date"><?= __('Ngày xuất cảnh (dự kiến)') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $this->Month->makeEdit($order->departure_date) ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->departure_date ? $this->Month->makeEdit($order->departure_date) : 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -221,20 +221,20 @@ if ($order->status == "4" || $order->status == "5") {
                     <div class="form-group">
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="male_num"><?= __('Số lượng nam') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->male_num ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->male_num ?? 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="female_num"><?= __('Số lượng nữ') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->female_num ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->female_num ?? 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="age_interval"><?= __('Độ tuổi') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $order->age_from ?> ～ <?= $order->age_to ?>
+                                <?= $order->age_from ?? 'N/A' ?> ～ <?= $order->age_to ?? 'N/A' ?>
                             </div>
                         </div>
                     </div>

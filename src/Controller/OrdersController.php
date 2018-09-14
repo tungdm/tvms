@@ -553,7 +553,8 @@ class OrdersController extends AppController
             } else {
                 $maxLen = 0;
                 foreach ($student->educations as $key => $value) {
-                    $newLen = strlen($value->school);
+                    $schoolName = $this->Util->convertV2E($value->school);
+                    $newLen = strlen($schoolName);
                     if ($newLen > $maxLen) {
                         $maxLen = $newLen;
                     }
@@ -563,7 +564,7 @@ class OrdersController extends AppController
                     $history = [
                         'year' => $fromDate->year . " ～ " . $toDate->year,
                         'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
-                        'schoolName' => $this->Util->convertV2E($value->school),
+                        'schoolName' => $schoolName,
                         'schoolJP' => $eduLevel[$value->degree]['jp'] . "校卒業" . $specialized,
                     ];
                     array_push($eduHis, $history);
@@ -584,13 +585,16 @@ class OrdersController extends AppController
                 foreach ($eduHis as $key => $value) {
                     $currentLen = strlen($value['schoolName']);
                     $currentName = $value['schoolName'];
+                    Log::write('debug', 'max length:' . $maxLen);
                     if ($currentLen < $maxLen) {
-                        $padding = ($maxLen-$currentLen)*2 +1 + 14;
-                        $newName = $currentName . str_repeat(" " , $padding);
+                        $padding = $maxLen - $currentLen + 14;
+                        $newName = $currentName . str_repeat("-" , $padding);
+                        Log::write('debug', 'currentName: ' . $currentName . ', padding:' . $padding . ', newName: ' . $newName);
                     } else {
-                        $newName = $currentName . str_repeat(" " , 14);;
+                        $newName = $currentName . str_repeat("-" , 14);
+                        Log::write('debug', 'currentName: ' . $currentName . ', newName: ' . $newName);
                     }
-                    $eduHis[$key]['schoolName'] = $newName . $value['schoolJP'];
+                    $eduHis[$key]['schoolName'] = str_replace('-', ' ', $newName) . $value['schoolJP'];
                 }
             }
             $this->tbs->MergeBlock('a', $eduHis);
@@ -606,12 +610,15 @@ class OrdersController extends AppController
                 array_push($expHis, $history);
             } else {
                 foreach ($student->experiences as $key => $value) {
+                    if (empty($value->company_jp)) {
+                        $this->checkData('', 'Tên tiếng Nhật của công ty ' . $value->company);
+                    }
                     $fromDate = new Time($value->from_date);
                     $toDate = new Time($value->to_date);
                     $history = [
                         'year' => $fromDate->year . " ～ " . $toDate->year,
                         'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
-                        'company' => $value->company . '（' . $value->job->job_name_jp . '）'  ,
+                        'company' => $value->company_jp . '（' . $value->job->job_name_jp . '）'  ,
                     ];
                     array_push($expHis, $history);
                 }

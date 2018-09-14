@@ -374,7 +374,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('male_num', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
-                            'placeholder' => 'Nhập số lượng nam cần tuyển'
+                            'placeholder' => 'Nhập số lượng nam cần tuyển',
+                            'min' => '0'
                             ]) ?>
                     </div>
                 </div>
@@ -384,7 +385,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                         <?= $this->Form->control('female_num', [
                             'label' => false,
                             'class' => 'form-control col-md-7 col-xs-12',
-                            'placeholder' => 'Nhập số lượng nữ cần tuyển'
+                            'placeholder' => 'Nhập số lượng nữ cần tuyển',
+                            'min' => '0'
                             ]) ?>
                     </div>
                 </div>
