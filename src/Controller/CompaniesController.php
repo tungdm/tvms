@@ -133,6 +133,8 @@ class CompaniesController extends AppController
             $company = $this->Companies->get($companyId, [
                 'contain' => [
                     'Guilds',
+                    'Orders',
+                    'Orders.Students',
                     'CreatedByUsers',
                     'ModifiedByUsers'
                 ]
@@ -142,6 +144,52 @@ class CompaniesController extends AppController
                 'data' => $company,
                 'created' => $company->created->i18nFormat('dd-MM-yyyy HH:mm:ss'),
                 'modified' => $company->modified->i18nFormat('dd-MM-yyyy HH:mm:ss')
+            ];
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function viewWorkers($id = null)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'flash' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'icon' => 'fa fa-warning',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+
+        try {
+            $query = $this->Companies->Orders->Students->find()->where(['Students.status' => 4])->order(['fullname' => 'ASC']);
+            $query->contain([
+                'Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                }, 
+                'Addresses.Cities'
+            ]);
+            $query->matching('Orders', function ($q) use ($id) {
+                return $q->where(['Orders.company_id' => $id, 'result' => '1'])->select(['id', 'name', 'job_id', 'departure', 'work_time']);
+            });
+            $jobTable = TableRegistry::get('Jobs');
+            $allJobs = $jobTable->find('list')->toArray();
+            
+            $query->formatResults(function ($results) use ($allJobs) {
+                return $results->map(function ($row) use ($allJobs) {
+                    $jobId = $row['_matchingData']['Orders']['job_id'];
+                    $row['job'] = $allJobs[$jobId];
+                    return $row;
+                });
+            });
+
+            $resp = [
+                'status' => 'success',
+                'data' => $query,
             ];
         } catch (Exception $e) {
             //TODO: blacklist user

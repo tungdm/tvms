@@ -1823,6 +1823,21 @@ $(document).ready(function() {
             event.preventDefault();
         }
     });
+    $(document).on("keypress", function(event) {
+        if (event.keyCode == 13) {
+            // submit filter form
+            $('#filter-form').submit();
+        }
+    });
+
+    // set auto focus when open modal
+    $('.modal').on('shown.bs.modal', function () {
+        var autoFocusFields = $(this).find('.autoFocus')
+        if (autoFocusFields.length == 0) {
+            return;
+        }
+        autoFocusFields[0].focus();
+    })
     // init history counter
     historyCounter = $('.history-detail').length;
 
@@ -1959,5 +1974,8 @@ Handlebars.registerHelper("nl2br", function (value, options) {
 });
 
 function convertDate(value) {
+    if (value == '' || value == null || value == 'N/A') {
+        return 'N/A';
+    }
     return moment(value).format('DD-MM-YYYY');
 }

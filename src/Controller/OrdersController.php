@@ -207,7 +207,15 @@ class OrdersController extends AppController
     public function edit($id = null)
     {
         $order = $this->Orders->get($id, [
-            'contain' => ['Students', 'Events']
+            'contain' => [
+                'Students', 
+                'Students.Jclasses',
+                'Students.Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                }, 
+                'Students.Addresses.Cities',
+                'Events'
+            ]
         ]);
         $orderName = $order->name;
         $currentInterviewDate = $order->interview_date->i18nFormat('yyyy-MM-dd');
@@ -402,7 +410,13 @@ class OrdersController extends AppController
     {
         $this->request->allowMethod('ajax');
         $query = $this->request->getQuery();
-        $candidates = $this->Orders->Students->find();
+        $candidates = $this->Orders->Students->find()->contain([
+            'Jclasses',
+            'Addresses' => function($q) {
+                return $q->where(['Addresses.type' => '1']);
+            }, 
+            'Addresses.Cities',
+        ]);
         if (!empty($query)) {
             if (isset($query['ageFrom']) 
                 && isset($query['ageTo']) 
@@ -426,7 +440,7 @@ class OrdersController extends AppController
                 $candidates->where(['weight >=' => (float) $query['weight']]);
             }
             
-            $candidates->where(['status <' => '3']);
+            $candidates->where(['status <' => '3'])->order(['Students.fullname' => 'ASC']);
             $now = Time::now();
             $candidates->formatResults(function ($results) use ($now) {
                 return $results->map(function ($row) use ($now) {

@@ -166,7 +166,11 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell text-center"><?= h($counter) ?></td>
-                            <td class="cell nameCol"><?= h($guild->name_romaji) ?><br/><?= h($guild->name_kanji) ?></td>
+                            <td class="cell nameCol">
+                                <a href="javascript:;" onclick="viewGuild(<?= $guild->id ?>)">
+                                    <?= h($guild->name_romaji) ?><br/><?= h($guild->name_kanji) ?>
+                                </a>
+                            </td>
                             <td class="cell addressCol"><?= h($guild->address_romaji) ?></td>
                             <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($guild->phone_vn)) ?></td>
                             <td class="cell phonejpCol"><?= h($guild->phone_jp) ?></td>
@@ -241,7 +245,7 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                         <?= $this->Form->control('name_romaji', [
                             'label' => false, 
                             'required' => true, 
-                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
                             'placeholder' => 'Nhập bằng kí tự romaji'
                             ]) ?>
                     </div>
@@ -371,7 +375,8 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                             'label' => false,
                             'id' => 'edit-name-romaji',
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
+                            'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">

@@ -62,42 +62,42 @@ if ($order->status == "4" || $order->status == "5") {
                 </a>
             </li>
             <?php if ($permission == 0): ?>
-            <?php if ($status != 5): ?>
-            <li>
-                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
-                    ['action' => 'edit', $order->id],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Sửa',
-                        'escape' => false
-                    ]) ?>
-            </li>
-            <?php endif; ?>
-            <?php if ($status == 4): ?>
-            <li>
-                <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i>'), 
-                    ['action' => 'close', $order->id],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Đóng',
-                        'escape' => false,
-                        'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
-                    ]) ?>
-            </li>
-            <?php endif; ?>
-            <li>
-                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
-                    ['action' => 'delete', $order->id], 
-                    [
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
-                        'escape' => false, 
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Xóa',
-                        'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
-                    ]) ?>
-            </li>
+                <li>
+                    <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                        ['action' => 'delete', $order->id], 
+                        [
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                            'escape' => false, 
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Xóa',
+                            'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
+                        ]) ?>
+                </li>
+                <?php if ($status != 5): ?>
+                    <li>
+                        <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                            ['action' => 'edit', $order->id],
+                            [   
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                                'data-toggle' => 'tooltip',
+                                'title' => 'Sửa',
+                                'escape' => false
+                            ]) ?>
+                    </li>
+                <?php endif; ?>
+                <?php if ($status == 4): ?>
+                    <li>
+                        <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i>'), 
+                            ['action' => 'close', $order->id],
+                            [   
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
+                                'data-toggle' => 'tooltip',
+                                'title' => 'Đóng',
+                                'escape' => false,
+                                'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
+                            ]) ?>
+                    </li>
+                <?php endif; ?>
             <?php endif; ?>
         </ul>
     </div>

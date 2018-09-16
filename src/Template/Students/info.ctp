@@ -156,6 +156,18 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         ]) ?>
                 </li>
             <?php endif; ?>
+            <?php if ($action == "edit"): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-user-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'info'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới lao động',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
             <li>
                 <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out create-student-btn" data-toggle="tooltip" title="Lưu lại">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
@@ -1549,7 +1561,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <tr>
                                             <th scope="col" class="col-md-1"><?= __('STT') ?></th>
                                             <th scope="col" class="col-md-2"><?= __('Ngôn ngữ') ?></th>
-                                            <th scope="col" class="col-md-4"><?= __('Bằng cấp') ?></th>
+                                            <th scope="col" class="col-md-4"><?= __('Trình độ') ?></th>
                                             <th scope="col" class="col-md-4"><?= __('Thời hạn hiệu lực') ?></th>
                                             <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                         </tr>
@@ -2149,9 +2161,9 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="col-md-7 col-sm-7 col-xs-12">
                                 <?= $this->Form->control('modal.fullname', [
                                     'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12', 
+                                    'class' => 'form-control col-md-7 col-xs-12 autoFocus',
                                     'required' => true,
-                                    'placeholder' => 'Nhập họ tên của thành viên'
+                                    'placeholder' => 'Nhập họ tên của thành viên',
                                     ]) ?>
                             </div>
                         </div>
@@ -2439,11 +2451,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <?= $this->Form->control('edu.from_date', [
                                         'type' => 'text',
                                         'label' => false, 
-                                        'class' => 'form-control from-date-picker',
+                                        'class' => 'form-control from-date-picker autoFocus',
                                         'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-edu-his-from',
-                                        'data-parsley-before-date' => '#edu-to-date'
+                                        'data-parsley-before-date' => '#edu-to-date',
                                         ])?>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
@@ -2678,11 +2690,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <?= $this->Form->control('exp.from_date', [
                                         'type' => 'text',
                                         'label' => false, 
-                                        'class' => 'form-control from-date-picker',
+                                        'class' => 'form-control from-date-picker autoFocus',
                                         'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-exp-from',
-                                        'data-parsley-before-date' => '#exp-to-date'
+                                        'data-parsley-before-date' => '#exp-to-date',
                                         ])?>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
@@ -2971,13 +2983,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 'empty' => true,
                                 'data-parsley-errors-container' => '#error-lang-name',
                                 'data-parsley-class-handler' => '#select2-lang-name',
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme autoFocus',
                                 ]) ?>
                             <span id="error-lang-name"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="certificate"><?= __('Bằng cắp') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="certificate"><?= __('Trình độ') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <?= $this->Form->control('lang.certificate', [
                                 'label' => false, 
@@ -2988,7 +3000,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="valid-time"><?= __('Thời hạn hiệu lực') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="valid-time"><?= __('Thời hạn hiệu lực') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
                                 <div class="input-group date input-picker month-mode" id="lang-from">
@@ -2997,7 +3009,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'label' => false, 
                                         'class' => 'form-control from-date-picker',
                                         'placeholder' => 'mm-yyyy',
-                                        'required' => true,
                                         'data-parsley-errors-container' => '#error-lang-from',
                                         'data-parsley-before-date' => '#lang-to-date'
                                         ])?>
@@ -3015,7 +3026,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         'label' => false, 
                                         'class' => 'form-control to-date-picker',
                                         'placeholder' => 'mm-yyyy',
-                                        'required' => true,
                                         'data-parsley-errors-container' => '#error-lang-to',
                                         'data-parsley-after-date' => '#lang-from-date'
                                         ])?>

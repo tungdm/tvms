@@ -201,7 +201,11 @@ $this->assign('title', 'Quản lý lớp học');
                         ?>
                         <tr>
                             <td class="cell text-center"><?= $counter ?></td>
-                            <td class="cell nameCol"><?= h($jclass->name) ?></td>
+                            <td class="cell nameCol">
+                                <?= $this->Html->link(h($jclass->name), 
+                                    ['action' => 'view', $jclass->id],
+                                    ['escape' => false]) ?>
+                            </td>
                             <td class="cell startCol"><?= h($jclass->start) ?></td>
                             <td class="cell numStudentsCol"><?= count($jclass->students) ?></td>
                             <td class="cell userCol"><?= h($jclass->user->fullname) ?></td>

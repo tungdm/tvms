@@ -359,7 +359,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
                                         <th scope="col" class="col-md-1"><?= __('STT') ?></th>
                                         <th scope="col" class="col-md-4"><?= __('Họ tên') ?></th>
                                         <th scope="col" class="col-md-2"><?= __('Giới tính') ?></th>
-                                        <th scope="col" class="col-md-2"><?= __('Số điện thoại') ?></th>
+                                        <th scope="col" class="col-md-2"><?= __('Quê quán') ?></th>
                                         <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                     </tr>
                                 </thead>
@@ -654,7 +654,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
             </div>
         </td>
         <td class="cell">
-            {{trans gender}}
+            <span class="gender-txt">{{trans gender}}</span>
             <div class="hidden">
                 <?= $this->Form->control('gender', [
                     'type' => 'text',
@@ -665,7 +665,7 @@ $this->Html->script('class.js', ['block' => 'scriptBottom']);
             </div>
         </td>
         <td class="cell">
-            {{phoneFormat phone}}
+            <span class="city-name">{{addresses.0.city.name}}</span>
             <div class="hidden">
                 <?= $this->Form->control('phone', [
                     'type' => 'text',

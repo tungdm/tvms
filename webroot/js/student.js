@@ -397,10 +397,14 @@ function viewSCandidate(candidateId) {
         },
         success: function(resp) {
             if (resp.status == 'success') {
+                var phoneNum = str2Phone(resp.data.phone);
+                if (phoneNum == '') {
+                    phoneNum = 'N/A';
+                }
                 // fill data
                 $('#view-candidate-name').html(resp.data.fullname);
                 $('#view-candidate-gender').html(resp.gender);
-                $('#view-candidate-phone').html(str2Phone(resp.data.phone));
+                $('#view-candidate-phone').html(phoneNum);
                 $('#view-candidate-appointment-date').html(convertDate(resp.appointment_date));
                 $('#view-candidate-birthday').html(convertDate(resp.birthday));
                 $('#view-candidate-address').html(resp.data.addresses[0].city.name);
@@ -1223,6 +1227,18 @@ function resetExpModal() {
 
 // Language Manager
 function createLangTemplate(counter) {
+    var fromdateVal = '';
+    var fromdateTxt = 'N/A';
+    if ($('#lang-from-date').val()) {
+        fromdateVal = moment($('#lang-from-date').val(), 'MM-YYYY').format('YYYY-MM');
+        fromdateTxt = $('#lang-from-date').val();
+    }
+    var todateVal = '';
+    var todateTxt = 'N/A';
+    if ($('#lang-to-date').val()) {
+        todateVal = moment($('#lang-to-date').val(), 'MM-YYYY').format('YYYY-MM');
+        todateTxt = $('#lang-to-date').val();
+    }
     var lang_html = lang_template({
         'row': counter + 1,
         'counter': counter,
@@ -1234,13 +1250,12 @@ function createLangTemplate(counter) {
         'certVal': $('#lang-certificate').val(),
 
         'fromdate': 'language_abilities[' + counter + '][from_date]',
-        'fromdateTxt': $('#lang-from-date').val(),
-        'fromdateVal': moment($('#lang-from-date').val(), 'MM-YYYY').format('YYYY-MM'),
+        'fromdateTxt': fromdateTxt,
+        'fromdateVal': fromdateVal,
         
         'todate': 'language_abilities[' + counter + '][to_date]',
-        'todateTxt': $('#lang-to-date').val(),
-        'todateVal': moment($('#lang-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
-
+        'todateTxt': todateTxt,
+        'todateVal': todateVal,
     });
     return lang_html;
 }
@@ -1279,10 +1294,18 @@ function addLang() {
 function showEditLangModal(ele) {
     // fill data to modal form
     var langFrom = $(ele).closest('.row-lang').find('.from_date').val();
-    $('#lang-from-date').val(moment(langFrom, 'YYYY-MM').format('MM-YYYY'));
+    if (langFrom) {
+        $('#lang-from-date').val(moment(langFrom, 'YYYY-MM').format('MM-YYYY'));
+    } else {
+        $('#lang-from-date').val('');
+    }
 
     var langTo = $(ele).closest('.row-lang').find('.to_date').val();
-    $('#lang-to-date').val(moment(langTo, 'YYYY-MM').format('MM-YYYY'));
+    if (langFrom) {
+        $('#lang-to-date').val(moment(langTo, 'YYYY-MM').format('MM-YYYY'));
+    } else {
+        $('#lang-to-date').val('');
+    }
 
     $('#lang-name').val($(ele).closest('.row-lang').find('.lang_code').val()).trigger('change');
     $('#lang-certificate').val($(ele).closest('.row-lang').find('.certificate').val());

@@ -313,7 +313,7 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'required' => true,
                                 'data-parsley-errors-container' => '#error-skill',
                                 'data-parsley-class-handler' => '#select2-modal-skill',
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme autoFocus'
                                 ]) ?>
                             <span id="error-skill"></span>
                         </div>

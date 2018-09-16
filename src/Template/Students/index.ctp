@@ -213,7 +213,18 @@ $this->assign('title', 'Quản lý Lao động');
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell text-center"><?= h($counter) ?></td>
-                            <td class="cell fullnameCol"><?= h($student->fullname) ?><br><?= h($student->fullname_kata)?></td>
+                            <td class="cell fullnameCol">
+                                <?php if ($student->status == 1): ?>
+                                    <a href="javascript:;" onclick="viewSCandidate(<?= $student->id ?>)">
+                                        <?= h($student->fullname) ?><br>
+                                        <?= h($student->fullname_kata)?>
+                                    </a>
+                                <?php else: ?>
+                                    <?= $this->Html->link(h($student->fullname) . '<br/>' . h($student->fullname_kata), 
+                                        ['action' => 'view', $student->id],
+                                        ['escape' => false]) ?>
+                                <?php endif; ?>
+                            </td>
                             <td class="cell enrolledDateCol"><?= h($student->enrolled_date) ?></td>
                             <td class="cell genderCol text-center"><?= h($gender[$student->gender]) ?></td>
                             <td class="cell presenterCol">

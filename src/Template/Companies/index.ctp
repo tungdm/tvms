@@ -177,14 +177,18 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         </tr>
                         <?php if (($companies)->isEmpty()): ?>
                         <tr>
-                            <td colspan="100" class="table-empty"><?= __('Không có dữ liệu') ?></td>
+                            <td colspan="100" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
                         </tr>
                         <?php else: ?>
                         <?php foreach ($companies as $company): ?>
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell text-center"><?= h($counter) ?></td>
-                            <td class="cell nameCol"><?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?></td>
+                            <td class="cell nameCol">
+                                <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
+                                    <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
+                                </a>
+                            </td>
                             <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
                             <td class="cell guildCol">
                                 <a href="javascript:;" onclick="viewGuild(<?= $company->guild->id ?>)"><?= h($company->guild->name_romaji) ?></a>
@@ -215,6 +219,12 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                                 ]) ?>
                                         </li>
                                         <?php endif;  ?>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="javascript:;" onclick="showListWorkersModal(<?= $company->id ?>)">
+                                                <i class="fa fa-users" aria-hidden="true"></i> Danh sách lao động
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>                                      
                             </td>
@@ -260,7 +270,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji">
                         <?= __('Tên công ty') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('name_romaji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
+                        <?= $this->Form->control('name_romaji', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12 autoFocus', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">
@@ -376,7 +386,8 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                             'label' => false,
                             'id' => 'edit-name-romaji',
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự romaji']) ?>
+                            'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
+                            'placeholder' => 'Nhập bằng kí tự romaji']) ?>
                     </div>
                 </div>
                 <div class="form-group">
@@ -552,3 +563,57 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="view-workers-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH <span class="total-count"></span> LAO ĐỘNG</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-2"><?= __('Họ tên') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Ngày bay chính thức') ?></th>
+                                <th scope="col" class="col-md-2"><?= __('Thời gian làm việc') ?></th>
+                                <th scope="col" class="col-md-2"><?= __('Quê quán') ?></th>
+                                <th scope="col" class="col-md-2"><?= __('Nghề nghiệp') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody id="workers-container"></tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script id="workers-template" type="text/x-handlebars-template">
+    {{#each this}}
+    <tr>
+        <td class="cell text-center">{{inc @index}}</td>
+        <td class="cell">
+            <a href="javascript:;" onclick="viewWorkers({{id}});">{{fullname}}</a>
+        </td>
+        <td class="cell">{{dateTimeFormat _matchingData.Orders.departure}}</td>
+        <td class="cell">{{_matchingData.Orders.work_time}} năm</td>
+        <td class="cell">{{addresses.0.city.name}}</td>
+        <td class="cell">
+            <a href="javascript:;" onclick="viewOrder({{_matchingData.Orders.id}});">{{job}}</a>
+        </td>
+    </tr>
+    {{else}}
+    <tr>
+        <td colspan="6" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
+    </tr>
+    {{/each}}
+</script>

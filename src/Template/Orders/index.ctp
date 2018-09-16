@@ -208,7 +208,11 @@ $this->assign('title', 'Quản lý đơn hàng');
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell text-center"><?= $counter ?></td>
-                            <td class="cell nameCol"><?= h($order->name) ?></td>
+                            <td class="cell nameCol">
+                                <?= $this->Html->link(h($order->name), 
+                                    ['action' => 'view', $order->id],
+                                    ['escape' => false]) ?>
+                            </td>
                             <td class="cell interviewDateCol"><?= h($order->interview_date->i18nFormat('dd-MM-yyyy')) ?></td>
                             <td class="cell workAtCol"><?= h($cityJP[$order->work_at]) ?></td>
                             <td class="cell guildIdCol">

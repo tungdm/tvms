@@ -160,6 +160,8 @@ class StudentsController extends AppController
                 },
                 'Histories.UsersCreatedBy',
                 'Jtests',
+                'Jclasses',
+                'Jclasses.Users',
                 'CreatedByUsers',
                 'ModifiedByUsers'
             ]

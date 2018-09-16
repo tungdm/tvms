@@ -135,6 +135,18 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ]) ?>
             </li>
             <?php endif; ?>
+            <?php if ($action === 'edit'): ?>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'add'],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới',
+                        'escape' => false
+                    ]) ?>
+            </li>
+            <?php endif; ?>
             <li>
                 <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out submit-order-btn" data-toggle="tooltip" title="Lưu lại">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>
@@ -476,9 +488,10 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
                             <th scope="col" class="col-md-1"><?= __('Tuổi') ?></th>
                             <th scope="col" class="col-md-1"><?= __('Giới tính') ?></th>
-                            <th scope="col" class="col-md-3"><?= __('Số ĐT') ?></th>
+                            <th scope="col" class="col-md-1"><?= __('Lớp') ?></th>
+                            <th scope="col" class="col-md-2"><?= __('Quê quán') ?></th>
                             <th scope="col" class="col-md-1"><?= __('Kết quả') ?></th>
-                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
+                            <th scope="col" class="actions col-md-2"><?= __('Thao tác') ?></th>
                         </tr>
                     </thead>
                     <tbody id="candidate-container">
@@ -492,23 +505,26 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 <?= $this->Form->hidden('students.' . $key . '._joinData.id') ?>
                             </div>
                             <tr class="row-rec" id="row-candidate-<?=$counter?>">
-                                <td class="cell col-md-1 stt-col text-center">
+                                <td class="cell stt-col text-center">
                                     <?= $counter+1 ?>
                                 </td>
                                 <td class="cell hidden"></td>
-                                <td class="cell col-md-3">
+                                <td class="cell">
                                     <a href="javascript:;" onclick="viewCandidate('<?=$value->id?>');"><?= h($value->fullname) ?></a>
                                 </td>
-                                <td class="cell col-md-1 text-center">
+                                <td class="cell text-center">
                                     <?= h(($now->diff($value->birthday))->y) ?>
                                 </td>
-                                <td class="cell col-md-1 text-center">
+                                <td class="cell text-center">
                                     <?= $gender[$value->gender]?>
                                 </td>
-                                <td class="cell col-md-3">
-                                    <?= $this->Phone->makeEdit($value->phone) ?>
+                                <td class="cell text-center">
+                                    <?= $value->jclasses ? $value->jclasses[0]->name : 'Bên ngoài' ?>
                                 </td>
-                                <td class="cell col-md-1 text-center">
+                                <td class="cell">
+                                    <?= h($value->addresses[0]->city->name) ?>
+                                </td>
+                                <td class="cell text-center">
                                     <span class="result-text <?= $value->_joinData->result == '1' ? 'bold-text' : '' ?>"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     <div class="hidden">
                                         <?= $this->Form->control('students.' . $key . '._joinData.result', [
@@ -578,7 +594,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">DANH SÁCH HỌC VIÊN CHƯA ĐẬU PHỎNG VẤN</h4>
+                <h4 class="modal-title">DANH SÁCH LAO ĐỘNG CHƯA ĐẬU PHỎNG VẤN</h4>
             </div>
             <div class="modal-body">
                 <div class="col-md-12 col-xs-12">
@@ -593,7 +609,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     <div class="form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="input-group">
-                                <input type="text" class="form-control" id="studentname" onkeyup="search()" placeholder="Tìm kiếm học viên">
+                                <input type="text" class="form-control autoFocus" id="studentname" onkeyup="search()" placeholder="Tìm kiếm học viên">
                                 <span class="input-group-addon"><i class="fa fa-search"></i></span>
                             </div>
                         </div>
@@ -605,10 +621,11 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                     <tr>
                                         <th scope="col" class="col-md-1"><?= __('STT') ?></th>
                                         <th scope="col" class="col-md-3"><?= __('Họ tên') ?></th>
-                                        <th scope="col" class="col-md-2"><?= __('Tuổi') ?></th>
-                                        <th scope="col" class="col-md-2"><?= __('Giới tính') ?></th>
-                                        <th scope="col" class="col-md-2"><?= __('Số ĐT') ?></th>
-                                        <th scope="col" class="actions col-md-2"><?= __('Thao tác')?></th>
+                                        <th scope="col" class="col-md-1"><?= __('Tuổi') ?></th>
+                                        <th scope="col" class="col-md-1"><?= __('Giới tính') ?></th>
+                                        <th scope="col" class="col-md-2"><?= __('Lớp') ?></th>
+                                        <th scope="col" class="col-md-2"><?= __('Quê quán') ?></th>
+                                        <th scope="col" class="actions col-md-1"><?= __('Thao tác')?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="recommend-container">
@@ -757,7 +774,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 <script id="selected-candidate-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-rec" id="row-candidate-{{row}}">
-        <td class="cell col-md-1 stt-col text-center">
+        <td class="cell stt-col text-center">
             {{inc row}}
         </td>
         <td class="cell hidden">
@@ -768,19 +785,22 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 'value' => '{{id}}'
                 ])?>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell">
             <a href="javascript:;" onclick="viewCandidate({{id}});">{{fullname}}</a>
         </td>
-        <td class="cell col-md-1 text-center">
+        <td class="cell text-center">
             {{age}}
         </td>
-        <td class="cell col-md-1 text-center">
+        <td class="cell text-center">
             {{trans gender}}
         </td>
-        <td class="cell col-md-3">
-            {{phoneFormat phone}}
+        <td class="cell text-center">
+            {{classname}}
         </td>
-        <td class="cell col-md-1 text-center">
+        <td class="cell">
+            {{city}}
+        </td>
+        <td class="cell text-center">
             <span class="result-text">-</span>
             <div class="hidden">
                 <?= $this->Form->control('students.{{row}}._joinData.result', [
@@ -831,7 +851,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 <script id="recommend-candidate-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr class="row-rec" id="row-candidate-{{@index}}">
-        <td class="cell col-md-1 stt-col text-center">
+        <td class="cell stt-col text-center">
             {{inc @index}}
         </td>
         <td class="hidden">
@@ -842,7 +862,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                 'value' => '{{id}}'
                 ])?>
         </td>
-        <td class="cell col-md-3">
+        <td class="cell">
             <a href="javascript:;" onclick="viewCandidate({{id}});">{{fullname}}</a>
             <div class="hidden">
                 <?= $this->Form->control('fullname', [
@@ -853,7 +873,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2 text-center">
+        <td class="cell text-center">
             {{age}}
             <div class="hidden">
                 <?= $this->Form->control('age', [
@@ -864,8 +884,8 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2 text-center">
-            {{trans gender}}
+        <td class="cell text-center">
+            <span class="gender-txt">{{trans gender}}</span>
             <div class="hidden">
                 <?= $this->Form->control('gender', [
                     'type' => 'text',
@@ -875,16 +895,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     ])?>
             </div>
         </td>
-        <td class="cell col-md-2">
-            {{phoneFormat phone}}
+        <td class="cell text-center class-name">
+            {{#each jclasses}}
+                {{name}}
+            {{else}}
+                <?= __('Bên ngoài') ?>
+            {{/each}}
+        </td>
+        <td class="cell">
+            <span class="city-name">{{addresses.0.city.name}}</span>
             <div class="hidden">
-                <?= $this->Form->control('phone', [
-                    'type' => 'text',
-                    'label' => false,
-                    'class' => 'form-control',
-                    'value' => '{{phone}}'
-                    ])?>
-                
                 <?= $this->Form->control('status', [
                     'class' => 'form-control',
                     'value' => '{{status}}'

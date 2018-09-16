@@ -161,7 +161,11 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                         <?php $counter++ ?>
                         <tr>
                             <td class="cell text-center"><?= h($counter) ?></td>
-                            <td class="cell nameCol"><?= h($presenter->name) ?></td>
+                            <td class="cell nameCol">
+                                <a href="javascript:;" onclick="viewPresenter(<?= $presenter->id ?>)">
+                                    <?= h($presenter->name) ?>
+                                </a>
+                            </td>
                             <td class="cell addressCol"><?= h($presenter->address) ?></td>
                             <td class="cell phoneCol"><?= h($this->Phone->makeEdit($presenter->phone)) ?></td>
                             <td class="cell typeCol"><?= h($presenterType[$presenter->type]) ?></td>
@@ -235,7 +239,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name">
                         <?= __('Cộng tác viên') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('name', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập tên cộng tác viên']) ?>
+                        <?= $this->Form->control('name', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12 autoFocus', 'placeholder' => 'Nhập tên cộng tác viên']) ?>
                     </div>
                 </div>
                 <div class="form-group">
@@ -317,7 +321,7 @@ $this->assign('title', 'Quản lý Cộng tác viên');
                             'label' => false,
                             'id' => 'edit-name',
                             'required' => true,
-                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
                             'placeholder' => 'Nhập tên cộng tác viên']) ?>
                     </div>
                 </div>

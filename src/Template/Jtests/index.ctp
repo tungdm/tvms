@@ -195,7 +195,9 @@ $this->assign('title', 'Quản lý thi cử');
                         <tr>
                             <td class="cell text-center"><?= $counter ?></td>
                             <td class="cell testDateCol">
-                                <?= h($jtest->test_date) ?>
+                                <?= $this->Html->link(h($jtest->test_date), 
+                                    ['action' => 'view', $jtest->id],
+                                    ['escape' => false]) ?>
                             </td>
                             <td class="cell testLessonCol">
                                 <?= $lessons[$jtest->lesson_from] ?> ～ <?= $lessons[$jtest->lesson_to] ?>

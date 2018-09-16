@@ -36,6 +36,9 @@ $preferredHand = Configure::read('preferredHand');
 $relationship = Configure::read('relationship');
 $relationship = array_map('array_shift', $relationship);
 $interviewResult = Configure::read('interviewResult');
+
+$lessons = Configure::read('lessons');
+
 $now = Time::now();
 
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
@@ -78,16 +81,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
             </li>
             <?php if ($permission == 0): ?>
             <li>
-                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
-                    ['action' => 'info', $student->id],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Sửa',
-                        'escape' => false
-                    ]) ?>
-            </li>
-            <li>
                 <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
                     ['action' => 'delete', $student->id], 
                     [
@@ -96,6 +89,16 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         'data-toggle' => 'tooltip',
                         'title' => 'Xóa',
                         'confirm' => __('Bạn có chắc chắn muốn xóa lao động {0}?', $student->fullname)
+                    ]) ?>
+            </li>
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                    ['action' => 'info', $student->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Sửa',
+                        'escape' => false
                     ]) ?>
             </li>
             <?php endif; ?>
@@ -117,13 +120,16 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                     <a href="#tab_content3" role="tab" id="experience-tab" data-toggle="tab" aria-expanded="false"><?= __('Học tập - Làm việc') ?></a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content4" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
+                    <a href="#tab_content4" role="tab" id="interview-tab" data-toggle="tab" aria-expanded="false"><?= __('Lịch sử phỏng vấn') ?></a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content5" role="tab" id="view-input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
+                    <a href="#tab_content5" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content6" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
+                    <a href="#tab_content6" role="tab" id="view-input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content7" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
                 </li>
             </ul>
             <div id="student-tab-content" class="tab-content">
@@ -602,6 +608,48 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             </div>
                             <div class="box">
                                 <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Thông tin lớp học') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="class_name"><?= __('Lớp') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->jclasses ? $student->jclasses[0]->name : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="teacher"><?= __('Giáo viên chủ nhiệm') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->jclasses ? $student->jclasses[0]->user->fullname : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="current_lesson"><?= __('Bài đang học') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->jclasses ? $lessons[$student->jclasses[0]->current_lesson] : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="start_date"><?= __('Ngày bắt đầu') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->jclasses ? $student->jclasses[0]->start : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
                                     <div class="box-tools pull-right">
                                         <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
@@ -858,51 +906,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content3">
-                    <?php if (!empty($student->orders)): ?>
-                    <div class="rows">
-                        <div class="col-md-12 col-xs-12 no-padding">
-                            <div class="box">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title"><?= __('Lịch sử phỏng vấn') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
-                                </div>
-                                <div class="box-body table-responsive">
-                                    <div class="overlay hidden" id="list-order-overlay">
-                                        <i class="fa fa-refresh fa-spin"></i>
-                                    </div>
-                                    <table class="table table-bordered custom-table order-table">
-                                        <thead>
-                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
-                                            <th scope="col" class="col-md-2"><?= __('Đơn hàng') ?></th>
-                                            <th scope="col" class="col-md-2"><?= __('Ngày tuyển') ?></th>
-                                            <th scope="col" class="col-md-2"><?= __('Nghiệp đoàn') ?></th>
-                                            <th scope="col" class="col-md-3"><?= __('Công ty tiếp nhận') ?></th>
-                                            <th scope="col" class="col-md-2"><?= __('Kết quả') ?></th>
-                                        </thead>
-                                        <tbody>
-                                        <?php foreach ($student->orders as $key => $value): ?>
-                                            <tr>
-                                                <td><?= $key + 1?></td>
-                                                <td><?= $this->Html->link($value->name, ['controller' => 'Orders', 'action' => 'view', $value->id]) ?></td>
-                                                <td><?= h($value->interview_date) ?></td>
-                                                <td>
-                                                    <a href="javascript:;" onclick="viewGuild(<?= $value->company->guild->id ?>)"><?= h($value->company->guild->name_romaji) ?></a>
-                                                </td>
-                                                <td>
-                                                    <a href="javascript:;" onclick="viewCompany(<?= $value->company->id ?>)"><?= h($value->company->name_romaji) ?></a>
-                                                </td>
-                                                <td><?= h($interviewResult[$value->_joinData->result]) ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                     <?php if (!empty($student->jtests)): ?>
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
@@ -1084,6 +1087,57 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">
                                 <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Danh sách phỏng vấn') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body table-responsive">
+                                    <div class="overlay hidden" id="list-order-overlay">
+                                        <i class="fa fa-refresh fa-spin"></i>
+                                    </div>
+                                    <table class="table table-bordered custom-table order-table">
+                                        <thead>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Đơn hàng') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Ngày tuyển') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Nghiệp đoàn') ?></th>
+                                            <th scope="col" class="col-md-3"><?= __('Công ty tiếp nhận') ?></th>
+                                            <th scope="col" class="col-md-2"><?= __('Kết quả') ?></th>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (empty($student->orders)): ?>
+                                                <tr>
+                                                    <td colspan="6" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
+                                                </tr>
+                                            <?php else: ?>
+                                                <?php foreach ($student->orders as $key => $value): ?>
+                                                    <tr>
+                                                        <td><?= $key + 1?></td>
+                                                        <td><?= $this->Html->link($value->name, ['controller' => 'Orders', 'action' => 'view', $value->id]) ?></td>
+                                                        <td><?= h($value->interview_date) ?></td>
+                                                        <td>
+                                                            <a href="javascript:;" onclick="viewGuild(<?= $value->company->guild->id ?>)"><?= h($value->company->guild->name_romaji) ?></a>
+                                                        </td>
+                                                        <td>
+                                                            <a href="javascript:;" onclick="viewCompany(<?= $value->company->id ?>)"><?= h($value->company->name_romaji) ?></a>
+                                                        </td>
+                                                        <td><?= h($interviewResult[$value->_joinData->result]) ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Danh sách hồ sơ') ?></h3>
                                     <div class="box-tools pull-right">
                                         <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
@@ -1149,7 +1203,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
                     <div class="rows">
                         <div class="col-md-6 col-xs-12 left-col">
                             <div class="box">
@@ -1273,7 +1327,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content7">
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">

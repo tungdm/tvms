@@ -57,7 +57,10 @@ function search() {
     var filter = $('#studentname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     $('#pre-add-student-container').find('.row-pre').each(function() {
         var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-        if (fullname.indexOf(filter) > -1) {
+        var gender = $(this).find('.gender-txt').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        var cityName = $(this).find('.city-name').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+
+        if (fullname.indexOf(filter) > -1 || gender.indexOf(filter) > -1 || cityName.indexOf(filter) > -1) {
             $(this).removeClass('hidden');
         } else {
             $(this).addClass('hidden');

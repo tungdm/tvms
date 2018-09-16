@@ -210,7 +210,7 @@ $(document).ready(function() {
                             type: resp.flash.type,
                             styling: 'bootstrap3',
                             icon: resp.flash.icon,
-                            cornerclass: 'ui-pnotify-sharp',
+                        cornerclass: 'ui-pnotify-sharp',
                             buttons: {
                                 closer: false,
                                 sticker: false

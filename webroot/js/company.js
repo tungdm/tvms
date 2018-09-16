@@ -98,3 +98,44 @@ function showAddCompanyModal() {
     $('#add-company-modal').modal('toggle');
 }
 
+function showListWorkersModal(companyId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $('#list-company-overlay').removeClass('hidden');
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/companies/viewWorkers/' + companyId,
+        success: function(resp) {
+            $('.total-count').html(resp.data.length);
+            var source = $("#workers-template").html();
+            var template = Handlebars.compile(source);
+            var html = template(resp.data);
+            $('#workers-container').html(html);
+            // toggle modal
+            $('#view-workers-modal').modal('toggle');
+        },
+        complete: function() {
+            ajaxing = false;
+            $('#list-company-overlay').addClass('hidden');
+        }
+    });
+}
+
+
+function viewWorkers(id) {
+    if (!id) {
+        return;
+    }
+    window.open(DOMAIN_NAME + '/students/view/' + id, '_blank');
+}
+
+function viewOrder(id) {
+    if (!id) {
+        return;
+    }
+    window.open(DOMAIN_NAME + '/orders/view/' + id, '_blank');
+}

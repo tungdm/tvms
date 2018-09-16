@@ -236,7 +236,8 @@ function selectCandidate() {
             data['fullname'] = row.find('#fullname').val();
             data['age'] = row.find('#age').val();
             data['gender'] = row.find('#gender').val();
-            data['phone'] = row.find('#phone').val();
+            data['classname'] = row.find('.class-name').html();
+            data['city'] = row.find('.city-name').html();
             data['status'] = row.find('#status').val();
             datas.push(data);
 
@@ -463,7 +464,12 @@ function search() {
     var filter = $('#studentname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     $('#recommend-container').find('.row-rec').each(function() {
         var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-        if (fullname.indexOf(filter) > -1) {
+        var age = $(this).find('#age').val();
+        var gender = $(this).find('.gender-txt').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        var className = $(this).find('.class-name').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        var cityName = $(this).find('.city-name').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+
+        if (fullname.indexOf(filter) > -1 || age.indexOf(filter) > -1 || gender.indexOf(filter) > -1 || className.indexOf(filter) > -1 || cityName.indexOf(filter) > -1) {
             $(this).removeClass('hidden');
         } else {
             $(this).addClass('hidden');
