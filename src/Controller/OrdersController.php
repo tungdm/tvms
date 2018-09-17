@@ -121,7 +121,7 @@ class OrdersController extends AppController
             }
         } else {
             $query['records'] = 10;
-            $allOrders = $this->Orders->find()->order(['Orders.created' => 'DESC']);
+            $allOrders = $this->Orders->find()->order(['Orders.interview_date' => 'DESC']);
         }
 
         $this->paginate = [
