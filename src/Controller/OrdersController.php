@@ -683,11 +683,11 @@ class OrdersController extends AppController
                 
                 array_push($families, $member);
             }
-            $studyTime = $student->enrolled_date ? ($now->diff($student->enrolled_date))->m : 0;
+            $studyTime = $student->enrolled_date ? ($now->diff($student->enrolled_date))->m : 1;
             $families[0]['additional'] = $cvTemplateConfig['familyAdditional'][0] . "            ：" . $memberInJPRel;
             $families[1]['additional'] = $cvTemplateConfig['familyAdditional'][1] . "    ：みんなの日本語";
             $families[2]['additional'] = $cvTemplateConfig['familyAdditional'][2] . "    ：" . $studyTime . "ヶ月";
-            $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . ($student->jclasses ? $student->jclasses[0]->current_lesson : '0') . "課";
+            $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . ($student->jclasses ? $student->jclasses[0]->current_lesson : '1') . "課";
             
             $this->tbs->MergeBlock('d', $families);
 
@@ -695,7 +695,7 @@ class OrdersController extends AppController
             $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日');
             $this->tbs->VarRef['studentNameJP'] = $fullname_kata;
             $this->tbs->VarRef['studentNameEN'] = $studentName_EN;
-            $this->tbs->VarRef['birthday'] = $student->birthday;
+            $this->tbs->VarRef['birthday'] = $student->birthday->i18nFormat('yyyy年MM月dd日');
             $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
             $this->tbs->VarRef['gender'] = $genderJP[$student->gender];
             $this->tbs->VarRef['address'] = $address;

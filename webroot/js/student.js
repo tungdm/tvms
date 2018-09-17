@@ -1301,7 +1301,7 @@ function showEditLangModal(ele) {
     }
 
     var langTo = $(ele).closest('.row-lang').find('.to_date').val();
-    if (langFrom) {
+    if (langTo) {
         $('#lang-to-date').val(moment(langTo, 'YYYY-MM').format('MM-YYYY'));
     } else {
         $('#lang-to-date').val('');

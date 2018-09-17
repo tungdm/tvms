@@ -1832,7 +1832,7 @@ $(document).ready(function() {
 
     // set auto focus when open modal
     $('.modal').on('shown.bs.modal', function () {
-        var autoFocusFields = $(this).find('.autoFocus')
+        var autoFocusFields = $(this).find('.autoFocus');
         if (autoFocusFields.length == 0) {
             return;
         }
