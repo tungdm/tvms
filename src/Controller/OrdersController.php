@@ -513,9 +513,6 @@ class OrdersController extends AppController
                     'Families',
                     'Families.Jobs',
                     'Jclasses',
-                    'Orders' => function($q) {
-                        return $q->where(['result' => '1']);
-                    }
                 ]
             ]);
             $studentName_VN = mb_strtoupper($student->fullname);
@@ -642,7 +639,8 @@ class OrdersController extends AppController
             if (empty($student->families)) {
                 $this->checkData('', 'Quan hệ gia đình');
             }
-            for ($i=0; $i < count($student->families); $i++) { 
+            $max = count($student->families) > 4 ? count($student->families) : 4;
+            for ($i=0; $i < $max; $i++) { 
                 $member = [
                     'name' => "",
                     'relationship' => "",
@@ -671,13 +669,6 @@ class OrdersController extends AppController
                     if ($i > 3) {
                         $member['additional'] = '';
                     }
-                } elseif ($i <= 3) {
-                    $member = [
-                        'name' => "",
-                        'relationship' => "",
-                        'age' => "",
-                        'job' => "",
-                    ];
                 }
                 array_push($families, $member);
             }
@@ -695,8 +686,7 @@ class OrdersController extends AppController
             $this->tbs->MergeBlock('d', $families);
 
             $this->tbs->VarRef['serial'] = $query['serial'];
-            $applicationDate = $this->checkData($student->orders[0]->application_date, 'Ngày làm hồ sơ');
-            $this->tbs->VarRef['created'] = $applicationDate->i18nFormat('yyyy年MM月dd日');
+            $this->tbs->VarRef['created'] = $now->subDays(14)->i18nFormat('yyyy年MM月dd日');
             $this->tbs->VarRef['studentNameJP'] = $fullname_kata;
             $this->tbs->VarRef['studentNameEN'] = $studentName_EN;
             $this->tbs->VarRef['birthday'] = $student->birthday->i18nFormat('yyyy年MM月dd日');
