@@ -941,9 +941,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <?= $this->Form->control('left_eye_sight', [
                                             'label' => false,
                                             'type' => 'text',
-                                            'min' => 0,
-                                            'max' => 10,
-                                            'data-parsley-type' => 'number',
                                             'class' => 'form-control col-md-7 col-xs-12', 
                                             'placeholder' => 'Nhập thị lực mắt trái (đo tại trường)'
                                             ]) ?>
@@ -953,10 +950,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <div class="col-md-offset-4 col-sm-offset-4 col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('left_eye_sight_hospital', [
                                             'label' => false,
-                                            'min' => 0,
-                                            'max' => 10,
                                             'type' => 'text',
-                                            'data-parsley-type' => 'number',
                                             'class' => 'form-control col-md-7 col-xs-12',
                                             'placeholder' => 'Nhập thị lực mắt trái (đo tại bệnh viện)'
                                             ]) ?>
@@ -967,10 +961,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('right_eye_sight', [
                                             'label' => false,
-                                            'min' => 0,
-                                            'max' => 10, 
                                             'type' => 'text',
-                                            'data-parsley-type' => 'number',
                                             'class' => 'form-control col-md-7 col-xs-12', 
                                             'placeholder' => 'Nhập thị lực mắt phải (đo tại trường)'
                                             ]) ?>
@@ -980,10 +971,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <div class="col-md-offset-4 col-sm-offset-4 col-md-7 col-sm-7 col-xs-12">
                                         <?= $this->Form->control('right_eye_sight_hospital', [
                                             'label' => false,
-                                            'min' => 0,
-                                            'max' => 10, 
                                             'type' => 'text',
-                                            'data-parsley-type' => 'number',
                                             'class' => 'form-control col-md-7 col-xs-12',
                                             'placeholder' => 'Nhập thị lực mắt phải (đo tại bệnh viện)'
                                             ]) ?>

@@ -618,7 +618,7 @@ return [
             'kj' => '滋賀県'
         ],
         '26' => [
-            'vn' => 'Kyoto',
+            'rmj' => 'Kyoto',
             'kj' => '京都府'
         ],
         '27' => [
@@ -832,11 +832,15 @@ return [
                 'width' => 10,
             ],
             'M' => [
-                'title' => '備考',
+                'title' => '合格',
                 'width' => 10,
             ],
             'N' => [
-                'title' => '合格',
+                'title' => '補欠',
+                'width' => 10,
+            ],
+            'O' => [
+                'title' => '備考',
                 'width' => 10,
             ],
         ]
@@ -851,7 +855,6 @@ return [
 
     'vnDateFormatFull' => 'ngày :day tháng :month năm :year',
     'vnDateFormatShort' => ':day tháng :month năm :year',
-    'jpKingYearStart' => 1988,
     'jpKingYearName' => '作成',
 
     // .xlsx template
@@ -907,7 +910,7 @@ return [
         'changeClass' => 'Không thể chuyển học viên :name sang lớp :class',
         'setScore' => 'Không thể lưu điểm của phần thi :skill',
         'export' => '<p>Xuất file không thành công vì một số trường thiếu dữ liệu:</p><ul>:fields</ul>',
-        'addJob' => 'Ngề :name đã tồn tại.'
+        'addJob' => 'Nghề :name đã tồn tại.'
     ],
 
     // table setting

@@ -36,6 +36,7 @@ class Guild extends Entity
         'deputy_name_romaji' => true,
         'deputy_name_kanji' => true,
         'license_number' => true,
+        'signing_date' => true,
         'address_kanji' => true,
         'subsidy' => true,
         'created' => true,

@@ -294,6 +294,24 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="application_date"><?= __('Ngày làm hồ sơ') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="application-date"> <!-- Remove validate for user input past data -->
+                            <?= $this->Form->control('application_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                'data-parsley-errors-container' => '#error-application-date'
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="error-application-date"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="skill_test"><?= __('Thi tay nghề') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('skill_test', [

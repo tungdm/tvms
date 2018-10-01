@@ -399,7 +399,7 @@ function fillData(resp, mode) {
             var source = $("#test-template").html();
             var template = Handlebars.compile(source);
             description = template({
-                'class': resp.jtest.jclass.name,
+                'className': resp.jtest.jclass.name,
                 'lesson_from': resp.jtest.lesson_from,
                 'lesson_to': resp.jtest.lesson_to,
                 'skills': resp.jtest.jtest_contents,

@@ -42,9 +42,9 @@ var isChartRendered = false;
 
 $(document).ready(function() {
     renderLineChart();
-    renderPiechart(northPopulation, 'northPopulation', 4);
-    renderPiechart(middlePopulation, 'middlePopulation', 4);
-    renderPiechart(southPopulation, 'southPopulation', 4);
+    renderPiechart(northPopulation, 'northPopulation', 4, '#north-total');
+    renderPiechart(middlePopulation, 'middlePopulation', 4, '#middle-total');
+    renderPiechart(southPopulation, 'southPopulation', 4, '#south-total');
 });
 
 function showPassedStudent() {
@@ -130,7 +130,7 @@ function renderLineChart() {
     window.myLine = new Chart(ctx, config);
 }
 
-function renderPiechart(population, pieChartEleId, max) {
+function renderPiechart(population, pieChartEleId, max, totalId) {
     var ctx = document.getElementById(pieChartEleId).getContext('2d');
     if (population.length == 0) {
         var width = $('#' + pieChartEleId).closest('.chart-responsive')[0].clientWidth;
@@ -143,6 +143,7 @@ function renderPiechart(population, pieChartEleId, max) {
         var datas = [];
         var backgroundColors = [];
         var labels = [];
+        var total = 0;
         population.forEach(function(ele, index) {
             if (index <= max) {
                 var label = ele._matchingData.Cities.name
@@ -161,6 +162,7 @@ function renderPiechart(population, pieChartEleId, max) {
             } else {
                 datas[max] = datas[max] + ele.count;
             }
+            total += ele.count;
         });
         var config = {
             type: 'pie',
@@ -192,6 +194,9 @@ function renderPiechart(population, pieChartEleId, max) {
 			}
         };
         window.myPie = new Chart(ctx, config);
+
+        var totalStr = '(' + total + ' lao động)'; 
+        $(totalId).html(totalStr);
     }
 }
 

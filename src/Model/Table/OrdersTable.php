@@ -153,6 +153,9 @@ class OrdersTable extends Table
         $validator
             ->scalar('departure_date')
             ->allowEmpty('departure_date');
+        $validator
+            ->scalar('application_date')
+            ->allowEmpty('application_date');
 
         $validator
             ->integer('created_by')

@@ -1240,6 +1240,13 @@ function globalViewGuild(guildId, overlayId) {
                 } else {
                     $('#view-license-number').html('N/A');
                 }
+
+                if (resp.data.signing_date) {
+                    $('#view-siging-date').html(moment(resp.data.signing_date).format('DD-MM-YYYY'));
+                } else {
+                    $('#view-siging-date').html('N/A');
+                }
+
                 $('#view-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-deputy-kanji').html(resp.data.deputy_name_kanji);
 
@@ -1824,6 +1831,9 @@ $(document).ready(function() {
         }
     });
     $(document).on("keypress", function(event) {
+        if (event.target.type == 'textarea') {
+            return;
+        }
         if (event.keyCode == 13) {
             // submit filter form
             $('#filter-form').submit();

@@ -110,19 +110,19 @@ $this->assign('title', 'TVMS - Trang Chủ');
                         <div class="chart-responsive">
                             <canvas id="northPopulation" height="200"></canvas>
                         </div>
-                        <h4 class="pie-chart-name">MIỀN BẮC</h4>
+                        <h4 class="pie-chart-name">MIỀN BẮC <span id="north-total"></span></h4>
                     </div>
                     <div class="col-md-4">
                         <div class="chart-responsive">
                             <canvas id="middlePopulation" height="200"></canvas>
                         </div>
-                        <h4 class="pie-chart-name">MIỀN TRUNG</h4>
+                        <h4 class="pie-chart-name">MIỀN TRUNG <span id="middle-total"></span></h4>
                     </div>
                     <div class="col-md-4">
                         <div class="chart-responsive">
                             <canvas id="southPopulation" height="200"></canvas>
                         </div>
-                        <h4 class="pie-chart-name">MIỀN NAM</h4>
+                        <h4 class="pie-chart-name">MIỀN NAM <span id="south-total"></span></h4>
                     </div>
                 </div>
             </div>

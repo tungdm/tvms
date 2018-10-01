@@ -69,6 +69,7 @@ class Order extends Entity
         'status' => true,
         'company_id' => true,
         'job_id' => true,
+        'application_date' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,

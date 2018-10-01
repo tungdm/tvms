@@ -126,6 +126,7 @@ function editGuild(guildId) {
             $('#edit-deputy-name-romaji').val(resp['deputy_name_romaji']);
             $('#edit-deputy-name-kanji').val(resp['deputy_name_kanji']);
             $('#edit-license-number').val(resp['license_number']);
+            $('#edit-signing-date').val(moment(resp['signing_date']).format('DD-MM-YYYY'));
             $('#edit-subsidy').val(resp['subsidy']);
             // toggle modal
             $('#edit-guild-modal').modal('toggle');

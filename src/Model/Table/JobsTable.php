@@ -39,9 +39,15 @@ class JobsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Author');
 
-        $this->hasMany('Humans', [
-            'foreignKey' => 'job_id'
+        $this->belongsTo('CreatedByUsers', [
+            'foreignKey' => 'created_by',
+            'className' => 'Users'
+        ]);
+        $this->belongsTo('ModifiedByUsers', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Users'
         ]);
     }
 
@@ -65,9 +71,7 @@ class JobsTable extends Table
         
         $validator
             ->scalar('job_name_jp')
-            ->maxLength('job_name_jp', 255)
-            ->requirePresence('job_name_jp', 'create')
-            ->notEmpty('job_name_jp');
+            ->allowEmpty('job_name_jp');
 
         $validator
             ->scalar('description')

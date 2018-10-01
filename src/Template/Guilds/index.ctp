@@ -272,6 +272,22 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="signing_date"><?= __('Ngày ký kết') ?></label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <div class="input-group date input-picker" id="signing-date">
+                            <?= $this->Form->control('signing_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="subsidy">
                         <?= __('Tiền trợ cấp TTS') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
@@ -398,6 +414,23 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                             'id' => 'edit-license-number',
                             'placeholder' => 'Nhập số giấy phép của nghiệp đoàn'
                             ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="signing_date"><?= __('Ngày ký kết') ?></label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <div class="input-group date input-picker" id="edit-signing-date-div">
+                            <?= $this->Form->control('signing_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'id' => 'edit-signing-date',
+                                'placeholder' => 'dd-mm-yyyy',
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">

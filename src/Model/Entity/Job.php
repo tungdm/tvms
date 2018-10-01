@@ -36,6 +36,5 @@ class Job extends Entity
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'humans' => true
     ];
 }

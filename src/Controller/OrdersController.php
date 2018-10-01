@@ -512,7 +512,10 @@ class OrdersController extends AppController
                     'LanguageAbilities',
                     'Families',
                     'Families.Jobs',
-                    'Jclasses'
+                    'Jclasses',
+                    'Orders' => function($q) {
+                        return $q->where(['result' => '1']);
+                    }
                 ]
             ]);
             $studentName_VN = mb_strtoupper($student->fullname);
@@ -565,19 +568,14 @@ class OrdersController extends AppController
                 $this->checkData('', 'Quá trình học tập');
                 array_push($eduHis, $history);
             } else {
-                $maxLen = 0;
                 foreach ($student->educations as $key => $value) {
                     $schoolName = $this->Util->convertV2E($value->school);
-                    $newLen = strlen($schoolName);
-                    if ($newLen > $maxLen) {
-                        $maxLen = $newLen;
-                    }
                     $fromDate = new Time($value->from_date);
                     $toDate = new Time($value->to_date);
                     $specialized = $value->specialized_jp ? '（' . $value->specialized_jp . '）' : ''; 
                     $history = [
                         'year' => $fromDate->year . " ～ " . $toDate->year,
-                        'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
+                        'month' => $fromDate->month . " ～ " . $toDate->month,
                         'schoolName' => $schoolName,
                         'schoolJP' => $eduLevel[$value->degree]['jp'] . "校卒業" . $specialized,
                     ];
@@ -589,26 +587,11 @@ class OrdersController extends AppController
                         $certificateDate = new Time($value->certificate);
                         $data = [
                             'year' => $certificateDate->year,
-                            'month' => str_pad($certificateDate->month, 2, '0', STR_PAD_LEFT),
+                            'month' => $certificateDate->month,
                             'certificate' => $eduLevel[$value->degree]['jp'] . "校卒業証明書"
                         ];
                         array_push($certificate, $data);
                     }
-                }
-
-                foreach ($eduHis as $key => $value) {
-                    $currentLen = strlen($value['schoolName']);
-                    $currentName = $value['schoolName'];
-                    Log::write('debug', 'max length:' . $maxLen);
-                    if ($currentLen < $maxLen) {
-                        $padding = $maxLen - $currentLen + 14;
-                        $newName = $currentName . str_repeat("-" , $padding);
-                        Log::write('debug', 'currentName: ' . $currentName . ', padding:' . $padding . ', newName: ' . $newName);
-                    } else {
-                        $newName = $currentName . str_repeat("-" , 14);
-                        Log::write('debug', 'currentName: ' . $currentName . ', newName: ' . $newName);
-                    }
-                    $eduHis[$key]['schoolName'] = str_replace('-', ' ', $newName) . $value['schoolJP'];
                 }
             }
             $this->tbs->MergeBlock('a', $eduHis);
@@ -631,7 +614,7 @@ class OrdersController extends AppController
                     $toDate = new Time($value->to_date);
                     $history = [
                         'year' => $fromDate->year . " ～ " . $toDate->year,
-                        'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT) . " ～ " . str_pad($toDate->month, 2, '0', STR_PAD_LEFT),
+                        'month' => $fromDate->month . " ～ " . $toDate->month,
                         'company' => $value->company_jp . '（' . $value->job->job_name_jp . '）'  ,
                     ];
                     array_push($expHis, $history);
@@ -644,7 +627,7 @@ class OrdersController extends AppController
                     $fromDate = new Time($value->from_date);
                     $data = [
                         'year' => $fromDate->year,
-                        'month' => str_pad($fromDate->month, 2, '0', STR_PAD_LEFT),
+                        'month' => $fromDate->month,
                         'certificate' => $value->certificate
                     ];
                     array_push($certificate, $data);
@@ -659,7 +642,7 @@ class OrdersController extends AppController
             if (empty($student->families)) {
                 $this->checkData('', 'Quan hệ gia đình');
             }
-            for ($i=0; $i <= 3; $i++) { 
+            for ($i=0; $i < count($student->families); $i++) { 
                 $member = [
                     'name' => "",
                     'relationship' => "",
@@ -668,10 +651,15 @@ class OrdersController extends AppController
                 ];
                 if (!empty($student->families) && !empty($student->families[$i])) {
                     $value = $student->families[$i];
+                    if ($value->job->job_name_jp == '死別') {
+                        $age = '';
+                    } else {
+                        $age = $value->birthday ? ($now->diff($value->birthday))->y : '';
+                    }
                     $member = [
                         'name' => $this->Util->convertV2E($value->fullname),
                         'relationship' => $relationship[$value->relationship]['jp'],
-                        'age' => $value->birthday ? ($now->diff($value->birthday))->y : 'N/A',
+                        'age' => $age,
                         'job' => $value->job->job_name_jp,
                     ];
 
@@ -679,20 +667,36 @@ class OrdersController extends AppController
                         $memberInJP = true;
                         $memberInJPRel = $relationship[$value->relationship]['jp'];
                     }
+
+                    if ($i > 3) {
+                        $member['additional'] = '';
+                    }
+                } elseif ($i <= 3) {
+                    $member = [
+                        'name' => "",
+                        'relationship' => "",
+                        'age' => "",
+                        'job' => "",
+                    ];
                 }
-                
                 array_push($families, $member);
+            }
+            if (empty($student->jclasses) || $student->jclasses[0]->current_lesson == '0') {
+                $currentLession = '1';
+            } else {
+                $currentLession = $student->jclasses[0]->current_lesson;
             }
             $studyTime = $student->enrolled_date ? ($now->diff($student->enrolled_date))->m : 1;
             $families[0]['additional'] = $cvTemplateConfig['familyAdditional'][0] . "            ：" . $memberInJPRel;
             $families[1]['additional'] = $cvTemplateConfig['familyAdditional'][1] . "    ：みんなの日本語";
             $families[2]['additional'] = $cvTemplateConfig['familyAdditional'][2] . "    ：" . $studyTime . "ヶ月";
-            $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . ($student->jclasses ? $student->jclasses[0]->current_lesson : '1') . "課";
+            $families[3]['additional'] = $cvTemplateConfig['familyAdditional'][3] . "        ：第" . $currentLession . "課";
             
             $this->tbs->MergeBlock('d', $families);
 
             $this->tbs->VarRef['serial'] = $query['serial'];
-            $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日');
+            $applicationDate = $this->checkData($student->orders[0]->application_date, 'Ngày làm hồ sơ');
+            $this->tbs->VarRef['created'] = $applicationDate->i18nFormat('yyyy年MM月dd日');
             $this->tbs->VarRef['studentNameJP'] = $fullname_kata;
             $this->tbs->VarRef['studentNameEN'] = $studentName_EN;
             $this->tbs->VarRef['birthday'] = $student->birthday->i18nFormat('yyyy年MM月dd日');
@@ -826,15 +830,15 @@ class OrdersController extends AppController
                 $studentJP = [
                     'no' => $key + 1,
                     'studentName' => $studentName_EN,
-                    'birthday' => $student->birthday->i18nFormat('yyyy年MM月dd日'),
+                    'birthday' => $student->birthday->i18nFormat('yyyy年M月d日'),
                     'gender' => $genderJP[$student->gender],
                     'job' => $order->job->job_name_jp,
-                    'departureDate' => date('Y年m月', $departureDate)
+                    'departureDate' => date('Y年n月', $departureDate)
                 ];
                 $studentVN = [
                     'no' => $key + 1,
                     'studentName' => $studentName_VN,
-                    'birthday' => $student->birthday->i18nFormat('yyyy年MM月dd日'),
+                    'birthday' => $student->birthday->i18nFormat('dd/MM/yyyy'),
                     'gender' => $gender[$student->gender],
                     'job' => $order->job->job_name,
                     'departureDate' => date('m/Y', $departureDate)
@@ -846,11 +850,12 @@ class OrdersController extends AppController
             $this->tbs->MergeBlock('b', $listVN);
 
             $vnDateFormatShort = Configure::read('vnDateFormatShort');
-            $createdDayJP = Time::now()->i18nFormat('yyyy年MM月dd日');
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+            $createdDayJP = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') : '';
             $createdDayVN =  Text::insert($vnDateFormatShort, [
-                'day' => date('d'), 
-                'month' => date('m'), 
-                'year' => date('Y'), 
+                'day' => $order->application_date ? str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT) : '', 
+                'month' => $order->application_date ? str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT) : '', 
+                'year' => $order->application_date ? $order->application_date->year : '', 
                 ]);
             $this->tbs->VarRef['createdDayJP'] = $createdDayJP;
             $this->tbs->VarRef['createdDayVN'] = $createdDayVN;
@@ -1036,11 +1041,12 @@ class OrdersController extends AppController
             ]);
             
             $footer = $counter+1;
-            $now = Time::now();
-            $day = str_pad((string) $now->day, 2, '0', STR_PAD_LEFT);
-            $month = str_pad((string) $now->month, 2, '0', STR_PAD_LEFT);
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+            $day = $order->application_date ? str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT) : '';
+            $month = $order->application_date ? str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT) : '';
+            $year = $order->application_date ? $order->application_date->year : '';
             $spreadsheet->getActiveSheet()->mergeCells('A'.$footer.':M'.$footer)
-                ->setCellValue('A'.$footer, 'TPHCM, ngày ' . $day . ' tháng ' . $month . ' năm ' . $now->year);
+                ->setCellValue('A'.$footer, 'TPHCM, ngày ' . $day . ' tháng ' . $month . ' năm ' . $year);
             $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getFont()->setItalic(true);
             $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
 
@@ -1048,6 +1054,16 @@ class OrdersController extends AppController
             $spreadsheet->getActiveSheet()->setCellValue('A'.$end, '(Phòng NV Cty đã nhận đủ hồ sơ theo DS trên)');
             $spreadsheet->getActiveSheet()->setSelectedCells('A1');
 
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
             // export XLSX file for download
             $this->ExportFile->export($spreadsheet, $dispatchLetterXlsx['filename']);
             exit;
@@ -1119,7 +1135,7 @@ class OrdersController extends AppController
         $listCandidatesXlsx = Configure::read('listCandidatesXlsx');
         $header = $listCandidatesXlsx['header'];
   
-        for ($char = 'A'; $char <= 'N'; $char++) {
+        for ($char = 'A'; $char <= 'O'; $char++) {
             if ($char == 'I') {
                 $spreadsheet->getActiveSheet()->mergeCells('I6:J6');
                 $spreadsheet->getActiveSheet()->setCellValue('I7', $header['I7']);
@@ -1136,7 +1152,7 @@ class OrdersController extends AppController
         $spreadsheet->getActiveSheet()->getRowDimension('6')->setRowHeight(60);
         $spreadsheet->setActiveSheetIndex(0);
 
-        $spreadsheet->getActiveSheet()->getStyle('A6:N7')->applyFromArray([
+        $spreadsheet->getActiveSheet()->getStyle('A6:O7')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 20,
@@ -1178,9 +1194,9 @@ class OrdersController extends AppController
                 $student->birthday->i18nFormat('yyyy年MM月dd日'),
                 $ageCell,
                 $marriageCell,
-                $this->checkDataConcate($student->input_tests[2]->score, 'Điểm tính toán cơ bản'),
-                $this->checkDataConcate($student->input_tests[0]->score, 'Điểm thi tiếng nhật'),
-                $this->checkDataConcate($student->iq_tests[0]->total, 'Điểm thi iq'),
+                $student->input_tests[2]->score ?? '',
+                $student->input_tests[0]->score ?? '',
+                $student->iq_tests[0]->total ?? '',
                 $student->right_hand_force ?? '',
                 $student->left_hand_force ?? '',
                 $student->back_force ?? '',
@@ -1196,14 +1212,14 @@ class OrdersController extends AppController
         // fill data to table
         $spreadsheet->getActiveSheet()->fromArray($listCandidates, NULL, 'A8');
 
-        $spreadsheet->getActiveSheet()->getStyle('A6:N'.$counter)->applyFromArray([
+        $spreadsheet->getActiveSheet()->getStyle('A6:O'.$counter)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Style\Border::BORDER_THIN,
                 ]
             ]
         ]);
-        $spreadsheet->getActiveSheet()->getStyle('C8:N'.$counter)->applyFromArray([
+        $spreadsheet->getActiveSheet()->getStyle('C8:O'.$counter)->applyFromArray([
             'alignment' => [
                 'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
                 'vertical' => Style\Alignment::VERTICAL_CENTER,

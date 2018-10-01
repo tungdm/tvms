@@ -187,19 +187,19 @@ class StudentsTable extends Table
             ->allowEmpty('preferred_hand');
 
         $validator
-            ->numeric('left_eye_sight')
+            ->scalar('left_eye_sight')
             ->allowEmpty('left_eye_sight');
 
         $validator
-            ->numeric('right_eye_sight')
+            ->scalar('right_eye_sight')
             ->allowEmpty('right_eye_sight');
 
         $validator
-            ->numeric('left_eye_sight_hospital')
+            ->scalar('left_eye_sight_hospital')
             ->allowEmpty('left_eye_sight_hospital');
 
         $validator
-            ->numeric('right_eye_sight_hospital')
+            ->scalar('right_eye_sight_hospital')
             ->allowEmpty('right_eye_sight_hospital');
 
         $validator

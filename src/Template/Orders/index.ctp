@@ -342,7 +342,7 @@ $this->assign('title', 'Quản lý đơn hàng');
 <script id="export-template" type="text/x-handlebars-template">
     <tr>
         <td class="cell"><?= __('1') ?></td>
-        <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
+        <td class="cell"><?= __('Thư phái cử') ?></td>
         <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="./orders/export-dispatch-letter/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>

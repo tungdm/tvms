@@ -305,6 +305,7 @@ class StudentsController extends AppController
                 ];
             } else {
                 $job = $jobTable->patchEntity($job, $data);
+                $job = $jobTable->setAuthor($job, $this->Auth->user('id'), 'add');
                 if ($jobTable->save($job)) {
                     $resp = [
                         'status' => 'success',
@@ -1048,7 +1049,7 @@ class StudentsController extends AppController
                 foreach ($student->educations as $key => $value) {
                     $history = [
                         'title' => 'Quá trình học tập',
-                        'time' => $value->from_date . ' ～ ' . $value->to_date,
+                        'time' => $this->Util->replaceDash($value->from_date) . ' ～ ' . $this->Util->replaceDash($value->to_date),
                         'school' => Text::insert($schoolTemplate, [
                             'schoolNameEN' => $this->Util->convertV2E($value->school),
                             'eduLevelJP' => $eduLevel[$value->degree]['jp'],
@@ -1088,7 +1089,7 @@ class StudentsController extends AppController
     
                 $history = [
                     'title' => 'Quá trình công tác',
-                    'time' => $value->from_date . ' ～ ' . $value->to_date,
+                    'time' => $this->Util->replaceDash($value->from_date) . ' ～ ' . $this->Util->replaceDash($value->to_date),
                     'company' => $companyStr
             ];
                 array_push($expHis, $history);
@@ -1244,7 +1245,6 @@ class StudentsController extends AppController
     {
         // load config
         $eduPlanConfig = Configure::read('eduPlan');
-        $jpKingYearStart = Configure::read('jpKingYearStart');
         $jpKingYearName = Configure::read('jpKingYearName');
 
         try {
@@ -1273,7 +1273,7 @@ class StudentsController extends AppController
             $this->tbs->VarRef['guild'] = $guild_name_kanji;
 
             $this->tbs->VarRef['fullname'] = $studentName_EN;
-            $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
+            $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. $jpKingYearName;
 
             if (!empty($this->missingFields)) {
                 $this->Flash->error(Text::insert($this->errorMessage['export'], [
@@ -1299,14 +1299,13 @@ class StudentsController extends AppController
     {
         // load config
         $commitmentConfig = Configure::read('commitment');
-        $jpKingYearStart = Configure::read('jpKingYearStart');
         $jpKingYearName = Configure::read('jpKingYearName');
         $output_file_name = $commitmentConfig['filename'];
 
         $now = Time::now();
         $template = WWW_ROOT . 'document' . DS . $commitmentConfig['template'];
         $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. (string)($now->year - $jpKingYearStart) . $jpKingYearName;
+        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. $jpKingYearName;
         $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
         exit;
     }

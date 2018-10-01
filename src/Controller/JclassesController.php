@@ -189,6 +189,7 @@ class JclassesController extends AppController
                     ->select(['Jclasses.id', 'Students.id', 'Students.fullname', 'Students.enrolled_date', 'Students.gender', 'Students.phone'])
                     ->where(['exempt <>' => 'Y'])
                     ->andWhere(['Jclasses.id IS' => NULL])
+                    ->andWhere(['Students.status <' => '4'])
                     ->toArray();        
         $resp = [
             'students' => $students

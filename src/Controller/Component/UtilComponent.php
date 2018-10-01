@@ -41,4 +41,9 @@ class UtilComponent extends Component
         $exp = explode('-', $str);
         return trim($exp[1]) . '-' . trim($exp[0]);
     }
+
+    public function replaceDash($str)
+    {
+        return str_replace("-", "/", $str);
+    }
 }

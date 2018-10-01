@@ -135,6 +135,15 @@ class UsersTable extends Table
             'foreignKey' => 'modified_by',
             'className' => 'Presenters'
         ]);
+
+        $this->hasMany('JobsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Jobs'
+        ]);
+        $this->hasMany('JobsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Jobs'
+        ]);
     }
 
     /**

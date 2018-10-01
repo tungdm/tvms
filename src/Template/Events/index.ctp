@@ -222,7 +222,7 @@ $this->assign('title', 'Lịch công tác');
 
 <script id="test-template" type="text/x-handlebars-template">
     <ul>
-        <li><strong>Lớp thi: </strong>{{class}}</li>
+        <li><strong>Lớp thi: </strong>{{className}}</li>
         <li><strong>Bài thi: </strong>{{lesson_from}} ～ {{lesson_to}}</li>
         <li>
             <strong>Kỹ năng thi: </strong>
