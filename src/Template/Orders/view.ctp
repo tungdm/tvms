@@ -445,6 +445,16 @@ if ($order->status == "4" || $order->status == "5") {
                                         ['escape' => false]) ?>
                                 </td>
                             </tr>
+                            <tr>
+                                <td class="cell"><?= __('4') ?></td>
+                                <td class="cell"><?= __('Bìa hồ sơ phỏng vấn') ?></td>
+                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCover', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

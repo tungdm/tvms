@@ -779,6 +779,10 @@ return [
             3 => "既習課",
         ]
     ],
+    'coverTemplate' => [
+        'filename' => 'Bìa :order.docx',
+        'template' => 'interview_cover.docx'
+    ],
     'listCandidatesXlsx' => [
         'filename' => 'Danh sách ứng viên phỏng vấn.xlsx',
         'header' => [

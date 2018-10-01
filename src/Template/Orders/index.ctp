@@ -364,4 +364,12 @@ $this->assign('title', 'Quản lý đơn hàng');
             <a href="./orders/export-candidates/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
+    <tr>
+        <td class="cell"><?= __('4') ?></td>
+        <td class="cell"><?= __('Bìa hồ sơ phỏng vấn') ?></td>
+        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="./orders/export-cover/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
 </script>

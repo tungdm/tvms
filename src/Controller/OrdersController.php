@@ -744,6 +744,50 @@ class OrdersController extends AppController
         }  
     }
 
+    public function exportCover($id = null)
+    {
+        // load configure
+        $coverConfig = Configure::read('coverTemplate');
+        // load template
+        $template = WWW_ROOT . 'document' . DS . $coverConfig['template'];
+        $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+        $order = $this->Orders->get($id, [
+            'contain' => ['Students',
+            'Companies', 
+            'Companies.Guilds',
+            'Jobs', 
+            ]]);
+
+        $output_file_name = Text::insert($coverConfig['filename'], [
+            'order' => $order->name, 
+            ]);
+        $now = Time::now();
+        $guildJP = $this->checkData($order->company->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+        $companyJP = $this->checkData($order->company->name_kanji, 'Tên phiên âm của công ty tiếp nhận');
+        $departureDate = $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
+        $departureDate = new Time($order->departure_date);
+        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日');
+        $this->tbs->VarRef['guild'] = $guildJP;
+        $this->tbs->VarRef['company'] = $companyJP;
+        $this->tbs->VarRef['job'] = $order->job->job_name_jp;
+        $this->tbs->VarRef['total'] = count($order->students);
+        $this->tbs->VarRef['departure_date'] = $departureDate->year . '年' . str_pad($departureDate->month, 2, '0', STR_PAD_LEFT) . '月';
+
+        if (!empty($this->missingFields)) {
+            $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                'fields' => $this->missingFields,
+                ]), 
+                [
+                    'escape' => false,
+                    'params' => ['showButtons' => true]
+                ]);
+            return $this->redirect(['action' => 'index']);
+        }
+        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        exit;
+    }
+
     public function exportDispatchLetter($id = null)
     {
         // load config
