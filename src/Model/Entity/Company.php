@@ -36,6 +36,7 @@ class Company extends Entity
      */
     protected $_accessible = [
         'name_romaji' => true,
+        'type' => true,
         'name_kanji' => true,
         'address_romaji' => true,
         'address_kanji' => true,

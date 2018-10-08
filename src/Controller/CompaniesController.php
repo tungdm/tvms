@@ -53,12 +53,17 @@ class CompaniesController extends AppController
      */
     public function index()
     {
-        $query = $this->request->getQuery();        
+        $query = $this->request->getQuery();
+        $mode = 1; // filter cty phai cu
         if (!empty($query)) {
             $allCompanies = $this->Companies->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
                 $query['records'] = 10;
+            }
+            if (isset($query['type']) && !empty($query['type'])) {
+                $allCompanies->where(['type' => $query['type']]);
+                $mode = $query['type'];
             }
             if (isset($query['name']) && !empty($query['name'])) {
                 $allCompanies->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -91,6 +96,7 @@ class CompaniesController extends AppController
                     return $exp->like('Companies.phone_jp', '%'.$query['phone_jp'].'%');
                 });
             }
+            $allCompanies->order(['Companies.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allCompanies = $this->Companies->find()->order(['Companies.created' => 'DESC']);
@@ -105,7 +111,7 @@ class CompaniesController extends AppController
         $companies = $this->paginate($allCompanies);
         $guilds = $this->Companies->Guilds->find('list');
 
-        $this->set(compact('companies', 'guilds', 'query'));
+        $this->set(compact('companies', 'guilds', 'query', 'mode'));
     }
 
     /**
@@ -223,15 +229,15 @@ class CompaniesController extends AppController
     {
         $company = $this->Companies->newEntity();
         if ($this->request->is('post')) {
-            $company = $this->Companies->patchEntity($company, $this->request->getData());
+            $data = $this->request->getData();
+            $company = $this->Companies->patchEntity($company, $data);
             $company = $this->Companies->setAuthor($company, $this->Auth->user('id'), $this->request->getParam('action'));
             if ($this->Companies->save($company)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
                     'entity' => $this->entity,
                     'name' => $company->name_romaji
                 ]));
-
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'index', '?' => ['type' => $data['type']]]);
             }
             $this->Flash->error($this->errorMessage['add']);
         }
@@ -262,7 +268,7 @@ class CompaniesController extends AppController
                 if ($this->Companies->save($company)) {
                     $resp = [
                         'status' => 'success',
-                        'redirect' => Router::url(['action' => 'index']),
+                        'redirect' => Router::url(['action' => 'index', '?' => ['type' => $data['type']]]),
                     ];
                     $this->Flash->success(Text::insert($this->successMessage['edit'], [
                         'entity' => $this->entity,
@@ -320,6 +326,6 @@ class CompaniesController extends AppController
             ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['action' => 'index', '?' => ['type' => $company->type]]);
     }
 }

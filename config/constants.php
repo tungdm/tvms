@@ -463,6 +463,11 @@ return [
         'Guilds' => 'Quản lý nghiệp đoàn',
         'Companies' => 'Quản lý công ty đối tác',
         'Presenters' => 'Quản lý cộng tác viên',
+        'Jobs' => 'Quản lý nghề nghiệp',
+    ],
+    'companyType' => [
+        '1' => 'Công ty phái cử',
+        '2' => 'Công ty tiếp nhận'
     ],
     'permission' => [
         '1' => 'Chỉ đọc',

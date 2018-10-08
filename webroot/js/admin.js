@@ -850,8 +850,17 @@ if (activeSidebar === null) {
 
 function init_sidebar() {
     // check active menu
+    var urlArr = CURRENT_URL.split('/');
+    var fixedURL;
+    if (urlArr[urlArr.length-1] == 'companies') {
+        fixedURL = CURRENT_URL + '?' + window.location.href.split('#')[0].split('?')[1].split('&').filter(function(obj) {
+            return obj.indexOf('type') !== -1;
+        });
+    } else {
+        fixedURL = CURRENT_URL;
+    }
     $SIDEBAR_MENU.find('a').filter(function () {
-        return this.href == CURRENT_URL;
+        return this.href == fixedURL;
     }).parent('li').addClass('active').parents('ul').slideDown().parent().addClass('active');
 }
 
@@ -1336,6 +1345,65 @@ function globalViewCompany(companyId, overlayId) {
                 }
 
                 $('#view-company-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function() {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function() {
+            ajaxing = false;
+            $(overlayId).addClass('hidden');
+        }
+    });
+}
+
+function globalViewDispatchingCompany(companyId, overlayId) {
+    if (ajaxing) {
+        // still requesting
+        return;
+    }
+    ajaxing = true;
+    $(overlayId).removeClass('hidden');
+    
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/companies/view',
+        data: {
+            id: companyId
+        },
+        success: function(resp) {
+            if (resp.status == 'success') {
+                $('#view-dis-company-name-romaji').html(resp.data.name_romaji);
+                $('#view-dis-company-name-kanji').html(resp.data.name_kanji);
+
+                $('#view-dis-company-address-romaji').html(resp.data.address_romaji);
+
+                $('#view-dis-company-deputy-romaji').html(resp.data.deputy_name_romaji);
+
+                $('#view-dis-company-created-by').html(resp.data.created_by_user.fullname);
+                $('#view-dis-company-created').html(resp.created);
+
+                if (resp.data.modified_by_user) {
+                    $('.modified').removeClass('hidden');
+                    $('#view-dis-company-modified-by').html(resp.data.modified_by_user.fullname);
+                    $('#view-dis-company-modified').html(resp.modified);
+                } else {
+                    $('.modified').addClass('hidden');
+                }
+                $('#view-dis-company-modal').modal('toggle');
             } else {
                 var notice = new PNotify({
                     title: '<strong>' + resp.flash.title + '</strong>',

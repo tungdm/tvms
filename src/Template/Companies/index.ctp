@@ -34,7 +34,11 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
 ?>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('QUẢN LÝ CÔNG TY - XÍ NGHIỆP') ?></h1>
+    <?php if ($mode == 1): ?>
+        <h1><?= __('QUẢN LÝ CÔNG TY - XÍ NGHIỆP PHÁI CỬ') ?></h1>
+    <?php else: ?>
+        <h1><?= __('QUẢN LÝ CÔNG TY - XÍ NGHIỆP TIẾP NHẬN') ?></h1>
+    <?php endif; ?>
     <ol class="breadcrumb">
         <li>
             <?= $this->Html->link(
@@ -54,7 +58,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
             <li>
                 <a  data-toggle='tooltip' title='Thêm mới'
                     class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
-                    onclick="showAddCompanyModal()">
+                    onclick="showAddCompanyModal(<?= $mode?>)">
                     <i class="fa fa-plus"></i>
                 </a>
             </li>
@@ -95,144 +99,262 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         ?>
                     </div>
                 </div>
-                <table class="table table-bordered custom-table">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="col-num"><?= __('STT') ?></th>
-                            <th scope="col" class="nameCol">
-                                <?= $this->Paginator->sort('name_romaji', 'Công ty')?>
-                            </th>
-                            <th scope="col" class="addressCol">
-                                <?= $this->Paginator->sort('address_romaji', 'Địa chỉ') ?>
-                            </th>
-                            <th scope="col" class="guildCol">
-                                <?= __('Nghiệp đoàn') ?>
-                            </th>
-                            <th scope="col" colspan="2" class="phoneCol">
-                                <?= __('Số điện thoại') ?>
-                            </th>
-                            <th scope="col" class="actions"><?= __('Thao tác') ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td></td>
-                            <td class="col-md-2 nameCol">
-                                <?= $this->Form->control('name', [
-                                    'label' => false,
-                                    'class' => 'form-control col-md-7 col-xs-12',
-                                    'value' => $query['name'] ?? ''
-                                    ]) 
-                                ?>
-                            </td>
-                            <td class="col-md-2 addressCol">
-                                <?= $this->Form->control('address', [
-                                    'label' => false,                             
-                                    'class' => 'form-control col-md-7 col-xs-12', 
-                                    'value' => $query['address'] ?? ''
-                                    ])
-                                ?>
-                            </td>
-                            <td class="col-md-2 guildCol">
-                                <?= $this->Form->control('guild', [
-                                    'options' => $guilds, 
-                                    'empty' => true,
-                                    'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                    'value' => $query['guild'] ?? ''
-                                    ])
-                                ?>
-                            </td>
-                            <td class="col-md-2 phonevnCol">
-                                <div class="input-group">
-                                    <?= $this->Form->control('phone_vn', [
-                                        'label' => false, 
+                <?php if ($mode == 1): ?>
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-num"><?= __('STT') ?></th>
+                                <th scope="col" class="nameCol">
+                                    <?= $this->Paginator->sort('name_romaji', 'Công ty')?>
+                                </th>
+                                <th scope="col" class="addressCol">
+                                    <?= $this->Paginator->sort('address_romaji', 'Địa chỉ') ?>
+                                </th>
+                                <th scope="col" class="deputyCol">
+                                    <?= __('Người đại diện') ?>
+                                </th>
+                                <th scope="col" class="actions"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="hidden">
+                                        <?= $this->Form->control('type', [
+                                            'label' => false,
+                                            'class' => 'form-control col-md-7 col-xs-12',
+                                            'value' => '1'
+                                            ]) 
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="col-md-3 nameCol">
+                                    <?= $this->Form->control('name', [
+                                        'label' => false,
+                                        'class' => 'form-control col-md-7 col-xs-12',
+                                        'value' => $query['name'] ?? ''
+                                        ]) 
+                                    ?>
+                                </td>
+                                <td class="col-md-4 addressCol">
+                                    <?= $this->Form->control('address', [
+                                        'label' => false,                             
                                         'class' => 'form-control col-md-7 col-xs-12', 
-                                        'value' => $query['phone_vn'] ?? ''
+                                        'value' => $query['address'] ?? ''
                                         ])
                                     ?>
-                                    <span class="input-group-addon" style="line-height: 1;">
-                                        <span class="flag-icon flag-icon-vn"></span>
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="col-md-2 phonejpCol">
-                                <div class="input-group">
-                                    <?= $this->Form->control('phone_jp', [
-                                        'label' => false, 
+                                </td>
+                                <td class="col-md-3 deputyCol">
+                                    <?= $this->Form->control('deputy', [
+                                        'label' => false,                             
                                         'class' => 'form-control col-md-7 col-xs-12', 
-                                        'value' => $query['phone_jp'] ?? ''
+                                        'value' => $query['deputy'] ?? ''
                                         ])
                                     ?>
-                                    <span class="input-group-addon" style="line-height: 1;">
-                                            <span class="flag-icon flag-icon-jp"></span>
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="filter-group-btn actions">
-                                <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
-                                <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
-                            </td>
-                        <?= $this->Form->end() ?>
-                        </tr>
-                        <?php if (($companies)->isEmpty()): ?>
-                        <tr>
-                            <td colspan="100" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
-                        </tr>
-                        <?php else: ?>
-                        <?php foreach ($companies as $company): ?>
-                        <?php $counter++ ?>
-                        <tr>
-                            <td class="cell text-center"><?= h($counter) ?></td>
-                            <td class="cell nameCol">
-                                <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
-                                    <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
-                                </a>
-                            </td>
-                            <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
-                            <td class="cell guildCol">
-                                <a href="javascript:;" onclick="viewGuild(<?= $company->guild->id ?>)"><?= h($company->guild->name_romaji) ?></a>
-                            </td>
-                            <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($company->phone_vn)) ?></td>
-                            <td class="cell phonejpCol"><?= h($company->phone_jp) ?></td>
-                            
-                            <td class="actions cell">                              
-                                <div class="btn-group">
-                                    <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li>
-                                            <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
-                                            </a>
-                                        </li>
-                                        <?php if ($permission == 0): ?>
-                                        <li>
-                                            <a href="#" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>')">
-                                            <i class="fa fa-edit"></i> Sửa</a>
-                                        </li>
-                                        <li>
-                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                                ['action' => 'delete', $company->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
-                                                ]) ?>
-                                        </li>
-                                        <?php endif;  ?>
-                                        <li class="divider"></li>
-                                        <li>
-                                            <a href="javascript:;" onclick="showListWorkersModal(<?= $company->id ?>)">
-                                                <i class="fa fa-users" aria-hidden="true"></i> Danh sách lao động
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>                                      
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php endif; ?>                
-                    </tbody>
-                </table>
+                                </td>
+                                <td class="filter-group-btn actions">
+                                    <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
+                                    <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
+                                </td>
+                            <?= $this->Form->end() ?>
+                            </tr>
+                            <?php if (($companies)->isEmpty()): ?>
+                            <tr>
+                                <td colspan="100" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
+                            </tr>
+                            <?php else: ?>
+                            <?php foreach ($companies as $company): ?>
+                            <?php $counter++ ?>
+                            <tr>
+                                <td class="cell text-center"><?= h($counter) ?></td>
+                                <td class="cell nameCol">
+                                    <a href="javascript:;" onclick="viewDispatchingCompany(<?= $company->id ?>)">
+                                        <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
+                                    </a>
+                                </td>
+                                <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
+                                <td class="cell deputyCol">
+                                    <?= h($company->deputy_name_romaji) ?>
+                                </td>
+                                <td class="actions cell">                              
+                                    <div class="btn-group">
+                                        <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <li>
+                                                <a href="javascript:;" onclick="viewDispatchingCompany(<?= $company->id ?>)">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                                </a>
+                                            </li>
+                                            <?php if ($permission == 0): ?>
+                                            <li>
+                                                <a href="javascript:;" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>', <?= $mode ?>)">
+                                                <i class="fa fa-edit"></i> Sửa</a>
+                                            </li>
+                                            <li>
+                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                    ['action' => 'delete', $company->id], 
+                                                    [
+                                                        'escape' => false, 
+                                                        'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
+                                                    ]) ?>
+                                            </li>
+                                            <?php endif;  ?>
+                                        </ul>
+                                    </div>                                      
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>                
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-num"><?= __('STT') ?></th>
+                                <th scope="col" class="nameCol">
+                                    <?= $this->Paginator->sort('name_romaji', 'Công ty')?>
+                                </th>
+                                <th scope="col" class="addressCol">
+                                    <?= $this->Paginator->sort('address_romaji', 'Địa chỉ') ?>
+                                </th>
+                                <th scope="col" class="guildCol">
+                                    <?= __('Nghiệp đoàn') ?>
+                                </th>
+                                <th scope="col" colspan="2" class="phoneCol">
+                                    <?= __('Số điện thoại') ?>
+                                </th>
+                                <th scope="col" class="actions"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="hidden">
+                                        <?= $this->Form->control('type', [
+                                            'label' => false,
+                                            'class' => 'form-control col-md-7 col-xs-12',
+                                            'value' => '2'
+                                            ]) 
+                                        ?>
+                                    </div>
+                                </td>
+                                <td class="col-md-2 nameCol">
+                                    <?= $this->Form->control('name', [
+                                        'label' => false,
+                                        'class' => 'form-control col-md-7 col-xs-12',
+                                        'value' => $query['name'] ?? ''
+                                        ]) 
+                                    ?>
+                                </td>
+                                <td class="col-md-2 addressCol">
+                                    <?= $this->Form->control('address', [
+                                        'label' => false,                             
+                                        'class' => 'form-control col-md-7 col-xs-12', 
+                                        'value' => $query['address'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                                <td class="col-md-2 guildCol">
+                                    <?= $this->Form->control('guild', [
+                                        'options' => $guilds, 
+                                        'empty' => true,
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                        'value' => $query['guild'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                                <td class="col-md-2 phonevnCol">
+                                    <div class="input-group">
+                                        <?= $this->Form->control('phone_vn', [
+                                            'label' => false, 
+                                            'class' => 'form-control col-md-7 col-xs-12', 
+                                            'value' => $query['phone_vn'] ?? ''
+                                            ])
+                                        ?>
+                                        <span class="input-group-addon" style="line-height: 1;">
+                                            <span class="flag-icon flag-icon-vn"></span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="col-md-2 phonejpCol">
+                                    <div class="input-group">
+                                        <?= $this->Form->control('phone_jp', [
+                                            'label' => false, 
+                                            'class' => 'form-control col-md-7 col-xs-12', 
+                                            'value' => $query['phone_jp'] ?? ''
+                                            ])
+                                        ?>
+                                        <span class="input-group-addon" style="line-height: 1;">
+                                                <span class="flag-icon flag-icon-jp"></span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="filter-group-btn actions">
+                                    <?= $this->Form->button(__('<i class="fa fa-refresh"></i>'), ['class' => 'btn btn-default', 'type' => 'button', 'id' => 'filter-refresh-btn']) ?>
+                                    <?= $this->Form->button(__('<i class="fa fa-search"></i>'), ['class' => 'btn btn-primary', 'type' => 'submit']) ?>
+                                </td>
+                            <?= $this->Form->end() ?>
+                            </tr>
+                            <?php if (($companies)->isEmpty()): ?>
+                            <tr>
+                                <td colspan="100" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
+                            </tr>
+                            <?php else: ?>
+                            <?php foreach ($companies as $company): ?>
+                            <?php $counter++ ?>
+                            <tr>
+                                <td class="cell text-center"><?= h($counter) ?></td>
+                                <td class="cell nameCol">
+                                    <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
+                                        <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
+                                    </a>
+                                </td>
+                                <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
+                                <td class="cell guildCol">
+                                    <a href="javascript:;" onclick="viewGuild(<?= $company->guild->id ?>)"><?= h($company->guild->name_romaji) ?></a>
+                                </td>
+                                <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($company->phone_vn)) ?></td>
+                                <td class="cell phonejpCol"><?= h($company->phone_jp) ?></td>
+                                <td class="actions cell">                              
+                                    <div class="btn-group">
+                                        <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <li>
+                                                <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
+                                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                                </a>
+                                            </li>
+                                            <?php if ($permission == 0): ?>
+                                            <li>
+                                                <a href="javascript:;" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>', <?= $mode ?>)">
+                                                <i class="fa fa-edit"></i> Sửa</a>
+                                            </li>
+                                            <li>
+                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                    ['action' => 'delete', $company->id], 
+                                                    [
+                                                        'escape' => false, 
+                                                        'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
+                                                    ]) ?>
+                                            </li>
+                                            <?php endif;  ?>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <a href="javascript:;" onclick="showListWorkersModal(<?= $company->id ?>)">
+                                                    <i class="fa fa-users" aria-hidden="true"></i> Danh sách lao động
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>                                      
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                            <?php endif; ?>                
+                        </tbody>
+                    </table>
+                <?php endif; ?>
                 <div class="paginator">
                     <ul class="pagination">
                         <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
@@ -248,12 +370,91 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
     </div>
 </div>
 
+<div class="modal fade" id="add-dispatching-company-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">THÊM MỚI CÔNG TY PHÁI CỬ</h4>
+            </div>
+            <div class="modal-body">
+                <?= $this->Form->create(false, [
+                    'class' => 'form-horizontal form-label-left', 
+                    'id' => 'add-dispatching-company-form', 
+                    'data-parsley-validate' => '',
+                    'url' => ['controller' => 'Companies', 'action' => 'add'],
+                    'templates' => [
+                        'inputContainer' => '{{content}}'
+                        ]
+                    ]) 
+                    ?>
+                <div class="hidden">
+                    <?= $this->Form->control('type', [
+                        'label' => false, 
+                        'class' => 'form-control col-md-7 col-xs-12',
+                        'value' => '1'
+                        ]) ?>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji"><?= __('Tên công ty') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('name_romaji', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
+                            'placeholder' => 'Nhập tên công ty bằng tiếng Việt'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('name_kanji', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập tên công ty bằng tiếng Anh/Nhật'
+                            ]) ?>
+                    </div>
+                </div>
+
+                <div class="ln_solid"></div>
+
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="deputy_name"><?= __('Người đại diện') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('deputy_name_romaji', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập tên người đại diện bằng tiếng Việt'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="address_romaji"><?= __('Địa chỉ') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('address_romaji', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập địa chỉ bằng tiếng Việt'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="add-company-submit-btn" type="submit">Hoàn Tất</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+            </div>
+            <?= $this->Form->end() ?>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="add-company-modal" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">THÊM MỚI CÔNG TY</h4>
+                <h4 class="modal-title">THÊM MỚI CÔNG TY TIẾP NHẬN</h4>
             </div>
             <div class="modal-body">
                 <?= $this->Form->create(false, [
@@ -266,6 +467,13 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         ]
                     ]) 
                     ?>
+                <div class="hidden">
+                    <?= $this->Form->control('type', [
+                        'label' => false, 
+                        'class' => 'form-control col-md-7 col-xs-12',
+                        'value' => '2'
+                        ]) ?>
+                </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji">
                         <?= __('Tên công ty') ?> </label>
@@ -360,6 +568,88 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
     </div>
 </div>
 
+<div class="modal fade" id="edit-dispatching-company-modal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">CẬP NHẬT THÔNG TIN CÔNG TY PHÁI CỬ</h4>
+            </div>
+            <div class="modal-body">
+                <?= $this->Form->create(false, [
+                    'class' => 'form-horizontal form-label-left',
+                    'id' => 'edit-dispatching-company-form',
+                    'data-parsley-validate' => '',
+                    'url' => ['controller' => 'Companies', 'action' => 'edit'],
+                    'templates' => ['inputContainer' => '{{content}}']
+                    ]) ?>
+                <?= $this->Form->unlockField('id'); ?>
+                <?= $this->Form->hidden('id', ['id' => 'edit-dis-id']) ?>
+                <div class="hidden">
+                    <?= $this->Form->control('type', [
+                        'label' => false, 
+                        'class' => 'form-control col-md-7 col-xs-12',
+                        'value' => '1'
+                        ]) ?>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji"><?= __('Tên công ty') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('name_romaji', [
+                            'label' => false,
+                            'id' => 'edit-dis-name-romaji',
+                            'required' => true,
+                            'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
+                            'placeholder' => 'Nhập tên công ty bằng tiếng Việt'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('name_kanji', [
+                            'label' => false,
+                            'id' => 'edit-dis-name-kanji',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập tên công ty bằng tiếng Anh/Nhật'
+                            ]) ?>
+                    </div>
+                </div>
+
+                <div class="ln_solid"></div>
+
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="deputy_name"><?= __('Người đại diện') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('deputy_name_romaji', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12',
+                            'id' => 'edit-dis-deputy-name-romaji', 
+                            'placeholder' => 'Nhập tên người đại diện bằng tiếng Việt'
+                            ]) ?>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="address_romaji"><?= __('Địa chỉ') ?></label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('address_romaji', [
+                            'label' => false,
+                            'id' => 'edit-dis-address-romaji', 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập địa chỉ bằng tiếng Việt'
+                            ]) ?>
+                    </div>
+                </div>
+                <?= $this->Form->end() ?>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="edit-dis-company-submit-btn">Hoàn Tất</button>
+                <button type="button" class="btn btn-outline-dark" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="edit-company-modal" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -377,7 +667,13 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     ]) ?>
                 <?= $this->Form->unlockField('id'); ?>
                 <?= $this->Form->hidden('id', ['id' => 'edit-id']) ?>
-
+                <div class="hidden">
+                    <?= $this->Form->control('type', [
+                        'label' => false, 
+                        'class' => 'form-control col-md-7 col-xs-12',
+                        'value' => '2'
+                        ]) ?>
+                </div>
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12" for="name_romaji">
                         <?= __('Tên công ty') ?> </label>

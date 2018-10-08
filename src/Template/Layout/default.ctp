@@ -165,8 +165,13 @@
                                     ['escape' => false]) ?>
                             </li>
                             <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty phái cử', 
+                                    ['controller' => 'Companies', 'action' => 'index', '?' => ['type' => '1']],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty tiếp nhận', 
-                                    ['controller' => 'Companies', 'action' => 'index'],
+                                    ['controller' => 'Companies', 'action' => 'index', '?' => ['type' => '2']],
                                     ['escape' => false]) ?>
                             </li>
                             <li>
@@ -337,7 +342,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">THÔNG TIN CÔNG TY</h4>
+                    <h4 class="modal-title">THÔNG TIN CÔNG TY TIẾP NHẬN</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-horizontal form-label-left">
@@ -418,6 +423,85 @@
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-company-modified"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global dispatching company modal -->
+    <div id="view-dis-company-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">THÔNG TIN CÔNG TY PHÁI CỬ</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal form-label-left">
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company-name"><?= __('Tên công ty') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span id="view-dis-company-name-romaji"></span><br/>
+                                    <span id="view-dis-company-name-kanji"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span id="view-dis-company-deputy-romaji"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span id="view-dis-company-address-romaji"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-dis-company-created-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-dis-company-created"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12 " for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-dis-company-modified-by"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group modified">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                    <span id="view-dis-company-modified"></span>
                                 </div>
                             </div>
                         </div>
