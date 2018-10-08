@@ -3218,7 +3218,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </tr>
                             <tr>
                                 <td class="cell"><?= __('4') ?></td>
-                                <td class="cell"><?= __('Thủ tục công nhận kế hoạch đào tạo') ?></td>
+                                <td class="cell"><?= __('1.10') ?></td>
                                 <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
@@ -3228,7 +3228,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             </tr>
                             <tr>
                                 <td class="cell"><?= __('5') ?></td>
-                                <td class="cell"><?= __('Tóm tắt và cam kết của tổ chức nước ngoài') ?></td>
+                                <td class="cell"><?= __('1.13') ?></td>
                                 <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 

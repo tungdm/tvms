@@ -67,6 +67,7 @@ class Order extends Entity
         'departure_date' => true,
         'departure' => true,
         'status' => true,
+        'dis_company_id' => true,
         'company_id' => true,
         'job_id' => true,
         'application_date' => true,

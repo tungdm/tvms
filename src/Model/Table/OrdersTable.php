@@ -46,6 +46,10 @@ class OrdersTable extends Table
         $this->belongsTo('Companies', [
             'foreignKey' => 'company_id',
         ]);
+        $this->belongsTo('DisCompanies', [
+            'className' => 'Companies',
+            'foreignKey' => 'dis_company_id',
+        ]);
         $this->hasMany('Events', [
             'foreignKey' => 'order_id',
             'dependent' => true,

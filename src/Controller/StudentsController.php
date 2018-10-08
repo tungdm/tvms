@@ -1149,8 +1149,7 @@ class StudentsController extends AppController
             ]);
             $now = Time::now();
             $birthday = $student->birthday;
-            $cmnd_from_date = $student->cards[0]->from_date ? $student->cards[0]->from_date->i18nFormat('yyyy年MM月dd日') : '';
-            $this->checkData($cmnd_from_date, 'Giấy chứng minh nhân dân');
+            $cmnd = $this->checkData($student->cards[0], 'Giấy chứng minh nhân dân');
 
             $mergeAddress = $this->mergeAddress($student->addresses[0]);
 
@@ -1162,14 +1161,25 @@ class StudentsController extends AppController
 
             $subsidy = $student->orders ? Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
             $this->checkData($subsidy, 'Tiền trợ cấp thực tập sinh của nghiệp đoàn');
-
+            
+            $cmnd_from_date = '';
+            $signingDate = '';
             if ($lang == 'jp') {
-                $createdDay = $now->i18nFormat('yyyy年MM月dd日');
-                $birthday = $birthday->i18nFormat('yyyy年MM月dd日');
-                $cmnd_from_date = $cmnd_from_date;
+                $createdDay = $now->i18nFormat('yyyy年M月d日');
+                $birthday = $birthday->i18nFormat('yyyy年M月d日');
+                if (!empty($cmnd) && !empty($cmnd->from_date)) {
+                    $cmnd_from_date = $cmnd->from_date->i18nFormat('yyyy年M月d日');
+                }
                 $address = $mergeAddress['en'];
                 $job = $job ? $job->job_name_jp : '';
                 $this->checkData($job, 'Tên phiên âm nghề nghiệp phỏng vấn');
+
+                if (!empty($guild)) {
+                    $signingDate = $this->checkData($guild->signing_date, 'Ngày ký kết hiệp định');
+                    if (!empty($signingDate)) {
+                        $signingDate = $signingDate->i18nFormat('yyyy年M月d日');
+                    }
+                }
 
                 $guild = $guild ? $guild->name_kanji : '';
                 $this->checkData($guild, 'Tên phiên âm nghiệp đoàn quản lý');
@@ -1182,20 +1192,32 @@ class StudentsController extends AppController
                     'month' => date('m'), 
                     'year' => date('Y'), 
                     ]);
-
+                if (!empty($cmnd) && !empty($cmnd->from_date)) {
+                    $cmnd_from_date = $cmnd->from_date->i18nFormat('dd/MM/yyyy');
+                }
+                
                 $birthday = Text::insert($vnDateFormatShort, [
                     'day' => str_pad($birthday->day, 2, '0', STR_PAD_LEFT), 
                     'month' => str_pad($birthday->month, 2, '0', STR_PAD_LEFT), 
                     'year' => $birthday->year, 
                     ]);
-                // $cmnd_from_date = $cmnd_from_date->i18nFormat('dd/MM/yyyy');
                 $address = $mergeAddress['vn'];
                 $job = $job ? $job->job_name : '';
                 $this->checkData($job, 'Tên nghề nghiệp phỏng vấn');
 
+                if (!empty($guild)) {
+                    $signingDate = $this->checkData($guild->signing_date, 'Ngày ký kết hiệp định');
+                    if (!empty($signingDate)) {
+                        $signingDate = Text::insert($vnDateFormatFull, [
+                            'day' => $signingDate->day, 
+                            'month' => $signingDate->month, 
+                            'year' => $signingDate->year, 
+                            ]);
+                    }
+                }
                 $guild = $guild ? $guild->name_romaji : '';
                 $this->checkData($guild, 'Tên nghiệp đoàn quản lý');
-
+                
                 $company = $company ? $company->name_romaji : '';
                 $this->checkData($company, 'Tên công ty tiếp nhận');
             }
@@ -1220,6 +1242,7 @@ class StudentsController extends AppController
             $this->tbs->VarRef['guild'] = $guild;
             $this->tbs->VarRef['company'] = $company;
             $this->tbs->VarRef['subsidy'] = $subsidy;
+            $this->tbs->VarRef['signing_date'] = $signingDate;
 
             if (!empty($this->missingFields)) {
                 $this->Flash->error(Text::insert($this->errorMessage['export'], [

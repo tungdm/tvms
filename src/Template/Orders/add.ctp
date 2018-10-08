@@ -294,6 +294,20 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="dis_company_id"><?= __('Công ty phái cử') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <?= $this->Form->control('dis_company_id', [
+                            'options' => $disCompanies,
+                            'empty' => true, 
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'data-parsley-errors-container' => '#error-dis-company',
+                            'data-parsley-class-handler' => '#select2-dis-company-id',
+                            ]) ?>
+                        <span id="error-dis-company"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="application_date"><?= __('Ngày làm hồ sơ') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <div class="input-group date input-picker" id="application-date"> <!-- Remove validate for user input past data -->
@@ -572,8 +586,9 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                             'controller' => 'Orders', 
                                             'action' => 'exportCv',
                                             '?' => [
+                                                'orderId' => $order->id,
                                                 'studentId' => $value->id,
-                                                'serial' => $key+1
+                                                'serial' => $key+1,
                                             ]
                                         ],
                                         ['escape' => false])?>

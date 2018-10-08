@@ -760,11 +760,11 @@ return [
         'filename_vn' => ':firstName 日本での契約書（ベトナム語).docx',
     ],
     'eduPlan' => [
-        'filename' => 'Thủ tục công nhận kế hoạch đào tạo.docx',
+        'filename' => '1.10.docx',
         'template' => 'edu_plan.docx'
     ],
     'commitment' => [
-        'filename' => 'Tóm tắt và cam kết của tổ chức nước ngoài.docx',
+        'filename' => '1.13.docx',
         'template' => 'commitment.docx'
     ],
     'dispatchLetter' => [

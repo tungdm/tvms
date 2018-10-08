@@ -373,6 +373,7 @@ if ($order->status == "4" || $order->status == "5") {
                                                 'controller' => 'Orders', 
                                                 'action' => 'exportCv', 
                                                 '?' => [
+                                                    'orderId' => $order->id,
                                                     'studentId' => $value->id,
                                                     'serial' => $key+1
                                                 ]

@@ -192,9 +192,11 @@ class OrdersController extends AppController
             }
             $this->Flash->error($this->errorMessage['add']);
         }
-        $companies = $this->Orders->Companies->find('list', ['limit' => 200]);
-        $jobs = $this->Orders->Jobs->find('list', ['limit' => 200]);
-        $this->set(compact('order', 'companies', 'jobs'));
+        $companies = $this->Orders->Companies->find('list')->where(['type' => '2']);
+        $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1']);
+
+        $jobs = $this->Orders->Jobs->find('list');
+        $this->set(compact('order', 'companies', 'disCompanies', 'jobs'));
     }
 
     /**
@@ -244,9 +246,10 @@ class OrdersController extends AppController
                 'name' => $orderName
             ]));
         }
-        $companies = $this->Orders->Companies->find('list', ['limit' => 200]);
-        $jobs = $this->Orders->Jobs->find('list', ['limit' => 200]);
-        $this->set(compact('order', 'companies', 'jobs'));
+        $companies = $this->Orders->Companies->find('list')->where(['type' => '2']);
+        $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1']);
+        $jobs = $this->Orders->Jobs->find('list');
+        $this->set(compact('order', 'companies', 'disCompanies', 'jobs'));
         $this->render('/Orders/add');
     }
 
@@ -374,7 +377,7 @@ class OrdersController extends AppController
         $resp = [];
         if (isset($query['q']) && !empty($query['q'])) {
             $students = $this->Orders->Students
-                ->find('list', ['limit' => 200])
+                ->find('list')
                 ->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('fullname', '%'.$query['q'].'%');
                 })
@@ -498,6 +501,7 @@ class OrdersController extends AppController
             // load template
             $template = WWW_ROOT . 'document' . DS . $cvTemplateConfig['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+            $order = $this->Orders->get($query['orderId']);
             $student = $this->Orders->Students->get($query['studentId'], [
                 'contain' => [
                     'Addresses' => function($q) {
@@ -686,7 +690,7 @@ class OrdersController extends AppController
             $this->tbs->MergeBlock('d', $families);
 
             $this->tbs->VarRef['serial'] = $query['serial'];
-            $this->tbs->VarRef['created'] = $now->subDays(14)->i18nFormat('yyyy年MM月dd日');
+            $this->tbs->VarRef['created'] = $order->interview_date->subDays(14)->i18nFormat('yyyy年MM月dd日');
             $this->tbs->VarRef['studentNameJP'] = $fullname_kata;
             $this->tbs->VarRef['studentNameEN'] = $studentName_EN;
             $this->tbs->VarRef['birthday'] = $student->birthday->i18nFormat('yyyy年MM月dd日');
@@ -767,7 +771,8 @@ class OrdersController extends AppController
         $companyJP = $this->checkData($order->company->name_kanji, 'Tên phiên âm của công ty tiếp nhận');
         $departureDate = $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
         $departureDate = new Time($order->departure_date);
-        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日');
+        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年M月d日');
+        $this->tbs->VarRef['interview_date'] = $order->interview_date->i18nFormat('yyyy年M月d日');
         $this->tbs->VarRef['guild'] = $guildJP;
         $this->tbs->VarRef['company'] = $companyJP;
         $this->tbs->VarRef['job'] = $order->job->job_name_jp;
