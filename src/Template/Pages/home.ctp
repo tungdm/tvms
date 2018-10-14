@@ -225,7 +225,9 @@ $this->assign('title', 'TVMS - Trang Chủ');
     {{#each this}}
     <tr>
         <td class="cell text-center">{{inc @index}}</td>
-        <td class="cell">{{order.name}}</td>
+        <td class="cell">
+            <a href="/orders/view/{{order_id}}" target="_blank">{{order.name}}</a>
+        </td>
         <td class="cell">{{dateTimeFormat order.interview_date}}</td>
         <td class="cell">{{student.fullname}}</td>
         <td class="cell text-center">{{phoneFormat student.phone}}</td>
