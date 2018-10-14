@@ -182,7 +182,10 @@ class PagesController extends AppController
             $now = Time::now();
             $currentMonth = $now->i18nFormat('yyyy-MM') . '-01';
             $orderStudentsTable = TableRegistry::get('OrdersStudents');
-            $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'Orders.interview_date >=' => $currentMonth]);
+            $newlyPassed = $orderStudentsTable->find()
+                            ->contain(['Orders', 'Students'])
+                            ->where(['result' => '1', 'Orders.interview_date >=' => $currentMonth])
+                            ->order(['Orders.id' => 'ASC']);
             $resp = [
                 'status' => 'success',
                 'data' => $newlyPassed
