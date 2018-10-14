@@ -93,7 +93,7 @@ class PagesController extends AppController
         $newOrder = $orderTable->find()->where(['created >=' => $firstDayOfMonth])->count();
         $newStudent = $studentTable->find()->where(['enrolled_date >=' => $firstDayOfMonth])->count();
         $returnStudent = $studentTable->find()->where(['return_date' => $currentMonth])->count();
-        $newPassedCount = $orderStudentsTable->find()->where(['result' => '1', 'created >=' => $firstDayOfMonth])->count();
+        $newPassedCount = $orderStudentsTable->find()->contain(['Orders'])->where(['result' => '1', 'Orders.interview_date >=' => $firstDayOfMonth])->count();
         
         // second row data
         $northPopulation = $this->getAreaPopulation(['from' => '01', 'to' => '37']);
@@ -182,7 +182,7 @@ class PagesController extends AppController
             $now = Time::now();
             $currentMonth = $now->i18nFormat('yyyy-MM') . '-01';
             $orderStudentsTable = TableRegistry::get('OrdersStudents');
-            $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'Orders.created >=' => $currentMonth]);
+            $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'Orders.interview_date >=' => $currentMonth]);
             $resp = [
                 'status' => 'success',
                 'data' => $newlyPassed

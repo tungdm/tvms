@@ -224,11 +224,11 @@ $this->assign('title', 'TVMS - Trang Chủ');
 <script id="newly-passed-template" type="text/x-handlebars-template">
     {{#each this}}
     <tr>
-        <td>{{inc @index}}</td>
-        <td>{{order.name}}</td>
-        <td>{{dateTimeFormat order.interview_date}}</td>
-        <td>{{student.fullname}}</td>
-        <td>{{phoneFormat student.phone}}</td>
+        <td class="cell text-center">{{inc @index}}</td>
+        <td class="cell">{{order.name}}</td>
+        <td class="cell">{{dateTimeFormat order.interview_date}}</td>
+        <td class="cell">{{student.fullname}}</td>
+        <td class="cell text-center">{{phoneFormat student.phone}}</td>
     </tr>
     {{/each}}
 </script>
