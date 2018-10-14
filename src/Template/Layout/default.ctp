@@ -842,6 +842,7 @@
     <?= $this->Html->script('parsley.min.js'); ?>
     <?= $this->Html->script('parsley.vn.js'); ?>
     <?= $this->Html->script('handlebars-v4.0.11.js'); ?>
+    <?= $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']) ?>
 
     <?= $this->Html->script('editor/module.js'); ?>
     <?= $this->Html->script('editor/hotkeys.js'); ?>

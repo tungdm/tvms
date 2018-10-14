@@ -180,7 +180,7 @@ class PagesController extends AppController
         ];
         try {
             $now = Time::now();
-            $currentMonth = $now->i18nFormat('yyyy-MM-01');
+            $currentMonth = $now->i18nFormat('yyyy-MM') . '-01';
             $orderStudentsTable = TableRegistry::get('OrdersStudents');
             $newlyPassed = $orderStudentsTable->find()->contain(['Orders', 'Students'])->where(['result' => '1', 'Orders.created >=' => $currentMonth]);
             $resp = [

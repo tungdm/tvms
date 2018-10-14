@@ -989,11 +989,11 @@ class StudentsController extends AppController
 
             if (!empty($order->application_date)) {
                 $createdDayJP = $order->application_date->i18nFormat('yyyy年M月d日');
-                $createdDayVN = Text::insert($vnDateFormatFull, [
+                $createdDayVN = ucfirst(Text::insert($vnDateFormatFull, [
                     'day' => str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT), 
                     'month' => str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT), 
                     'year' => $order->application_date->year, 
-                    ]);
+                    ]));
             }
             $this->tbs->VarRef['created_jp'] = $createdDayJP;
             $this->tbs->VarRef['created_vn'] = $createdDayVN;
