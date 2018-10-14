@@ -282,7 +282,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                                         <?php endif; ?>
                                         <li class="divider"></li>
                                         <li>
-                                            <a href="javascript:;" data-target="#export-order-modal" onclick="showExportModal(<?= $order->id ?>)">
+                                            <a href="javascript:;" onclick="showExportModal(<?= $order->id ?>)">
                                                 <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
                                             </a>
                                         </li>

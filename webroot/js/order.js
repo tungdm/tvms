@@ -476,3 +476,16 @@ function search() {
         }
     })
 }
+
+function showExportModal2(orderId, studentId, serial, passed) {
+    var source = $("#export-template2").html();
+    var template = Handlebars.compile(source);
+    var html = template({
+        'orderId': orderId,
+        'studentId': studentId,
+        'serial': serial,
+        'passed': passed
+    });
+    $('#export-container2').html(html);
+    $('#export-order-modal2').modal('toggle');
+}

@@ -800,18 +800,17 @@ class OrdersController extends AppController
         $gender = Configure::read('gender');
         $genderJP = Configure::read('genderJP');
         $output_file_name = $dispatchLetterConfig['filename'];
-        $order = $this->Orders->get($id, [
-            'contain' => [
-                'Jobs',
-                'Companies',
-                'Companies.Guilds',
-                'Students' => function($q) {
-                    return $q->where(['result' => '1']);
-                }
-            ]
-        ]);
-
         try {
+            $order = $this->Orders->get($id, [
+                'contain' => [
+                    'Jobs',
+                    'Companies',
+                    'Companies.Guilds',
+                    'Students' => function($q) {
+                        return $q->where(['result' => '1']);
+                    }
+                ]
+            ]);
             $template = WWW_ROOT . 'document' . DS . $dispatchLetterConfig['template'];
             $missingFields = [];
             $guildJP = $this->checkData($order->company->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');

@@ -126,13 +126,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         <ul class="zoom-menu">
             <?php if ($action === 'edit'): ?>
                 <?php if ($student->status > 1): ?>
-                <li data-toggle="tooltip" title="Xuất hồ sơ">
-                    <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
-                    data-toggle="modal" 
-                    data-target="#export-student-modal">
-                        <i class="fa fa-book" aria-hidden="true"></i>
-                    </a>
-                </li>
                 <li>
                     <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
                         ['action' => 'view', $student->id],
@@ -3162,87 +3155,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" id="submit-document-btn">Hoàn tất</button>
                 <button type="button" class="btn btn-default" id="close-document-modal-btn" data-dismiss="modal">Đóng</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="export-student-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12 col-xs-12 table-responsive">
-                    <table class="table table-bordered custom-table">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
-                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
-                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
-                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cell"><?= __('1') ?></td>
-                                <td class="cell"><?= __('Sơ yếu lý lịch') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportResume', $student->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('2') ?></td>
-                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Nhật)') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'jp']],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('3') ?></td>
-                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Việt)') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'vn']],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('4') ?></td>
-                                <td class="cell"><?= __('1.10') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportEduPlan', $student->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('5') ?></td>
-                                <td class="cell"><?= __('1.13') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportCompanyCommitment', $student->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>

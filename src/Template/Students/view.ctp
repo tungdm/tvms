@@ -72,13 +72,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
-            <li data-toggle="tooltip" title="Xuất báo cáo">
-                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
-                   data-toggle="modal" 
-                   data-target="#export-student-modal">
-                    <i class="fa fa-book" aria-hidden="true"></i>
-                </a>
-            </li>
             <?php if ($permission == 0): ?>
             <li>
                 <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
@@ -1475,87 +1468,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="export-student-modal" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12 col-xs-12 table-responsive">
-                    <table class="table table-bordered custom-table">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
-                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
-                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
-                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cell"><?= __('1') ?></td>
-                                <td class="cell"><?= __('Sơ yếu lý lịch') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportResume', $student->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('2') ?></td>
-                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Nhật)') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'jp']],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('3') ?></td>
-                                <td class="cell"><?= __('Hợp đồng lao động (tiếng Việt)') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportContract', $student->id, '?' => ['lang' => 'vn']],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('4') ?></td>
-                                <td class="cell"><?= __('1.10') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportEduPlan', $student->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cell"><?= __('5') ?></td>
-                                <td class="cell"><?= __('1.13') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-                                <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
-                                        ['action' => 'exportCompanyCommitment', $student->id],
-                                        ['escape' => false]) ?>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
                 <div class="clearfix"></div>
             </div>

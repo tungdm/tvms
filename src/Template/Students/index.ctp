@@ -282,14 +282,6 @@ $this->assign('title', 'Quản lý Lao động');
                                                 ]) ?>
                                             </li>
                                         <?php endif; ?>
-                                        <?php if ($student->status != '1'): ?>
-                                            <li class="divider"></li>
-                                            <li>
-                                                <a href="javascript:;" onclick="showExportModal(<?= $student->id ?>)">
-                                                    <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
-                                                </a>
-                                            </li>
-                                        <?php endif; ?>
                                     </ul>
                                 </div>
                             </td>

@@ -900,6 +900,7 @@ class StudentsController extends AppController
 
     public function exportResume($id = null)
     {
+        $orderId = $this->request->getQuery('order');
         // Load config
         $resumeConfig = Configure::read('resume');
         $country = Configure::read('country');
@@ -907,6 +908,7 @@ class StudentsController extends AppController
         $eduLevel = Configure::read('eduLevel');
         $folderImgTemplate = Configure::read('folderImgTemplate');
         $language = Configure::read('language');
+        $vnDateFormatFull = Configure::read('vnDateFormatFull');
 
         try {
             $student = $this->Students->get($id, [
@@ -923,7 +925,9 @@ class StudentsController extends AppController
                     'LanguageAbilities'
                     ]
                 ]);
-    
+            $order = $this->Students->Orders->get($orderId);
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+
             $template = WWW_ROOT . 'document' . DS . $resumeConfig['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
             
@@ -980,10 +984,20 @@ class StudentsController extends AppController
             if (empty(str_replace(" ", "", $enlevel_JP))) {
                 $enlang = $folderImgTemplate . DS . 'blank.png';
             }
-            
-            $this->tbs->VarRef['y'] = $now->year;
-            $this->tbs->VarRef['m'] = $now->month;
-            $this->tbs->VarRef['d'] = $now->day;
+            $createdDayJP = '';
+            $createdDayVN = '';
+
+            if (!empty($order->application_date)) {
+                $createdDayJP = $order->application_date->i18nFormat('yyyy年M月d日');
+                $createdDayVN = Text::insert($vnDateFormatFull, [
+                    'day' => str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT), 
+                    'month' => str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT), 
+                    'year' => $order->application_date->year, 
+                    ]);
+            }
+            $this->tbs->VarRef['created_jp'] = $createdDayJP;
+            $this->tbs->VarRef['created_vn'] = $createdDayVN;
+
             $this->tbs->VarRef['studentname_en'] = $studentName_EN;
             $this->tbs->VarRef['studentname_vn'] = $studentName_VN;
     
@@ -1104,7 +1118,7 @@ class StudentsController extends AppController
                         'escape' => false,
                         'params' => ['showButtons' => true]
                     ]);
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
             }
     
             $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
@@ -1112,9 +1126,8 @@ class StudentsController extends AppController
         } catch (Exception $e) {
             Log::write('debug', $e);
             $this->Flash->error($this->errorMessage['error']);
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
         }
-        
     }
 
     public function exportContract($id = null)
@@ -1125,6 +1138,7 @@ class StudentsController extends AppController
         $vnDateFormatShort = Configure::read('vnDateFormatShort');
         // load template
         $lang = $this->request->getQuery('lang');
+        $orderId = $this->request->getQuery('order');
         $filenameLang = 'filename_' . $lang;
         try {
             $template = WWW_ROOT . 'document' . DS . 'contract_'. $lang .'.docx';
@@ -1147,25 +1161,35 @@ class StudentsController extends AppController
                     'Addresses.Wards',
                 ]
             ]);
+
+            $order = $this->Students->Orders->get($orderId, [
+                'contain' => [
+                    'Jobs',
+                    'Companies',
+                    'Companies.Guilds'
+                ]
+            ]);
+
             $now = Time::now();
             $birthday = $student->birthday;
             $cmnd = $this->checkData($student->cards[0], 'Giấy chứng minh nhân dân');
 
             $mergeAddress = $this->mergeAddress($student->addresses[0]);
 
-            $job = $student->orders ? $student->orders[0]->job : '';
+            $job = $order->job;
 
-            $guild = $student->orders ? $student->orders[0]->company->guild : '';
+            $guild = $order->company->guild;
 
-            $company = $student->orders ? $student->orders[0]->company : '';
+            $company = $order->company;
 
-            $subsidy = $student->orders ? Number::format($student->orders[0]->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
+            $subsidy = $order->company->guild->subsidy ? Number::format($order->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
             $this->checkData($subsidy, 'Tiền trợ cấp thực tập sinh của nghiệp đoàn');
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
             
             $cmnd_from_date = '';
             $signingDate = '';
             if ($lang == 'jp') {
-                $createdDay = $now->i18nFormat('yyyy年M月d日');
+                $createdDay = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') : '';
                 $birthday = $birthday->i18nFormat('yyyy年M月d日');
                 if (!empty($cmnd) && !empty($cmnd->from_date)) {
                     $cmnd_from_date = $cmnd->from_date->i18nFormat('yyyy年M月d日');
@@ -1187,11 +1211,16 @@ class StudentsController extends AppController
                 $company = $company ? $company->name_kanji : '';
                 $this->checkData($company, 'Tên phiên âm công ty tiếp nhận');
             } else {
-                $createdDay = Text::insert($vnDateFormatFull, [
-                    'day' => date('d'), 
-                    'month' => date('m'), 
-                    'year' => date('Y'), 
-                    ]);
+                if (empty($order->application_date)) {
+                    $createdDay = '';
+                } else {
+                    $createdDay = Text::insert($vnDateFormatFull, [
+                        'day' => str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT), 
+                        'month' => str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT), 
+                        'year' => $order->application_date->year, 
+                        ]);
+                }
+                
                 if (!empty($cmnd) && !empty($cmnd->from_date)) {
                     $cmnd_from_date = $cmnd->from_date->i18nFormat('dd/MM/yyyy');
                 }
@@ -1252,7 +1281,7 @@ class StudentsController extends AppController
                         'escape' => false,
                         'params' => ['showButtons' => true]
                     ]);
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
             }
 
             $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
@@ -1260,7 +1289,7 @@ class StudentsController extends AppController
         } catch (Exception $e) {
             Log::write('debug', $e);
             $this->Flash->error($this->errorMessage['error']);
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
         }
     }
 
@@ -1269,7 +1298,7 @@ class StudentsController extends AppController
         // load config
         $eduPlanConfig = Configure::read('eduPlan');
         $jpKingYearName = Configure::read('jpKingYearName');
-
+        $orderId = $this->request->getQuery('order');
         try {
             $template = WWW_ROOT . 'document' . DS . $eduPlanConfig['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
@@ -1282,21 +1311,27 @@ class StudentsController extends AppController
                     'Orders.Companies.Guilds',
                 ]
             ]);
+            $order = $this->Students->Orders->get($orderId, [
+                'contain' => [
+                    'Companies',
+                    'Companies.Guilds'
+                ]
+            ]);
             $output_file_name = $eduPlanConfig['filename'];
             $studentName_VN = mb_strtoupper($student->fullname);
             $studentName_EN = $this->Util->convertV2E($studentName_VN);
-            $now = Time::now();
 
-            $company_name_kanji = $student->orders ? $student->orders[0]->company->name_kanji : '';
+            $company_name_kanji = $order->company->name_kanji;
             $this->checkData($company_name_kanji, 'Tên phiên âm công ty tiếp nhận');
             $this->tbs->VarRef['company'] = $company_name_kanji;
 
-            $guild_name_kanji = $student->orders ? $student->orders[0]->company->guild->name_kanji : '';
+            $guild_name_kanji = $order->company->guild->name_kanji;
             $this->checkData($guild_name_kanji, 'Tên phiên âm nghiệp đoàn quản lý');
             $this->tbs->VarRef['guild'] = $guild_name_kanji;
 
             $this->tbs->VarRef['fullname'] = $studentName_EN;
-            $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. $jpKingYearName;
+            $this->tbs->VarRef['created'] = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') .'　'. $jpKingYearName : '';
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
 
             if (!empty($this->missingFields)) {
                 $this->Flash->error(Text::insert($this->errorMessage['export'], [
@@ -1306,7 +1341,7 @@ class StudentsController extends AppController
                         'escape' => false,
                         'params' => ['showButtons' => true]
                     ]);
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
             }
 
             $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
@@ -1314,12 +1349,15 @@ class StudentsController extends AppController
         } catch (Exception $e) {
             Log::write('debug', $e);
             $this->Flash->error($this->errorMessage['error']);
-            return $this->redirect(['action' => 'index']);
+            return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
         }
     }
 
     public function exportCompanyCommitment($id = null)
     {
+        $orderId = $this->request->getQuery('order');
+        $order = $this->Students->Orders->get($orderId);
+
         // load config
         $commitmentConfig = Configure::read('commitment');
         $jpKingYearName = Configure::read('jpKingYearName');
@@ -1328,7 +1366,19 @@ class StudentsController extends AppController
         $now = Time::now();
         $template = WWW_ROOT . 'document' . DS . $commitmentConfig['template'];
         $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
-        $this->tbs->VarRef['created'] = $now->i18nFormat('yyyy年MM月dd日') .'　'. $jpKingYearName;
+        $this->tbs->VarRef['created'] = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') .'　'. $jpKingYearName : '';
+        $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+        if (!empty($this->missingFields)) {
+            $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                'fields' => $this->missingFields,
+                ]), 
+                [
+                    'escape' => false,
+                    'params' => ['showButtons' => true]
+                ]);
+            return $this->redirect(['controller' => 'Orders', 'action' => 'index']);
+        }
+
         $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
         exit;
     }

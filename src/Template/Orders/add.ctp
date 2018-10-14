@@ -581,17 +581,10 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                         ]) ?>
                                 </td>
                                 <td class="actions cell">
-                                    <?= $this->Html->link('<i class="fa fa-2x fa-book"></i>',
-                                        [
-                                            'controller' => 'Orders', 
-                                            'action' => 'exportCv',
-                                            '?' => [
-                                                'orderId' => $order->id,
-                                                'studentId' => $value->id,
-                                                'serial' => $key+1,
-                                            ]
-                                        ],
-                                        ['escape' => false])?>
+                                    <a href="javascript:;" 
+                                        onclick="showExportModal2(<?=$order->id?>, <?=$value->id?>, <?=$key+1?>, <?= $value->_joinData->result == '1' ? 'true' : 'false' ?>)">
+                                        <i class="fa fa-2x fa-book" aria-hidden="true"></i>
+                                    </a>
                                     <?= $this->Html->link(
                                         '<i class="fa fa-2x fa-pencil"></i>', 
                                         'javascript:;',
@@ -803,6 +796,36 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 </td>
                             </tr>
                         </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="export-order-modal2" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">DANH SÁCH HỒ SƠ</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12 table-responsive">
+                    <table class="table table-bordered custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-5"><?= __('Tên tài liệu') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Loại tài liệu') ?></th>
+                                <th scope="col" class="actions col-md-3"><?= __('Thao tác') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody id="export-container2"></tbody>
                     </table>
                 </div>
                 <div class="clearfix"></div>
@@ -1026,4 +1049,57 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
             <input name="candidate-{{row}}" type="checkbox" id="cdd-{{id}}" class="js-switch">
         </td>
     </tr>
+</script>
+
+<script id="export-template2" type="text/x-handlebars-template">
+    <tr>
+        <td class="cell text-center"><?= __('1') ?></td>
+        <td class="cell"><?= __('CV') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/orders/export-cv?orderId={{orderId}}&studentId={{studentId}}&serial={{serial}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    {{#if passed}}
+    <tr>
+        <td class="cell text-center"><?= __('2') ?></td>
+        <td class="cell"><?= __('Sơ yếu lý lịch') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/students/export-resume/{{studentId}}?order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('3') ?></td>
+        <td class="cell"><?= __('Hợp đồng lao động (tiếng Nhật)') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/students/export-contract/{{studentId}}?lang=jp&order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('4') ?></td>
+        <td class="cell"><?= __('Hợp đồng lao động (tiếng Việt)') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/students/export-contract/{{studentId}}?lang=vn&order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('5') ?></td>
+        <td class="cell"><?= __('1.10') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/students/export-edu-plan/{{studentId}}?order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('6') ?></td>
+        <td class="cell"><?= __('1.13') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/students/export-company-commitment/{{studentId}}?order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    {{/if}}
 </script>
