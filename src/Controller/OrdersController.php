@@ -155,6 +155,7 @@ class OrdersController extends AppController
         $order = $this->Orders->get($id, [
             'contain' => [
                 'Companies', 
+                'DisCompanies',
                 'Companies.Guilds',
                 'Jobs', 
                 'Students',

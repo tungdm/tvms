@@ -153,7 +153,7 @@ if ($order->status == "4" || $order->status == "5") {
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company_id"><?= __('Nghiệp đoàn quản lý') ?>: </label>
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild_id"><?= __('Nghiệp đoàn quản lý') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <a href="javascript:;" onclick="viewGuild(<?= $order->company->guild->id ?>)"><?= h($order->company->guild->name_romaji) ?></a>
@@ -165,6 +165,18 @@ if ($order->status == "4" || $order->status == "5") {
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
                                 <a href="javascript:;" onclick="viewCompany(<?= $order->company->id ?>)"><?= h($order->company->name_romaji) ?></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="dis_company_id"><?= __('Công ty phái cử') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?php if (!empty($order->dis_company)): ?>
+                                    <a href="javascript:;" onclick="globalViewDispatchingCompany(<?= $order->dis_company->id ?>)"><?= h($order->dis_company->name_romaji) ?></a>
+                                <?php else: ?>
+                                    N/A
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
