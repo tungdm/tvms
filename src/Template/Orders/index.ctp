@@ -341,49 +341,49 @@ $this->assign('title', 'Quản lý đơn hàng');
 
 <script id="export-template" type="text/x-handlebars-template">
     <tr>
-        <td class="cell"><?= __('1') ?></td>
+        <td class="cell text-center"><?= __('1') ?></td>
         <td class="cell"><?= __('Thư phái cử') ?></td>
-        <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="./orders/export-dispatch-letter/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
-        <td class="cell"><?= __('2') ?></td>
+        <td class="cell text-center"><?= __('2') ?></td>
         <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
-        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+        <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
         <td class="actions cell">
             <a href="./orders/export-dispatch-letter-xlsx/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
-        <td class="cell"><?= __('3') ?></td>
+        <td class="cell text-center"><?= __('3') ?></td>
         <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
-        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+        <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
         <td class="actions cell">
             <a href="./orders/export-candidates/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
-        <td class="cell"><?= __('4') ?></td>
+        <td class="cell text-center"><?= __('4') ?></td>
         <td class="cell"><?= __('Bìa hồ sơ phỏng vấn') ?></td>
-        <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="./orders/export-cover/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
-        <td class="cell"><?= __('5') ?></td>
+        <td class="cell text-center"><?= __('5') ?></td>
         <td class="cell"><?= __('1.28') ?></td>
-        <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="./orders/export-certificate/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     <tr>
-        <td class="cell"><?= __('6') ?></td>
+        <td class="cell text-center"><?= __('6') ?></td>
         <td class="cell"><?= __('Điểm kiểm tra IQ') ?></td>
-        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+        <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
         <td class="actions cell">
             <a href="./orders/export-iq-test/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>

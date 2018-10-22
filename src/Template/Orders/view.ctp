@@ -417,9 +417,9 @@ if ($order->status == "4" || $order->status == "5") {
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="cell"><?= __('1') ?></td>
+                                <td class="cell text-center"><?= __('1') ?></td>
                                 <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
-                                <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
                                         ['action' => 'exportDispatchLetter', $order->id],
@@ -427,9 +427,9 @@ if ($order->status == "4" || $order->status == "5") {
                                 </td>
                             </tr>
                             <tr>
-                                <td class="cell"><?= __('2') ?></td>
+                                <td class="cell text-center"><?= __('2') ?></td>
                                 <td class="cell"><?= __('Mẫu đề nghị cấp thư phái cử') ?></td>
-                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
                                         ['action' => 'exportDispatchLetterXlsx', $order->id],
@@ -437,9 +437,9 @@ if ($order->status == "4" || $order->status == "5") {
                                 </td>
                             </tr>
                             <tr>
-                                <td class="cell"><?= __('3') ?></td>
+                                <td class="cell text-center"><?= __('3') ?></td>
                                 <td class="cell"><?= __('Danh sách ứng viên phỏng vấn') ?></td>
-                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
                                         ['action' => 'exportCandidates', $order->id],
@@ -447,12 +447,32 @@ if ($order->status == "4" || $order->status == "5") {
                                 </td>
                             </tr>
                             <tr>
-                                <td class="cell"><?= __('4') ?></td>
+                                <td class="cell text-center"><?= __('4') ?></td>
                                 <td class="cell"><?= __('Bìa hồ sơ phỏng vấn') ?></td>
-                                <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
                                         ['action' => 'exportCover', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell text-center"><?= __('5') ?></td>
+                                <td class="cell"><?= __('1.28') ?></td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportCertificate', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell text-center"><?= __('6') ?></td>
+                                <td class="cell"><?= __('Điểm kiểm tra IQ') ?></td>
+                                <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportIqTest', $order->id],
                                         ['escape' => false]) ?>
                                 </td>
                             </tr>
