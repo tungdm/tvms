@@ -832,6 +832,9 @@ function createEduHisTemplate(counter) {
         'todateTxt': $('#edu-to-date').val(),
         'todateVal': moment($('#edu-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
 
+        'graduate': 'educations[' + counter + '][graduate]',
+        'graduateVal': $('#edu-graduate').val(),
+
         'degree': 'educations[' + counter + '][degree]',
         'degreeText': $('#modal-edu-level option:selected').html(),
         
@@ -873,6 +876,7 @@ function showEditEduHisModal(ele) {
 
     $('#modal-edu-level').val($(ele).closest('.row-edu-his').find('.degree').val()).trigger('change');
     $('#edu-school').val($(ele).closest('.row-edu-his').find('.school').val());
+    $('#edu-graduate').val($(ele).closest('.row-edu-his').find('.graduate').val()).trigger('change');
     $('#edu-address').val($(ele).closest('.row-edu-his').find('.address').val());
     $('#edu-specialized').val($(ele).closest('.row-edu-his').find('.specialized').val());
     $('#edu-specialized-jp').val($(ele).closest('.row-edu-his').find('.specialized_jp').val());

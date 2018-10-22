@@ -1447,6 +1447,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                         'label' => false,
                                                         'class' => 'form-control to_date',
                                                         ])?>
+                                                    <?= $this->Form->control('educations.' . $key . '.graduate', [
+                                                        'type' => 'text',
+                                                        'label' => false,
+                                                        'class' => 'form-control graduate',
+                                                        ])?>
                                                 </div>
                                             </td>
                                             <td class="cell col-md-2">
@@ -2481,6 +2486,18 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="graduate"><?= __('Tốt nghiệp') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('edu.graduate', [
+                                'options' => $yesNoQuestion, 
+                                'empty' => true, 
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                'value' => 'Y'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="certificate"><?= __('Ngày nhận bằng') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group date input-picker month-mode" id="edu-certificate-div">
@@ -2573,6 +2590,12 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     'label' => false,
                     'class' => 'form-control to_date',
                     'value' => '{{todateVal}}'
+                    ])?>
+                <?= $this->Form->control('{{graduate}}', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control graduate',
+                    'value' => '{{graduateVal}}'
                     ])?>
             </div>
         </td>

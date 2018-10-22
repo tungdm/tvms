@@ -1297,6 +1297,305 @@ class OrdersController extends AppController
         exit;
     }
 
+    public function exportIqTest($id)
+    {
+        // load config
+        $iqTestConfig = Configure::read('iqTestXlsx');
+        try {
+            // get data
+            $order = $this->Orders->get($id, [
+                'contain' => [
+                    'Jobs',
+                    'Companies',
+                    'Companies.Guilds',
+                    'Students',
+                    'Students.IqTests',
+                ]
+            ]);
+            
+            // init worksheet
+            $spreadsheet = $this->ExportFile->setXlsxProperties();
+            $spreadsheet->setActiveSheetIndex(0);
+            $spreadsheet->getActiveSheet()->getSheetView()->setZoomScale(50);
+            $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
+            $spreadsheet->getDefaultStyle()->getFont()->setSize(20);
+            $spreadsheet->getActiveSheet()->setShowGridLines(false);
+            $spreadsheet->getActiveSheet()->getPageSetup()
+                ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
+            $spreadsheet->getActiveSheet()->getPageSetup()
+                ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+            $spreadsheet->getActiveSheet()->getDefaultRowDimension()->setRowHeight(60);
+            
+            $spreadsheet->getActiveSheet()
+                ->mergeCells('A1:AC2')->setCellValue('A1', '技能実習生候補者名簿')
+                ->mergeCells('A3:AC3')->setCellValue('A3', '監理団体：' . $order->company->guild->name_kanji)
+                ->mergeCells('A4:AC4')->setCellValue('A4', '受入企業：' . $order->company->name_kanji)
+                ->mergeCells('A5:AC5')->setCellValue('A5', '受入職種：' . $order->job->job_name_jp);
+
+            $spreadsheet->getActiveSheet()->getStyle('A1:A1')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 72,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A3:A5')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 36,
+                ],
+                'alignment' => [
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ]
+            ]);
+            $spreadsheet->getActiveSheet()->getRowDimension('6')->setRowHeight(18);
+
+            // set header
+            $spreadsheet->getActiveSheet()
+                ->mergeCells('A7:A8')->setCellValue('A7', 'No.')
+                ->mergeCells('B7:B8')->setCellValue('B7', '氏名')
+                ->mergeCells('C7:C8')->setCellValue('C7', '年齢')
+                ->mergeCells('D7:O7')->setCellValue('D7', 'クレペリン検査　  もんだい　１')
+                ->mergeCells('Q7:AB7')->setCellValue('Q7', 'クレペリン検査　　もんだい　２')
+                ->mergeCells('AC7:AC8')->setCellValue('AC7', '合計');
+            
+            $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(4);
+            $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(36);
+            $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(10);
+            $spreadsheet->getActiveSheet()->getRowDimension('7')->setRowHeight(60);
+            $spreadsheet->getActiveSheet()->getRowDimension('8')->setRowHeight(60);
+
+            $spreadsheet->getActiveSheet()->fromArray(
+                ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', NULL, '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+                NULL,
+                'D8'
+            );
+
+            $counter = 8;
+            $now = Time::now();
+            $listCandidates = [];
+            foreach ($order->students as $key => $student) {
+                $noCell = $key + 1;
+                $counter++;
+                $fullname = $student->fullname;
+                $fullname_kata = $this->checkDataConcate($student->fullname_kata, 'Tên phiên âm');
+                $studentName_VN = mb_strtoupper($fullname);
+                $studentName_EN = $this->Util->convertV2E($studentName_VN);
+    
+                $nameCell = $fullname_kata . "\n" . $studentName_EN;
+                $ageCell = ($now->diff($student->birthday))->y;
+                $data = [
+                    $noCell,
+                    $nameCell,
+                    $ageCell,
+                    $student->iq_tests[0]->q1 ?? NULL,
+                    $student->iq_tests[0]->q2 ?? NULL,
+                    $student->iq_tests[0]->q3 ?? NULL,
+                    $student->iq_tests[0]->q4 ?? NULL,
+                    $student->iq_tests[0]->q5 ?? NULL,
+                    $student->iq_tests[0]->q6 ?? NULL,
+                    $student->iq_tests[0]->q7 ?? NULL,
+                    $student->iq_tests[0]->q8 ?? NULL,
+                    $student->iq_tests[0]->q9 ?? NULL,
+                    $student->iq_tests[0]->q10 ?? NULL,
+                    $student->iq_tests[0]->q11 ?? NULL,
+                    $student->iq_tests[0]->q12 ?? NULL,
+                    NULL,
+                    $student->iq_tests[0]->q13 ?? NULL,
+                    $student->iq_tests[0]->q14 ?? NULL,
+                    $student->iq_tests[0]->q15 ?? NULL,
+                    $student->iq_tests[0]->q16 ?? NULL,
+                    $student->iq_tests[0]->q17 ?? NULL,
+                    $student->iq_tests[0]->q18 ?? NULL,
+                    $student->iq_tests[0]->q19 ?? NULL,
+                    $student->iq_tests[0]->q20 ?? NULL,
+                    $student->iq_tests[0]->q21 ?? NULL,
+                    $student->iq_tests[0]->q22 ?? NULL,
+                    $student->iq_tests[0]->q23 ?? NULL,
+                    $student->iq_tests[0]->q24 ?? NULL,
+                    $student->iq_tests[0]->total ?? NULL,
+                ];
+                array_push($listCandidates, $data);
+            }
+            // debug($counter);
+            // exit;
+            \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
+
+            for ($i=9; $i <= $counter; $i++) { 
+                if ($i % 2 == 0) {
+                    $spreadsheet->getActiveSheet()->getStyle('A'.$i.':O'.$i)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Style\Fill::FILL_SOLID,
+                            'color' => [
+                                'rgb' => 'daeef3'
+                            ]
+                        ]
+                    ]);
+                    $spreadsheet->getActiveSheet()->getStyle('Q'.$i.':AC'.$i)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Style\Fill::FILL_SOLID,
+                            'color' => [
+                                'rgb' => 'daeef3'
+                            ]
+                        ]
+                    ]);
+                }
+            }
+            // fill data to table
+            $spreadsheet->getActiveSheet()->fromArray($listCandidates, NULL, 'A9');
+            $spreadsheet->getActiveSheet()->mergeCells('P7:P'.$counter);
+            $spreadsheet->getActiveSheet()->getStyle('A7:AC'.$counter)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Style\Border::BORDER_THIN,
+                    ]
+                ]
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A7:AC'.$counter)->applyFromArray([
+                'borders' => [
+                    'outline' => [
+                        'borderStyle' => Style\Border::BORDER_MEDIUM,
+                    ]
+                ]
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A7:AC8')->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+                
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A7:O8')->applyFromArray([
+                'fill' => [
+                    'fillType' => Style\Fill::FILL_SOLID,
+                    'color' => [
+                        'rgb' => 'daeef3'
+                    ]
+                ]
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('Q7:AC8')->applyFromArray([
+                'fill' => [
+                    'fillType' => Style\Fill::FILL_SOLID,
+                    'color' => [
+                        'rgb' => 'daeef3'
+                    ]
+                ]
+            ]);
+
+            $spreadsheet->getActiveSheet()->getStyle('C8:AC'.$counter)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            $spreadsheet->getActiveSheet()->getStyle('A7:A'.$counter)->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->freezePane('A9');
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true, 'width' => 600]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+            // export XLSX file for download
+            $this->ExportFile->export($spreadsheet, $iqTestConfig['filename']);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
+    public function exportCertificate($id)
+    {
+        $orderCertificateConfig = Configure::read('orderCertificate');
+        $output_file_name = $orderCertificateConfig['filename'];
+        $genderJP = Configure::read('genderJP');
+
+        try {
+            $order = $this->Orders->get($id, [
+                'contain' => [
+                    'Jobs',
+                    'DisCompanies',
+                    'Students' => function($q) {
+                        return $q->where(['result' => '1']);
+                    }
+                ]
+            ]);
+            // debug($order);
+            // exit;
+            $template = WWW_ROOT . 'document' . DS . $orderCertificateConfig['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+            $firstStudentName = $order->students[0]->fullname;
+
+            $disCompany = $this->checkData($order->dis_company, 'Công ty phái cử');
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+            $createdDayJP = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') : '';
+
+            $this->tbs->VarRef['firstSName_VN'] = mb_strtoupper($firstStudentName);
+            $this->tbs->VarRef['firstSName_EN'] = $this->Util->convertV2E($firstStudentName);
+            $this->tbs->VarRef['remain'] = count($order->students) - 1;
+            $this->tbs->VarRef['disCompany'] = mb_strtoupper($order->dis_company ? $order->dis_company->name_romaji : '');
+            $this->tbs->VarRef['job'] = $order->job->job_name_jp;
+            $this->tbs->VarRef['created'] = $createdDayJP;
+
+            $deputy = '';
+            if (!empty($order->dis_company)) {
+                $deputy = $this->checkData($order->dis_company->deputy_name_romaji, 'Tên người đại diện công ty phái cử');
+                $deputy = $this->Util->convertV2E($deputy);
+            }
+            $this->tbs->VarRef['deputy_EN'] = $deputy;
+
+            $listStudents = [];
+            foreach ($order->students as $key => $student) {
+                $studentName_VN = mb_strtoupper($student->fullname);
+                $studentName_EN = $this->Util->convertV2E($studentName_VN);
+
+                $student = [
+                    'no' => $key + 1,
+                    'fullname' => $studentName_EN,
+                    'birthday' => $student->birthday->i18nFormat('yyyy年M月d日'),
+                    'gender' => $genderJP[$student->gender],
+                ];
+                array_push($listStudents, $student);
+            }
+            $this->tbs->MergeBlock('a', $listStudents);
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
     public function checkData($data, $field) 
     {
         if (empty($data)) {

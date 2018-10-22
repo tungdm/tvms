@@ -153,7 +153,7 @@ class JtestsController extends AppController
         $jtest = $this->Jtests->get($id, [
             'contain' => [
                 'Jclasses', 
-                'Students', 
+                'Students',
                 'JtestContents' => ['sort' => ['skill' => 'ASC']], 
                 'JtestContents.Users',
                 'CreatedByUsers',

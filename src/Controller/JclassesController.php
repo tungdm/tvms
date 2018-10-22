@@ -104,7 +104,12 @@ class JclassesController extends AppController
         }
         
         $this->paginate = [
-            'contain' => ['Users', 'Students'],
+            'contain' => [
+                'Users', 
+                'Students' => function($q) {
+                    return $q->where(['status <' => '4']);
+                }
+            ],
             'limit' => $query['records']
         ];
         $jclasses = $this->paginate($allClasses);
@@ -139,7 +144,9 @@ class JclassesController extends AppController
     {
         $jclass = $this->Jclasses->get($id, [
             'contain' => [
-                'Students', 
+                'Students' => function($q) {
+                    return $q->where(['status <' => '4']);
+                },
                 'Students.Addresses' => function($q) {
                     return $q->where(['Addresses.type' => '1']);
                 },
@@ -672,7 +679,9 @@ class JclassesController extends AppController
     public function exportReport() {
         $allClasses = $this->Jclasses->find()->contain([
             'Users',
-            'Students'
+            'Students' => function($q) {
+                return $q->where(['status <' => '4']);
+            },
         ]);
 
         // load config

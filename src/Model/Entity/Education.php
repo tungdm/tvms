@@ -37,6 +37,7 @@ class Education extends Entity
         'student_id' => true,
         'from_date' => true,
         'to_date' => true,
+        'graduate' => true,
         'certificate' => true,
         'degree' => true,
         'school' => true,

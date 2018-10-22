@@ -774,6 +774,10 @@ return [
     'dispatchLetterXlsx' => [
         'filename' => 'Mẫu đề nghị cấp thư phái cử.xlsx'
     ],
+    'orderCertificate' => [
+        'filename' => '1.28.docx',
+        'template' => 'certificate.docx'
+    ],
     'cvTemplate' => [
         'filename' => ':firstName-CV.docx',
         'template' => 'cv.docx',
@@ -860,6 +864,9 @@ return [
         'classTitle' => 'DANH SÁCH LỚP HỌC',
         'testTitle' => "KẾT QUẢ KIỂM TRA NĂNG LỰC NHẬT NGỮ LỚP :class\nNGÀY THI :testDate\nBÀI THI: :testLessons",
         'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+    ],
+    'iqTestXlsx' => [
+        'filename' => 'iq_test.xlsx',
     ],
 
     'vnDateFormatFull' => 'ngày :day tháng :month năm :year',

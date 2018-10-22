@@ -367,9 +367,25 @@ $this->assign('title', 'Quản lý đơn hàng');
     <tr>
         <td class="cell"><?= __('4') ?></td>
         <td class="cell"><?= __('Bìa hồ sơ phỏng vấn') ?></td>
-        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Word</td>
+        <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="./orders/export-cover/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell"><?= __('5') ?></td>
+        <td class="cell"><?= __('1.28') ?></td>
+        <td class="cell"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="./orders/export-certificate/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell"><?= __('6') ?></td>
+        <td class="cell"><?= __('Điểm kiểm tra IQ') ?></td>
+        <td class="cell"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
+        <td class="actions cell">
+            <a href="./orders/export-iq-test/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
 </script>

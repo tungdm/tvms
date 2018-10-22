@@ -942,7 +942,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         </thead>
                                         <tbody id="edu-container">
                                             <?php if (!empty($student->educations)): ?>
-                                            <?php $counter = 0 ?>
+                                            <?php $counter = 0; ?>
                                             <?php foreach ($student->educations as $key => $value): ?>
                                             <tr class="row-edu-his" id="row-edu-his-<?=$counter?>">
                                                 <td class="cell col-md-1 stt-col text-center">
@@ -965,6 +965,8 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                     <?= $value->specialized_jp ?>
                                                 </td>
                                             </tr>
+                                            <?php $counter++; ?>
+
                                             <?php endforeach; ?> 
                                             <?php endif; ?>
                                         </tbody>
