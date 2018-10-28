@@ -459,7 +459,9 @@ class JclassesController extends AppController
     {
         $jclass = $this->Jclasses->get($id, [
             'contain' => [
-                'Students', 
+                'Students' => function($q) {
+                    return $q->where(['status <' => '4']);
+                },
                 'Students.Addresses' => function($q) {
                     return $q->where(['Addresses.type' => '1']);
                 },

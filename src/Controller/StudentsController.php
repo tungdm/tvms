@@ -925,7 +925,7 @@ class StudentsController extends AppController
                     'LanguageAbilities'
                     ]
                 ]);
-            $order = $this->Students->Orders->get($orderId);
+            $order = $this->Students->Orders->get($orderId, ['contain' => 'Jobs']);
             $this->checkData($order->application_date, 'Ngày làm hồ sơ');
 
             $template = WWW_ROOT . 'document' . DS . $resumeConfig['template'];
@@ -1025,6 +1025,9 @@ class StudentsController extends AppController
     
             $this->tbs->VarRef['currentaddress_en'] = $mergedAdd['en'];
             $this->tbs->VarRef['currentaddress_vn'] = $mergedAdd['vn'];
+
+            $this->tbs->VarRef['job_jp'] = $order->job->job_name_jp;
+            $this->tbs->VarRef['job_vn'] = $order->job->job_name;
     
             $livedJapan_y = $livedJapan_n = $folderImgTemplate . DS . 'circle.png';
             if ($student->is_lived_in_japan === 'Y') {
@@ -1061,9 +1064,11 @@ class StudentsController extends AppController
                 array_push($eduHis, $history);
             } else {
                 foreach ($student->educations as $key => $value) {
+                    $fromDate = new Time($value->from_date);
+                    $toDate = new Time($value->to_date);
                     $history = [
                         'title' => 'Quá trình học tập',
-                        'time' => $this->Util->replaceDash($value->from_date) . ' ～ ' . $this->Util->replaceDash($value->to_date),
+                        'time' => $fromDate->year . '/' . $fromDate->month . ' ～ ' . $toDate->year . '/' . $toDate->month, 
                         'school' => Text::insert($schoolTemplate, [
                             'schoolNameEN' => $this->Util->convertV2E($value->school),
                             'eduLevelJP' => $eduLevel[$value->degree]['jp'],
@@ -1073,8 +1078,7 @@ class StudentsController extends AppController
                     ];
                     array_push($eduHis, $history);
                 }
-            }
-            
+            }            
             $this->tbs->MergeBlock('a', $eduHis);
             
             $expHis = [];
@@ -1100,10 +1104,11 @@ class StudentsController extends AppController
                     $companyStr .= $value->company . "\n";
                 }
                 $companyStr .= !empty($value->job->job_name) ? "(" . $value->job->job_name . ")" : "";
-    
+                $fromDate = new Time($value->from_date);
+                $toDate = new Time($value->to_date);
                 $history = [
                     'title' => 'Quá trình công tác',
-                    'time' => $this->Util->replaceDash($value->from_date) . ' ～ ' . $this->Util->replaceDash($value->to_date),
+                    'time' => $fromDate->year . '/' . $fromDate->month . ' ～ ' . $toDate->year . '/' . $toDate->month,
                     'company' => $companyStr
             ];
                 array_push($expHis, $history);
@@ -1353,9 +1358,8 @@ class StudentsController extends AppController
         }
     }
 
-    public function exportCompanyCommitment($id = null)
+    public function exportCompanyCommitment($orderId = null)
     {
-        $orderId = $this->request->getQuery('order');
         $order = $this->Students->Orders->get($orderId);
 
         // load config
@@ -1753,11 +1757,21 @@ class StudentsController extends AppController
 
         $currentDistrict = $address->district->name;
         $districtType = $address->district->type;
-        $currentDistrictEN = $this->Util->convertV2E(str_replace($districtType, "", $currentDistrict) . " " . $addressLevel[$districtType]['en']);
-        
+        $currentDistrictTrim = trim(str_replace($districtType, "", $currentDistrict));
+        if (is_numeric($currentDistrictTrim)) {
+            $currentDistrictEN = $this->Util->convertV2E($addressLevel[$districtType]['en'] . " " . $currentDistrictTrim);
+        } else {
+            $currentDistrictEN = $this->Util->convertV2E($currentDistrictTrim . " " . $addressLevel[$districtType]['en']);
+        }
+
         $currentWard = $address->ward->name;
         $wardType = $address->ward->type;
-        $currentWardEN = $this->Util->convertV2E(str_replace($wardType, "", $currentWard) . " " . $addressLevel[$wardType]['en']);
+        $currentWardTrim = trim(str_replace($wardType, "", $currentWard));
+        if (is_numeric($currentWardTrim)) {
+            $currentWardEN = $this->Util->convertV2E($addressLevel[$wardType]['en'] . " " . $currentWardTrim);
+        } else {
+            $currentWardEN = $this->Util->convertV2E($currentWardTrim . " " . $addressLevel[$wardType]['en']);
+        }
 
         $mergeAdd = [
             'vn' => Text::insert($currentAddressTemplate, [

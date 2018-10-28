@@ -374,6 +374,14 @@ $this->assign('title', 'Quản lý đơn hàng');
     </tr>
     <tr>
         <td class="cell text-center"><?= __('5') ?></td>
+        <td class="cell"><?= __('1.13') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="./students/export-company-commitment/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('6') ?></td>
         <td class="cell"><?= __('1.28') ?></td>
         <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
@@ -381,7 +389,7 @@ $this->assign('title', 'Quản lý đơn hàng');
         </td>
     </tr>
     <tr>
-        <td class="cell text-center"><?= __('6') ?></td>
+        <td class="cell text-center"><?= __('7') ?></td>
         <td class="cell"><?= __('Điểm kiểm tra IQ') ?></td>
         <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
         <td class="actions cell">

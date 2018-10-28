@@ -301,6 +301,24 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="appointment_date"><?= __('Ngày viết CV') ?></label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <div class="input-group date input-picker" id="appointment-date-div">
+                                            <?= $this->Form->control('appointment_date', [
+                                                'type' => 'text',
+                                                'label' => false,
+                                                'class' => 'form-control',
+                                                'placeholder' => 'dd-mm-yyyy',
+                                                'data-parsley-errors-container' => '#error-appointment-date'
+                                            ])?>
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                                        </div>
+                                        <span id="error-appointment-date"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="enrolled_date"><?= __('Ngày nhập học') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
                                         <div class="input-group date input-picker" id="enrolled-date">

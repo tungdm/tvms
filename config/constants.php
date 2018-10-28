@@ -136,19 +136,19 @@ return [
     'eduLevel' => [
         '1' => [
             'vn' => 'Tiểu học',
-            'jp' => '小学'
+            'jp' => '小学校'
         ],
         '2' => [
             'vn' => 'Trung học cơ sở',
-            'jp' => '中学'
+            'jp' => '中学校'
         ],
         '3' => [
             'vn' => 'Trung học phổ thông',
-            'jp' => '高等学'
+            'jp' => '高等学校'
         ],
         '4' => [
             'vn' => 'Trung cấp',
-            'jp' => '専門学'
+            'jp' => '専門学校'
         ],
         '5' => [
             'vn' => 'Cao đẳng',
@@ -756,8 +756,8 @@ return [
         'template' => 'resume.docx'
     ],
     'contract' => [
-        'filename_jp' => ':firstName 日本での契約書（日本語).docx',
-        'filename_vn' => ':firstName 日本での契約書（ベトナム語).docx',
+        'filename_jp' => '1. :firstName 日本での契約書（日本語).docx',
+        'filename_vn' => '2. :firstName 日本での契約書（ベトナム語).docx',
     ],
     'eduPlan' => [
         'filename' => '1.10.docx',

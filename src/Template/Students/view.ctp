@@ -186,6 +186,14 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="appointment_date"><?= __('Ngày viết CV') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= $student->appointment_date ?? 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="enrolled_date"><?= __('Ngày nhập học') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">

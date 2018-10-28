@@ -579,7 +579,7 @@ class OrdersController extends AppController
                         'year' => $fromDate->year . " ～ " . $toDate->year,
                         'month' => $fromDate->month . " ～ " . $toDate->month,
                         'schoolName' => $schoolName,
-                        'schoolJP' => $eduLevel[$value->degree]['jp'] . "校卒業" . $specialized,
+                        'schoolJP' => $eduLevel[$value->degree]['jp'] . "卒業" . $specialized,
                     ];
                     array_push($eduHis, $history);
 
@@ -1470,6 +1470,9 @@ class OrdersController extends AppController
                 
             ]);
             $spreadsheet->getActiveSheet()->getStyle('A7:O8')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
                 'fill' => [
                     'fillType' => Style\Fill::FILL_SOLID,
                     'color' => [
@@ -1478,6 +1481,9 @@ class OrdersController extends AppController
                 ]
             ]);
             $spreadsheet->getActiveSheet()->getStyle('Q7:AC8')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
                 'fill' => [
                     'fillType' => Style\Fill::FILL_SOLID,
                     'color' => [
@@ -1490,6 +1496,11 @@ class OrdersController extends AppController
                 'alignment' => [
                     'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
                     'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('AC7:AC'.$counter)->applyFromArray([
+                'font' => [
+                    'bold' => true,
                 ],
             ]);
 

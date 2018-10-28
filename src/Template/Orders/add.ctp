@@ -797,6 +797,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             </tr>
                             <tr>
                                 <td class="cell text-center"><?= __('5') ?></td>
+                                <td class="cell"><?= __('1.13') ?></td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['controller' => 'Students', 'action' => 'exportCompanyCommitment', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell text-center"><?= __('6') ?></td>
                                 <td class="cell"><?= __('1.28') ?></td>
                                 <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
                                 <td class="actions cell">
@@ -806,7 +816,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 </td>
                             </tr>
                             <tr>
-                                <td class="cell text-center"><?= __('6') ?></td>
+                                <td class="cell text-center"><?= __('7') ?></td>
                                 <td class="cell"><?= __('Điểm kiểm tra IQ') ?></td>
                                 <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
                                 <td class="actions cell">
@@ -1111,14 +1121,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="/students/export-edu-plan/{{studentId}}?order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
-        </td>
-    </tr>
-    <tr>
-        <td class="cell text-center"><?= __('6') ?></td>
-        <td class="cell"><?= __('1.13') ?></td>
-        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
-        <td class="actions cell">
-            <a href="/students/export-company-commitment/{{studentId}}?order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     {{/if}}
