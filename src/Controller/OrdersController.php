@@ -590,7 +590,7 @@ class OrdersController extends AppController
                         $data = [
                             'year' => $certificateDate->year,
                             'month' => $certificateDate->month,
-                            'certificate' => $eduLevel[$value->degree]['jp'] . "校卒業証明書"
+                            'certificate' => $eduLevel[$value->degree]['jp'] . "卒業証明書"
                         ];
                         array_push($certificate, $data);
                     }
@@ -706,7 +706,7 @@ class OrdersController extends AppController
             $this->tbs->VarRef['strength'] = $this->checkData($student->strength, 'Điểm mạnh');
             $this->tbs->VarRef['purpose'] = $this->checkData($student->purpose, 'Mục đích xuất khẩu lao động');
             $this->tbs->VarRef['genitive'] = $this->checkData($student->genitive, 'Tính cách');
-            $this->tbs->VarRef['salary'] = $this->checkData($student->salary, 'Thu nhập hiện tại');
+            $this->tbs->VarRef['salary'] = $student->salary ?? 0;
             $this->tbs->VarRef['saving'] = $this->checkData($student->saving_expected, 'Số tiền mong muốn');
             $this->tbs->VarRef['maritalStatus'] = $maritalStatus[$student->marital_status]['jp'];
             $this->tbs->VarRef['after_plan'] = $this->checkData($student->after_plan, 'Dự định sau khi về nước');
