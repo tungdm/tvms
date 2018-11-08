@@ -749,7 +749,7 @@ return [
     'studentCodeTemplate' => 'LD-:date-:counter',
     'blackListTemplate' => 'Blacklist user :username, for :error',
     'currentAddressTemplate' => ':ward, :district, :city',
-    'schoolTemplate' => ":schoolNameEN:eduLevelJP校卒業\nTốt nghiệp trường :eduLevelVN :schoolNameVN",
+    'schoolTemplate' => ":schoolNameEN:eduLevelJP卒業\nTốt nghiệp trường :eduLevelVN :schoolNameVN",
     'folderImgTemplate' =>  ROOT . DS . 'webroot' . DS . 'img' . DS . 'templates',
     'resume' => [
         'filename' => '履歴書-:firstName.docx',

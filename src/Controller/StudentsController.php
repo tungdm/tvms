@@ -1020,8 +1020,13 @@ class StudentsController extends AppController
             $this->tbs->VarRef['bd_y'] = $student->birthday->year;
             $this->tbs->VarRef['bd_m'] = $student->birthday->month;
             $this->tbs->VarRef['bd_d'] = $student->birthday->day;
+            $this->tbs->VarRef['bd_vn'] = ucfirst(Text::insert($vnDateFormatFull, [
+                'day' => str_pad($student->birthday->day, 2, '0', STR_PAD_LEFT), 
+                'month' => str_pad($student->birthday->month, 2, '0', STR_PAD_LEFT), 
+                'year' => $student->birthday->year,
+                ]));
     
-            $this->tbs->VarRef['age'] = ($now->diff($student->birthday))->y;
+            $this->tbs->VarRef['age'] = $order->application_date ? ($order->application_date->diff($student->birthday))->y : '';
     
             $this->tbs->VarRef['currentaddress_en'] = $mergedAdd['en'];
             $this->tbs->VarRef['currentaddress_vn'] = $mergedAdd['vn'];
