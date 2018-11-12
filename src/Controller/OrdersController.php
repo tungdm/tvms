@@ -714,8 +714,8 @@ class OrdersController extends AppController
             $this->tbs->VarRef['leh'] = $this->checkData($student->left_eye_sight_hospital, 'Thị lực mắt trái đo tại bệnh viện');
             $this->tbs->VarRef['re'] = $this->checkData($student->right_eye_sight, 'Thị lực mắt phải');
             $this->tbs->VarRef['le'] = $this->checkData($student->left_eye_sight, 'Thị lực mắt trái');
-            $this->tbs->VarRef['height'] = $student->height;
-            $this->tbs->VarRef['weight'] = $student->weight;
+            $this->tbs->VarRef['height'] = $this->checkData($student->height, 'Chiều cao');
+            $this->tbs->VarRef['weight'] = $this->checkData($student->weight, 'Cân nặng');
 
             $preferred_hand = $this->checkData($student->preferred_hand, 'Tay thuận');
             $this->tbs->VarRef['preferred_hand'] = $preferred_hand  == "1" ? "右" : "左";
