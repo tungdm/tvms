@@ -5,12 +5,12 @@ perData.preAddCounter = 0;
 
 var editor = new Simditor({
     textarea: $('.edittextarea'),
-    toolbar: ['title', 'bold', 'italic', 'underline', 'color', '|',  'alignment', 'ol', 'ul', '|', 'table', 'link', 'image']
+    toolbar: ['title', 'bold', 'italic', 'underline', 'color', '|', 'alignment', 'ol', 'ul', '|', 'table', 'link', 'image']
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     // init selected data
-    $('.student-id').each(function() {
+    $('.student-id').each(function () {
         perData.selected.push(parseInt($(this).find('input').val()));
     });
 
@@ -21,7 +21,7 @@ $(document).ready(function() {
         }
     });
 
-    $('#modal-class').change(function() {
+    $('#modal-class').change(function () {
         var classId = this.value;
         if (!this.value) {
             return;
@@ -38,14 +38,14 @@ $(document).ready(function() {
             data: {
                 id: classId,
             },
-            success: function(resp) {
+            success: function (resp) {
                 if (resp.info == "test") {
                     testing = true;
                 } else {
                     testing = false;
                 }
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('#change-class-modal-overlay').addClass('hidden');
             }
@@ -55,7 +55,7 @@ $(document).ready(function() {
 
 function search() {
     var filter = $('#studentname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-    $('#pre-add-student-container').find('.row-pre').each(function() {
+    $('#pre-add-student-container').find('.row-pre').each(function () {
         var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         var gender = $(this).find('.gender-txt').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         var cityName = $(this).find('.city-name').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
@@ -82,19 +82,19 @@ function showAddStudentModal() {
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/jclasses/recommendStudent',
-        success: function(resp) {
+        success: function (resp) {
             $('#pre-add-student-container').empty();
-            
+
             var students = resp.students;
             var removeIndexes = [];
 
-            $.each(students, function(index, value) {
+            $.each(students, function (index, value) {
                 if (perData.selected.indexOf(value.id) >= 0) {
                     removeIndexes.push(index);
                 }
             });
             // remove duplicate candidate
-            for (let index = removeIndexes.length-1; index >= 0; index--) {
+            for (let index = removeIndexes.length - 1; index >= 0; index--) {
                 students.splice(removeIndexes[index], 1);
             }
 
@@ -104,7 +104,7 @@ function showAddStudentModal() {
                 var template = Handlebars.compile(source);
                 var html = template(students);
                 $('#pre-add-student-container').html(html);
-    
+
                 // init switchery
                 var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
                 elems.forEach(function (html) {
@@ -115,8 +115,8 @@ function showAddStudentModal() {
             }
             // show modal
             $('#add-student-modal').modal('toggle');
-        }, 
-        complete: function() {
+        },
+        complete: function () {
             ajaxing = false;
             $('#list-student-class-overlay').addClass('hidden');
         }
@@ -150,7 +150,7 @@ function preAddStudent() {
         data: {
             id: studentId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp) {
                 var source = $("#pre-add-student-template").html();
                 var template = Handlebars.compile(source);
@@ -173,7 +173,7 @@ function preAddStudent() {
                 perData.preAddCounter++;
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#add-student-modal-overlay').addClass('hidden');
         }
@@ -226,7 +226,7 @@ function showHistoryModal(studentId) {
             id: studentId,
             type: 'education'
         },
-        success: function(resp) {
+        success: function (resp) {
             // reset form
             if (resp.status == 'success') {
                 // update counter
@@ -241,8 +241,8 @@ function showHistoryModal(studentId) {
 
                 $('#add-history').remove();
                 $('#refresh-history').remove();
-                $('<a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal('+studentId+', \'education\', \'jclasses\', '+classId+')" id="add-history"><i class="fa fa-plus"></i></a>').insertBefore('#close-history');
-                $('<a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories('+studentId+', \'education\', \'list-history-overlay\', \'jclasses\')" id="refresh-history"><i class="fa fa-refresh"></i></a>').insertBefore('#close-history');
+                $('<a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal(' + studentId + ', \'education\', \'jclasses\', ' + classId + ')" id="add-history"><i class="fa fa-plus"></i></a>').insertBefore('#close-history');
+                $('<a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(' + studentId + ', \'education\', \'list-history-overlay\', \'jclasses\')" id="refresh-history"><i class="fa fa-refresh"></i></a>').insertBefore('#close-history');
 
                 // show modal
                 $('#all-histories-modal').modal('toggle');
@@ -259,12 +259,12 @@ function showHistoryModal(studentId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#list-student-class-overlay').addClass('hidden');
         }
@@ -272,7 +272,7 @@ function showHistoryModal(studentId) {
 }
 
 function editStudent(rowId) {
-    $('#row-student-'+rowId).find('.note').val($('#modal-note').val());
+    $('#row-student-' + rowId).find('.note').val($('#modal-note').val());
     $('#edit-student-modal').modal('toggle');
 }
 
@@ -287,28 +287,43 @@ function showChangeClassModal(ele) {
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/jclasses/checkTest/' + classId,
-        success: function(resp) {
+        success: function (resp) {
             if (resp) {
                 swal({
                     title: 'Cảnh báo!',
-                    text: "Lớp học sắp có cuộc thi năng lực tiếng Nhật. Bạn không thể thực hiện việc chuyển lớp vào lúc này.",
+                    text: "Lớp học sắp có cuộc thi năng lực tiếng Nhật. Bạn có chắc chắn muốn tiếp tục chuyển lớp?",
                     type: 'warning',
-                    confirmButtonColor: '#3085d6',
-                    confirmButtonText: 'Ok'
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#222d32',
+                    cancelButtonText: 'Đóng',
+                    confirmButtonText: 'Tiếp tục'
+                }).then((result) => {
+                    if (result.value) {
+                        // reset form
+                        $('#modal-class').val(null).trigger('change');
+
+                        var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
+                        var rowId = rowIdArr[rowIdArr.length - 1];
+                        $('#change-class-btn').remove();
+                        $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass(' + rowId + ')">Hoàn tất</button>').insertBefore('#close-change-class-modal-btn');
+
+                        $('#change-class-modal').modal('toggle');
+                    }
                 });
             } else {
                 // reset form
                 $('#modal-class').val(null).trigger('change');
 
                 var rowIdArr = $(ele).closest('.row-std').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
                 $('#change-class-btn').remove();
-                $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass('+rowId+')">Hoàn tất</button>').insertBefore('#close-change-class-modal-btn');
+                $('<button type="button" class="btn btn-success" id="change-class-btn" onclick="changeClass(' + rowId + ')">Hoàn tất</button>').insertBefore('#close-change-class-modal-btn');
 
                 $('#change-class-modal').modal('toggle');
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
         }
     });
@@ -319,10 +334,17 @@ function changeClass(rowId) {
         if (testing) {
             swal({
                 title: 'Cảnh báo!',
-                text: "Lớp " + $('#modal-class option:selected').html() + " sắp có cuộc thi năng lực tiếng Nhật. Bạn không thể thực hiện việc chuyển lớp vào lúc này.",
+                text: "Lớp " + $('#modal-class option:selected').html() + " sắp có cuộc thi năng lực tiếng Nhật. Bạn có chắc chắn muốn tiếp tục chuyển lớp?",
                 type: 'warning',
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'Ok'
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#222d32',
+                cancelButtonText: 'Đóng',
+                confirmButtonText: 'Tiếp tục'
+            }).then((result) => {
+                if (result.value) {
+                    execChangeClass(rowId);
+                }
             });
         } else {
             execChangeClass(rowId);
@@ -342,16 +364,18 @@ function execChangeClass(rowId) {
         type: 'POST',
         url: DOMAIN_NAME + '/jclasses/changeClass',
         data: {
-            'id': $('#class-student-'+rowId+'-id').find('input').val(),
-            'class': $('#modal-class').val()
+            'jclass_student_id': $('#class-student-' + rowId + '-id').find('input').val(), // jclass_student id
+            'student_id': $('#student-' + rowId + '-id').find('input').val(), // student id
+            'current_class': classId, // current class id
+            'new_class': $('#modal-class').val() // new class id
         },
-        success: function(resp){
+        success: function (resp) {
             if (resp.status == 'success') {
                 var delEl = $('#row-student-' + rowId);
                 deleteRow(delEl, rowId);
-                
+
                 $('#change-class-modal').modal('toggle');
-                
+
                 swal({
                     title: resp.alert.title,
                     text: resp.alert.message,
@@ -359,7 +383,7 @@ function execChangeClass(rowId) {
                 })
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#change-class-modal-overlay').addClass('hidden');
         }
@@ -380,15 +404,15 @@ function deleteStudent(delEl, sendAjax) {
         }).then((result) => {
             if (result.value) {
                 var rowIdArr = $(delEl).closest('.row-std').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
 
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/jclasses/deleteStudent',
                     data: {
-                        'id': $('#class-student-'+rowId+'-id').find('input').val(),
+                        'id': $('#class-student-' + rowId + '-id').find('input').val(),
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -412,9 +436,9 @@ function deleteRow(delEl, hiddenId) {
 
     if (hiddenId != null) {
         // case: remove record exists in database
-        var delId = parseInt($('#student-'+hiddenId+'-id').find('input').val());
-        $('#student-'+hiddenId+'-id').remove();
-        $('#class-student-'+hiddenId+'-id').remove();
+        var delId = parseInt($('#student-' + hiddenId + '-id').find('input').val());
+        $('#student-' + hiddenId + '-id').remove();
+        $('#class-student-' + hiddenId + '-id').remove();
     } else {
         var delId = parseInt($(delEl).closest('tr.row-std').find('.id').val());
     }
@@ -441,11 +465,11 @@ function deleteRow(delEl, hiddenId) {
             if (i < idField.length) {
                 continue;
             }
-            var classArr = inputField[i-idField.length].className.split(' ');
-            inputField[i-idField.length].name = 'students[' + i + '][' + classArr[classArr.length-1] + ']';
+            var classArr = inputField[i - idField.length].className.split(' ');
+            inputField[i - idField.length].name = 'students[' + i + '][' + classArr[classArr.length - 1] + ']';
         }
 
         classArr = textField[i].className.split(' ');
-        textField[i].name = 'students[' + i + '][_joinData][' + classArr[classArr.length-1] + ']';
+        textField[i].name = 'students[' + i + '][_joinData][' + classArr[classArr.length - 1] + ']';
     }
 }

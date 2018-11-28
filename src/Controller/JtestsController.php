@@ -221,7 +221,11 @@ class JtestsController extends AppController
                 // get current lesson
                 $currentLesson = TableRegistry::get('Jclasses')->get($query['id'])->current_lesson;
                 $stdClassTable = TableRegistry::get('JclassesStudents');
-                $allStudents = $stdClassTable->find()->contain(['Students'])->where(['jclass_id' => $query['id']])->select(['student_id'])->toArray();
+                $allStudents = $stdClassTable->find()
+                    ->contain(['Students' => function($q) {
+                        return $q->where(['status <' => '4']);
+                    }])
+                    ->where(['jclass_id' => $query['id']])->select(['student_id'])->toArray();
                 $arr1 = [];
                 foreach ($allStudents as $key => $value) {
                     array_push($arr1, $value->student_id);
@@ -281,7 +285,7 @@ class JtestsController extends AppController
                 $result = $this->Jtests->JtestsStudents->deleteAll(['jtest_id' => $jtest->id]);
             }
             if ($currentTestDate !== $newTestDate) {
-                // uppdate system event
+                // update system event
                 $event = $this->SystemEvent->update($jtest->events[0]->id, $data['test_date']);
             }
             $data['events'][0] = $event;

@@ -173,7 +173,6 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'label' => false, 
                                 'data-parsley-errors-container' => '#error-lesson-from',
                                 'data-parsley-class-handler' => '#select2-lesson-from',
-                                'data-parsley-max-message' => '',
                                 'class' => 'form-control col-md-7 col-xs-12 select2-theme select-lesson-from'
                                 ]) ?>
                             <span id="error-lesson-from"></span>
@@ -187,9 +186,6 @@ $this->Html->script('jtest.js', ['block' => 'scriptBottom']);
                                 'label' => false, 
                                 'data-parsley-errors-container' => '#error-lesson-to',
                                 'data-parsley-class-handler' => '#select2-lesson-to',
-                                'data-parsley-max-message' => '',
-                                'data-parsley-min-message' => '',
-                                'data-parsley-range-message' => 'Xin hãy chọn bài thi nằm trong khoảng bài đã chọn đến bài đang học',
                                 'class' => 'form-control col-md-7 col-xs-12 select2-theme select-lesson-to'
                                 ]) ?>
                             <span id="error-lesson-to"></span>

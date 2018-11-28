@@ -61,8 +61,7 @@ class JtestsStudentsTable extends Table
     {
         $validator
             ->integer('id')
-            ->requirePresence('id', 'create')
-            ->notEmpty('id');
+            ->allowEmpty('id', 'create');
 
         $validator
             ->integer('vocabulary_score')

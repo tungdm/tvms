@@ -11,7 +11,7 @@ $skillTest = [];
 $teachers = [];
 $avg = [];
 $avgTotal = 0;
-$totalStudent = count($jtest->students);
+$totalStudent = count($jtest->students) == 0 ? 1 : count($jtest->students);
 
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;

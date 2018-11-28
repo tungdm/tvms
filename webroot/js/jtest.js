@@ -2,16 +2,16 @@ var perData = {};
 perData.skillSelected = [];
 
 // init handlebars
-if ($('#skill-template')[0]){
+if ($('#skill-template')[0]) {
     var skillTemplate = Handlebars.compile($("#skill-template").html());
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     // init selected skill
-    $('.skill-id').each(function() {
+    $('.skill-id').each(function () {
         var rowIdArr = $(this).attr('id').split('-');
-        var rowId = rowIdArr[rowIdArr.length-1];
-        perData.skillSelected.push(parseInt($('#row-skill-'+rowId).find('.skill').val()));
+        var rowId = rowIdArr[rowIdArr.length - 1];
+        perData.skillSelected.push(parseInt($('#row-skill-' + rowId).find('.skill').val()));
     });
 
     $('.submit-test-btn').click(function () {
@@ -36,36 +36,36 @@ $(document).ready(function() {
         }
     });
 
-    $('.select-lesson-from').change(function() {
-        var lessonTo = parseInt($('.select-lesson-to').val());
-        var lessonFrom = parseInt($(this).val());
-        if (lessonTo !=0 || lessonFrom < lessonTo) {
-        $('.select-lesson-to').attr('min', $(this).val());
-            var optionTxt = $('.select-lesson-to option').map(function(e) { 
-                if ($(this).val() == lessonFrom) {
-                    return $(this).html(); 
-                } 
-            });
-            $('.select-lesson-to').attr('data-parsley-min-message', 'Xin hãy chọn bài thi sau ' + optionTxt[0]);
-        }
-    });
+    // $('.select-lesson-from').change(function () {
+    //     var lessonTo = parseInt($('.select-lesson-to').val());
+    //     var lessonFrom = parseInt($(this).val());
+    //     if (lessonTo != 0 || lessonFrom < lessonTo) {
+    //         $('.select-lesson-to').attr('min', $(this).val());
+    //         var optionTxt = $('.select-lesson-to option').map(function (e) {
+    //             if ($(this).val() == lessonFrom) {
+    //                 return $(this).html();
+    //             }
+    //         });
+    //         $('.select-lesson-to').attr('data-parsley-min-message', 'Xin hãy chọn bài thi sau ' + optionTxt[0]);
+    //     }
+    // });
 
-    $('.select-lesson-to').change(function() {
-        var lessonFrom = parseInt($('.select-lesson-from').val());
-        var fromMax = parseInt($('.select-lesson-from').attr('max'));
-        var lessonTo = parseInt($(this).val());
-        if (lessonFrom < lessonTo && lessonTo < fromMax ) {
-            $('.select-lesson-from').attr('max', lessonTo);
-            var optionTxt = $('.select-lesson-from option').map(function(e) { 
-                if ($(this).val() == lessonTo) {
-                    return $(this).html(); 
-                } 
-            });
-            $('.select-lesson-from').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
-        }
-    });
+    // $('.select-lesson-to').change(function () {
+    //     var lessonFrom = parseInt($('.select-lesson-from').val());
+    //     var fromMax = parseInt($('.select-lesson-from').attr('max'));
+    //     var lessonTo = parseInt($(this).val());
+    //     if (lessonFrom < lessonTo && lessonTo < fromMax) {
+    //         $('.select-lesson-from').attr('max', lessonTo);
+    //         var optionTxt = $('.select-lesson-from option').map(function (e) {
+    //             if ($(this).val() == lessonTo) {
+    //                 return $(this).html();
+    //             }
+    //         });
+    //         $('.select-lesson-from').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
+    //     }
+    // });
 
-    $('#jclass-id').change(function() {
+    $('#jclass-id').change(function () {
         var classId = this.value;
         if (ajaxing) {
             // still requesting
@@ -73,7 +73,7 @@ $(document).ready(function() {
         }
         ajaxing = true;
         $('#add-test-overlay').removeClass('hidden');
-        
+
         $.ajax({
             type: 'GET',
             url: DOMAIN_NAME + '/jtests/getStudents',
@@ -81,16 +81,16 @@ $(document).ready(function() {
                 id: classId,
                 testId: $('input[name="id"]').val()
             },
-            success: function(resp) {
+            success: function (resp) {
                 if (resp === undefined || resp.length == 0) {
                     return;
                 }
 
-                // clear id field
+                // clear jtest_students_id fields
                 $('#student-test-container').html('');
 
                 if (resp.status === "unchanged") {
-                    // init id when the attendeces unchanged
+                    // init id when the attendences unchanged
                     var source = $("#student-test-template").html();
                     var template = Handlebars.compile(source);
                     var html = template(resp.ids);
@@ -105,39 +105,39 @@ $(document).ready(function() {
                 $('#student-container').html(html);
 
                 // remove all attribute
-                $('.select-lesson-to').removeAttr('max');
-                $('.select-lesson-to').removeAttr('min');
-                $('.select-lesson-from').removeAttr('max');
-                $('.select-lesson-from').removeAttr('min');
+                // $('.select-lesson-to').removeAttr('max');
+                // $('.select-lesson-to').removeAttr('min');
+                // $('.select-lesson-from').removeAttr('max');
+                // $('.select-lesson-from').removeAttr('min');
 
                 // set max lesson for testing
-                $('.select-lesson-to').attr('max', resp.currentLesson);
+                // $('.select-lesson-to').attr('max', resp.currentLesson);
 
-                var max = $('.select-lesson-to').val();
-                if ($('.select-lesson-to').val() == "" || $('.select-lesson-to').val() > resp.currentLesson) {
-                    $('.select-lesson-from').attr('max', resp.currentLesson);
-                    max = resp.currentLesson;
-                } else {
-                    $('.select-lesson-from').attr('max', $('.select-lesson-to').val());
-                }
+                // var max = $('.select-lesson-to').val();
+                // if ($('.select-lesson-to').val() == "" || $('.select-lesson-to').val() > resp.currentLesson) {
+                //     $('.select-lesson-from').attr('max', resp.currentLesson);
+                //     max = resp.currentLesson;
+                // } else {
+                //     $('.select-lesson-from').attr('max', $('.select-lesson-to').val());
+                // }
 
-                var optionTxt = $('.select-lesson-to option').map(function(e) { 
-                    if (parseInt($(this).val()) == max) {
-                        return $(this).html(); 
-                    } 
-                });
-                $('.select-lesson-to').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
-                $('.select-lesson-from').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
+                // var optionTxt = $('.select-lesson-to option').map(function (e) {
+                //     if (parseInt($(this).val()) == max) {
+                //         return $(this).html();
+                //     }
+                // });
+                // $('.select-lesson-to').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
+                // $('.select-lesson-from').attr('data-parsley-max-message', 'Xin hãy chọn bài thi trước ' + optionTxt[0]);
 
-                if ($('.select-lesson-from').val()) {
-                    $('.select-lesson-from').parsley().validate();
-                }
+                // if ($('.select-lesson-from').val()) {
+                //     $('.select-lesson-from').parsley().validate();
+                // }
 
-                if ($('.select-lesson-to').val()) {
-                    $('.select-lesson-to').parsley().validate();
-                }
+                // if ($('.select-lesson-to').val()) {
+                //     $('.select-lesson-to').parsley().validate();
+                // }
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('#add-test-overlay').addClass('hidden');
             }
@@ -162,11 +162,11 @@ function showEditSkillModal(ele) {
     $('#modal-teacher').val($(ele).closest('.row-skill').find('.teacher').val()).trigger('change');
 
     var rowIdArr = $(ele).closest('.row-skill').attr('id').split('-');
-    var rowId = rowIdArr[rowIdArr.length-1];
+    var rowId = rowIdArr[rowIdArr.length - 1];
     var initSkill = $('#modal-skill').val();
 
     $('#add-skill-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-skill-btn" onclick="editSkill('+rowId+', '+initSkill+')">Hoàn tất</button>').insertBefore('#close-add-skill-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-skill-btn" onclick="editSkill(' + rowId + ', ' + initSkill + ')">Hoàn tất</button>').insertBefore('#close-add-skill-modal-btn');
 
     $('#add-skill-modal').modal('toggle');
 }
@@ -196,8 +196,8 @@ function addSkill() {
         $('#skill-container').append(skill_html);
 
         // set value for select box
-        $('select[name="jtest_contents['+perData.skillSelected.length+'][skill]"]').val($('#modal-skill').val());
-        $('select[name="jtest_contents['+perData.skillSelected.length+'][user_id]"]').val($('#modal-teacher').val());
+        $('select[name="jtest_contents[' + perData.skillSelected.length + '][skill]"]').val($('#modal-skill').val());
+        $('select[name="jtest_contents[' + perData.skillSelected.length + '][user_id]"]').val($('#modal-teacher').val());
 
         $('#add-skill-modal').modal('toggle');
         perData.skillSelected.push(parseInt($('#modal-skill').val()));
@@ -222,11 +222,11 @@ function editSkill(rowId, initSkill) {
         perData.skillSelected[orgIndex] = skillId;
 
         // change text
-        $('#row-skill-'+rowId).find('.skill-name').html($('#modal-skill option:selected').html());
-        $('#row-skill-'+rowId).find('.teacher-name').html($('#modal-teacher option:selected').html());
+        $('#row-skill-' + rowId).find('.skill-name').html($('#modal-skill option:selected').html());
+        $('#row-skill-' + rowId).find('.teacher-name').html($('#modal-teacher option:selected').html());
         // set value for select box
-        $('select[name="jtest_contents['+rowId+'][skill]"]').val($('#modal-skill').val());
-        $('select[name="jtest_contents['+rowId+'][user_id]"]').val($('#modal-teacher').val());
+        $('select[name="jtest_contents[' + rowId + '][skill]"]').val($('#modal-skill').val());
+        $('select[name="jtest_contents[' + rowId + '][user_id]"]').val($('#modal-teacher').val());
 
         // close modal
         $('#add-skill-modal').modal('toggle');
@@ -247,15 +247,15 @@ function deleteSkill(delEl, sendAjax) {
         }).then((result) => {
             if (result.value) {
                 var rowIdArr = $(delEl).closest('.row-skill').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
 
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/jtests/deleteSkill',
                     data: {
-                        'id': $('#skill-id-'+rowId).find('input').val(),
+                        'id': $('#skill-id-' + rowId).find('input').val(),
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -279,8 +279,8 @@ function deleteRow(delEl, hiddenId) {
 
     if (hiddenId != null) {
         // case: remove record exists in database
-        $('#skill-id-'+hiddenId).remove();
-    } 
+        $('#skill-id-' + hiddenId).remove();
+    }
     var skillId = parseInt($(delEl).closest('.row-skill').find('.skill').val());
     // remove in selected array
     perData.skillSelected.splice(perData.skillSelected.indexOf(skillId), 1);
@@ -302,11 +302,11 @@ function deleteRow(delEl, hiddenId) {
         }
 
         classArr = selectField[i].className.split(' ');
-        selectField[i].name = 'jtest_contents[' + Math.floor(i/2) + '][' + classArr[classArr.length-1] + ']';
+        selectField[i].name = 'jtest_contents[' + Math.floor(i / 2) + '][' + classArr[classArr.length - 1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
         classArr = selectField[i].className.split(' ');
-        selectField[i].name = 'jtest_contents[' + Math.floor(i/2) + '][' + classArr[classArr.length-1] + ']';
+        selectField[i].name = 'jtest_contents[' + Math.floor(i / 2) + '][' + classArr[classArr.length - 1] + ']';
     }
 }

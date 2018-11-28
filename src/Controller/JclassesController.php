@@ -581,7 +581,7 @@ class JclassesController extends AppController
         $now = Time::now()->i18nFormat('yyyy-MM-dd');
         if (!empty($jclass->jtests)) {
             foreach ($jclass->jtests as $key => $value) {
-                if ($now <= $value->test_date) {
+                if ($now <= $value->test_date->i18nFormat('yyyy-MM-dd')) {
                     $haveTest = true;
                     break;
                 }
@@ -592,8 +592,10 @@ class JclassesController extends AppController
 
     public function changeClass() {
         $this->request->allowMethod('ajax');
-        $recordId = $this->request->getData('id');
-        $newClassId = $this->request->getData('class'); 
+        $studentId = $this->request->getData('student_id'); // student id
+        $recordId = $this->request->getData('jclass_student_id'); // jclass student id
+        $currentClassId = $this->request->getData('current_class'); // current class id
+        $newClassId = $this->request->getData('new_class');  // new class id
 
         $resp = [
             'status' => 'error',
@@ -605,14 +607,53 @@ class JclassesController extends AppController
         ];
 
         try {
-            $classTable = TableRegistry::get('Jclasses');
-            $jclass = $classTable->get($newClassId);
+            $jclassesStudentsTable = TableRegistry::get('JclassesStudents');
+            $jtestsStudentsTable = TableRegistry::get('JtestsStudents');
 
-            $table = TableRegistry::get('JclassesStudents');
-            $record = $table->find()->where(['JclassesStudents.id' => $recordId])->contain(['Students'])->first();
+            // delete jtest_student record of student if current class has jp test from now on
+            $now = Time::now()->i18nFormat('yyyy-MM-dd');
+            $currentClass = $this->Jclasses->get($currentClassId, [
+                'contain' => [
+                    'Jtests' => function ($q) use ($now) {
+                        return $q->where(['test_date >=' => $now]);
+                    }
+                ]
+            ]);
+            // Log::write('debug', $currentClass);
+            if (!empty($currentClass->jtests)) {
+                foreach ($currentClass->jtests as $key => $value) {
+                    $result = $jtestsStudentsTable->deleteAll(['jtest_id' => $value->id, 'student_id' => $studentId]);
+                    Log::write('debug', 'jtest_id:' . $value->id . ', student_id:' . $studentId . ', result:' . $result);
+                }
+            }
+
+            // save new jtest_student record of student if new class has jp test from now on
+            $jclass = $this->Jclasses->get($newClassId, [
+                'contain' => [
+                    'Jtests' => function ($q) use ($now) {
+                        return $q->where(['test_date >=' => $now]);
+                    }
+                ]
+            ]);
+            // Log::write('debug', $jclass);
+            if (!empty($jclass->jtests)) {
+                $newRecords = [];
+                foreach ($jclass->jtests as $key => $value) {
+                    array_push($newRecords, [
+                        'student_id' => $studentId,
+                        'jtest_id' => $value->id,
+                    ]);
+                }
+                $entities = $jtestsStudentsTable->newEntities($newRecords);
+                Log::write('debug', $entities);
+                $result = $jtestsStudentsTable->saveMany($entities);
+                Log::write('debug', $result);
+            }
+
+            // change jclass_id
+            $record = $jclassesStudentsTable->find()->where(['JclassesStudents.id' => $recordId])->contain(['Students'])->first();
             $record->jclass_id = $newClassId;
-
-            if ($table->save($record)) {
+            if ($jclassesStudentsTable->save($record)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
