@@ -200,97 +200,121 @@ $this->assign('title', 'Quản lý đơn hàng');
                         <?= $this->Form->end() ?>
                         </tr>
                         <?php if (($orders)->isEmpty()): ?>
-                        <tr>
-                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
-                        </tr>
+                            <tr>
+                                <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
+                            </tr>
                         <?php else: ?>
-                        <?php foreach ($orders as $order): ?>
-                        <?php $counter++ ?>
-                        <tr>
-                            <td class="cell text-center"><?= $counter ?></td>
-                            <td class="cell nameCol">
-                                <?= $this->Html->link(h($order->name), 
-                                    ['action' => 'view', $order->id],
-                                    ['escape' => false]) ?>
-                            </td>
-                            <td class="cell interviewDateCol"><?= h($order->interview_date->i18nFormat('dd-MM-yyyy')) ?></td>
-                            <td class="cell workAtCol"><?= h($cityJP[$order->work_at]) ?></td>
-                            <td class="cell guildIdCol">
-                                <?php if (!empty($order->company->guild)): ?>
-                                <a href="javascript:;" onclick="viewGuild(<?= $order->company->guild->id ?>)"><?= h($order->company->guild->name_romaji) ?></a>
-                                <?php endif; ?>
-                            </td>
-                            <td class="cell companyIdCol">
-                                <?php if ($order->has('company')): ?>
-                                <a href="javascript:;" onclick="viewCompany(<?= $order->company->id ?>)"><?= h($order->company->name_romaji) ?></a>
-                                <?php endif; ?>
-                            </td>
-                            <td class="cell statusCol">
-                                <?php 
-                                $interview_date = $order->interview_date->i18nFormat('yyyy-MM-dd');
+                            <?php foreach ($orders as $order): ?>
+                                <?php $counter++ ?>
+                                <tr>
+                                    <td class="cell text-center <?= $order->del_flag ? 'deletedRecord' : '' ?>"><?= $counter ?></td>
+                                    <td class="cell nameCol">
+                                        <?= $this->Html->link(h($order->name), 
+                                            ['action' => 'view', $order->id],
+                                            ['escape' => false]) ?>
+                                    </td>
+                                    <td class="cell interviewDateCol"><?= h($order->interview_date->i18nFormat('dd-MM-yyyy')) ?></td>
+                                    <td class="cell workAtCol"><?= h($cityJP[$order->work_at]) ?></td>
+                                    <td class="cell guildIdCol">
+                                        <?php if ($order->has('guild')): ?>
+                                            <a href="javascript:;" onclick="viewGuild(<?= $order->guild_id ?>)"><?= h($order->guild->name_romaji) ?></a>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="cell companyIdCol">
+                                        <?php if ($order->has('company')): ?>
+                                            <a href="javascript:;" onclick="viewCompany(<?= $order->company_id ?>)"><?= h($order->company->name_romaji) ?></a>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="cell statusCol">
+                                        <?php 
+                                        $interview_date = $order->interview_date->i18nFormat('yyyy-MM-dd');
 
-                                if ($order->status == "4" || $order->status == "5") {
-                                    $status = (int) $order->status;
-                                    echo h($interviewStatus[$order->status]);
-                                } elseif ($now < $interview_date) {
-                                    $status = 1;
-                                    echo h($interviewStatus["1"]);
-                                } elseif ($now == $interview_date) {
-                                    $status = 2;
-                                    echo h($interviewStatus["2"]);
-                                } else {
-                                    $status = 3;
-                                    echo h($interviewStatus["3"]);
-                                } ?>
-                            </td>
-                            <td class="actions cell">
-                                <div class="btn-group">
-                                    <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
-                                    </button>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li>
-                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
-                                                ['action' => 'view', $order->id],
-                                                ['escape' => false]) ?>
-                                        </li>
-                                        <?php if ($permission == 0): ?>
-                                        <?php if ($status != 5): ?>
-                                        <li>
-                                            <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i> Sửa'), 
-                                                ['action' => 'edit', $order->id],
-                                                ['escape' => false]) ?>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if ($status == 4): ?>
-                                        <li>
-                                            <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i> Đóng'), 
-                                                ['action' => 'close', $order->id],
-                                                [
-                                                    'escape' => false,
-                                                    'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
-                                                ]) ?>
-                                        </li>
-                                        <?php endif; ?>
-                                        <li>
-                                            <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i> Xóa'), 
-                                                ['action' => 'delete', $order->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
-                                                ]) ?>
-                                        </li>
-                                        <?php endif; ?>
-                                        <li class="divider"></li>
-                                        <li>
-                                            <a href="javascript:;" onclick="showExportModal(<?= $order->id ?>)">
-                                                <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                                        if ($order->status == "4" || $order->status == "5") {
+                                            $status = (int) $order->status;
+                                            echo h($interviewStatus[$order->status]);
+                                        } elseif ($now < $interview_date) {
+                                            $status = 1;
+                                            echo h($interviewStatus["1"]);
+                                        } elseif ($now == $interview_date) {
+                                            $status = 2;
+                                            echo h($interviewStatus["2"]);
+                                        } else {
+                                            $status = 3;
+                                            echo h($interviewStatus["3"]);
+                                        } ?>
+                                    </td>
+                                    <td class="actions cell">
+                                        <div class="btn-group">
+                                            <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
+                                            </button>
+                                            <ul role="menu" class="dropdown-menu">
+                                                <li>
+                                                    <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                        ['action' => 'view', $order->id],
+                                                        ['escape' => false]) ?>
+                                                </li>
+                                                <?php if ($permission == 0): ?>
+                                                    <?php if ($order->del_flag): ?>
+                                                        <li>
+                                                            <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                                                            ['action' => 'recover', $order->id], 
+                                                            [
+                                                                'escape' => false, 
+                                                                'confirm' => __('Bạn có chắc chắn muốn phục hồi đơn hàng {0}?', $order->name)
+                                                            ]) ?>
+                                                        </li>
+                                                    <?php else: ?>
+                                                        <?php if ($status != 5 || $currentUser['role_id']==1): ?>
+                                                            <li>
+                                                                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i> Sửa'), 
+                                                                    ['action' => 'edit', $order->id],
+                                                                    ['escape' => false]) ?>
+                                                            </li>
+                                                        <?php endif; ?>
+                                                        <?php if ($status == 4): ?>
+                                                            <?php if (!empty($order->departure)): ?>
+                                                                <li>
+                                                                    <?= $this->Form->postLink(__('<i class="fa fa-plane" aria-hidden="true"></i> Xuất cảnh'), 
+                                                                        ['action' => 'close', $order->id],
+                                                                        [
+                                                                            'escape' => false,
+                                                                            'confirm' => __('Bạn có chắc chắn muốn chuyển đơn hàng {0} sang xuất cảnh?', $order->name)
+                                                                        ]) ?>
+                                                                </li>
+                                                            <?php else: ?>
+                                                                <li>
+                                                                    <?= $this->Html->link(__('<i class="fa fa-plane" aria-hidden="true"></i> Xuất cảnh'), 
+                                                                        ['action' => 'edit', $order->id],
+                                                                        [
+                                                                            'escape' => false,
+                                                                            'confirm' => __('Đơn hàng {0} chưa có ngày bay chính thức. Bạn có muốn bổ sung thông tin?', $order->name)
+                                                                        ]) ?>
+                                                                </li>
+                                                            <?php endif; ?>
+                                                        <?php endif; ?>
+                                                        <li>
+                                                            <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i> Xóa'), 
+                                                                ['action' => 'delete', $order->id], 
+                                                                [
+                                                                    'escape' => false, 
+                                                                    'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->order)
+                                                                ]) ?>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                                <?php if (!$order->del_flag): ?>
+                                                    <li class="divider"></li>
+                                                    <li>
+                                                        <a href="javascript:;" onclick="showExportModal(<?= $order->id ?>)">
+                                                            <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
+                                                        </a>
+                                                    </li>
+                                                <?php endif; ?>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>

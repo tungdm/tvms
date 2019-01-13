@@ -38,6 +38,8 @@ class Card extends Entity
         'registration_date' => true,
         'from_date' => true,
         'to_date' => true,
+        'image1' => true,
+        'image2' => true,
         'issued_at' => true,
         'type' => true,
         'created' => true,

@@ -58,6 +58,45 @@
                 </a>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                <i class="fa fa-bell-o"></i>
+                                <span class="label label-danger">3</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <ul class="menu">
+                                        <li class="new-item">
+                                            <a href="#">
+                                                <i class="fa fa-fw fa-table"></i> 5 new members joined today
+                                            </a>
+                                        </li>
+                                        <li class="new-item">
+                                            <a href="#">
+                                                <i class="fa fa-fw fa-table"></i> Very long description here that may not fit into the
+                                                page and may cause design problems
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <i class="fa fa-fw fa-users"></i> 5 new members joined
+                                            </a>
+                                        </li>
+                                        <li class="new-item">
+                                            <a href="#">
+                                                <i class="fa fa-fw fa-graduation-cap"></i> 25 sales made
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#">
+                                                <i class="fa fa-fw fa-user"></i> You changed your username
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="footer"><a href="#">Xem tất cả</a></li>
+                                </ul>
+                        </li>
                         <li class="user user-menu user-profile">
                             <a href="javascript:;">
                                 <?php if (empty($this->request->session()->read('Auth.User.image'))): ?>
@@ -108,6 +147,11 @@
                         </a>
                         <ul class="treeview-menu">
                             <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Tuyển Dụng Online', 
+                                    ['controller' => 'Candidates', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản Lý Lao Động', 
                                     ['controller' => 'Students', 'action' => 'index'],
                                     ['escape' => false]) ?>
@@ -146,6 +190,11 @@
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản lý kì thi', 
                                     ['controller' => 'Jtests', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> JLPT', 
+                                    ['controller' => 'JlptTests', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
                         </ul>
@@ -195,6 +244,26 @@
                                     ['controller' => 'Jobs', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Tính cách', 
+                                    ['controller' => 'Characteristics', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Chuyên môn', 
+                                    ['controller' => 'Strengths', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Mục đích XKLĐ', 
+                                    ['controller' => 'Purposes', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Dự định khi về nước', 
+                                    ['controller' => 'AfterPlans', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -224,7 +293,7 @@
 
     <!-- Global guild modal -->
     <div id="view-guild-modal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -292,7 +361,20 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company"><?= __('Công ty tiếp nhận') ?></label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 table-responsive">
+                                <table class="table table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="col-md-2"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-10"><?= __('Công ty') ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="view-company-container" class="company-container"></tbody>
+                                </table>
+                            </div>
+                        </div>
                         <div class="ln_solid"></div>
 
                         <div class="form-group">
@@ -338,7 +420,7 @@
 
     <!-- Global company modal -->
     <div id="view-company-modal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -365,15 +447,6 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild-name"><?= __('Nghiệp đoàn') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
-                                    <span id="view-guild-name-romaji"></span><br/>
-                                    <span id="view-guild-name-kanji"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
@@ -389,6 +462,20 @@
                                     <span>(Việt Nam) <span id="view-company-phone-vn"></span></span><br/>
                                     <span>(Nhật Bản) <span id="view-company-phone-jp"></span></span>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild"><?= __('Nghiệp đoàn') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12 table-responsive">
+                                <table class="table table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="col-md-2"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-10"><?= __('Nghiệp đoàn') ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="view-guild-container" class="guild-container"></tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -828,6 +915,42 @@
                     </div>
                 </div>
             </li>
+        {{/each}}
+    </script>
+
+    <!-- global guild template -->
+    <script id="guild-company-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <tr class="row-company">
+                <td class="cell stt-col text-center {{#if _joinData.del_flag}}deletedRecord{{/if}}">
+                    {{inc @index}}
+                </td>
+                <td class="cell">
+                    {{name_romaji}}<br/>{{name_kanji}}
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                <td colspan="3" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
+            </tr>
+        {{/each}}
+    </script>
+
+    <!-- global company template -->
+    <script id="company-guild-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <tr class="row-guild">
+                <td class="cell stt-col text-center {{#if _joinData.del_flag}}deletedRecord{{/if}}">
+                    {{inc @index}}
+                </td>
+                <td class="cell">
+                    {{name_romaji}}<br/>{{name_kanji}}
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                <td colspan="3" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
+            </tr>
         {{/each}}
     </script>
 

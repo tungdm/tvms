@@ -3,26 +3,26 @@ var calendar;
 var currentEvent;
 var editor = new Simditor({
     textarea: $('.edittextarea'),
-    toolbar: ['title', 'bold', 'italic', 'underline', 'color', '|',  'alignment', 'ol', 'ul', '|', 'table', 'link', 'image']
+    toolbar: ['title', 'bold', 'italic', 'underline', 'color', '|', 'alignment', 'ol', 'ul', '|', 'table', 'link', 'image']
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     init_calendar();
 
     // init color
     $('input[name="color"]').val(curColor);
-    
-    $('#title-color').css({'background-color': curColor, 'border-color': curColor});
+
+    $('#title-color').css({ 'background-color': curColor, 'border-color': curColor });
 
     $('#color-chooser > li > a').click(function (e) {
         e.preventDefault();
         curColor = $(this).css('color');
-        $('#title-color').css({'background-color': curColor, 'border-color': curColor});
+        $('#title-color').css({ 'background-color': curColor, 'border-color': curColor });
         // set value for input
         $('input[name="color"]').val(curColor);
     });
 
-    $('.select2-theme').change(function(e) {
+    $('.select2-theme').change(function (e) {
         $('#' + e.target.id).parsley().validate();
 
         if ($(this).val() === "2") {
@@ -36,7 +36,7 @@ $(document).ready(function() {
             // show color chooser
             $('.color-chooser-group').removeClass('hidden');
         }
-        $('#title-color').css({'background-color': curColor, 'border-color': curColor});
+        $('#title-color').css({ 'background-color': curColor, 'border-color': curColor });
         // set value for input
         $('input[name="color"]').val(curColor);
     });
@@ -45,29 +45,29 @@ $(document).ready(function() {
 
 function init_calendar() {
     var date = new Date(),
-		d = date.getDate(),
-		m = date.getMonth(),
+        d = date.getDate(),
+        m = date.getMonth(),
         y = date.getFullYear(),
-		started,
-		categoryClass;
+        started,
+        categoryClass;
     var now = moment();
 
-	calendar = $('#calendar').fullCalendar({
-		header: {
-			left: 'prev,next today',
-			center: 'title',
-			right: 'month,agendaWeek,agendaDay'
+    calendar = $('#calendar').fullCalendar({
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
         },
         locale: 'vi',
         nowIndicator: true,
         now: now,
-		selectable: true,
+        selectable: true,
         selectHelper: true,
-		editable: true,
+        editable: true,
         events: DOMAIN_NAME + '/events/getEvents',
         eventLimit: true,
         // height: "auto",
-		select: function (start, end, jsEvent) {
+        select: function (start, end, jsEvent) {
             // reset form
             resetModal();
 
@@ -86,14 +86,14 @@ function init_calendar() {
             $('#submit-event-btn').remove();
             $('#delete-event-btn').remove();
             $('<button type="button" class="btn btn-success" id="submit-event-btn" onclick="addEvent()">Hoàn tất</button>').insertBefore('#close-event-modal-btn');
-            
+
             // show modal
             $('#event-modal').modal('toggle');
 
-			started = start;
-			ended = end;
-		},
-		eventClick: function (calEvent, jsEvent, view) {
+            started = start;
+            ended = end;
+        },
+        eventClick: function (calEvent, jsEvent, view) {
             // reset form
             resetModal();
             currentEvent = calEvent;
@@ -107,7 +107,7 @@ function init_calendar() {
             getEvent(calEvent.id, mode);
 
             // update event
-            $(document).on('click', '#submit-event-btn', function() {
+            $(document).on('click', '#submit-event-btn', function () {
                 if (ajaxing) {
                     // still requesting
                     return;
@@ -121,7 +121,7 @@ function init_calendar() {
                         type: 'POST',
                         url: DOMAIN_NAME + '/events/edit/' + currentEvent.id,
                         data: $('#event-form').serialize(),
-                        success: function(resp) {
+                        success: function (resp) {
                             if (resp.status === "success") {
                                 currentEvent.title = resp.title;
                                 currentEvent.start = resp.start;
@@ -135,7 +135,7 @@ function init_calendar() {
                                 // hide modal
                                 $('#event-modal').modal('hide');
                             }
-                            
+
                             // show notification
                             var notice = new PNotify({
                                 title: '<strong>' + resp.flash.title + '</strong>',
@@ -149,10 +149,10 @@ function init_calendar() {
                                     sticker: false
                                 }
                             });
-                            notice.get().click(function() {
+                            notice.get().click(function () {
                                 notice.remove();
                             });
-                        }, complete: function() {
+                        }, complete: function () {
                             ajaxing = false;
                             $('#event-modal-overlay').addClass('hidden');
                         }
@@ -161,7 +161,7 @@ function init_calendar() {
             });
 
             // delte event
-            $(document).on('click', '#delete-event-btn', function() {
+            $(document).on('click', '#delete-event-btn', function () {
                 if (ajaxing) {
                     // still requesting
                     return;
@@ -176,7 +176,7 @@ function init_calendar() {
                     $.ajax({
                         type: 'POST',
                         url: DOMAIN_NAME + '/events/delete/' + currentEvent.id,
-                        success: function(resp) {
+                        success: function (resp) {
                             if (resp.status == "success") {
                                 calendar.fullCalendar('removeEvents', currentEvent.id);
 
@@ -196,18 +196,18 @@ function init_calendar() {
                                     sticker: false
                                 }
                             });
-                            notice.get().click(function() {
+                            notice.get().click(function () {
                                 notice.remove();
                             });
-                        }, 
-                        complete: function() {
+                        },
+                        complete: function () {
                             ajaxing = false;
                             $('#event-modal-overlay').addClass('hidden');
                         }
                     });
                 }
             });
-            calendar.fullCalendar('unselect');            
+            calendar.fullCalendar('unselect');
         },
         eventDrop: function (event, delta, revertFunc) {
             if (!confirm("Bạn có chắc chắn muốn thay đổi thời gian cho sự kiện này?")) {
@@ -220,7 +220,7 @@ function init_calendar() {
                         start: event.start.format(),
                         end: event.end.format()
                     },
-                    success: function(resp) {
+                    success: function (resp) {
                         if (resp.status === "error") {
                             revertFunc();
                         }
@@ -237,7 +237,7 @@ function init_calendar() {
                                 sticker: false
                             }
                         });
-                        notice.get().click(function() {
+                        notice.get().click(function () {
                             notice.remove();
                         });
                     }
@@ -255,13 +255,13 @@ function init_calendar() {
                         start: event.start.format(),
                         end: event.end.format()
                     },
-                    success: function(resp) {
+                    success: function (resp) {
                         console.log('changed');
                     }
                 });
             }
         }
-	});
+    });
 }
 
 function addEvent() {
@@ -280,7 +280,7 @@ function addEvent() {
             type: 'POST',
             url: $('#event-form').attr('action'),
             data: $('#event-form').serialize(),
-            success: function(resp){
+            success: function (resp) {
                 if (resp.status === "success") {
                     calendar.fullCalendar('renderEvent', {
                         id: resp.id,
@@ -297,7 +297,7 @@ function addEvent() {
                 }
 
                 calendar.fullCalendar('unselect');
-                
+
                 // hide modal
                 $('#event-modal').modal('hide');
 
@@ -314,10 +314,10 @@ function addEvent() {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
-            }, complete: function() {
+            }, complete: function () {
                 ajaxing = false;
                 $('#event-modal-overlay').addClass('hidden');
             }
@@ -339,9 +339,9 @@ function getEvent(id, mode) {
             data: {
                 id: id
             },
-            success: function(resp) {
+            success: function (resp) {
                 fillData(resp, mode);
-            }, complete: function() {
+            }, complete: function () {
                 ajaxing = false;
             }
         });
@@ -365,7 +365,7 @@ function fillData(resp, mode) {
         editor.setValue(resp.description);
 
         curColor = resp.backgroundColor;
-        $('#title-color').css({'background-color': curColor, 'border-color': curColor});
+        $('#title-color').css({ 'background-color': curColor, 'border-color': curColor });
 
         $('input[name="color"]').val(curColor);
 
@@ -378,7 +378,7 @@ function fillData(resp, mode) {
         // renew add-btn
         $('<button type="button" class="btn btn-success" id="submit-event-btn">Lưu lại</button>').insertBefore('#close-event-modal-btn');
         //show modal
-        $('#event-modal').modal('toggle');                                                          
+        $('#event-modal').modal('toggle');
     } else {
         var description = resp.description;
         if (resp.order) {
@@ -387,7 +387,7 @@ function fillData(resp, mode) {
             description = template({
                 'admin': resp.admin,
                 'orderName': resp.order.name,
-                'guild': resp.order.company.guild.name_romaji,
+                'guild': resp.order.guild.name_romaji,
                 'company': resp.order.company.name_romaji,
                 'job': resp.order.job.job_name,
                 'work_at': resp.order.work_at,
@@ -404,16 +404,23 @@ function fillData(resp, mode) {
                 'lesson_to': resp.jtest.lesson_to,
                 'skills': resp.jtest.jtest_contents,
             });
+        } else if (resp.jlpt_test) {
+            var source = $("#jlpt-test-template").html();
+            var template = Handlebars.compile(source);
+            description = template({
+                'skills': resp.jlpt_test.jlpt_contents,
+                'students': resp.jlpt_test.students,
+            });
         }
         $('#event-title').html(resp.title);
         // $('#event-description').html((resp.description).replace(/\r?\n/g,'<br/>'));
         $('#event-description').html(description);
         $('#event-owner').html('- ' + resp.owner);
-        
+
         // show modal
         $('#event-info-modal').modal('toggle');
     }
-    
+
 }
 
 function resetModal() {

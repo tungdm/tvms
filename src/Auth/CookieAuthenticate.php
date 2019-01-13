@@ -139,6 +139,9 @@ class CookieAuthenticate extends BaseAuthenticate {
             Log::write('debug', isset($request->data['username']));
             if (isset($request->data['username']) && isset($request->data['password'])) {
                 $user = $this->_findUser($request->data['username'], $request->data['password']);
+                if ($user['del_flag']) {
+                    return false;
+                }
                 return $user;
             } else {
                 return false;

@@ -32,6 +32,10 @@ class CompaniesController extends AppController
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
         if (!empty($userPermission)) {
+            // only admin can recover deleted record
+            if ($action == 'recover') {
+                return false;
+            }
             if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
                 $session->write($controller, $userPermission->action);
                 return true;
@@ -83,9 +87,6 @@ class CompaniesController extends AppController
                     return $exp->add($orConditions);
                 });
             }
-            if (isset($query['guild']) && !empty($query['guild'])) {
-                $allCompanies->where(['guild_id' => $query['guild']]);
-            }
             if (isset($query['phone_vn']) && !empty($query['phone_vn'])) {
                 $allCompanies->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('Companies.phone_vn', '%'.$query['phone_vn'].'%');
@@ -101,17 +102,18 @@ class CompaniesController extends AppController
             $query['records'] = 10;
             $allCompanies = $this->Companies->find()->order(['Companies.created' => 'DESC']);
         }
-
+        if ($this->Auth->user('role_id') != 1) {
+            // other user (not admin) can not view delete record
+            $allCompanies->where(['Companies.del_flag' => FALSE]);
+        }
         $this->paginate = [
-            'sortWhitelist' => ['name_romaji','name_kanji','address_romaji', 'address_kanji', 'phone_vn','phone_jp'],
+            'sortWhitelist' => ['test_date'],
             'contain' => ['Guilds'],
             'limit' => $query['records']
         ];
 
         $companies = $this->paginate($allCompanies);
-        $guilds = $this->Companies->Guilds->find('list');
-
-        $this->set(compact('companies', 'guilds', 'query', 'mode'));
+        $this->set(compact('companies', 'query', 'mode'));
     }
 
     /**
@@ -136,15 +138,30 @@ class CompaniesController extends AppController
         ];
 
         try {
-            $company = $this->Companies->get($companyId, [
-                'contain' => [
-                    'Guilds',
-                    'Orders',
-                    'Orders.Students',
-                    'CreatedByUsers',
-                    'ModifiedByUsers'
-                ]
-            ]);
+            if ($this->Auth->user('role_id') == 1) {
+                $company = $this->Companies->get($companyId, [
+                    'contain' => [
+                        'Guilds',
+                        // 'Orders',
+                        // 'Orders.Students',
+                        'CreatedByUsers',
+                        'ModifiedByUsers'
+                    ]
+                ]);
+            } else {
+                $company = $this->Companies->get($companyId, [
+                    'contain' => [
+                        'Guilds' => function($q) {
+                            return $q->where(['Guilds.del_flag' => FALSE]);
+                        },
+                        // 'Orders',
+                        // 'Orders.Students',
+                        'CreatedByUsers',
+                        'ModifiedByUsers'
+                    ]
+                ]);
+            }
+            
             $resp = [
                 'status' => 'success',
                 'data' => $company,
@@ -214,10 +231,30 @@ class CompaniesController extends AppController
                 ->find('list')
                 ->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('name_romaji', '%'.$query['q'].'%');
-                });
+                })
+                ->andWhere(['type' => '2']); // cty tiep nhan
             $resp['items'] = $company;
         }
         return $this->jsonResponse($resp);   
+    }
+
+    public function getCompaniesByGuildId()
+    {
+        if ($this->request->is('ajax')) {
+            $query = $this->request->getQuery();
+            $resp = [];
+            if (isset($query['guildId']) && !empty($query['guildId'])) {
+                $companies = $this->Companies->find('list')->where(['Companies.del_flag' => FALSE])->matching('Guilds', function ($q) use ($query) {
+                    return $q->where(['Guilds.id' => $query['guildId']]);
+                });
+                $companies = $companies->toArray();
+
+                if (!empty($companies)) {
+                    $resp = $companies;
+                }
+            }
+            return $this->jsonResponse($resp);
+        }
     }
 
     /**
@@ -312,20 +349,60 @@ class CompaniesController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $company = $this->Companies->get($id);
-        $companyName = $company->name_romaji;
-        if ($this->Companies->delete($company)) {
+        $company = $this->Companies->get($id, ['contain' => ['Guilds']]);
+        $data = [
+            'del_flag' => TRUE, // company del_flag
+        ];
+        if (!empty($company->guilds)) {
+            foreach ($company->guilds as $key => $guild) {
+                $data['guilds'][$key]['id'] = $guild->id;
+                $data['guilds'][$key]['_joinData']['del_flag'] = TRUE;
+                $data['guilds'][$key]['_joinData']['modified_by'] = $this->Auth->user('id');
+            }
+        }
+        $company = $this->Companies->patchEntity($company, $data, ['associated' => ['Guilds']]);
+        $company = $this->Companies->setAuthor($company, $this->Auth->user('id'), 'edit');
+        if ($this->Companies->save($company)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
-                'name' => $companyName
+                'name' => $company->name_romaji
                 ]));
         } else {
             $this->Flash->error(Text::insert($this->errorMessage['delete'], [
                 'entity' => $this->entity,
-                'name' => $companyName
+                'name' => $company->name_romaji
             ]));
         }
+        return $this->redirect(['action' => 'index', '?' => ['type' => $company->type]]);
+    }
 
+    public function recover($id = null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $company = $this->Companies->get($id);
+        $data = [
+            'del_flag' => FALSE, // company del_flag
+        ];
+        if (!empty($company->guilds)) {
+            foreach ($company->guilds as $key => $guild) {
+                $data['guilds'][$key]['id'] = $guild->id;
+                $data['guilds'][$key]['_joinData']['del_flag'] = FALSE;
+                $data['guilds'][$key]['_joinData']['modified_by'] = $this->Auth->user('id');
+            }
+        }
+        $company = $this->Companies->patchEntity($company, $data, ['associated' => ['Guilds']]);
+        $company = $this->Companies->setAuthor($company, $this->Auth->user('id'), 'edit');
+        if ($this->Companies->save($company)) {
+            $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                'entity' => $this->entity, 
+                'name' => $company->name_romaji
+                ]));
+        } else {
+            $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                'entity' => $this->entity,
+                'name' => $company->name_romaji
+            ]));
+        }
         return $this->redirect(['action' => 'index', '?' => ['type' => $company->type]]);
     }
 }

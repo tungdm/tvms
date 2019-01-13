@@ -38,7 +38,7 @@ class Jtest extends Entity
         'lesson_from' => true,
         'lesson_to' => true,
         'status' => true,
-        'flag' => true,
+        'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,

@@ -23,6 +23,7 @@ if (!empty($jtest->jtest_contents)) {
         if ($content->user_id == $currentUser['id']) {
             // current user only have read access but they are the supervisory
             $supervisory = true;
+            break;
         }
     }
 }
@@ -65,55 +66,70 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
             <?php if ($permission == 0): ?>
-            <?php if ($status == 1): ?>
-            <li>
-                <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
-                    ['action' => 'edit', $jtest->id],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Sửa',
-                        'escape' => false
-                    ]) ?>
-            </li>
-            <?php elseif ($status == 4): ?>
-            <li>
-                <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i>', 
-                ['action' => 'finish', $jtest->id], 
-                [
-                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
-                    'data-toggle' => 'tooltip',
-                    'title' => 'Đóng',
-                    'escape' => false, 
-                    'confirm' => __('Bạn có chắc chắn muốn đóng kì thi {0}?', $jtest->test_date)
-                ]) ?>
-            </li>
+                <?php if ($jtest->del_flag): ?>
+                    <li>
+                        <?= $this->Form->postLink(__('<i class="fa fa-undo" aria-hidden="true"></i>'), 
+                            ['action' => 'recover', $jtest->id], 
+                            [
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out',
+                                'escape' => false, 
+                                'data-toggle' => 'tooltip',
+                                'title' => 'Phục hồi',
+                                'confirm' => __('Bạn có chắc chắn muốn phục hồi kì thi {0}?', $jtest->test_date)
+                            ]) ?>
+                    </li>
+                <?php else: ?>
+                    <?php if ($status != 5 || $currentUser['role_id']==1): ?>
+                        <li>
+                            <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                                ['action' => 'edit', $jtest->id],
+                                [   
+                                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                                    'data-toggle' => 'tooltip',
+                                    'title' => 'Sửa',
+                                    'escape' => false
+                                ]) ?>
+                        </li>
+                    <?php endif; ?>
+                    <?php if ($status == 4): ?>
+                        <li>
+                            <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i>', 
+                            ['action' => 'finish', $jtest->id], 
+                            [
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
+                                'data-toggle' => 'tooltip',
+                                'title' => 'Đóng',
+                                'escape' => false, 
+                                'confirm' => __('Bạn có chắc chắn muốn đóng kì thi {0}?', $jtest->test_date)
+                            ]) ?>
+                        </li>
+                    <?php endif; ?>
+                    <li>
+                        <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                            ['action' => 'delete', $jtest->id], 
+                            [
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                                'escape' => false, 
+                                'data-toggle' => 'tooltip',
+                                'title' => 'Xóa',
+                                'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
+                            ]) ?>
+                    </li>
+                <?php endif; ?>
             <?php endif; ?>
-            <li>
-                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
-                    ['action' => 'delete', $jtest->id], 
-                    [
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
-                        'escape' => false, 
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Xóa',
-                        'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
-                    ]) ?>
-            </li>
+            <?php if (($currentUser['role_id'] == 1 || $status < 5 && $status >= 2 && ($supervisory == true || $permission == 0)) && $jtest->del_flag == FALSE): ?>
+                <li>
+                    <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i>', 
+                        ['action' => 'setScore', $jtest->id],
+                        [
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Nhập điểm',
+                            'escape' => false
+                        ]) ?>
+                </li>
             <?php endif; ?>
-            <?php if ($status < 5 && $status >= 2 && $supervisory == true): ?>
-            <li>
-                <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i>', 
-                    ['action' => 'setScore', $jtest->id],
-                    [
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Nhập điểm',
-                        'escape' => false
-                    ]) ?>
-            </li>
-            <?php endif; ?>
-            <?php if ($status == 4 || $status == 5): ?>
+            <?php if (($status == 4 || $status == 5) && $jtest->del_flag == FALSE): ?>
                 <li>
                     <?= $this->Html->link('<i class="fa fa-book" aria-hidden="true"></i>', 
                         ['action' => 'exportResult', $jtest->id],

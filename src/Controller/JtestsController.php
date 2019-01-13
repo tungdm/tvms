@@ -38,22 +38,13 @@ class JtestsController extends AppController
         $session = $this->request->session();
         $permissionsTable = TableRegistry::get('Permissions');
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
-
-        if (!empty($userPermission) || $user['role_id'] == 1) {
-            if ($action == 'edit') {
-                $now = Time::now()->i18nFormat('yyyy-MM-dd');
-                $target_id = $this->request->getParam('pass');
-                if (!empty($target_id)) {
-                    $target_id = $target_id[0];
-                    $testDate = $this->Jtests->get($target_id)->test_date->i18nFormat('yyyy-MM-dd');
-                    if ($testDate <= $now) {
-                        // can not modified
-                        return false;
-                    }
-                }
+        if (!empty($userPermission)) {
+            // only admin can recover deleted record
+            if ($action == 'recover') {
+                return false;
             }
 
-            // supervisory can access to set score action
+            // supervisory can set score before admin/full-access user close the test
             if ($action == 'setScore') {
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
@@ -66,7 +57,7 @@ class JtestsController extends AppController
                                 }
                             ])->first();
                     $jtest = $this->Jtests->get($target_id);
-                    if (empty($jtestContent) || $jtest->status == '5') {
+                    if (empty($jtestContent) || $jtest->status == '5' || $jtest->del_flag == TRUE) {
                         return false;
                     } else {
                         return true;
@@ -74,7 +65,9 @@ class JtestsController extends AppController
                 }
             }
 
-            if ($user['role_id'] != 1 && ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view'])))) {
+            // full-access user can do anything
+            // read-only user can read data, export data
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view', 'exportResult']))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -122,14 +115,20 @@ class JtestsController extends AppController
                     case "3":
                         $allTest->where(['test_date <' => $now]);
                         break;
-                    case "4":
-                        $allTest->where(['status' => "4"]);
+                    default:
+                        $allTest->where(['status' => $query['status']]);
                         break;
                 }
             }
+            $allTest->order(['Jtests.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allTest = $this->Jtests->find()->order(['Jtests.created' => 'DESC']);
+        }
+
+        if ($this->Auth->user('role_id') != 1) {
+            // other user (not admin) can not view delete record
+            $allTest->where(['Jtests.del_flag' => FALSE]);
         }
 
         $this->paginate = [
@@ -160,7 +159,7 @@ class JtestsController extends AppController
                 'ModifiedByUsers'
                 ]
         ]);
-
+        $this->checkDeleteFlag($jtest, $this->Auth->user());
         $this->set('jtest', $jtest);
     }
 
@@ -180,14 +179,6 @@ class JtestsController extends AppController
             $jtest = $this->Jtests->patchEntity($jtest, $data, ['associated' => ['JtestContents', 'Students', 'Events']]);
             $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), $this->request->getParam('action'));
 
-            // update flag
-            if (!empty($data['jtest_contents'])) {
-                $flag = '';
-                foreach ($data['jtest_contents'] as $key => $value) {
-                    $flag = $flag . $value['skill'];
-                }
-                $jtest->flag = $flag;
-            }
             if ($this->Jtests->save($jtest)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
                     'entity' => $this->entity,
@@ -276,30 +267,26 @@ class JtestsController extends AppController
         $jtest = $this->Jtests->get($id, [
             'contain' => ['Students', 'JtestContents', 'JtestContents.Users', 'Events']
         ]);
-        $currentTestDate = $jtest->test_date;
+        if ($jtest->del_flag == TRUE || ($jtest->status == '5' && $this->Auth->user('role_id') != 1)) {
+            $this->Flash->error($this->errorMessage['unAuthor']);
+            return $this->redirect(['controller' => 'Pages', 'action' => 'display']);
+        }
+        $currentTestDate = $jtest->test_date->i18nFormat('yyyy-MM-dd');
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            $newTestDate = new Time($data['test_date']);
+            $newTestDate = (new Time($data['test_date']))->i18nFormat('yyyy-MM-dd');
             if ($data['changed'] === "true") {
                 // delete old student test data
                 $result = $this->Jtests->JtestsStudents->deleteAll(['jtest_id' => $jtest->id]);
             }
+
+            // update system event when test_date changed
             if ($currentTestDate !== $newTestDate) {
-                // update system event
                 $event = $this->SystemEvent->update($jtest->events[0]->id, $data['test_date']);
+                $data['events'][0] = $event;
             }
-            $data['events'][0] = $event;
             
             $jtest = $this->Jtests->patchEntity($jtest, $data);
-            // update flag
-            if (!empty($data['jtest_contents'])) {
-                $flag = '';
-                foreach ($data['jtest_contents'] as $key => $value) {
-                    $flag = $flag . $value['skill'];
-                }
-                $jtest->flag = $flag;
-            }
-
             $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), $this->request->getParam('action'));
 
             if ($this->Jtests->save($jtest)) {
@@ -336,11 +323,16 @@ class JtestsController extends AppController
         ]);
         $currentUserId = $this->Auth->user('id');
         $skill = [];
+        // admin or full-access user, get all skill of this test
+        foreach ($jtest->jtest_contents as $key => $value) {
+            array_push($skill, $value['skill']);
+        }
+        $permissionsTable = TableRegistry::get('Permissions');
+        $userPermission = $permissionsTable->find()->where(['user_id' => $currentUserId, 'scope' => 'Jtests'])->first();
         $teacher = $this->Jtests->JtestContents->find()->where(['jtest_id' => $id, 'user_id' => $currentUserId])->toArray();
-        if (empty($teacher)) {
-            $this->Flash->error($this->errorMessage['unAuthor']);
-            return $this->redirect(['controller' => 'Pages', 'action' => 'index']);
-        } else {
+        if (!empty($teacher) && (!empty($userPermission) && $userPermission->action != 0)) { 
+            // this case is for teacher with permission read-only
+            $skill = []; // re-init skill
             foreach ($teacher as $key => $value) {
                 array_push($skill, $value['skill']);
             }
@@ -352,14 +344,12 @@ class JtestsController extends AppController
                 'associated' => ['Students' => ['fieldList' => ['_joinData']]],
                 ]);
             
-            // update flag
-            foreach ($skill as $key => $value) {
-                $jtest->flag = str_replace($value, '', $jtest->flag);
+            // update status
+            if (empty($jtest->status)) {
+                $jtest->status = '4'; // update scoring status
             }
-            if (empty($jtest->flag)) {
-                $jtest->status = '4'; // finish scoring
-            }
-            $skills = Configure::read('skills');
+            $skills = Configure::read('skills'); // load all skill for review
+            $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), 'edit'); // update modified user
             if ($this->Jtests->save($jtest)) {
                 $this->Flash->success($this->successMessage['setScore']);
 
@@ -376,7 +366,7 @@ class JtestsController extends AppController
         $this->request->allowMethod(['post']);
         $jtest = $this->Jtests->get($id);
         if ($jtest->status !== '4') {
-            $this->Flash->error($this->errorMessage['unAuthor']);
+            $this->Flash->error($this->errorMessage['error']);
         } else {
             $jtest->status = '5'; // close test
             if ($this->Jtests->save($jtest)) {
@@ -401,7 +391,17 @@ class JtestsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $jtest = $this->Jtests->get($id);
-        if ($this->Jtests->delete($jtest)) {
+        if ($jtest->del_flag) {
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $jtest->test_date
+                ]));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $jtest->del_flag = TRUE;
+        $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), 'edit'); // update modified user
+        if ($this->Jtests->save($jtest)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
                 'name' => $jtest->test_date
@@ -416,7 +416,37 @@ class JtestsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    public function deleteSkill() {
+    public function recover($id = null)
+    {
+        $this->request->allowMethod(['post']);
+        $jtest = $this->Jtests->get($id);
+        if (!$jtest->del_flag) {
+            $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                'entity' => $this->entity,
+                'name' => $jtest->test_date
+                ]));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $jtest->del_flag = FALSE;
+        $jtest = $this->Jtests->setAuthor($jtest, $this->Auth->user('id'), 'edit'); // update modified user
+        if ($this->Jtests->save($jtest)) {
+            $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                'entity' => $this->entity, 
+                'name' => $jtest->test_date
+                ]));
+        } else {
+            $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                'entity' => $this->entity,
+                'name' => $jtest->test_date
+                ]));
+        }
+
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function deleteSkill() 
+    {
         $this->request->allowMethod('ajax');
         $recordId = $this->request->getData('id');
 
@@ -468,6 +498,8 @@ class JtestsController extends AppController
             ]
         ]);
 
+        $this->checkDeleteFlag($jtest, $this->Auth->user());
+        
         // init worksheet
         $spreadsheet = $this->ExportFile->setXlsxProperties();
         $spreadsheet->setActiveSheetIndex(0);

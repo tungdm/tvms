@@ -1,5 +1,5 @@
-$(document).ready(function() {
-    $('#edit-company-submit-btn').click(function() {
+$(document).ready(function () {
+    $('#edit-company-submit-btn').click(function () {
         // validate form
         var validateResult = $('#edit-company-form').parsley().validate();
         if (validateResult) {
@@ -13,9 +13,9 @@ $(document).ready(function() {
                 type: "POST",
                 url: $('#edit-company-form').attr('action'),
                 data: $('#edit-company-form').serialize(),
-                success: function(resp){
+                success: function (resp) {
                     if (resp.status == 'success') {
-                        window.location = resp.redirect; 
+                        window.location = resp.redirect;
                     } else {
                         var notice = new PNotify({
                             title: '<strong>' + resp.flash.title + '</strong>',
@@ -29,18 +29,18 @@ $(document).ready(function() {
                                 sticker: false
                             }
                         });
-                        notice.get().click(function() {
+                        notice.get().click(function () {
                             notice.remove();
                         });
                     }
                 },
-                complete: function() {
+                complete: function () {
                     ajaxing = false;
                 }
             });
         }
     });
-    $('#edit-dis-company-submit-btn').click(function() {
+    $('#edit-dis-company-submit-btn').click(function () {
         // validate form
         var validateResult = $('#edit-dispatching-company-form').parsley().validate();
         if (validateResult) {
@@ -54,9 +54,9 @@ $(document).ready(function() {
                 type: "POST",
                 url: $('#edit-dispatching-company-form').attr('action'),
                 data: $('#edit-dispatching-company-form').serialize(),
-                success: function(resp){
+                success: function (resp) {
                     if (resp.status == 'success') {
-                        window.location = resp.redirect; 
+                        window.location = resp.redirect;
                     } else {
                         var notice = new PNotify({
                             title: '<strong>' + resp.flash.title + '</strong>',
@@ -70,12 +70,12 @@ $(document).ready(function() {
                                 sticker: false
                             }
                         });
-                        notice.get().click(function() {
+                        notice.get().click(function () {
                             notice.remove();
                         });
                     }
                 },
-                complete: function() {
+                complete: function () {
                     ajaxing = false;
                 }
             });
@@ -105,12 +105,12 @@ function editCompany(companyId, type) {
     }
     ajaxing = true;
     $('#list-company-overlay').removeClass('hidden');
-    
+
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/companies/edit',
-        data: {id: companyId},
-        success: function(resp) {
+        data: { id: companyId },
+        success: function (resp) {
             if (type == 1) {
                 // cty phai cu
                 $('#edit-dispatching-company-form').parsley().reset();
@@ -140,7 +140,7 @@ function editCompany(companyId, type) {
                 $('#edit-company-modal').modal('toggle');
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#list-company-overlay').addClass('hidden');
         }
@@ -173,7 +173,7 @@ function showListWorkersModal(companyId) {
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/companies/viewWorkers/' + companyId,
-        success: function(resp) {
+        success: function (resp) {
             $('.total-count').html(resp.data.length);
             var source = $("#workers-template").html();
             var template = Handlebars.compile(source);
@@ -182,7 +182,7 @@ function showListWorkersModal(companyId) {
             // toggle modal
             $('#view-workers-modal').modal('toggle');
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#list-company-overlay').addClass('hidden');
         }

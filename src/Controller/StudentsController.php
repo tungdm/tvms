@@ -147,6 +147,9 @@ class StudentsController extends AppController
                 'Educations',
                 'Experiences',
                 'Experiences.Jobs',
+                'GeneralCosts',
+                'PhysicalExams' => ['sort' => ['PhysicalExams.exam_date' => 'DESC']],
+                'InterviewDeposits',
                 'LanguageAbilities',
                 'Documents',
                 'Presenters',
@@ -154,7 +157,7 @@ class StudentsController extends AppController
                 'IqTests',
                 'Orders' => ['sort' => ['Orders.created' => 'DESC']],
                 'Orders.Companies',
-                'Orders.Companies.Guilds',
+                'Orders.Guilds',
                 'Histories' => function($q) {
                     return $q->where(['type' => 'main'])->order(['Histories.created' => 'DESC']);
                 },
@@ -563,6 +566,11 @@ class StudentsController extends AppController
     public function info($id = null)
     {
         $prevImage = NULL;
+        $cmndImage1 = NULL;
+        $cmndImage2 = NULL;
+        $ppImage1 = NULL;
+        $btnImage1 = NULL;
+        $btnImage2 = NULL;
         if (!empty($id)) {
             $student = $this->Students->get($id, [
                 'contain' => [
@@ -576,7 +584,10 @@ class StudentsController extends AppController
                     'LanguageAbilities',
                     'Documents',
                     'InputTests',
+                    'GeneralCosts',
                     'IqTests',
+                    'PhysicalExams' => ['sort' => ['PhysicalExams.exam_date' => 'DESC']],
+                    'InterviewDeposits',
                     'Histories' => function($q) {
                         return $q->where(['type' => 'main'])->order(['Histories.created' => 'DESC']);
                     },
@@ -585,18 +596,54 @@ class StudentsController extends AppController
                 ]);
             $action = 'edit';
             $prevImage = $student->image;
+            if (!empty($student->cards[0]->image1)) {
+                $cmndImage1 = $student->cards[0]->image1;
+            }
+            if (!empty($student->cards[0]->image2)) {
+                $cmndImage2 = $student->cards[0]->image2;
+            }
+            if (!empty($student->cards[1]->image1)) {
+                $ppImage1 = $student->cards[1]->image1;
+            }
+            if (!empty($student->cards[2]->image1)) {
+                $btnImage1 = $student->cards[2]->image1;
+            }
+            if (!empty($student->cards[2]->image1)) {
+                $btnImage2 = $student->cards[2]->image1;
+            }
         } else {
             $student = $this->Students->newEntity();
+            $query = $this->request->getQuery();
+            if (isset($query['candidateId']) && !empty($query['candidateId'])) {
+                $candidate = $this->Students->Candidates->get($query['candidateId']);
+                $student->candidate_id = $candidate->id;
+                $student->fullname = $candidate->fullname;
+                $student->gender = $candidate->gender;
+                $student->phone = $candidate->phone;
+                $student->zalo = !empty($candidate->zalo_phone) ? $candidate->zalo_phone : $candidate->fb_name;
+                $student->birthday = $candidate->birthday;
+                $student->educational_level = $candidate->educational_level;
+                $student->addresses = [
+                    0 => [
+                        'city_id' => $candidate->city_id,
+                        'district_id' => NULL,
+                    ]
+                ];
+            }
+            
             $action = 'add';
         }
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();            
+            $data = $this->request->getData();
             $data['lived_from'] = $this->Util->reverseStr($data['lived_from']);
             $data['lived_to'] = $this->Util->reverseStr($data['lived_to']);
             $student = $this->Students->patchEntity($student, $data, ['associated' => [
                 'Addresses', 
                 'Families', 
+                'PhysicalExams',
+                'InterviewDeposits',
+                'GeneralCosts',
                 'Cards', 
                 'Educations',
                 'Experiences',
@@ -606,35 +653,42 @@ class StudentsController extends AppController
                 'IqTests'
                 ]]);
             
-            // save image
-            $b64code = $data['b64code'];
-            if (!empty($b64code)) {
-                $img = explode(',', $b64code);
-                $imgData = base64_decode($img[1]);
-                $filename = uniqid() . '.png';
-                $file_dir = WWW_ROOT . 'img' . DS . 'students' . DS . $filename;
-                file_put_contents($file_dir, $imgData);
-                $student->image = 'students/' . $filename;
-            } else {
-                $student->image = $prevImage;
-            }
+            $file_dir = WWW_ROOT . 'img' . DS . 'students';
+            // save avatar image
+            $student->image = $this->saveImage($data['student_avatar'], $file_dir, $prevImage);
+            // save cmnd front image
+            $student->cards[0]->image1 = $this->saveImage($data['cmnd_cropped_result_front'], $file_dir, $cmndImage1);
+            // save cmnd back image
+            $student->cards[0]->image2 = $this->saveImage($data['cmnd_cropped_result_back'], $file_dir, $cmndImage2);
+            // save passport image
+            $student->cards[1]->image1 = $this->saveImage($data['pp_cropped_result'], $file_dir, $ppImage1);
+            // save btn images
+            $student->cards[3]->image1 = $this->saveImage($data['btn_cropped_result_1'], $file_dir, $btnImage1);
+            $student->cards[3]->image2 = $this->saveImage($data['btn_cropped_result_2'], $file_dir, $btnImage2);
 
             // setting expectation
             $expectJobs = $data['expectationJobs'];
-            $expectStr = ',';
-            if (!empty($expectStr)) {
-                foreach ($expectJobs as $key => $value) {
-                    if (empty($value)) {                    
-                        continue;
-                    }
-                    $expectStr = $expectStr . (string)array_values($value)[0] . ',';                
-                }
-            }
+            Log::write('debug', $expectJobs);
+            $expectStr = $this->convertTags($expectJobs);
+            Log::write('debug', $expectStr);
+
             $student->expectation = $expectStr;
+            // setting genitive
+            $student->genitive = $this->convertTags($data['genitiveArr']);
+            // setting strength
+            $student->strength = $this->convertTags($data['strengthArr']);
+            // setting purpose
+            $student->purpose = $this->convertTags($data['purposeArr']);
+            // setting after plan
+            $student->after_plan = $this->convertTags($data['afterPlanArr']);
+
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
-            // debug($student);
             try{
                 // save to db
+                if (isset($candidate) && !empty($candidate)) {
+                    $candidate->status = 4; // da ki ket
+                    $this->Students->Candidates->save($candidate);
+                }
                 if ($this->Students->save($student)) {
                     if ($action == "add") {
                         $this->Flash->success(Text::insert($this->successMessage['add'], [
@@ -665,18 +719,23 @@ class StudentsController extends AppController
         }
         
         $presenters = TableRegistry::get('Presenters')->find('list');
-        $jobs = TableRegistry::get('Jobs')->find('list');
+        $jobs = TableRegistry::get('Jobs')->find('list')->where(['del_flag' => FALSE]);
 
-        $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
+        $cities = TableRegistry::get('Cities')->find('list');
         $districts = [];
         $wards = [];
         if (!empty($student->addresses)) {
             foreach ($student->addresses as $key => $value) {
-                $districts[$key] = TableRegistry::get('Districts')->find('list')->where(['city_id' => $value->city_id])->toArray();
-                $wards[$key] = TableRegistry::get('Wards')->find('list')->where(['district_id' => $value->district_id])->toArray();
+                $districts[$key] = TableRegistry::get('Districts')->find('list')->where(['city_id' => $value['city_id']])->toArray();
+                $wards[$key] = TableRegistry::get('Wards')->find('list')->where(['district_id' => $value['district_id']])->toArray();
             }
         }
-        $this->set(compact(['student', 'presenters', 'jobs', 'cities', 'districts', 'wards', 'action']));
+
+        $characteristics = TableRegistry::get('Characteristics')->find('list')->where(['del_flag' => FALSE]);
+        $strengths = TableRegistry::get('Strengths')->find('list')->where(['del_flag' => FALSE]);
+        $purposes = TableRegistry::get('Purposes')->find('list')->where(['del_flag' => FALSE]);
+        $afterPlans = TableRegistry::get('AfterPlans')->find('list')->where(['del_flag' => FALSE]);
+        $this->set(compact(['student', 'presenters', 'jobs', 'cities', 'districts', 'wards', 'action', 'characteristics', 'strengths', 'purposes', 'afterPlans']));
     }
 
     public function getDistrict()
@@ -824,6 +883,42 @@ class StudentsController extends AppController
         return $this->jsonResponse($resp);
     }
 
+    public function deletePhysicalCalendar()
+    {
+        $this->request->allowMethod('ajax');
+        $physcalendarId = $this->request->getData('calendarId');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $physCal = $this->Students->PhysicalExams->get($physcalendarId);
+            $student = $this->Students->get($physCal->student_id);
+
+            $student = $this->Students->setAuthor($student, $this->Auth->user('id'), 'edit');
+
+            if (!empty($physCal) &&  $this->Students->PhysicalExams->delete($physCal) && $this->Students->save($student)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'message' => $this->successMessage['deleteNoName']
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
     public function deleteExperience()
     {
         $this->request->allowMethod('ajax');
@@ -922,9 +1017,11 @@ class StudentsController extends AppController
                     'Educations',
                     'Experiences',
                     'Experiences.Jobs',
-                    'LanguageAbilities'
-                    ]
-                ]);
+                    'LanguageAbilities' => function($q) {
+                        return $q->where(['LanguageAbilities.type' => 'external']);
+                    }
+                ]
+            ]);
             $order = $this->Students->Orders->get($orderId, ['contain' => 'Jobs']);
             $this->checkData($order->application_date, 'Ngày làm hồ sơ');
 
@@ -1511,11 +1608,11 @@ class StudentsController extends AppController
                     Log::write('debug', 'select all student with guild info if passed the interview');
                     $allStudents->contain([
                         'Orders', 
-                        'Orders.Companies.Guilds'
+                        'Orders.Guilds'
                         ]);
                     if (!empty($condition['guild']['name'])) {
                         // select all students passed the interview and belong to the query guild
-                        $allStudents->matching('Orders.Companies.Guilds', function($q) use ($condition) {
+                        $allStudents->matching('Orders.Guilds', function($q) use ($condition) {
                             return $q->where([
                                 'Guilds.id' => $condition['guild']['name'],
                                 ]);
@@ -1812,5 +1909,36 @@ class StudentsController extends AppController
             }
         }
         return $data;
+    }
+
+    public function convertTags($data)
+    {
+        $result = ',';
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                if (empty($value)) {                    
+                    continue;
+                }
+                if (empty(array_values($value)[0])) {                    
+                    continue;
+                }
+                $result = $result . (string)array_values($value)[0] . ',';                
+            }
+        }
+        return $result;
+    }
+
+    public function saveImage($b64code, $file_dir, $prevImage)
+    {
+        $storedImage = $prevImage;
+        if (!empty($b64code)) {
+            $img = explode(',', $b64code);
+            $imgData = base64_decode($img[1]);
+            $filename = uniqid() . '.png';
+            $file_dir = $file_dir . DS . $filename;
+            file_put_contents($file_dir, $imgData);
+            $storedImage = 'students/' . $filename;
+        }
+        return $storedImage;
     }
 }

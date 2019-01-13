@@ -51,6 +51,7 @@ class Student extends Entity
      * @var array
      */
     protected $_accessible = [
+        'candidate_id' => true,
         'fullname' => true,
         'fullname_kata' => true,
         'exempt' => true,
@@ -97,16 +98,21 @@ class Student extends Entity
         'strength' => true,
         'weakness' => true,
         'genitive' => true,
+        'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
         'job' => true,
+        'candidate' => true,
         'return_date' => true,
         'presenter' => true,
         'addresses' => true,
         'cards' => true,
         'families' => true,
+        'physical_exams' => true,        
+        'interview_deposits' => true,       
+        'general_costs' => true,       
         'educations' => true,
         'experiences' => true,
         'language_abilities' => true,
@@ -114,5 +120,7 @@ class Student extends Entity
         'input_tests' => true,
         'iq_tests' => true,
         'histories' => true,
+        'last_class' => true,
+        'last_lesson' => true
     ];
 }

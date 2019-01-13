@@ -43,6 +43,8 @@ class StudentsTable extends Table
         $this->addBehavior('Timestamp');
         $this->addBehavior('Author');
 
+        $this->hasOne('Candidates');
+
         $this->belongsTo('Jobs', [
             'foreignKey' => 'job_id'
         ]);
@@ -86,6 +88,18 @@ class StudentsTable extends Table
             'foreignKey' => 'student_id',
             'dependent' => true,
         ]);
+        $this->hasMany('PhysicalExams', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
+        $this->hasMany('InterviewDeposits', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
+        $this->hasMany('GeneralCosts', [
+            'foreignKey' => 'student_id',
+            'dependent' => true,
+        ]);
         $this->belongsTo('Presenters', [
             'foreignKey' => 'presenter_id',
         ]);
@@ -101,6 +115,11 @@ class StudentsTable extends Table
             'through' => 'JtestsStudents',
             'dependent' => true,
         ]);
+        $this->belongsToMany('JlptTests', [
+            'through' => 'JlptTestsStudents',
+            'dependent' => true,
+        ]);
+
 
         $this->belongsTo('CreatedByUsers', [
             'foreignKey' => 'created_by',

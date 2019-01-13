@@ -7,7 +7,7 @@
     -webkit-box-shadow: none;
     right: 0;
     left: auto;
-    width: 200px;
+    width: 300px;
 }
 
 .custom-table>thead>tr {
@@ -21,6 +21,9 @@
 .custom-table > thead > tr > th {
     vertical-align: bottom;
     border-bottom: 0px;
+}
+.deletedRecord.highlight {
+    background-color: rgba(255, 0, 0, 0.781) !important;
 }
 .highlight {
     background-color: #f5f5f5 !important;
@@ -79,6 +82,9 @@
 
 #current-cell {
     background-color: #e6e6e6 !important;
+}
+#current-del-cell {
+    background-color: #a70404 !important;
 }
 .input-group {
     margin-bottom: 0px !important;
@@ -182,14 +188,14 @@ input.parsley-error,select.parsley-error,textarea.parsley-error{
     border: 0px;
     box-shadow: none;
 }
-#avatar, #cropped {
+#avatar, #cropped, .cropped-img {
     width: 100%;
     height: auto;
 }
-#cropped_result {
+#cropped_result, .cropped-result-container {
     margin-top: 5px;
 }
-#cropped_result img {
+#cropped_result img, .cropped-result-container img {
     width: 100%;
     height: auto;
 }
@@ -528,4 +534,14 @@ label.optional {
 
 .bold-text {
     font-weight: bold;
+}
+
+.deletedRecord {
+    background-color: red;
+    color: #fff;
+}
+
+.fb-icon > img {
+    width: 20%;
+    height: auto;
 }

@@ -15,6 +15,7 @@
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Network\Exception\NotFoundException;
 use Cake\Event\Event;
 use Cake\Routing\Router;
 use clsTinyButStrong;
@@ -122,5 +123,12 @@ class AppController extends Controller
         $response = $this->response;
         $response = $response->withType('application/json')->withStringBody(json_encode($data));
         return $response;
+    }
+
+    public function checkDeleteFlag($entity, $user)
+    {
+        if ($entity->del_flag == TRUE && $user['role_id'] !== 1) {
+            throw new NotFoundException();
+        }
     }
 }

@@ -39,8 +39,10 @@ class GuildsTable extends Table
         $this->addBehavior('Timestamp');
         $this->addBehavior('Author');
 
-        $this->hasMany('Companies', [
-            'foreignKey' => 'guild_id'
+        $this->belongsToMany('Companies', [
+            'foreignKey' => 'guild_id',
+            'targetForeignKey' => 'company_id',
+            'joinTable' => 'guilds_companies',
         ]);
 
         $this->belongsTo('CreatedByUsers', [

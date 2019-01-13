@@ -32,6 +32,7 @@ class Job extends Entity
         'job_name' => true,
         'job_name_jp' => true,
         'description' => true,
+        'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,

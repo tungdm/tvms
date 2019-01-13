@@ -182,104 +182,120 @@ $this->assign('title', 'Quản lý thi cử');
                         </tr>
                         <?php else: ?>
                         <?php foreach ($jtests as $jtest): ?>
-                        <?php 
-                            $counter++;
-                            $supervisory = false;
-                            foreach ($jtest->jtest_contents as $key => $content) {
-                                if ($content->user_id == $currentUser['id']) {
-                                    // current user only have read access but they are the supervisory
-                                    $supervisory = true;
-                                }
-                            }
-                        ?>
-                        <tr>
-                            <td class="cell text-center"><?= $counter ?></td>
-                            <td class="cell testDateCol">
-                                <?= $this->Html->link(h($jtest->test_date), 
-                                    ['action' => 'view', $jtest->id],
-                                    ['escape' => false]) ?>
-                            </td>
-                            <td class="cell testLessonCol">
-                                <?= $lessons[$jtest->lesson_from] ?> ～ <?= $lessons[$jtest->lesson_to] ?>
-                            </td>
-                            <td class="cell classIdCol">
-                                <?= h($jtest->jclass->name) ?>
-                            </td>
-                            <td class="cell statusCol">
+                            <?php if (!$jtest->del_flag || $currentUser['role_id'] == 1): ?>
                                 <?php 
-                                    $status = 0;
-                                    $test_date = $jtest->test_date->i18nFormat('yyyy-MM-dd');
-                                    if ($jtest->status == "4" || $jtest->status == "5") {
-                                        $status = (int) $jtest->status;
-                                        echo h($testStatus[$jtest->status]);
-                                    } elseif ($now < $test_date) {
-                                        $status = 1;
-                                        echo h($testStatus["1"]);
-                                    } elseif ($now == $test_date) {
-                                        $status = 2;
-                                        echo h($testStatus["2"]);
-                                    } else {
-                                        $status = 3;
-                                        echo h($testStatus["3"]);
+                                    $counter++;
+                                    $supervisory = false;
+                                    foreach ($jtest->jtest_contents as $key => $content) {
+                                        if ($content->user_id == $currentUser['id']) {
+                                            // current user only have read access but they are the supervisory
+                                            $supervisory = true;
+                                        }
                                     }
                                 ?>
-                            </td>
-                            <td class="cell actions">
-                                <div class="btn-group">
-                                    <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
-                                    </button>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li>
-                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
-                                                ['action' => 'view', $jtest->id],
-                                                ['escape' => false]) ?>
-                                        </li>
-                                        <?php if ($permission == 0): ?>
-                                            <?php if ($status == 1): ?>
-                                            <li>
-                                                <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
-                                                    ['action' => 'edit', $jtest->id], 
-                                                    ['escape' => false]) ?>
-                                            </li>
-                                            <?php elseif ($status == 4): ?>
-                                            <li>
-                                                <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i> Đóng', 
-                                                ['action' => 'finish', $jtest->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn đóng kì thi {0}?', $jtest->test_date)
-                                                ]) ?>
-                                            </li>
-                                            <?php endif; ?>
-                                            <li>
-                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                                ['action' => 'delete', $jtest->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
-                                                ]) ?>
-                                            </li>
-                                        <?php endif; ?>
-                                        <?php if ($status < 5 && $status >= 2 && $supervisory == true): ?>
-                                            <li class="divider"></li>
-                                            <li>
-                                                <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i> Nhập điểm', 
-                                                    ['action' => 'setScore', $jtest->id],
-                                                    ['escape' => false]) ?>
-                                            </li>
-                                        <?php endif; ?>
-                                        <?php if ($status == 4 || $status == 5): ?>
-                                            <li class="divider"></li>
-                                            <li>
-                                                <?= $this->Html->link('<i class="fa fa-book" aria-hidden="true"></i> Xuất điểm', 
-                                                    ['action' => 'exportResult', $jtest->id],
-                                                    ['escape' => false]) ?>
-                                            </li>
-                                        <?php endif; ?>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
+                                <tr>
+                                    <td class="cell text-center <?= $jtest->del_flag ? 'deletedRecord' : '' ?>"><?= $counter ?></td>
+                                    <td class="cell testDateCol">
+                                        <?= $this->Html->link(h($jtest->test_date), 
+                                            ['action' => 'view', $jtest->id],
+                                            ['escape' => false]) ?>
+                                    </td>
+                                    <td class="cell testLessonCol">
+                                        <?= $lessons[$jtest->lesson_from] ?> ～ <?= $lessons[$jtest->lesson_to] ?>
+                                    </td>
+                                    <td class="cell classIdCol">
+                                        <?= h($jtest->jclass->name) ?>
+                                    </td>
+                                    <td class="cell statusCol">
+                                        <?php 
+                                            $status = 0;
+                                            $test_date = $jtest->test_date->i18nFormat('yyyy-MM-dd');
+                                            if ($jtest->status == "4" || $jtest->status == "5") {
+                                                $status = (int) $jtest->status;
+                                                echo h($testStatus[$jtest->status]);
+                                            } elseif ($now < $test_date) {
+                                                $status = 1;
+                                                echo h($testStatus["1"]);
+                                            } elseif ($now == $test_date) {
+                                                $status = 2;
+                                                echo h($testStatus["2"]);
+                                            } else {
+                                                $status = 3;
+                                                echo h($testStatus["3"]);
+                                            }
+                                        ?>
+                                    </td>
+                                    <td class="cell actions">
+                                        <div class="btn-group">
+                                            <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
+                                            </button>
+                                            <ul role="menu" class="dropdown-menu">
+                                                <li>
+                                                    <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                        ['action' => 'view', $jtest->id],
+                                                        ['escape' => false]) ?>
+                                                </li>
+                                                <?php if ($permission == 0): ?>
+                                                    <?php if ($jtest->del_flag): ?>
+                                                        <li>
+                                                            <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                                                            ['action' => 'recover', $jtest->id], 
+                                                            [
+                                                                'escape' => false, 
+                                                                'confirm' => __('Bạn có chắc chắn muốn phục hồi kì thi {0}?', $jtest->test_date)
+                                                            ]) ?>
+                                                        </li>
+                                                    <?php else: ?>
+                                                        <?php if ($status != 5 || $currentUser['role_id']==1): ?>
+                                                            <li>
+                                                                <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
+                                                                    ['action' => 'edit', $jtest->id], 
+                                                                    ['escape' => false]) ?>
+                                                            </li>
+                                                        <?php endif; ?>
+                                                        <?php if ($status == 4): ?>
+                                                            <li>
+                                                                <?= $this->Form->postLink('<i class="fa fa-lock" aria-hidden="true"></i> Đóng', 
+                                                                ['action' => 'finish', $jtest->id], 
+                                                                [
+                                                                    'escape' => false, 
+                                                                    'confirm' => __('Bạn có chắc chắn muốn đóng kì thi {0}?', $jtest->test_date)
+                                                                ]) ?>
+                                                            </li>
+                                                        <?php endif; ?>
+                                                        <li>
+                                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                            ['action' => 'delete', $jtest->id], 
+                                                            [
+                                                                'escape' => false, 
+                                                                'confirm' => __('Bạn có chắc chắn muốn xóa kì thi {0}?', $jtest->test_date)
+                                                            ]) ?>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                                <?php if (!$jtest->del_flag): ?>
+                                                    <?php if ($currentUser['role_id'] == 1 || $status < 5 && $status >= 2 && ($supervisory == true || $permission == 0)): ?>
+                                                        <li class="divider"></li>
+                                                        <li>
+                                                            <?= $this->Html->link('<i class="fa fa-check" aria-hidden="true"></i> Nhập điểm', 
+                                                                ['action' => 'setScore', $jtest->id],
+                                                                ['escape' => false]) ?>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                    <?php if ($status == 4 || $status == 5): ?>
+                                                        <li class="divider"></li>
+                                                        <li>
+                                                            <?= $this->Html->link('<i class="fa fa-book" aria-hidden="true"></i> Xuất điểm', 
+                                                                ['action' => 'exportResult', $jtest->id],
+                                                                ['escape' => false]) ?>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>

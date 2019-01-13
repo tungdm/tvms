@@ -191,7 +191,7 @@ $this->assign('title', 'Quản lý Nhân viên');
                         <?php foreach ($users as $user): ?>
                         <?php $counter++ ?>
                         <tr>
-                            <td class="cell text-center"><?= h($counter) ?></td>
+                            <td class="cell text-center <?= $user->del_flag ? 'deletedRecord' : '' ?>"><?= h($counter) ?></td>
                             <td class="cell usernameCol"><?= h($user->username) ?></td>
                             <td class="cell emailCol hidden"><?= h($user->email) ?></td>
                             <td class="cell genderCol text-center"><?= h($gender[$user->gender]) ?></td>
@@ -201,32 +201,43 @@ $this->assign('title', 'Quản lý Nhân viên');
                             
                             <td class="actions cell">
                                 <?php if ($permission == 0 && $user->role->name != 'admin' && $user->id != $currentUser['id']): ?>
-                                <div class="btn-group">
-                                    <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li>
-                                            <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'>
-                                                <i class="fa fa-edit" aria-hidden="true"></i> Phân quyền
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <?= $this->Form->postLink('<i class="fa fa-key" aria-hidden="true"></i> Khôi phục mật khẩu', 
-                                                ['action' => 'resetPassword', $user->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn khôi phục mật khẩu mặc định cho nhân viên {0}?', $user->fullname)
-                                                ]) ?>
-                                        </li>
-                                        <li>
-                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                                ['action' => 'delete', $user->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa nhân viên {0}?', $user->fullname)
-                                                ]) ?>
-                                        </li>
-                                    </ul>
-                                </div>
+                                    <div class="btn-group">
+                                        <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
+                                        <ul role="menu" class="dropdown-menu">
+                                            <?php if ($user->del_flag): ?>
+                                                <li>
+                                                    <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                                                    ['action' => 'recover', $user->id], 
+                                                    [
+                                                        'escape' => false, 
+                                                        'confirm' => __('Bạn có chắc chắn muốn phục hồi nhân viên {0}?', $user->fullname)
+                                                    ]) ?>
+                                                </li>
+                                            <?php else: ?>
+                                                <li>
+                                                    <a href="javascript:;" onclick='showEditPerModal("<?= $user->id ?>", "<?= $user->role->id ?>")'>
+                                                        <i class="fa fa-edit" aria-hidden="true"></i> Phân quyền
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <?= $this->Form->postLink('<i class="fa fa-key" aria-hidden="true"></i> Khôi phục mật khẩu', 
+                                                        ['action' => 'resetPassword', $user->id], 
+                                                        [
+                                                            'escape' => false, 
+                                                            'confirm' => __('Bạn có chắc chắn muốn khôi phục mật khẩu mặc định cho nhân viên {0}?', $user->fullname)
+                                                        ]) ?>
+                                                </li>
+                                                <li>
+                                                    <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                        ['action' => 'delete', $user->id], 
+                                                        [
+                                                            'escape' => false, 
+                                                            'confirm' => __('Bạn có chắc chắn muốn xóa nhân viên {0}?', $user->fullname)
+                                                        ]) ?>
+                                                </li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
                                 <?php endif; ?>                
                             </td>
                         </tr>

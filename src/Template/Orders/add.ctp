@@ -93,59 +93,57 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
             <?php if ($action === 'edit'): ?>
-            <li data-toggle="tooltip" title="Xuất hồ sơ">
-                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
-                   data-toggle="modal" 
-                   data-target="#export-order-modal">
-                    <i class="fa fa-book" aria-hidden="true"></i>
-                </a>
-            </li>
-            <?php if ($status == 4): ?>
-            <li>
-                <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i>'), 
-                    ['action' => 'close', $order->id],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Đóng',
-                        'escape' => false,
-                        'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
-                    ]) ?>
-            </li>
-            <?php endif; ?>
-            <li>
-                <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
-                    ['action' => 'view', $order->id],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Xem chi tiết',
-                        'escape' => false
-                    ]) ?>
-            </li>
-            <li>
-                <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
-                    ['action' => 'delete', $order->id], 
-                    [
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
-                        'escape' => false, 
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Xóa',
-                        'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
-                    ]) ?>
-            </li>
-            <?php endif; ?>
-            <?php if ($action === 'edit'): ?>
-            <li>
-                <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
-                    ['action' => 'add'],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Thêm mới',
-                        'escape' => false
-                    ]) ?>
-            </li>
+                <li data-toggle="tooltip" title="Xuất hồ sơ">
+                    <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
+                    data-toggle="modal" 
+                    data-target="#export-order-modal">
+                        <i class="fa fa-book" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <?php if ($status == 4 && !empty($order->departure)): ?>
+                    <li>
+                        <?= $this->Form->postLink(__('<i class="fa fa-plane" aria-hidden="true"></i>'), 
+                            ['action' => 'close', $order->id],
+                            [   
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
+                                'data-toggle' => 'tooltip',
+                                'title' => 'Xuất cảnh',
+                                'escape' => false,
+                                'confirm' => __('Bạn có chắc chắn muốn chuyển đơn hàng {0} sang xuất cảnh?', $order->name)
+                            ]) ?>
+                    </li>
+                <?php endif; ?>
+                <li>
+                    <?= $this->Html->link(__('<i class="fa fa-info" aria-hidden="true"></i>'), 
+                        ['action' => 'view', $order->id],
+                        [   
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Xem chi tiết',
+                            'escape' => false
+                        ]) ?>
+                </li>
+                <li>
+                    <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                        ['action' => 'delete', $order->id], 
+                        [
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                            'escape' => false, 
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Xóa',
+                            'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
+                        ]) ?>
+                </li>
+                <li>
+                    <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                        ['action' => 'add'],
+                        [   
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Thêm mới',
+                            'escape' => false
+                        ]) ?>
+                </li>
             <?php endif; ?>
             <li>
                 <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out submit-order-btn" data-toggle="tooltip" title="Lưu lại">
@@ -167,8 +165,9 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
 <?= $this->Form->hidden('status') ?>
 <?= $this->Form->unlockField('status') ?>
 <?= $this->Form->unlockField('students') ?>
+<?= $this->Form->unlockField('company_id') ?>
 
-<div class="row">    
+<div class="row">
     <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="box">
             <div class="box-header with-border">
@@ -279,6 +278,22 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="guild_id"><?= __('Nghiệp đoàn') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        
+                        <?= $this->Form->control('guild_id', [
+                            'options' => $guilds,
+                            'empty' => true, 
+                            'required' => true, 
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 selectGuild',
+                            'data-parsley-errors-container' => '#error-guild',
+                            'data-parsley-class-handler' => '#select2-guild-id',
+                            ]) ?>
+                        <span id="error-guild"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="company_id"><?= __('Công ty tiếp nhận') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('company_id', [
@@ -286,7 +301,7 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             'empty' => true, 
                             'required' => true, 
                             'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'class' => 'form-control col-md-7 col-xs-12 selectCompany select2-theme',
                             'data-parsley-errors-container' => '#error-company',
                             'data-parsley-class-handler' => '#select2-company-id',
                             ]) ?>

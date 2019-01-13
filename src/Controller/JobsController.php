@@ -35,6 +35,11 @@ class JobsController extends AppController
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
         if (!empty($userPermission)) {
+            // only admin can recover deleted record
+            if ($action == 'recover') {
+                return false;
+            }
+
             if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
                 $session->write($controller, $userPermission->action);
                 return true;
@@ -67,10 +72,10 @@ class JobsController extends AppController
                 });
             }
             if (isset($query['f_created_by']) && !empty($query['f_created_by'])) {
-                $allJobs->where(['created_by' => $query['f_created_by']]);
+                $allJobs->where(['Jobs.created_by' => $query['f_created_by']]);
             }
             if (isset($query['f_modified_by']) && !empty($query['f_modified_by'])) {
-                $allJobs->where(['modified_by' => $query['f_modified_by']]);
+                $allJobs->where(['Jobs.modified_by' => $query['f_modified_by']]);
             }
         } else {
             $query['records'] = 10;
@@ -84,6 +89,10 @@ class JobsController extends AppController
             ],
             'limit' => $query['records']
         ];
+        if ($this->Auth->user('role_id') != 1) {
+            // other user (not admin) can not view delete record
+            $allJobs->where(['Jobs.del_flag' => FALSE]);
+        }
         $jobs = $this->paginate($allJobs);
 
         $usersTable = TableRegistry::get('Users');
@@ -117,12 +126,14 @@ class JobsController extends AppController
                     'ModifiedByUsers'
                 ]
             ]);
-            $resp = [
-                'status' => 'success',
-                'data' => $job,
-                'created' => $job->created ? $job->created ->i18nFormat('dd-MM-yyyy HH:mm:ss') : '',
-                'modified' => $job->modified ? $job->modified->i18nFormat('dd-MM-yyyy HH:mm:ss') : ''
-            ];
+            if (!$job->del_flag || $this->Auth->user('role_id') == 1) {
+                $resp = [
+                    'status' => 'success',
+                    'data' => $job,
+                    'created' => $job->created ? $job->created ->i18nFormat('dd-MM-yyyy HH:mm:ss') : '',
+                    'modified' => $job->modified ? $job->modified->i18nFormat('dd-MM-yyyy HH:mm:ss') : ''
+                ];
+            }
         }
         catch (Exception $e) {
             //TODO: blacklist user
@@ -230,7 +241,9 @@ class JobsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $job = $this->Jobs->get($id);
-        if ($this->Jobs->delete($job)) {
+        $job->del_flag = TRUE;
+        $job = $this->Jobs->setAuthor($job, $this->Auth->user('id'), 'edit');
+        if ($this->Jobs->save($job)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
                 'name' => $job->job_name
@@ -239,6 +252,27 @@ class JobsController extends AppController
             $this->Flash->error($this->errorMessage['error']);
         }
 
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function recover($id = null)
+    {
+        $this->request->allowMethod(['post']);
+        $job = $this->Jobs->get($id);
+        $job->del_flag = FALSE;
+        $job = $this->Jobs->setAuthor($job, $this->Auth->user('id'), 'edit');
+
+        if ($this->Jobs->save($job)) {
+            $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                'entity' => $this->entity, 
+                'name' => $job->job_name
+                ]));
+        } else {
+            $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                'entity' => $this->entity,
+                'name' => $job->job_name
+                ]));
+        }
         return $this->redirect(['action' => 'index']);
     }
 }

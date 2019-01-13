@@ -35,6 +35,9 @@ class Event extends Entity
      */
     protected $_accessible = [
         'user_id' => true,
+        'order_id' => true,
+        'jtest_id' => true,
+        'jlpt_test_id' => true,
         'title' => true,
         'description' => true,
         'all_day' => true,
@@ -42,6 +45,7 @@ class Event extends Entity
         'end' => true,
         'scope' => true,
         'color' => true,
+        'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,

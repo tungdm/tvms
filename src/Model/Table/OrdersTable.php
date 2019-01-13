@@ -46,6 +46,9 @@ class OrdersTable extends Table
         $this->belongsTo('Companies', [
             'foreignKey' => 'company_id',
         ]);
+        $this->belongsTo('Guilds', [
+            'foreignKey' => 'guild_id',
+        ]);
         $this->belongsTo('DisCompanies', [
             'className' => 'Companies',
             'foreignKey' => 'dis_company_id',
@@ -182,6 +185,7 @@ class OrdersTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->existsIn(['company_id'], 'Companies'));
+        $rules->add($rules->existsIn(['guild_id'], 'Guilds'));
         $rules->add($rules->existsIn(['job_id'], 'Jobs'));
 
         return $rules;

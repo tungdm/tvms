@@ -2,6 +2,7 @@
 use Cake\Core\Configure;
 use Cake\I18n\Time;
 
+$currentUser = $this->request->session()->read('Auth.User');
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
@@ -54,49 +55,63 @@ if ($order->status == "4" || $order->status == "5") {
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
-            <li data-toggle="tooltip" title="Xuất hồ sơ">
-                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
-                   data-toggle="modal" 
-                   data-target="#export-order-modal">
-                    <i class="fa fa-book" aria-hidden="true"></i>
-                </a>
-            </li>
             <?php if ($permission == 0): ?>
-                <li>
-                    <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
-                        ['action' => 'delete', $order->id], 
+                <?php if ($order->del_flag): ?>
+                    <li>
+                        <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                        ['action' => 'recover', $order->id], 
                         [
-                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out',
                             'escape' => false, 
                             'data-toggle' => 'tooltip',
-                            'title' => 'Xóa',
-                            'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
+                            'title' => 'Phục hồi',
+                            'confirm' => __('Bạn có chắc chắn muốn phục hồi đơn hàng {0}?', $order->name)
                         ]) ?>
-                </li>
-                <?php if ($status != 5): ?>
+                    </li>
+                <?php else: ?>
+                    <li data-toggle="tooltip" title="Xuất hồ sơ">
+                        <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" 
+                        data-toggle="modal" 
+                        data-target="#export-order-modal">
+                            <i class="fa fa-book" aria-hidden="true"></i>
+                        </a>
+                    </li>
                     <li>
-                        <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
-                            ['action' => 'edit', $order->id],
-                            [   
-                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
+                            ['action' => 'delete', $order->id], 
+                            [
+                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-delete scale-transition scale-out',
+                                'escape' => false, 
                                 'data-toggle' => 'tooltip',
-                                'title' => 'Sửa',
-                                'escape' => false
+                                'title' => 'Xóa',
+                                'confirm' => __('Bạn có chắc chắn muốn xóa đơn hàng {0}?', $order->name)
                             ]) ?>
                     </li>
-                <?php endif; ?>
-                <?php if ($status == 4): ?>
-                    <li>
-                        <?= $this->Form->postLink(__('<i class="fa fa-lock" aria-hidden="true"></i>'), 
-                            ['action' => 'close', $order->id],
-                            [   
-                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
-                                'data-toggle' => 'tooltip',
-                                'title' => 'Đóng',
-                                'escape' => false,
-                                'confirm' => __('Bạn có chắc chắn muốn đóng đơn hàng {0}?', $order->name)
-                            ]) ?>
-                    </li>
+                    <?php if ($status != 5 || $currentUser['role_id'] == 1): ?>
+                        <li>
+                            <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i>'), 
+                                ['action' => 'edit', $order->id],
+                                [   
+                                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                                    'data-toggle' => 'tooltip',
+                                    'title' => 'Sửa',
+                                    'escape' => false
+                                ]) ?>
+                        </li>
+                    <?php endif; ?>
+                    <?php if ($status == 4 && !empty($order->departure)): ?>
+                        <li>
+                            <?= $this->Form->postLink(__('<i class="fa fa-plane" aria-hidden="true"></i>'), 
+                                ['action' => 'close', $order->id],
+                                [   
+                                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-close scale-transition scale-out',
+                                    'data-toggle' => 'tooltip',
+                                    'title' => 'Xuất cảnh',
+                                    'escape' => false,
+                                    'confirm' => __('Bạn có chắc chắn muốn chuyển đơn hàng {0} sang xuất cảnh?', $order->name)
+                                ]) ?>
+                        </li>
+                    <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
         </ul>
@@ -156,7 +171,11 @@ if ($order->status == "4" || $order->status == "5") {
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="guild_id"><?= __('Nghiệp đoàn quản lý') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <a href="javascript:;" onclick="viewGuild(<?= $order->company->guild->id ?>)"><?= h($order->company->guild->name_romaji) ?></a>
+                                <?php if ($order->has('guild')): ?>
+                                    <a href="javascript:;" onclick="viewGuild(<?= $order->guild_id ?>)"><?= h($order->guild->name_romaji) ?></a>
+                                <?php else: ?>
+                                    N/A
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -164,7 +183,11 @@ if ($order->status == "4" || $order->status == "5") {
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company_id"><?= __('Công ty tiếp nhận') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <a href="javascript:;" onclick="viewCompany(<?= $order->company->id ?>)"><?= h($order->company->name_romaji) ?></a>
+                                <?php if ($order->has('company')): ?>
+                                    <a href="javascript:;" onclick="viewCompany(<?= $order->company->id ?>)"><?= h($order->company->name_romaji) ?></a>
+                                <?php else: ?>
+                                    N/A
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

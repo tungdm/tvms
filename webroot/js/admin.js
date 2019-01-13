@@ -141,685 +141,685 @@ if (typeof jQuery === 'undefined') {
 
 }(jQuery)
 
-/* Layout()
-    * ========
-    * Implements admin layout.
-    * Fixes the layout height in case min-height fails.
-    *
-    * @usage activated automatically upon window load.
-    *        Configure any options by passing data-option="value"
-    *        to the body tag.
-    */
-+ function ($) {
-    'use strict'
+    /* Layout()
+        * ========
+        * Implements admin layout.
+        * Fixes the layout height in case min-height fails.
+        *
+        * @usage activated automatically upon window load.
+        *        Configure any options by passing data-option="value"
+        *        to the body tag.
+        */
+    + function ($) {
+        'use strict'
 
-    var DataKey = 'lte.layout'
+        var DataKey = 'lte.layout'
 
-    var Default = {
-        slimscroll: true,
-        resetHeight: true
-    }
+        var Default = {
+            slimscroll: true,
+            resetHeight: true
+        }
 
-    var Selector = {
-        wrapper: '.wrapper',
-        contentWrapper: '.content-wrapper',
-        layoutBoxed: '.layout-boxed',
-        mainFooter: '.main-footer',
-        mainHeader: '.main-header',
-        sidebar: '.sidebar',
-        controlSidebar: '.control-sidebar',
-        fixed: '.fixed',
-        sidebarMenu: '.sidebar-menu',
-        logo: '.main-header .logo'
-    }
+        var Selector = {
+            wrapper: '.wrapper',
+            contentWrapper: '.content-wrapper',
+            layoutBoxed: '.layout-boxed',
+            mainFooter: '.main-footer',
+            mainHeader: '.main-header',
+            sidebar: '.sidebar',
+            controlSidebar: '.control-sidebar',
+            fixed: '.fixed',
+            sidebarMenu: '.sidebar-menu',
+            logo: '.main-header .logo'
+        }
 
-    var ClassName = {
-        fixed: 'fixed',
-        holdTransition: 'hold-transition'
-    }
+        var ClassName = {
+            fixed: 'fixed',
+            holdTransition: 'hold-transition'
+        }
 
-    var Layout = function (options) {
-        this.options = options
-        this.bindedResize = false
-        this.activate()
-    }
+        var Layout = function (options) {
+            this.options = options
+            this.bindedResize = false
+            this.activate()
+        }
 
-    Layout.prototype.activate = function () {
-        this.fix()
-        this.fixSidebar()
+        Layout.prototype.activate = function () {
+            this.fix()
+            this.fixSidebar()
 
-        $('body').removeClass(ClassName.holdTransition)
+            $('body').removeClass(ClassName.holdTransition)
 
-        if (this.options.resetHeight) {
-            $('body, html, ' + Selector.wrapper).css({
-                'height': 'auto',
-                'min-height': '100%'
+            if (this.options.resetHeight) {
+                $('body, html, ' + Selector.wrapper).css({
+                    'height': 'auto',
+                    'min-height': '100%'
+                })
+            }
+
+            if (!this.bindedResize) {
+                $(window).resize(function () {
+                    this.fix()
+                    this.fixSidebar()
+
+                    $(Selector.logo + ', ' + Selector.sidebar).one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
+                        this.fix()
+                        this.fixSidebar()
+                    }.bind(this))
+                }.bind(this))
+
+                this.bindedResize = true
+            }
+
+            $(Selector.sidebarMenu).on('expanded.tree', function () {
+                this.fix()
+                this.fixSidebar()
+            }.bind(this))
+
+            $(Selector.sidebarMenu).on('collapsed.tree', function () {
+                this.fix()
+                this.fixSidebar()
+            }.bind(this))
+        }
+
+        Layout.prototype.fix = function () {
+            // Remove overflow from .wrapper if layout-boxed exists
+            $(Selector.layoutBoxed + ' > ' + Selector.wrapper).css('overflow', 'hidden')
+
+            // Get window height and the wrapper height
+            var footerHeight = $(Selector.mainFooter).outerHeight() || 0
+            var neg = $(Selector.mainHeader).outerHeight() + footerHeight
+            var windowHeight = $(window).height()
+            var sidebarHeight = $(Selector.sidebar).height() || 0
+
+            // Set the min-height of the content and sidebar based on
+            // the height of the document.
+            if ($('body').hasClass(ClassName.fixed)) {
+                $(Selector.contentWrapper).css('min-height', windowHeight - footerHeight)
+            } else {
+                var postSetHeight
+
+                if (windowHeight >= sidebarHeight) {
+                    $(Selector.contentWrapper).css('min-height', windowHeight - neg)
+                    postSetHeight = windowHeight - neg
+                } else {
+                    $(Selector.contentWrapper).css('min-height', sidebarHeight)
+                    postSetHeight = sidebarHeight
+                }
+
+                // Fix for the control sidebar height
+                var $controlSidebar = $(Selector.controlSidebar)
+                if (typeof $controlSidebar !== 'undefined') {
+                    if ($controlSidebar.height() > postSetHeight)
+                        $(Selector.contentWrapper).css('min-height', $controlSidebar.height())
+                }
+            }
+        }
+
+        Layout.prototype.fixSidebar = function () {
+            // Make sure the body tag has the .fixed class
+            if (!$('body').hasClass(ClassName.fixed)) {
+                if (typeof $.fn.slimScroll !== 'undefined') {
+                    $(Selector.sidebar).slimScroll({ destroy: true }).height('auto')
+                }
+                return
+            }
+
+            // Enable slimscroll for fixed layout
+            if (this.options.slimscroll) {
+                if (typeof $.fn.slimScroll !== 'undefined') {
+                    // Destroy if it exists
+                    // $(Selector.sidebar).slimScroll({ destroy: true }).height('auto')
+
+                    // Add slimscroll
+                    $(Selector.sidebar).slimScroll({
+                        height: ($(window).height() - $(Selector.mainHeader).height()) + 'px',
+                        color: 'rgba(0,0,0,0.2)',
+                        size: '3px'
+                    })
+                }
+            }
+        }
+
+        // Plugin Definition
+        // =================
+        function Plugin(option) {
+            return this.each(function () {
+                var $this = $(this)
+                var data = $this.data(DataKey)
+
+                if (!data) {
+                    var options = $.extend({}, Default, $this.data(), typeof option === 'object' && option)
+                    $this.data(DataKey, (data = new Layout(options)))
+                }
+
+                if (typeof option === 'string') {
+                    if (typeof data[option] === 'undefined') {
+                        throw new Error('No method named ' + option)
+                    }
+                    data[option]()
+                }
             })
         }
 
-        if (!this.bindedResize) {
-            $(window).resize(function () {
-                this.fix()
-                this.fixSidebar()
+        var old = $.fn.layout
 
-                $(Selector.logo + ', ' + Selector.sidebar).one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', function () {
-                    this.fix()
-                    this.fixSidebar()
-                }.bind(this))
+        $.fn.layout = Plugin
+        $.fn.layout.Constuctor = Layout
+
+        // No conflict mode
+        // ================
+        $.fn.layout.noConflict = function () {
+            $.fn.layout = old
+            return this
+        }
+
+        // Layout DATA-API
+        // ===============
+        $(window).on('load', function () {
+            Plugin.call($('body'))
+        })
+    }(jQuery)
+
+
+    /* PushMenu()
+        * ==========
+        * Adds the push menu functionality to the sidebar.
+        *
+        * @usage: $('.btn').pushMenu(options)
+        *          or add [data-toggle="push-menu"] to any button
+        *          Pass any option as data-option="value"
+        */
+    + function ($) {
+        'use strict'
+
+        var DataKey = 'lte.pushmenu'
+
+        var Default = {
+            collapseScreenSize: 767,
+            expandOnHover: false,
+            expandTransitionDelay: 200
+        }
+
+        var Selector = {
+            collapsed: '.sidebar-collapse',
+            open: '.sidebar-open',
+            mainSidebar: '.main-sidebar',
+            contentWrapper: '.content-wrapper',
+            searchInput: '.sidebar-form .form-control',
+            button: '[data-toggle="push-menu"]',
+            mini: '.sidebar-mini',
+            expanded: '.sidebar-expanded-on-hover',
+            layoutFixed: '.fixed'
+        }
+
+        var ClassName = {
+            collapsed: 'sidebar-collapse',
+            open: 'sidebar-open',
+            mini: 'sidebar-mini',
+            expanded: 'sidebar-expanded-on-hover',
+            expandFeature: 'sidebar-mini-expand-feature',
+            layoutFixed: 'fixed'
+        }
+
+        var Event = {
+            expanded: 'expanded.pushMenu',
+            collapsed: 'collapsed.pushMenu'
+        }
+
+        // PushMenu Class Definition
+        // =========================
+        var PushMenu = function (options) {
+            this.options = options
+            this.init()
+        }
+
+        PushMenu.prototype.init = function () {
+            if (this.options.expandOnHover
+                || ($('body').is(Selector.mini + Selector.layoutFixed))) {
+                this.expandOnHover()
+                $('body').addClass(ClassName.expandFeature)
+            }
+
+            if ($(window).width() <= this.options.collapseScreenSize) {
+                this.close();
+            } else {
+                var activeSidebar = localStorage.getItem('sidebar');
+                if (activeSidebar === 'true') {
+                    this.open();
+                } else {
+                    this.close();
+                }
+            }
+
+
+            $(Selector.contentWrapper).click(function () {
+                // Enable hide menu when clicking on the content-wrapper on small screens
+                if ($(window).width() <= this.options.collapseScreenSize && $('body').hasClass(ClassName.open)) {
+                    this.close()
+                }
             }.bind(this))
 
-            this.bindedResize = true
+            // __Fix for android devices
+            $(Selector.searchInput).click(function (e) {
+                e.stopPropagation()
+            })
         }
 
-        $(Selector.sidebarMenu).on('expanded.tree', function () {
-            this.fix()
-            this.fixSidebar()
-        }.bind(this))
+        PushMenu.prototype.toggle = function () {
+            var windowWidth = $(window).width()
+            var isOpen = !$('body').hasClass(ClassName.collapsed)
 
-        $(Selector.sidebarMenu).on('collapsed.tree', function () {
-            this.fix()
-            this.fixSidebar()
-        }.bind(this))
-    }
+            if (windowWidth <= this.options.collapseScreenSize) {
+                isOpen = $('body').hasClass(ClassName.open)
+            }
 
-    Layout.prototype.fix = function () {
-        // Remove overflow from .wrapper if layout-boxed exists
-        $(Selector.layoutBoxed + ' > ' + Selector.wrapper).css('overflow', 'hidden')
-
-        // Get window height and the wrapper height
-        var footerHeight = $(Selector.mainFooter).outerHeight() || 0
-        var neg = $(Selector.mainHeader).outerHeight() + footerHeight
-        var windowHeight = $(window).height()
-        var sidebarHeight = $(Selector.sidebar).height() || 0
-
-        // Set the min-height of the content and sidebar based on
-        // the height of the document.
-        if ($('body').hasClass(ClassName.fixed)) {
-            $(Selector.contentWrapper).css('min-height', windowHeight - footerHeight)
-        } else {
-            var postSetHeight
-
-            if (windowHeight >= sidebarHeight) {
-                $(Selector.contentWrapper).css('min-height', windowHeight - neg)
-                postSetHeight = windowHeight - neg
+            if (!isOpen) {
+                this.open()
             } else {
-                $(Selector.contentWrapper).css('min-height', sidebarHeight)
-                postSetHeight = sidebarHeight
-            }
-
-            // Fix for the control sidebar height
-            var $controlSidebar = $(Selector.controlSidebar)
-            if (typeof $controlSidebar !== 'undefined') {
-                if ($controlSidebar.height() > postSetHeight)
-                    $(Selector.contentWrapper).css('min-height', $controlSidebar.height())
-            }
-        }
-    }
-
-    Layout.prototype.fixSidebar = function () {
-        // Make sure the body tag has the .fixed class
-        if (!$('body').hasClass(ClassName.fixed)) {
-            if (typeof $.fn.slimScroll !== 'undefined') {
-                $(Selector.sidebar).slimScroll({ destroy: true }).height('auto')
-            }
-            return
-        }
-
-        // Enable slimscroll for fixed layout
-        if (this.options.slimscroll) {
-            if (typeof $.fn.slimScroll !== 'undefined') {
-                // Destroy if it exists
-                // $(Selector.sidebar).slimScroll({ destroy: true }).height('auto')
-
-                // Add slimscroll
-                $(Selector.sidebar).slimScroll({
-                    height: ($(window).height() - $(Selector.mainHeader).height()) + 'px',
-                    color: 'rgba(0,0,0,0.2)',
-                    size: '3px'
-                })
-            }
-        }
-    }
-
-    // Plugin Definition
-    // =================
-    function Plugin(option) {
-        return this.each(function () {
-            var $this = $(this)
-            var data = $this.data(DataKey)
-
-            if (!data) {
-                var options = $.extend({}, Default, $this.data(), typeof option === 'object' && option)
-                $this.data(DataKey, (data = new Layout(options)))
-            }
-
-            if (typeof option === 'string') {
-                if (typeof data[option] === 'undefined') {
-                    throw new Error('No method named ' + option)
-                }
-                data[option]()
-            }
-        })
-    }
-
-    var old = $.fn.layout
-
-    $.fn.layout = Plugin
-    $.fn.layout.Constuctor = Layout
-
-    // No conflict mode
-    // ================
-    $.fn.layout.noConflict = function () {
-        $.fn.layout = old
-        return this
-    }
-
-    // Layout DATA-API
-    // ===============
-    $(window).on('load', function () {
-        Plugin.call($('body'))
-    })
-}(jQuery)
-
-
-/* PushMenu()
-    * ==========
-    * Adds the push menu functionality to the sidebar.
-    *
-    * @usage: $('.btn').pushMenu(options)
-    *          or add [data-toggle="push-menu"] to any button
-    *          Pass any option as data-option="value"
-    */
-+ function ($) {
-    'use strict'
-
-    var DataKey = 'lte.pushmenu'
-
-    var Default = {
-        collapseScreenSize: 767,
-        expandOnHover: false,
-        expandTransitionDelay: 200
-    }
-
-    var Selector = {
-        collapsed: '.sidebar-collapse',
-        open: '.sidebar-open',
-        mainSidebar: '.main-sidebar',
-        contentWrapper: '.content-wrapper',
-        searchInput: '.sidebar-form .form-control',
-        button: '[data-toggle="push-menu"]',
-        mini: '.sidebar-mini',
-        expanded: '.sidebar-expanded-on-hover',
-        layoutFixed: '.fixed'
-    }
-
-    var ClassName = {
-        collapsed: 'sidebar-collapse',
-        open: 'sidebar-open',
-        mini: 'sidebar-mini',
-        expanded: 'sidebar-expanded-on-hover',
-        expandFeature: 'sidebar-mini-expand-feature',
-        layoutFixed: 'fixed'
-    }
-
-    var Event = {
-        expanded: 'expanded.pushMenu',
-        collapsed: 'collapsed.pushMenu'
-    }
-
-    // PushMenu Class Definition
-    // =========================
-    var PushMenu = function (options) {
-        this.options = options
-        this.init()
-    }
-
-    PushMenu.prototype.init = function () {
-        if (this.options.expandOnHover
-            || ($('body').is(Selector.mini + Selector.layoutFixed))) {
-            this.expandOnHover()
-            $('body').addClass(ClassName.expandFeature)
-        }
-
-        if ($(window).width() <= this.options.collapseScreenSize) {
-            this.close();
-        } else {
-            var activeSidebar = localStorage.getItem('sidebar');
-            if (activeSidebar === 'true') {
-                this.open();
-            } else {
-                this.close();
-            }
-        }
-        
-
-        $(Selector.contentWrapper).click(function () {
-            // Enable hide menu when clicking on the content-wrapper on small screens
-            if ($(window).width() <= this.options.collapseScreenSize && $('body').hasClass(ClassName.open)) {
                 this.close()
             }
-        }.bind(this))
-
-        // __Fix for android devices
-        $(Selector.searchInput).click(function (e) {
-            e.stopPropagation()
-        })
-    }
-
-    PushMenu.prototype.toggle = function () {
-        var windowWidth = $(window).width()
-        var isOpen = !$('body').hasClass(ClassName.collapsed)
-
-        if (windowWidth <= this.options.collapseScreenSize) {
-            isOpen = $('body').hasClass(ClassName.open)
         }
 
-        if (!isOpen) {
-            this.open()
-        } else {
-            this.close()
-        }
-    }
+        PushMenu.prototype.open = function () {
+            var windowWidth = $(window).width()
 
-    PushMenu.prototype.open = function () {
-        var windowWidth = $(window).width()
-
-        if (windowWidth > this.options.collapseScreenSize) {
-            $('body').removeClass(ClassName.collapsed)
-                .trigger($.Event(Event.expanded))
-        }
-        else {
-            $('body').addClass(ClassName.open)
-                .trigger($.Event(Event.expanded))
-        }
-    }
-
-    PushMenu.prototype.close = function () {
-        var windowWidth = $(window).width()
-        if (windowWidth > this.options.collapseScreenSize) {
-            $('body').addClass(ClassName.collapsed)
-                .trigger($.Event(Event.collapsed))
-        } else {
-            $('body').removeClass(ClassName.open + ' ' + ClassName.collapsed)
-                .trigger($.Event(Event.collapsed))
-        }
-    }
-
-    PushMenu.prototype.expandOnHover = function () {
-        $(Selector.mainSidebar).hover(function () {
-            if ($('body').is(Selector.mini + Selector.collapsed)
-                && $(window).width() > this.options.collapseScreenSize) {
-                this.expand()
+            if (windowWidth > this.options.collapseScreenSize) {
+                $('body').removeClass(ClassName.collapsed)
+                    .trigger($.Event(Event.expanded))
             }
-        }.bind(this), function () {
-            if ($('body').is(Selector.expanded)) {
-                this.collapse()
+            else {
+                $('body').addClass(ClassName.open)
+                    .trigger($.Event(Event.expanded))
             }
-        }.bind(this))
-    }
+        }
 
-    PushMenu.prototype.expand = function () {
-        setTimeout(function () {
-            $('body').removeClass(ClassName.collapsed)
-                .addClass(ClassName.expanded)
-        }, this.options.expandTransitionDelay)
-    }
+        PushMenu.prototype.close = function () {
+            var windowWidth = $(window).width()
+            if (windowWidth > this.options.collapseScreenSize) {
+                $('body').addClass(ClassName.collapsed)
+                    .trigger($.Event(Event.collapsed))
+            } else {
+                $('body').removeClass(ClassName.open + ' ' + ClassName.collapsed)
+                    .trigger($.Event(Event.collapsed))
+            }
+        }
 
-    PushMenu.prototype.collapse = function () {
-        setTimeout(function () {
-            $('body').removeClass(ClassName.expanded)
-                .addClass(ClassName.collapsed)
-        }, this.options.expandTransitionDelay)
-    }
+        PushMenu.prototype.expandOnHover = function () {
+            $(Selector.mainSidebar).hover(function () {
+                if ($('body').is(Selector.mini + Selector.collapsed)
+                    && $(window).width() > this.options.collapseScreenSize) {
+                    this.expand()
+                }
+            }.bind(this), function () {
+                if ($('body').is(Selector.expanded)) {
+                    this.collapse()
+                }
+            }.bind(this))
+        }
 
-    // PushMenu Plugin Definition
-    // ==========================
-    function Plugin(option) {
-        return this.each(function () {
-            var $this = $(this)
-            var data = $this.data(DataKey)
+        PushMenu.prototype.expand = function () {
+            setTimeout(function () {
+                $('body').removeClass(ClassName.collapsed)
+                    .addClass(ClassName.expanded)
+            }, this.options.expandTransitionDelay)
+        }
 
-            if (!data) {
-                var options = $.extend({}, Default, $this.data(), typeof option == 'object' && option)
-                $this.data(DataKey, (data = new PushMenu(options)))
+        PushMenu.prototype.collapse = function () {
+            setTimeout(function () {
+                $('body').removeClass(ClassName.expanded)
+                    .addClass(ClassName.collapsed)
+            }, this.options.expandTransitionDelay)
+        }
+
+        // PushMenu Plugin Definition
+        // ==========================
+        function Plugin(option) {
+            return this.each(function () {
+                var $this = $(this)
+                var data = $this.data(DataKey)
+
+                if (!data) {
+                    var options = $.extend({}, Default, $this.data(), typeof option == 'object' && option)
+                    $this.data(DataKey, (data = new PushMenu(options)))
+                }
+
+                if (option === 'toggle') data.toggle()
+            })
+        }
+
+        var old = $.fn.pushMenu
+
+        $.fn.pushMenu = Plugin
+        $.fn.pushMenu.Constructor = PushMenu
+
+        // No Conflict Mode
+        // ================
+        $.fn.pushMenu.noConflict = function () {
+            $.fn.pushMenu = old
+            return this
+        }
+
+        // Data API
+        // ========
+        $(document).on('click', Selector.button, function (e) {
+            e.preventDefault()
+            Plugin.call($(this), 'toggle')
+        })
+        $(window).on('load', function () {
+            Plugin.call($(Selector.button))
+        })
+    }(jQuery)
+
+    /* Tree()
+        * ======
+        * Converts a nested list into a multilevel
+        * tree view menu.
+        *
+        * @Usage: $('.my-menu').tree(options)
+        *         or add [data-widget="tree"] to the ul element
+        *         Pass any option as data-option="value"
+        */
+    + function ($) {
+        'use strict'
+
+        var DataKey = 'lte.tree'
+
+        var Default = {
+            animationSpeed: 500,
+            accordion: true,
+            followLink: false,
+            trigger: '.treeview a'
+        }
+
+        var Selector = {
+            tree: '.tree',
+            treeview: '.treeview',
+            treeviewMenu: '.treeview-menu',
+            open: '.menu-open, .active',
+            li: 'li',
+            data: '[data-widget="tree"]',
+            active: '.active'
+        }
+
+        var ClassName = {
+            open: 'menu-open',
+            tree: 'tree'
+        }
+
+        var Event = {
+            collapsed: 'collapsed.tree',
+            expanded: 'expanded.tree'
+        }
+
+        // Tree Class Definition
+        // =====================
+        var Tree = function (element, options) {
+            this.element = element
+            this.options = options
+
+            $(this.element).addClass(ClassName.tree)
+
+            $(Selector.treeview + Selector.active, this.element).addClass(ClassName.open)
+
+            this._setUpListeners()
+        }
+
+        Tree.prototype.toggle = function (link, event) {
+            var treeviewMenu = link.next(Selector.treeviewMenu)
+            var parentLi = link.parent()
+            var isOpen = parentLi.hasClass(ClassName.open)
+
+            if (!parentLi.is(Selector.treeview)) {
+                return
             }
 
-            if (option === 'toggle') data.toggle()
-        })
-    }
-
-    var old = $.fn.pushMenu
-
-    $.fn.pushMenu = Plugin
-    $.fn.pushMenu.Constructor = PushMenu
-
-    // No Conflict Mode
-    // ================
-    $.fn.pushMenu.noConflict = function () {
-        $.fn.pushMenu = old
-        return this
-    }
-
-    // Data API
-    // ========
-    $(document).on('click', Selector.button, function (e) {
-        e.preventDefault()
-        Plugin.call($(this), 'toggle')
-    })
-    $(window).on('load', function () {
-        Plugin.call($(Selector.button))
-    })
-}(jQuery)
-
-/* Tree()
-    * ======
-    * Converts a nested list into a multilevel
-    * tree view menu.
-    *
-    * @Usage: $('.my-menu').tree(options)
-    *         or add [data-widget="tree"] to the ul element
-    *         Pass any option as data-option="value"
-    */
-+ function ($) {
-    'use strict'
-
-    var DataKey = 'lte.tree'
-
-    var Default = {
-        animationSpeed: 500,
-        accordion: true,
-        followLink: false,
-        trigger: '.treeview a'
-    }
-
-    var Selector = {
-        tree: '.tree',
-        treeview: '.treeview',
-        treeviewMenu: '.treeview-menu',
-        open: '.menu-open, .active',
-        li: 'li',
-        data: '[data-widget="tree"]',
-        active: '.active'
-    }
-
-    var ClassName = {
-        open: 'menu-open',
-        tree: 'tree'
-    }
-
-    var Event = {
-        collapsed: 'collapsed.tree',
-        expanded: 'expanded.tree'
-    }
-
-    // Tree Class Definition
-    // =====================
-    var Tree = function (element, options) {
-        this.element = element
-        this.options = options
-
-        $(this.element).addClass(ClassName.tree)
-
-        $(Selector.treeview + Selector.active, this.element).addClass(ClassName.open)
-
-        this._setUpListeners()
-    }
-
-    Tree.prototype.toggle = function (link, event) {
-        var treeviewMenu = link.next(Selector.treeviewMenu)
-        var parentLi = link.parent()
-        var isOpen = parentLi.hasClass(ClassName.open)
-
-        if (!parentLi.is(Selector.treeview)) {
-            return
-        }
-
-        if (!this.options.followLink || link.attr('href') === '#') {
-            event.preventDefault()
-        }
-
-        if (isOpen) {
-            this.collapse(treeviewMenu, parentLi)
-        } else {
-            this.expand(treeviewMenu, parentLi)
-        }
-    }
-
-    Tree.prototype.expand = function (tree, parent) {
-        var expandedEvent = $.Event(Event.expanded)
-
-        if (this.options.accordion) {
-            var openMenuLi = parent.siblings(Selector.open)
-            var openTree = openMenuLi.children(Selector.treeviewMenu)
-            this.collapse(openTree, openMenuLi)
-        }
-
-        parent.addClass(ClassName.open)
-        tree.slideDown(this.options.animationSpeed, function () {
-            $(this.element).trigger(expandedEvent)
-        }.bind(this))
-    }
-
-    Tree.prototype.collapse = function (tree, parentLi) {
-        var collapsedEvent = $.Event(Event.collapsed)
-
-        tree.find(Selector.open).removeClass(ClassName.open)
-        parentLi.removeClass(ClassName.open)
-        tree.slideUp(this.options.animationSpeed, function () {
-            tree.find(Selector.open + ' > ' + Selector.treeview).slideUp()
-            $(this.element).trigger(collapsedEvent)
-        }.bind(this))
-    }
-
-    // Private
-
-    Tree.prototype._setUpListeners = function () {
-        var that = this
-
-        $(this.element).on('click', this.options.trigger, function (event) {
-            that.toggle($(this), event)
-        })
-    }
-
-    // Plugin Definition
-    // =================
-    function Plugin(option) {
-        return this.each(function () {
-            var $this = $(this)
-            var data = $this.data(DataKey)
-
-            if (!data) {
-                var options = $.extend({}, Default, $this.data(), typeof option == 'object' && option)
-                $this.data(DataKey, new Tree($this, options))
+            if (!this.options.followLink || link.attr('href') === '#') {
+                event.preventDefault()
             }
-        })
-    }
 
-    var old = $.fn.tree
-
-    $.fn.tree = Plugin
-    $.fn.tree.Constructor = Tree
-
-    // No Conflict Mode
-    // ================
-    $.fn.tree.noConflict = function () {
-        $.fn.tree = old
-        return this
-    }
-
-    // Tree Data API
-    // =============
-    $(window).on('load', function () {
-        $(Selector.data).each(function () {
-            Plugin.call($(this))
-        })
-    })
-
-}(jQuery)
-
-/* BoxWidget()
-    * ======
-    * Adds box widget functions to boxes.
-    *
-    * @Usage: $('.my-box').boxWidget(options)
-    *         This plugin auto activates on any element using the `.box` class
-    *         Pass any option as data-option="value"
-    */
-+ function ($) {
-    'use strict'
-
-    var DataKey = 'lte.boxwidget'
-
-    var Default = {
-        animationSpeed: 500,
-        collapseTrigger: '[data-widget="collapse"]',
-        removeTrigger: '[data-widget="remove"]',
-        collapseIcon: 'fa-chevron-up',
-        expandIcon: 'fa-chevron-down',
-        removeIcon: 'fa-times'
-    }
-
-    var Selector = {
-        data: '.box',
-        collapsed: '.collapsed-box',
-        body: '.box-body',
-        footer: '.box-footer',
-        tools: '.box-tools'
-    }
-
-    var ClassName = {
-        collapsed: 'collapsed-box'
-    }
-
-    var Event = {
-        collapsed: 'collapsed.boxwidget',
-        expanded: 'expanded.boxwidget',
-        removed: 'removed.boxwidget'
-    }
-
-    // BoxWidget Class Definition
-    // =====================
-    var BoxWidget = function (element, options) {
-        this.element = element
-        this.options = options
-
-        this._setUpListeners()
-    }
-
-    BoxWidget.prototype.toggle = function () {
-        var isOpen = !$(this.element).is(Selector.collapsed)
-
-        if (isOpen) {
-            this.collapse()
-        } else {
-            this.expand()
+            if (isOpen) {
+                this.collapse(treeviewMenu, parentLi)
+            } else {
+                this.expand(treeviewMenu, parentLi)
+            }
         }
-    }
 
-    BoxWidget.prototype.expand = function () {
-        var expandedEvent = $.Event(Event.expanded)
-        var collapseIcon = this.options.collapseIcon
-        var expandIcon = this.options.expandIcon
+        Tree.prototype.expand = function (tree, parent) {
+            var expandedEvent = $.Event(Event.expanded)
 
-        $(this.element).removeClass(ClassName.collapsed)
+            if (this.options.accordion) {
+                var openMenuLi = parent.siblings(Selector.open)
+                var openTree = openMenuLi.children(Selector.treeviewMenu)
+                this.collapse(openTree, openMenuLi)
+            }
 
-        $(this.element)
-            .find(Selector.tools)
-            .find('.' + expandIcon)
-            .removeClass(expandIcon)
-            .addClass(collapseIcon)
-
-        $(this.element).find(Selector.body + ', ' + Selector.footer)
-            .slideDown(this.options.animationSpeed, function () {
+            parent.addClass(ClassName.open)
+            tree.slideDown(this.options.animationSpeed, function () {
                 $(this.element).trigger(expandedEvent)
             }.bind(this))
-    }
+        }
 
-    BoxWidget.prototype.collapse = function () {
-        var collapsedEvent = $.Event(Event.collapsed)
-        var collapseIcon = this.options.collapseIcon
-        var expandIcon = this.options.expandIcon
+        Tree.prototype.collapse = function (tree, parentLi) {
+            var collapsedEvent = $.Event(Event.collapsed)
 
-        $(this.element)
-            .find(Selector.tools)
-            .find('.' + collapseIcon)
-            .removeClass(collapseIcon)
-            .addClass(expandIcon)
-
-        $(this.element).find(Selector.body + ', ' + Selector.footer)
-            .slideUp(this.options.animationSpeed, function () {
-                $(this.element).addClass(ClassName.collapsed)
+            tree.find(Selector.open).removeClass(ClassName.open)
+            parentLi.removeClass(ClassName.open)
+            tree.slideUp(this.options.animationSpeed, function () {
+                tree.find(Selector.open + ' > ' + Selector.treeview).slideUp()
                 $(this.element).trigger(collapsedEvent)
             }.bind(this))
-    }
+        }
 
-    BoxWidget.prototype.remove = function () {
-        var removedEvent = $.Event(Event.removed)
+        // Private
 
-        $(this.element).slideUp(this.options.animationSpeed, function () {
-            $(this.element).trigger(removedEvent)
-            $(this.element).remove()
-        }.bind(this))
-    }
+        Tree.prototype._setUpListeners = function () {
+            var that = this
 
-    // Private
+            $(this.element).on('click', this.options.trigger, function (event) {
+                that.toggle($(this), event)
+            })
+        }
 
-    BoxWidget.prototype._setUpListeners = function () {
-        var that = this
+        // Plugin Definition
+        // =================
+        function Plugin(option) {
+            return this.each(function () {
+                var $this = $(this)
+                var data = $this.data(DataKey)
 
-        $(this.element).on('click', this.options.collapseTrigger, function (event) {
-            if (event) event.preventDefault()
-            that.toggle()
-        })
-
-        $(this.element).on('click', this.options.removeTrigger, function (event) {
-            if (event) event.preventDefault()
-            that.remove()
-        })
-    }
-
-    // Plugin Definition
-    // =================
-    function Plugin(option) {
-        return this.each(function () {
-            var $this = $(this)
-            var data = $this.data(DataKey)
-
-            if (!data) {
-                var options = $.extend({}, Default, $this.data(), typeof option == 'object' && option)
-                $this.data(DataKey, (data = new BoxWidget($this, options)))
-            }
-
-            if (typeof option == 'string') {
-                if (typeof data[option] == 'undefined') {
-                    throw new Error('No method named ' + option)
+                if (!data) {
+                    var options = $.extend({}, Default, $this.data(), typeof option == 'object' && option)
+                    $this.data(DataKey, new Tree($this, options))
                 }
-                data[option]()
+            })
+        }
+
+        var old = $.fn.tree
+
+        $.fn.tree = Plugin
+        $.fn.tree.Constructor = Tree
+
+        // No Conflict Mode
+        // ================
+        $.fn.tree.noConflict = function () {
+            $.fn.tree = old
+            return this
+        }
+
+        // Tree Data API
+        // =============
+        $(window).on('load', function () {
+            $(Selector.data).each(function () {
+                Plugin.call($(this))
+            })
+        })
+
+    }(jQuery)
+
+    /* BoxWidget()
+        * ======
+        * Adds box widget functions to boxes.
+        *
+        * @Usage: $('.my-box').boxWidget(options)
+        *         This plugin auto activates on any element using the `.box` class
+        *         Pass any option as data-option="value"
+        */
+    + function ($) {
+        'use strict'
+
+        var DataKey = 'lte.boxwidget'
+
+        var Default = {
+            animationSpeed: 500,
+            collapseTrigger: '[data-widget="collapse"]',
+            removeTrigger: '[data-widget="remove"]',
+            collapseIcon: 'fa-chevron-up',
+            expandIcon: 'fa-chevron-down',
+            removeIcon: 'fa-times'
+        }
+
+        var Selector = {
+            data: '.box',
+            collapsed: '.collapsed-box',
+            body: '.box-body',
+            footer: '.box-footer',
+            tools: '.box-tools'
+        }
+
+        var ClassName = {
+            collapsed: 'collapsed-box'
+        }
+
+        var Event = {
+            collapsed: 'collapsed.boxwidget',
+            expanded: 'expanded.boxwidget',
+            removed: 'removed.boxwidget'
+        }
+
+        // BoxWidget Class Definition
+        // =====================
+        var BoxWidget = function (element, options) {
+            this.element = element
+            this.options = options
+
+            this._setUpListeners()
+        }
+
+        BoxWidget.prototype.toggle = function () {
+            var isOpen = !$(this.element).is(Selector.collapsed)
+
+            if (isOpen) {
+                this.collapse()
+            } else {
+                this.expand()
             }
+        }
+
+        BoxWidget.prototype.expand = function () {
+            var expandedEvent = $.Event(Event.expanded)
+            var collapseIcon = this.options.collapseIcon
+            var expandIcon = this.options.expandIcon
+
+            $(this.element).removeClass(ClassName.collapsed)
+
+            $(this.element)
+                .find(Selector.tools)
+                .find('.' + expandIcon)
+                .removeClass(expandIcon)
+                .addClass(collapseIcon)
+
+            $(this.element).find(Selector.body + ', ' + Selector.footer)
+                .slideDown(this.options.animationSpeed, function () {
+                    $(this.element).trigger(expandedEvent)
+                }.bind(this))
+        }
+
+        BoxWidget.prototype.collapse = function () {
+            var collapsedEvent = $.Event(Event.collapsed)
+            var collapseIcon = this.options.collapseIcon
+            var expandIcon = this.options.expandIcon
+
+            $(this.element)
+                .find(Selector.tools)
+                .find('.' + collapseIcon)
+                .removeClass(collapseIcon)
+                .addClass(expandIcon)
+
+            $(this.element).find(Selector.body + ', ' + Selector.footer)
+                .slideUp(this.options.animationSpeed, function () {
+                    $(this.element).addClass(ClassName.collapsed)
+                    $(this.element).trigger(collapsedEvent)
+                }.bind(this))
+        }
+
+        BoxWidget.prototype.remove = function () {
+            var removedEvent = $.Event(Event.removed)
+
+            $(this.element).slideUp(this.options.animationSpeed, function () {
+                $(this.element).trigger(removedEvent)
+                $(this.element).remove()
+            }.bind(this))
+        }
+
+        // Private
+
+        BoxWidget.prototype._setUpListeners = function () {
+            var that = this
+
+            $(this.element).on('click', this.options.collapseTrigger, function (event) {
+                if (event) event.preventDefault()
+                that.toggle()
+            })
+
+            $(this.element).on('click', this.options.removeTrigger, function (event) {
+                if (event) event.preventDefault()
+                that.remove()
+            })
+        }
+
+        // Plugin Definition
+        // =================
+        function Plugin(option) {
+            return this.each(function () {
+                var $this = $(this)
+                var data = $this.data(DataKey)
+
+                if (!data) {
+                    var options = $.extend({}, Default, $this.data(), typeof option == 'object' && option)
+                    $this.data(DataKey, (data = new BoxWidget($this, options)))
+                }
+
+                if (typeof option == 'string') {
+                    if (typeof data[option] == 'undefined') {
+                        throw new Error('No method named ' + option)
+                    }
+                    data[option]()
+                }
+            })
+        }
+
+        var old = $.fn.boxWidget
+
+        $.fn.boxWidget = Plugin
+        $.fn.boxWidget.Constructor = BoxWidget
+
+        // No Conflict Mode
+        // ================
+        $.fn.boxWidget.noConflict = function () {
+            $.fn.boxWidget = old
+            return this
+        }
+
+        // BoxWidget Data API
+        // ==================
+        $(window).on('load', function () {
+            $(Selector.data).each(function () {
+                Plugin.call($(this))
+            })
         })
-    }
 
-    var old = $.fn.boxWidget
-
-    $.fn.boxWidget = Plugin
-    $.fn.boxWidget.Constructor = BoxWidget
-
-    // No Conflict Mode
-    // ================
-    $.fn.boxWidget.noConflict = function () {
-        $.fn.boxWidget = old
-        return this
-    }
-
-    // BoxWidget Data API
-    // ==================
-    $(window).on('load', function () {
-        $(Selector.data).each(function () {
-            Plugin.call($(this))
-        })
-    })
-
-}(jQuery)
+    }(jQuery)
 
 // NProgress
 if (typeof NProgress != 'undefined') {
@@ -852,8 +852,8 @@ function init_sidebar() {
     // check active menu
     var urlArr = CURRENT_URL.split('/');
     var fixedURL;
-    if (urlArr[urlArr.length-1] == 'companies') {
-        fixedURL = CURRENT_URL + '?' + window.location.href.split('#')[0].split('?')[1].split('&').filter(function(obj) {
+    if (urlArr[urlArr.length - 1] == 'companies') {
+        fixedURL = CURRENT_URL + '?' + window.location.href.split('#')[0].split('?')[1].split('&').filter(function (obj) {
             return obj.indexOf('type') !== -1;
         });
     } else {
@@ -866,7 +866,11 @@ function init_sidebar() {
 
 function tableHover() {
     $('body').on('mouseenter', '.cell', function (e) {
-        $(this).attr('id', 'current-cell');
+        if ($(this).hasClass('deletedRecord')) {
+            $(this).attr('id', 'current-del-cell');
+        } else {
+            $(this).attr('id', 'current-cell');
+        }
         $(this).closest('tr').addClass('highlight');
         var currentSpan = 0;
         if ($(this).closest('tr').attr('span')) {
@@ -879,7 +883,7 @@ function tableHover() {
             var rows = table.find('tr');
             for (let index = 0; index < rows.length; index++) {
                 const row = rows[index];
-                
+
                 if (currentSpan != 0) {
                     if ($(row).hasClass('span-row')) {
                         if (cellIndex == 0) {
@@ -892,7 +896,7 @@ function tableHover() {
                             // first col
                             continue;
                         }
-                        $(row).find('.cell:nth-child(' + (cellIndex+ currentSpan) + ')').addClass('highlight');
+                        $(row).find('.cell:nth-child(' + (cellIndex + currentSpan) + ')').addClass('highlight');
                     }
                 } else {
                     if ($(row).hasClass('span-row')) {
@@ -911,6 +915,7 @@ function tableHover() {
             $(this).closest('table').find('.cell:nth-child(' + ($(this).index() + 1) + ')').addClass('highlight');
         }
     });
+
     $('body').on('mouseout', '.cell', function (e) {
         $(this).removeAttr('id');
         $(this).closest('tr').removeClass('highlight');
@@ -937,7 +942,7 @@ function tableHover() {
                             // first col
                             continue;
                         }
-                        $(row).find('.cell:nth-child(' + (cellIndex+ currentSpan) + ')').removeClass('highlight');
+                        $(row).find('.cell:nth-child(' + (cellIndex + currentSpan) + ')').removeClass('highlight');
                     }
                 } else {
                     if ($(row).hasClass('span-row')) {
@@ -964,13 +969,13 @@ function initSelect2() {
         allowClear: true,
         theme: "bootstrap",
         language: {
-            noResults: function() {
+            noResults: function () {
                 return "Không tìm thấy kết quả";
             }
         }
     });
 
-    $('.select-job').each(function(index) {
+    $('.select-job').each(function (index) {
         var currentEleId = $(this)[0].id;
         $(this).select2({
             placeholder: 'Chọn thông tin',
@@ -978,8 +983,8 @@ function initSelect2() {
             theme: "bootstrap",
             escapeMarkup: function (markup) { return markup; },
             language: {
-                noResults: function() {
-                    return "<a href='javascript:;' onclick='showCreateNewJobModal(this, \""+currentEleId+"\")'>Thêm mới nghề nghiệp</a>"
+                noResults: function () {
+                    return "<a href='javascript:;' onclick='showCreateNewJobModal(this, \"" + currentEleId + "\")'>Thêm mới nghề nghiệp</a>"
                 }
             }
         });
@@ -994,7 +999,7 @@ function showCreateNewJobModal(ele, selectId) {
     $('#add-job-form').find('input[name="job_name"]').val(newJob);
 
     $('#add-job-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-job-btn" onclick="createJob(\''+selectId+'\')">Hoàn tất</button>').insertBefore('#close-job-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-job-btn" onclick="createJob(\'' + selectId + '\')">Hoàn tất</button>').insertBefore('#close-job-modal-btn');
     // show modal add new job
     $('#add-job-modal').modal('toggle');
 }
@@ -1014,16 +1019,16 @@ function createJob(selectId) {
                 job_name_jp: $('#add-job-form').find('input[name="job_name_jp"]').val(),
                 description: $('#add-job-form').find('textarea[name="description"]').val(),
             },
-            success: function(resp){
+            success: function (resp) {
                 if (resp.status == 'success') {
                     // add new option
-                    $('.select-job').each(function() {
+                    $('.select-job').each(function () {
                         var currentId = $(this)[0].id;
                         if (currentId != selectId) {
-                            $('#'+currentId).append($('<option>', {value: resp.newJobId, text: newJob}));
+                            $('#' + currentId).append($('<option>', { value: resp.newJobId, text: newJob }));
                         } else {
                             var newOption = new Option(newJob, resp.newJobId, true, true);
-                            $('#'+currentId).append(newOption).trigger('change');
+                            $('#' + currentId).append(newOption).trigger('change');
                         }
                     });
                     // hide modal
@@ -1041,11 +1046,11 @@ function createJob(selectId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('#add-job-modal-overlay').addClass('hidden');
             }
@@ -1067,8 +1072,8 @@ function initSelect2AjaxSearch(eleId, searchUrl, placeholder) {
             },
             processResults: function (data, params) {
                 params.page = params.page || 1;
-                var processedOptions = $.map(data.items, function(obj, index) {
-                    return {id: index, text: obj};
+                var processedOptions = $.map(data.items, function (obj, index) {
+                    return { id: index, text: obj };
                 });
                 return {
                     results: processedOptions,
@@ -1084,10 +1089,10 @@ function initSelect2AjaxSearch(eleId, searchUrl, placeholder) {
         allowClear: true,
         theme: "bootstrap",
         language: {
-            noResults: function() {
+            noResults: function () {
                 return "Không tìm thấy kết quả";
             },
-            searching: function() {
+            searching: function () {
                 return "Đang tìm kiếm...";
             },
             inputTooShort: function (args) {
@@ -1131,7 +1136,7 @@ function initDatetimePicker() {
         }
 
         // re-validate when user change picker
-        $('#' + ele.id).on('dp.change', function(e) {
+        $('#' + ele.id).on('dp.change', function (e) {
             $('#' + ele.id + ' input').parsley().validate();
 
             // validate relation input when current input pass the validation
@@ -1142,7 +1147,7 @@ function initDatetimePicker() {
                 } else if ($('#' + ele.id + ' input').hasClass('to-date-picker')) {
                     relationEleId = $('#' + ele.id + ' input').attr('data-parsley-after-date');
                 }
-    
+
                 if (relationEleId) {
                     if ($(relationEleId).hasClass('to-date-picker')) {
                         $(relationEleId).parent().data('DateTimePicker').minDate(e.date);
@@ -1162,7 +1167,7 @@ function readURL(input) {
         if (/^image\/\w+$/.test(file.type)) {
             var reader = new FileReader();
             reader.onload = function (e) {
-                if ($("#avatar").hasClass('cropper-hidden')){
+                if ($("#avatar").hasClass('cropper-hidden')) {
                     $("#avatar").cropper('destroy');
                 }
                 $('#avatar').attr('src', e.target.result);
@@ -1172,7 +1177,7 @@ function readURL(input) {
             if ($(input).hasClass('square-img')) {
                 ratio = 1;
             }
-            setTimeout(function() {
+            setTimeout(function () {
                 initCropper(ratio)
             }, 1000);
             $('#cropper-modal').modal('toggle');
@@ -1186,19 +1191,19 @@ function readURL(input) {
     }
 }
 
-function initCropper(ratio){
+function initCropper(ratio) {
     var imgCropper = $('#avatar').cropper({
         aspectRatio: ratio,
-        crop: function(e) {
+        crop: function (e) {
             console.log(e)
         }
     });
 
-    $('#crop-btn').click(function() {
+    $('#crop-btn').click(function () {
         var imgurl = imgCropper.cropper('getCroppedCanvas').toDataURL();
         var img = document.createElement("img");
-        
-        img.addEventListener('load', function() {
+
+        img.addEventListener('load', function () {
             // set body height        
             var contentHeight = $('.right_col').height();
             var newHeight = contentHeight + this.height + 1;
@@ -1226,14 +1231,14 @@ function globalViewGuild(guildId, overlayId) {
     }
     ajaxing = true;
     $(overlayId).removeClass('hidden');
-    
+
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/guilds/view',
         data: {
             id: guildId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 $('#view-name-romaji').html(resp.data.name_romaji);
                 $('#view-name-kanji').html(resp.data.name_kanji);
@@ -1259,6 +1264,11 @@ function globalViewGuild(guildId, overlayId) {
                 $('#view-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-deputy-kanji').html(resp.data.deputy_name_kanji);
 
+                var source = $("#guild-company-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(resp.data.companies);
+                $('#view-company-container').html(html);
+
                 $('#view-guild-created-by').html(resp.data.created_by_user.fullname);
                 $('#view-guild-created').html(resp.created);
 
@@ -1274,7 +1284,6 @@ function globalViewGuild(guildId, overlayId) {
                 } else {
                     $('#view-subsidy').html('N/A');
                 }
-                
 
                 $('#view-guild-modal').modal('toggle');
             } else {
@@ -1290,12 +1299,12 @@ function globalViewGuild(guildId, overlayId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $(overlayId).addClass('hidden');
         }
@@ -1309,20 +1318,22 @@ function globalViewCompany(companyId, overlayId) {
     }
     ajaxing = true;
     $(overlayId).removeClass('hidden');
-    
+
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/companies/view',
         data: {
             id: companyId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 $('#view-company-name-romaji').html(resp.data.name_romaji);
                 $('#view-company-name-kanji').html(resp.data.name_kanji);
 
-                $('#view-guild-name-romaji').html(resp.data.guild.address_romaji);
-                $('#view-guild-name-kanji').html(resp.data.guild.address_kanji);
+                var source = $("#company-guild-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(resp.data.guilds);
+                $('#view-guild-container').html(html);
 
                 $('#view-company-address-romaji').html(resp.data.address_romaji);
                 $('#view-company-address-kanji').html(resp.data.address_kanji);
@@ -1358,12 +1369,12 @@ function globalViewCompany(companyId, overlayId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $(overlayId).addClass('hidden');
         }
@@ -1377,14 +1388,14 @@ function globalViewDispatchingCompany(companyId, overlayId) {
     }
     ajaxing = true;
     $(overlayId).removeClass('hidden');
-    
+
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/companies/view',
         data: {
             id: companyId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 $('#view-dis-company-name-romaji').html(resp.data.name_romaji);
                 $('#view-dis-company-name-kanji').html(resp.data.name_kanji);
@@ -1417,12 +1428,12 @@ function globalViewDispatchingCompany(companyId, overlayId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $(overlayId).addClass('hidden');
         }
@@ -1436,14 +1447,14 @@ function globalViewPresenter(presenterId, overlayId) {
     }
     ajaxing = true;
     $(overlayId).removeClass('hidden');
-    
+
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/presenters/view',
         data: {
             id: presenterId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 $('#view-presenter-name').html(resp.data.name);
                 $('#view-presenter-address').html(resp.data.address);
@@ -1489,12 +1500,12 @@ function globalViewPresenter(presenterId, overlayId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $(overlayId).addClass('hidden');
         }
@@ -1525,7 +1536,7 @@ function showAddHistoryModal(studentId, historyType, controller, classId) {
     $('#add-edit-history-form').find('#history-student-id').val(studentId);
 
     $('#submit-history-btn').remove();
-    $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="addHistory(\''+controller+'\', \''+classId+'\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
+    $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="addHistory(\'' + controller + '\', \'' + classId + '\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
     // show modal
     $('#history-modal').modal('toggle');
 }
@@ -1540,7 +1551,7 @@ function addHistory(controller, classId) {
         ajaxing = true;
         $('#history-modal-overlay').removeClass('hidden');
         if (controller == 'jclasses') {
-            var url = DOMAIN_NAME + '/' + controller + '/addHistory/'+classId;
+            var url = DOMAIN_NAME + '/' + controller + '/addHistory/' + classId;
         } else {
             var url = DOMAIN_NAME + '/' + controller + '/addHistory';
         }
@@ -1553,7 +1564,7 @@ function addHistory(controller, classId) {
                 'student_id': $('#add-edit-history-form').find('#history-student-id').val(),
                 'note': $('#add-edit-history-form').find('#history-note').val()
             },
-            success: function(resp){
+            success: function (resp) {
                 if (resp) {
                     var notice = new PNotify({
                         title: '<strong>' + resp.flash.title + '</strong>',
@@ -1567,12 +1578,12 @@ function addHistory(controller, classId) {
                             sticker: false
                         }
                     });
-                    notice.get().click(function() {
+                    notice.get().click(function () {
                         notice.remove();
                     });
                 }
-                
-                if (resp.status == "success") {                    
+
+                if (resp.status == "success") {
                     // add new history
                     var source = $("#history-template").html();
                     var template = Handlebars.compile(source);
@@ -1583,11 +1594,11 @@ function addHistory(controller, classId) {
                     }
                     var html = template({
                         'counter': historyCounter,
-                        'id' : resp.history.id,
+                        'id': resp.history.id,
                         'image': DOMAIN_NAME + '/img/' + avatar,
                         'created': resp.history.created,
                         'title': resp.history.title,
-                        'note': (resp.history.note).replace(/\r?\n/g,'<br/>'),
+                        'note': (resp.history.note).replace(/\r?\n/g, '<br/>'),
                         'controller': controller,
                         'classId': classId
                     });
@@ -1599,7 +1610,7 @@ function addHistory(controller, classId) {
                 // hide modal
                 $('#history-modal').modal('toggle');
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('#history-modal-overlay').addClass('hidden');
             }
@@ -1615,7 +1626,7 @@ function showEditHistoryModal(ele, controller, classId) {
     ajaxing = true;
     var historyId = $(ele).closest('li').attr('history');
     if (controller == 'jclasses') {
-        var url = DOMAIN_NAME + '/' + controller + '/getHistory/'+classId;
+        var url = DOMAIN_NAME + '/' + controller + '/getHistory/' + classId;
     } else {
         var url = DOMAIN_NAME + '/' + controller + '/getHistory';
     }
@@ -1625,7 +1636,7 @@ function showEditHistoryModal(ele, controller, classId) {
         data: {
             id: historyId
         },
-        success: function(resp) {
+        success: function (resp) {
             // reset form
             if (resp.status == 'success') {
                 $('#add-edit-history-form')[0].reset();
@@ -1644,7 +1655,7 @@ function showEditHistoryModal(ele, controller, classId) {
 
                 var rowId = $(ele).closest('li').attr('id');
                 $('#submit-history-btn').remove();
-                $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="editHistory(\''+rowId+'\', \''+controller+'\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
+                $('<button type="button" class="btn btn-success" id="submit-history-btn" onclick="editHistory(\'' + rowId + '\', \'' + controller + '\')">Hoàn tất</button>').insertBefore('#close-history-modal-btn');
                 // show modal
                 $('#history-modal').modal('toggle');
             } else {
@@ -1660,12 +1671,12 @@ function showEditHistoryModal(ele, controller, classId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
         }
     });
@@ -1676,7 +1687,7 @@ function editHistory(rowId, controller) {
         // still requesting
         return;
     }
-    
+
     var validateResult = $('#add-edit-history-form').parsley().validate();
     if (validateResult) {
         ajaxing = true;
@@ -1687,14 +1698,14 @@ function editHistory(rowId, controller) {
         $('#history-modal-overlay').removeClass('hidden');
         $.ajax({
             type: 'POST',
-            url: DOMAIN_NAME + '/'+ controller +'/editHistory/' + historyId,
+            url: DOMAIN_NAME + '/' + controller + '/editHistory/' + historyId,
             data: {
                 'id': historyId,
                 'student_id': $('#add-edit-history-form').find('#history-student-id').val(),
                 'title': title,
                 'note': note
             },
-            success: function(resp) {
+            success: function (resp) {
                 if (resp) {
                     var notice = new PNotify({
                         title: '<strong>' + resp.flash.title + '</strong>',
@@ -1708,20 +1719,20 @@ function editHistory(rowId, controller) {
                             sticker: false
                         }
                     });
-                    notice.get().click(function() {
+                    notice.get().click(function () {
                         notice.remove();
                     });
                 }
-                
+
                 if (resp.status == "success") {
                     // update history
-                    $('#'+rowId).find('.timeline-header').html(title);
-                    $('#'+rowId).find('.timeline-body').html(note.replace(/\r?\n/g,'<br/>'));
+                    $('#' + rowId).find('.timeline-header').html(title);
+                    $('#' + rowId).find('.timeline-body').html(note.replace(/\r?\n/g, '<br/>'));
                 }
                 // hide modal
-                $('#history-modal').modal('toggle');    
+                $('#history-modal').modal('toggle');
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('#history-modal-overlay').addClass('hidden');
             }
@@ -1749,11 +1760,11 @@ function deleteHistory(ele, controller) {
             var historyId = $(ele).closest('li').attr('history');
             $.ajax({
                 type: 'POST',
-                url: DOMAIN_NAME + '/'+controller+'/deleteHistory',
+                url: DOMAIN_NAME + '/' + controller + '/deleteHistory',
                 data: {
                     'id': historyId
                 },
-                success: function(resp){
+                success: function (resp) {
                     swal({
                         title: resp.alert.title,
                         text: resp.alert.message,
@@ -1772,7 +1783,7 @@ function deleteHistory(ele, controller) {
                         }
                     }
                 },
-                complete: function() {
+                complete: function () {
                     ajaxing = false;
                 }
             });
@@ -1786,15 +1797,15 @@ function getAllHistories(studentId, historyType, overlay, controller) {
         return;
     }
     ajaxing = true;
-    $('#'+overlay).removeClass('hidden');
+    $('#' + overlay).removeClass('hidden');
     $.ajax({
         type: 'GET',
-        url: DOMAIN_NAME + '/'+controller+'/getAllHistories/',
+        url: DOMAIN_NAME + '/' + controller + '/getAllHistories/',
         data: {
             id: studentId,
             type: historyType
         },
-        success: function(resp) {
+        success: function (resp) {
             // reset form
             if (resp.status == 'success') {
                 // update counter
@@ -1820,14 +1831,14 @@ function getAllHistories(studentId, historyType, overlay, controller) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
-            $('#'+overlay).addClass('hidden');
+            $('#' + overlay).addClass('hidden');
         }
     });
 }
@@ -1852,7 +1863,7 @@ function downloadChart(chartId) {
 
 function initFloatingButton() {
     $('#zoomBtn').click(function () {
-        if($(this).hasClass('active')){
+        if ($(this).hasClass('active')) {
             $(this).removeClass('active')
         } else {
             $(this).addClass('active')
@@ -1873,7 +1884,7 @@ function toDate(dateStr) {
     return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     init_sidebar();
     tableHover();
     initSelect2();
@@ -1881,7 +1892,7 @@ $(document).ready(function() {
     initFloatingButton();
 
     // set state for sidebar
-    $('.sidebar-toggle').click(function() {
+    $('.sidebar-toggle').click(function () {
         var oldState = localStorage.getItem('sidebar');
         var newState = true;
         if (oldState === 'true') {
@@ -1892,13 +1903,13 @@ $(document).ready(function() {
 
     // init tooltip
     $('[data-toggle="tooltip"]').tooltip();
-    
-    $(document).on("keypress", ":input:not(textarea):not([type=submit]):not(button)", function(event) {
+
+    $(document).on("keypress", ":input:not(textarea):not([type=submit]):not(button)", function (event) {
         if (event.keyCode == 13) {
             event.preventDefault();
         }
     });
-    $(document).on("keypress", function(event) {
+    $(document).on("keypress", function (event) {
         if (event.target.type == 'textarea') {
             return;
         }
@@ -1925,7 +1936,7 @@ $(document).ready(function() {
         }
     });
 
-    $('#filter-refresh-btn').click(function() {
+    $('#filter-refresh-btn').click(function () {
         $('#filter-form')[0].reset();
 
         // reset select2
@@ -1939,12 +1950,13 @@ $(document).ready(function() {
         }
     });
 
-    $('.select2-theme').change(function(e) {
+    $('.select2-theme').change(function (e) {
         $('#' + e.target.id).parsley().validate();
     });
+
     //custom validator
     window.Parsley.addValidator('beforeDate', {
-        validateString: function(value, requirement, parsleyField) {
+        validateString: function (value, requirement, parsleyField) {
             var srcDate = toDate(value);
             var dstValue = $(requirement).val();
             if (dstValue === '') {
@@ -1959,7 +1971,7 @@ $(document).ready(function() {
     });
 
     window.Parsley.addValidator('afterDate', {
-        validateString: function(value, requirement, parsleyField) {
+        validateString: function (value, requirement, parsleyField) {
             if (value === '') {
                 return true;
             }
@@ -1977,7 +1989,7 @@ $(document).ready(function() {
     });
 
     window.Parsley.addValidator('checkEmpty', {
-        validateString: function(value, requirement, parsleyField) {
+        validateString: function (value, requirement, parsleyField) {
             if (value === '') {
                 var currentId = parsleyField.$element[0].id;
                 var otherEles = $(requirement).not('#' + currentId);
@@ -1995,7 +2007,7 @@ $(document).ready(function() {
     });
 
     // check form change
-    $('.form-check-status :input').change(function() {
+    $('.form-check-status :input').change(function () {
         // console.log('changed');
         formChanged = true;
     });
@@ -2025,7 +2037,7 @@ Handlebars.registerHelper("class", function (value, options) {
     return value;
 });
 
-Handlebars.registerHelper('renderImg', function(value, option) {
+Handlebars.registerHelper('renderImg', function (value, option) {
     if (value == null) {
         value = 'no_avatar.png';
     }
@@ -2048,7 +2060,7 @@ Handlebars.registerHelper("calAge", function (value, options) {
 });
 
 Handlebars.registerHelper("nl2br", function (value, options) {
-    return value.replace(/\r?\n/g,'<br/>');
+    return value.replace(/\r?\n/g, '<br/>');
 });
 
 function convertDate(value) {

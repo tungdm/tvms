@@ -166,7 +166,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                             <?php foreach ($companies as $company): ?>
                             <?php $counter++ ?>
                             <tr>
-                                <td class="cell text-center"><?= h($counter) ?></td>
+                                <td class="cell text-center <?= $company->del_flag ? 'deletedRecord' : '' ?>"><?= h($counter) ?></td>
                                 <td class="cell nameCol">
                                     <a href="javascript:;" onclick="viewDispatchingCompany(<?= $company->id ?>)">
                                         <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
@@ -186,18 +186,29 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                                 </a>
                                             </li>
                                             <?php if ($permission == 0): ?>
-                                            <li>
-                                                <a href="javascript:;" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>', <?= $mode ?>)">
-                                                <i class="fa fa-edit"></i> Sửa</a>
-                                            </li>
-                                            <li>
-                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                                    ['action' => 'delete', $company->id], 
-                                                    [
-                                                        'escape' => false, 
-                                                        'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
-                                                    ]) ?>
-                                            </li>
+                                                <?php if ($company->del_flag): ?>
+                                                    <li>
+                                                        <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                                                        ['action' => 'recover', $company->id], 
+                                                        [
+                                                            'escape' => false, 
+                                                            'confirm' => __('Bạn có chắc chắn muốn phục hồi công ty {0}?', $company->name_romaji)
+                                                        ]) ?>
+                                                    </li>
+                                                <?php else: ?>
+                                                    <li>
+                                                        <a href="javascript:;" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>', <?= $mode ?>)">
+                                                        <i class="fa fa-edit"></i> Sửa</a>
+                                                    </li>
+                                                    <li>
+                                                        <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                            ['action' => 'delete', $company->id], 
+                                                            [
+                                                                'escape' => false, 
+                                                                'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
+                                                            ]) ?>
+                                                    </li>
+                                                <?php endif;  ?>
                                             <?php endif;  ?>
                                         </ul>
                                     </div>                                      
@@ -211,17 +222,14 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                     <table class="table table-bordered custom-table">
                         <thead>
                             <tr>
-                                <th scope="col" class="col-num"><?= __('STT') ?></th>
-                                <th scope="col" class="nameCol">
+                                <th scope="col" class="col-num col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="nameCol col-md-3">
                                     <?= $this->Paginator->sort('name_romaji', 'Công ty')?>
                                 </th>
-                                <th scope="col" class="addressCol">
+                                <th scope="col" class="addressCol col-md-4">
                                     <?= $this->Paginator->sort('address_romaji', 'Địa chỉ') ?>
                                 </th>
-                                <th scope="col" class="guildCol">
-                                    <?= __('Nghiệp đoàn') ?>
-                                </th>
-                                <th scope="col" colspan="2" class="phoneCol">
+                                <th scope="col" colspan="2" class="phoneCol col-md-3">
                                     <?= __('Số điện thoại') ?>
                                 </th>
                                 <th scope="col" class="actions"><?= __('Thao tác') ?></th>
@@ -239,7 +247,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                         ?>
                                     </div>
                                 </td>
-                                <td class="col-md-2 nameCol">
+                                <td class="nameCol">
                                     <?= $this->Form->control('name', [
                                         'label' => false,
                                         'class' => 'form-control col-md-7 col-xs-12',
@@ -247,7 +255,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                         ]) 
                                     ?>
                                 </td>
-                                <td class="col-md-2 addressCol">
+                                <td class="addressCol">
                                     <?= $this->Form->control('address', [
                                         'label' => false,                             
                                         'class' => 'form-control col-md-7 col-xs-12', 
@@ -255,17 +263,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                         ])
                                     ?>
                                 </td>
-                                <td class="col-md-2 guildCol">
-                                    <?= $this->Form->control('guild', [
-                                        'options' => $guilds, 
-                                        'empty' => true,
-                                        'label' => false, 
-                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                        'value' => $query['guild'] ?? ''
-                                        ])
-                                    ?>
-                                </td>
-                                <td class="col-md-2 phonevnCol">
+                                <td class="phonevnCol">
                                     <div class="input-group">
                                         <?= $this->Form->control('phone_vn', [
                                             'label' => false, 
@@ -278,7 +276,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                         </span>
                                     </div>
                                 </td>
-                                <td class="col-md-2 phonejpCol">
+                                <td class="phonejpCol">
                                     <div class="input-group">
                                         <?= $this->Form->control('phone_jp', [
                                             'label' => false, 
@@ -302,55 +300,63 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                                 <td colspan="100" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
                             </tr>
                             <?php else: ?>
-                            <?php foreach ($companies as $company): ?>
-                            <?php $counter++ ?>
-                            <tr>
-                                <td class="cell text-center"><?= h($counter) ?></td>
-                                <td class="cell nameCol">
-                                    <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
-                                        <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
-                                    </a>
-                                </td>
-                                <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
-                                <td class="cell guildCol">
-                                    <a href="javascript:;" onclick="viewGuild(<?= $company->guild->id ?>)"><?= h($company->guild->name_romaji) ?></a>
-                                </td>
-                                <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($company->phone_vn)) ?></td>
-                                <td class="cell phonejpCol"><?= h($company->phone_jp) ?></td>
-                                <td class="actions cell">                              
-                                    <div class="btn-group">
-                                        <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
-                                        <ul role="menu" class="dropdown-menu">
-                                            <li>
-                                                <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
-                                                    <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
-                                                </a>
-                                            </li>
-                                            <?php if ($permission == 0): ?>
-                                            <li>
-                                                <a href="javascript:;" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>', <?= $mode ?>)">
-                                                <i class="fa fa-edit"></i> Sửa</a>
-                                            </li>
-                                            <li>
-                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                                    ['action' => 'delete', $company->id], 
-                                                    [
-                                                        'escape' => false, 
-                                                        'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
-                                                    ]) ?>
-                                            </li>
-                                            <?php endif;  ?>
-                                            <li class="divider"></li>
-                                            <li>
-                                                <a href="javascript:;" onclick="showListWorkersModal(<?= $company->id ?>)">
-                                                    <i class="fa fa-users" aria-hidden="true"></i> Danh sách lao động
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>                                      
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                                <?php foreach ($companies as $company): ?>
+                                    <?php $counter++ ?>
+                                    <tr>
+                                        <td class="cell text-center <?= $company->del_flag ? 'deletedRecord' : '' ?>"><?= h($counter) ?></td>
+                                        <td class="cell nameCol">
+                                            <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
+                                                <?= h($company->name_romaji) ?><br/><?= h($company->name_kanji) ?>
+                                            </a>
+                                        </td>
+                                        <td class="cell addressCol"><?= h($company->address_romaji) ?></td>
+                                        <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($company->phone_vn)) ?></td>
+                                        <td class="cell phonejpCol"><?= h($company->phone_jp) ?></td>
+                                        <td class="actions cell">                              
+                                            <div class="btn-group">
+                                                <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
+                                                <ul role="menu" class="dropdown-menu">
+                                                    <li>
+                                                        <a href="javascript:;" onclick="viewCompany(<?= $company->id ?>)">
+                                                            <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                                        </a>
+                                                    </li>
+                                                    <?php if ($permission == 0): ?>
+                                                        <?php if ($company->del_flag): ?>
+                                                            <li>
+                                                                <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                                                                ['action' => 'recover', $company->id], 
+                                                                [
+                                                                    'escape' => false, 
+                                                                    'confirm' => __('Bạn có chắc chắn muốn phục hồi công ty {0}?', $company->name_romaji)
+                                                                ]) ?>
+                                                            </li>
+                                                        <?php else: ?>
+                                                            <li>
+                                                                <a href="javascript:;" id="edit-company-btn" onClick="editCompany('<?= $company->id ?>', <?= $mode ?>)">
+                                                                <i class="fa fa-edit"></i> Sửa</a>
+                                                            </li>
+                                                            <li>
+                                                                <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                                    ['action' => 'delete', $company->id], 
+                                                                    [
+                                                                        'escape' => false, 
+                                                                        'confirm' => __('Bạn có chắc chắn muốn xóa công ty {0}?', $company->name_romaji)
+                                                                    ]) ?>
+                                                            </li>
+                                                            <li class="divider"></li>
+                                                            <li>
+                                                                <a href="javascript:;" onclick="showListWorkersModal(<?= $company->id ?>)">
+                                                                    <i class="fa fa-users" aria-hidden="true"></i> Danh sách lao động
+                                                                </a>
+                                                            </li>
+                                                        <?php endif;  ?>
+                                                    <?php endif;  ?>
+                                                </ul>
+                                            </div>                                      
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             <?php endif; ?>                
                         </tbody>
                     </table>
@@ -516,28 +522,7 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         <?= $this->Form->control('address_kanji', ['label' => false, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
                     </div>
                 </div>
-
                 <div class="ln_solid"></div>
-
-                <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="guild_id">
-                        <?= __('Nghiệp đoàn') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('guild_id', [
-                            'options' => $guilds, 
-                            'required' => true, 
-                            'empty' => true, 
-                            'label' => false, 
-                            'data-parsley-errors-container' => '#error-guild',
-                            'data-parsley-class-handler' => '#select2-guild-id',
-                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                            ]) ?>
-                        <span id="error-guild"></span>
-                    </div>
-                </div>
-
-                <div class="ln_solid"></div>
-
                 <div class="form-group">
                     <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="phone_vn">
                         <?= __('Số Điện Thoại') ?> </label>
@@ -740,26 +725,6 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                             'label' => false,
                             'id' => 'edit-address-kanji', 
                             'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập bằng kí tự kanji']) ?>
-                    </div>
-                </div>
-
-                <div class="ln_solid"></div>
-
-                <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-5 col-xs-12" for="guild_id">
-                        <?= __('Nghiệp đoàn') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('guild_id', [
-                            'options' => $guilds, 
-                            'required' => true, 
-                            'empty' => true, 
-                            'label' => false,
-                            'id' => 'edit-guild',
-                            'data-parsley-errors-container' => '#error-edit-guild',
-                            'data-parsley-class-handler' => '#select2-edit-guild',
-                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                            ]) ?>
-                        <span id="error-edit-guild"></span>
                     </div>
                 </div>
 

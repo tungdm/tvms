@@ -43,7 +43,11 @@ class OrdersController extends AppController
         $permissionsTable = TableRegistry::get('Permissions');
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
-        if (!empty($userPermission) || $user['role_id'] == 1) {
+        if (!empty($userPermission)) {
+            // only admin can recover deleted record
+            if ($action == 'recover') {
+                return false;
+            }
             if ($action == 'edit') {
                 $target_id = $this->request->getParam('pass');
                 if (!empty($target_id)) {
@@ -55,10 +59,7 @@ class OrdersController extends AppController
                 }
             }
             
-            if ($user['role_id'] != 1 && 
-                ($userPermission->action == 0 || 
-                    ($userPermission->action == 1 && 
-                        (in_array($action, ['index', 'view']) || strpos($action, 'export') === 0)))) {
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && (in_array($action, ['index', 'view']) || strpos($action, 'export') === 0))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -124,10 +125,15 @@ class OrdersController extends AppController
             $allOrders = $this->Orders->find()->order(['Orders.interview_date' => 'DESC']);
         }
 
+        if ($this->Auth->user('role_id') != 1) {
+            // other user (not admin) can not view delete record
+            $allOrders->where(['Orders.del_flag' => FALSE]);
+        }
+
         $this->paginate = [
             'contain' => [
                 'Companies', 
-                'Companies.Guilds', 
+                'Guilds',
                 'Jobs'
             ],
             'sortWhitelist' => ['name', 'interview_date'],
@@ -154,16 +160,26 @@ class OrdersController extends AppController
     {
         $order = $this->Orders->get($id, [
             'contain' => [
-                'Companies', 
-                'DisCompanies',
-                'Companies.Guilds',
-                'Jobs', 
-                'Students',
+                'Companies' => function ($q) {
+                    return $q->where(['Companies.del_flag' => FALSE]);
+                },
+                'DisCompanies' => function ($q) {
+                    return $q->where(['DisCompanies.del_flag' => FALSE]);
+                },
+                'Guilds' => function ($q) {
+                    return $q->where(['Guilds.del_flag' => FALSE]);
+                },
+                'Jobs' => function ($q) {
+                    return $q->where(['Jobs.del_flag' => FALSE]);
+                },
+                'Students' => function ($q) {
+                    return $q->where(['Students.del_flag' => FALSE]);
+                },
                 'CreatedByUsers',
                 'ModifiedByUsers'
             ]
         ]);
-
+        $this->checkDeleteFlag($order, $this->Auth->user());
         $this->set('order', $order);
     }
 
@@ -193,11 +209,12 @@ class OrdersController extends AppController
             }
             $this->Flash->error($this->errorMessage['add']);
         }
-        $companies = $this->Orders->Companies->find('list')->where(['type' => '2']);
-        $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1']);
+        $guilds = $companies = [];
+        // $companies = $this->Orders->Companies->find('list')->where(['type' => '2', 'del_flag' => FALSE]);
+        $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
 
         $jobs = $this->Orders->Jobs->find('list');
-        $this->set(compact('order', 'companies', 'disCompanies', 'jobs'));
+        $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs'));
     }
 
     /**
@@ -217,9 +234,16 @@ class OrdersController extends AppController
                     return $q->where(['Addresses.type' => '1']);
                 }, 
                 'Students.Addresses.Cities',
-                'Events'
+                'Events',
+                'Guilds',
+                'DisCompanies'
             ]
         ]);
+        $this->checkDeleteFlag($order, $this->Auth->user());
+        if ($order->status == '5' && $this->Auth->user('role_id') != 1) {
+            $this->Flash->error($this->errorMessage['unAuthor']);
+            return $this->redirect(['controller' => 'Pages', 'action' => 'display']);
+        }
         $orderName = $order->name;
         $currentInterviewDate = $order->interview_date->i18nFormat('yyyy-MM-dd');
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -233,7 +257,7 @@ class OrdersController extends AppController
             }
             $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
-            
+
             if ($this->Orders->save($order)) {
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
                     'entity' => $this->entity,
@@ -247,10 +271,20 @@ class OrdersController extends AppController
                 'name' => $orderName
             ]));
         }
-        $companies = $this->Orders->Companies->find('list')->where(['type' => '2']);
-        $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1']);
+        $companies = $guilds = $disCompanies = [];
+        if (!empty($order->guild_id) && !$order->guild->del_flag) {
+            $guilds = $this->Orders->Guilds->find('list');
+            $companies = $this->Orders->Companies->find('list')
+                ->where(['Companies.del_flag' => FALSE])
+                ->matching('Guilds', function ($q) use ($order) {
+                    return $q->where(['Guilds.id' => $order->guild_id]);
+                });
+        }
+        if (!empty($order->dis_company_id) && !$order->dis_company->del_flag) {
+            $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
+        }
         $jobs = $this->Orders->Jobs->find('list');
-        $this->set(compact('order', 'companies', 'disCompanies', 'jobs'));
+        $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs'));
         $this->render('/Orders/add');
     }
 
@@ -267,12 +301,33 @@ class OrdersController extends AppController
         $order = $this->Orders->get($id, [
             'contain' => ['Students', 'Events']
         ]);
+
+        if ($oder->del_flag) {
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $order->name
+                ]));
+            return $this->redirect(['action' => 'index']);
+        }
+        
+        $data = [
+            'del_flag' => TRUE, // order del_flag
+        ];
+        // update event delete_flag
+        if (!empty($order->events)) {
+            $data['events'][0]['id'] = $order->events[0]->id;
+            $data['events'][0]['del_flag'] = TRUE;
+        }
+        $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
+        $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit');
         if (!empty($order->students)) {
             foreach ($order->students as $key => $student) {
-                $student->status = '2';
-                $student->return_date = '';
+                if ($student->status == '3') { // change status "dau phong van" => "chua dau phong van"
+                    $student->status = '2';
+                    $student->return_date = '';
+                }
             }
-            if ($this->Orders->Students->saveMany($order->students) && $this->Orders->delete($order)) {
+            if ($this->Orders->Students->saveMany($order->students) && $this->Orders->save($order)) {
                 $this->Flash->success(Text::insert($this->successMessage['delete'], [
                     'entity' => $this->entity, 
                     'name' => $order->name
@@ -284,7 +339,7 @@ class OrdersController extends AppController
                     ]));
             }
         } else {
-            if ($this->Orders->delete($order)) {
+            if ($this->Orders->save($order)) {
                 $this->Flash->success(Text::insert($this->successMessage['delete'], [
                     'entity' => $this->entity, 
                     'name' => $order->name
@@ -300,14 +355,95 @@ class OrdersController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    public function recover($id = null)
+    {
+        $this->request->allowMethod(['post']);
+        $order = $this->Orders->get($id, ['contain' => ['Students', 'Events']]);
+        if (!$oder->del_flag) {
+            $this->Flash->error(Text::insert($this->errorMessage['delete'], [
+                'entity' => $this->entity,
+                'name' => $order->name
+                ]));
+            return $this->redirect(['action' => 'index']);
+        }
+        
+        $data = [
+            'del_flag' => FALSE, // order del_flag
+        ];
+        // update event delete_flag
+        if (!empty($order->events)) {
+            $data['events'][0]['id'] = $order->events[0]->id;
+            $data['events'][0]['del_flag'] = FALSE;
+        }
+        $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students', 'Events']]);
+        $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit');
+
+        $order->del_flag = FALSE;
+        $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit'); // update modified user
+        if (!empty($order->students)) {
+            // update student status
+            $workTime = Configure::read('workTime');
+            foreach ($order->students as $key => $student) {
+                if ($student->status == '2' && $student->_joinData->result == '1') {
+                    $student->status = '3'; // change status "chua dau phong van" => "dau phong van"
+                    if (!empty($order->departure) && !empty($order->work_time)) {
+                        $student->return_date = $order->interview_date->addYear((int)$workTime[$order->work_time])->i18nFormat('yyyy-MM');
+                    }
+                }
+            }
+            if ($this->Orders->Students->saveMany($order->students) && $this->Orders->save($order)) {
+                $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                    'entity' => $this->entity, 
+                    'name' => $order->name
+                    ]));
+            } else {
+                $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                    'entity' => $this->entity,
+                    'name' => $order->name
+                    ]));
+            }
+        } else {
+            if ($this->Orders->save($order)) {
+                $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                    'entity' => $this->entity, 
+                    'name' => $order->name
+                    ]));
+            } else {
+                $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                    'entity' => $this->entity,
+                    'name' => $order->name
+                    ]));
+            }
+        }
+        
+        return $this->redirect(['action' => 'index']);
+    }
+
     public function close($id = null)
     {
         $this->request->allowMethod(['post']);
-        $order = $this->Orders->get($id);
+        $order = $this->Orders->get($id, ['contain' => ['Students', 'Students.Jclasses']]);
         if ($order->status !== '4') {
-            $this->Flash->error($this->errorMessage['unAuthor']);
+            $this->Flash->error($this->errorMessage['error']);
         } else {
-            $order->status = '5'; // close order
+            $data = [
+                'status' => '5',
+                'students' => []
+            ];
+            foreach ($order->students as $key => $student) {
+                $tmp = [
+                    'id' => $student->id,
+                    'status' => $student->_joinData->result == '1' ? 4 : $student->status // update student status when they passed the interview
+                ];
+                if ($student->_joinData->result == '1') {
+                    $tmp['last_class'] = $student->jclasses ? $student->jclasses[0]->name : NULL;
+                    $tmp['last_lesson'] = $student->jclasses ? $student->jclasses[0]->current_lesson : NULL;
+                }
+                array_push($data['students'], $tmp);
+            }
+            $order = $this->Orders->patchEntity($order, $data, ['associated' => ['Students']]);
+            $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit');
+
             if ($this->Orders->save($order)) {
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
                     'entity' => $this->entity, 
@@ -514,7 +650,9 @@ class OrdersController extends AppController
                     'Educations' => ['sort' => ['Educations.degree' => 'ASC']],
                     'Experiences',
                     'Experiences.Jobs',
-                    'LanguageAbilities',
+                    'LanguageAbilities' => function($q) {
+                        return $q->where(['LanguageAbilities.type' => 'external']);
+                    },
                     'Families',
                     'Families.Jobs',
                     'Jclasses',
@@ -703,13 +841,42 @@ class OrdersController extends AppController
             $avatar = $student->image ?? 'students/no_img.png';
             $this->tbs->VarRef['avatar'] = ROOT . DS . 'webroot' . DS . 'img' . DS . $avatar;
             $this->tbs->VarRef['livingJP'] = "在日親戚    ：" . ($memberInJP == true ? "有" : "無");
-            $this->tbs->VarRef['strength'] = $this->checkData($student->strength, 'Điểm mạnh');
-            $this->tbs->VarRef['purpose'] = $this->checkData($student->purpose, 'Mục đích xuất khẩu lao động');
-            $this->tbs->VarRef['genitive'] = $this->checkData($student->genitive, 'Tính cách');
+
+            // convert strength
+            $strengths = TableRegistry::get('Strengths')->find()->where(['del_flag' => FALSE])->toArray();
+            $strengthArr = $this->checkData($student->strength, 'Điểm mạnh');
+            if (!empty($strengthArr)) {
+                $strengthArr = $this->convertTag($strengthArr, $strengths, 'Điểm mạnh (JP)');
+            }
+            $this->tbs->VarRef['strength'] = $strengthArr;
+
+            // convert purpose
+            $purposes = TableRegistry::get('Purposes')->find()->where(['del_flag' => FALSE])->toArray();
+            $purposeArr = $this->checkData($student->purpose, 'Mục đích xuất khẩu lao động');
+            if (!empty($purposeArr)) {
+                $purposeArr = $this->convertTag($purposeArr, $purposes, 'Mục đích xuất khẩu lao động (JP)');
+            }
+            $this->tbs->VarRef['purpose'] = $purposeArr;
+
+            // convert genitive
+            $characteristics = TableRegistry::get('Characteristics')->find()->where(['del_flag' => FALSE])->toArray();
+            $genitiveArr = $this->checkData($student->genitive, 'Tính cách');
+            if (!empty($genitiveArr)) {
+                $genitiveArr = $this->convertTag($genitiveArr, $characteristics, 'Tính cách (JP)');
+            }
+            $this->tbs->VarRef['genitive'] = $genitiveArr;
+
+            // convert plan
+            $afterPlans = TableRegistry::get('AfterPlans')->find()->where(['del_flag' => FALSE])->toArray();
+            $afterPlanArr = $this->checkData($student->after_plan, 'Dự định sau khi về nước');
+            if (!empty($afterPlanArr)) {
+                $afterPlanArr = $this->convertTag($afterPlanArr, $afterPlans, 'Dự định sau khi về nước (JP)');
+            }
+            $this->tbs->VarRef['after_plan'] = $afterPlanArr;
+
             $this->tbs->VarRef['salary'] = $student->salary ?? 0;
             $this->tbs->VarRef['saving'] = $this->checkData($student->saving_expected, 'Số tiền mong muốn');
             $this->tbs->VarRef['maritalStatus'] = $maritalStatus[$student->marital_status]['jp'];
-            $this->tbs->VarRef['after_plan'] = $this->checkData($student->after_plan, 'Dự định sau khi về nước');
             $this->tbs->VarRef['reh'] = $this->checkData($student->right_eye_sight_hospital, 'Thị lực mắt phải đo tại bệnh viện');
             $this->tbs->VarRef['leh'] = $this->checkData($student->left_eye_sight_hospital, 'Thị lực mắt trái đo tại bệnh viện');
             $this->tbs->VarRef['re'] = $this->checkData($student->right_eye_sight, 'Thị lực mắt phải');
@@ -763,6 +930,7 @@ class OrdersController extends AppController
             'Companies.Guilds',
             'Jobs', 
             ]]);
+        $this->checkDeleteFlag($order, $this->Auth->user());
 
         $output_file_name = Text::insert($coverConfig['filename'], [
             'order' => $order->name, 
@@ -812,6 +980,7 @@ class OrdersController extends AppController
                     }
                 ]
             ]);
+            $this->checkDeleteFlag($order, $this->Auth->user());
             $template = WWW_ROOT . 'document' . DS . $dispatchLetterConfig['template'];
             $missingFields = [];
             $guildJP = $this->checkData($order->company->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
@@ -942,6 +1111,7 @@ class OrdersController extends AppController
                     'Companies.Guilds'
                 ]
             ]);
+            $this->checkDeleteFlag($order, $this->Auth->user());
             // init worksheet
             $spreadsheet = $this->ExportFile->setXlsxProperties();
             $spreadsheet->setActiveSheetIndex(0);
@@ -1127,6 +1297,7 @@ class OrdersController extends AppController
                 'Students.IqTests'
             ]
         ]);
+        $this->checkDeleteFlag($order, $this->Auth->user());
         // init worksheet
         $spreadsheet = $this->ExportFile->setXlsxProperties();
         $spreadsheet->setActiveSheetIndex(0);
@@ -1313,7 +1484,7 @@ class OrdersController extends AppController
                     'Students.IqTests',
                 ]
             ]);
-            
+            $this->checkDeleteFlag($order, $this->Auth->user());
             // init worksheet
             $spreadsheet = $this->ExportFile->setXlsxProperties();
             $spreadsheet->setActiveSheetIndex(0);
@@ -1550,8 +1721,7 @@ class OrdersController extends AppController
                     }
                 ]
             ]);
-            // debug($order);
-            // exit;
+            $this->checkDeleteFlag($order, $this->Auth->user());
             $template = WWW_ROOT . 'document' . DS . $orderCertificateConfig['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
             $firstStudentName = $order->students[0]->fullname;
@@ -1626,5 +1796,40 @@ class OrdersController extends AppController
             }
         }
         return $data;
+    }
+
+    public function convertTag($data, $all, $label)
+    {
+        $data = explode(',', $data);
+        array_shift($data);
+        array_pop($data);
+        $result = '';
+        $total = count($data) - 1;
+        foreach ($data as $key => $value) {
+            $obj = $this->findObjectById($value, $all);
+            if (!empty($obj)) {
+                $this->checkData($obj->name_jp, $label);
+                if (empty($obj->name_jp)) {
+                    break;
+                }
+                if ($key == $total) {
+                    $result .= $obj->name_jp;
+                } else {
+                    $result .= $obj->name_jp . ', ';
+                }
+            }
+            
+        }
+        return $result;
+    }
+
+    public function findObjectById($id, $data)
+    {
+        foreach ($data as $key => $obj) {
+            if ($obj->id == $id) {
+                return $obj;
+            }
+        }
+        return '';
     }
 }

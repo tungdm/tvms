@@ -38,7 +38,9 @@ $relationship = array_map('array_shift', $relationship);
 $interviewResult = Configure::read('interviewResult');
 
 $lessons = Configure::read('lessons');
-
+$physResult = Configure::read('physResult');
+$depositType = Configure::read('depositType');
+$financeStatus = Configure::read('financeStatus');
 $now = Time::now();
 
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
@@ -112,17 +114,22 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                 <li role="presentation" class="">
                     <a href="#tab_content3" role="tab" id="experience-tab" data-toggle="tab" aria-expanded="false"><?= __('Học tập - Làm việc') ?></a>
                 </li>
+                <?php if($currentUser['role_id'] == 1 || $currentUser['role_id'] == 4 || $currentUser['role_id'] == 6): ?>
+                    <li role="presentation" class="">
+                        <a href="#tab_content4" role="tab" id="finance-physical-tab" data-toggle="tab" aria-expanded="false"><?= __('Tài chính - Sức khỏe') ?></a>
+                    </li>
+                <?php endif; ?>
                 <li role="presentation" class="">
-                    <a href="#tab_content4" role="tab" id="interview-tab" data-toggle="tab" aria-expanded="false"><?= __('Lịch sử phỏng vấn') ?></a>
+                    <a href="#tab_content5" role="tab" id="interview-tab" data-toggle="tab" aria-expanded="false"><?= __('Lịch sử phỏng vấn') ?></a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content5" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
+                    <a href="#tab_content6" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content6" role="tab" id="view-input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
+                    <a href="#tab_content7" role="tab" id="view-input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content7" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
+                    <a href="#tab_content8" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
                 </li>
             </ul>
             <div id="student-tab-content" class="tab-content">
@@ -149,7 +156,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="fullname_kata"><?= __('Họ tên (JP)') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= $student->fullname_kata ?? 'N/A' ?>
+                                                <?= !empty($student->fullname_kata) ? $student->fullname_kata : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -815,6 +822,30 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="image_front"><?= __('Hình ảnh (mặt trước)') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-md-7 col-xs-12 cropped-result-container">
+                                                <?php if(!empty($student->cards[0])):?>
+                                                    <?= $this->Html->image($student->cards[0]->image1) ?>
+                                                <?php else: ?>
+                                                    <?= __('N/A') ?>
+                                                <?php endif; ?>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="image_back"><?= __('Hình ảnh (mặt sau)') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-md-7 col-xs-12 cropped-result-container">
+                                                <?php if(!empty($student->cards[0])):?>
+                                                    <?= $this->Html->image($student->cards[0]->image2) ?>
+                                                <?php else: ?>
+                                                    <?= __('N/A') ?>
+                                                <?php endif; ?>
+                                            </div> 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="box">
@@ -901,6 +932,70 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for=""><?= __('Nơi cấp') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->cards[1]->issued_at) ? $student->cards[1]->issued_at : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for=""><?= __('Nơi cấp') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <?= !empty($student->cards[1]->issued_at) ? $student->cards[1]->issued_at : 'N/A' ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="image_1"><?= __('Hình ảnh') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-md-7 col-xs-12 cropped-result-container">
+                                                <?php if(!empty($student->cards[1])):?>
+                                                    <?= $this->Html->image($student->cards[1]->image1) ?>
+                                                <?php else: ?>
+                                                    <?= __('N/A') ?>
+                                                <?php endif; ?>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Bằng tốt nghiệp') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="image_1"><?= __('Hình ảnh (bằng chính)') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-md-7 col-xs-12 cropped-result-container">
+                                                <?php if(!empty($student->cards[3])):?>
+                                                    <?= $this->Html->image($student->cards[3]->image1) ?>
+                                                <?php else: ?>
+                                                    <?= __('N/A') ?>
+                                                <?php endif; ?>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-6 col-sm-6 col-xs-12" for="image_2"><?= __('Hình ảnh (bằng phụ)') ?>: </label>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="col-md-7 col-xs-12 cropped-result-container">
+                                                <?php if(!empty($student->cards[3])):?>
+                                                    <?= $this->Html->image($student->cards[3]->image2) ?>
+                                                <?php else: ?>
+                                                    <?= __('N/A') ?>
+                                                <?php endif; ?>
+                                            </div> 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -918,6 +1013,32 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     </div>
                                 </div>
                                 <div class="box-body">
+                                    <div class="col-md-12 col-xs-12">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="jclass"><?= __('Lớp học') ?>: </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?php if($student->status == '4'): ?>
+                                                        <?= $student->last_class ?? 'N/A' ?>
+                                                    <?php else: ?>
+                                                        <?= $student->jclasses ? $student->jclasses[0]->name : 'N/A' ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="lesson"><?= __('Bài học') ?>: </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?php if($student->status == '4'): ?>
+                                                        <?= $student->last_lesson !== NULL ? $lessons[$student->last_lesson] : 'N/A' ?>
+                                                    <?php else: ?>
+                                                        <?= $student->jclasses ? $lessons[$student->jclasses[0]->current_lesson] : 'N/A' ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-md-4 col-xs-12">
                                         <canvas id="total-radar-chart" height="300"></canvas>
                                     </div>
@@ -1011,13 +1132,13 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                     <?php echo $counter + 1; ?>
                                                 </td>
                                                 <td class="cell col-md-2">
-                                                    <?= $language[$value->lang_code]?>
+                                                    <?= $language[$value->lang_code]?> <?= $value->type == 'internal' ? '(nội bộ)' : '' ?>
                                                 </td>
                                                 <td class="cell col-md-4">
                                                     <?= $value->certificate ?>
                                                 </td>
                                                 <td class="cell col-md-4">
-                                                    <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
+                                                    <?= $value->from_date ? $this->Month->makeEdit($value->from_date) : 'N/A' ?> ～ <?= $value->to_date ? $this->Month->makeEdit($value->to_date) : 'N/A' ?>
                                                 </td>
                                                 <?php $counter++; ?>
                                             </tr>
@@ -1085,7 +1206,201 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content4">
+                <?php if($currentUser['role_id'] == 1 || $currentUser['role_id'] == 4 || $currentUser['role_id'] == 6): ?>
+                    <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content4">
+                        <div class="rows">
+                            <div class="col-md-6 col-xs-12 left-col">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title"><?= __('Cọc phỏng vấn') ?></h3>
+                                        <div class="box-tools pull-right">
+                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_type"><?= __('Loại cọc') ?>: </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->interview_deposits) ? $depositType[$student->interview_deposits[0]->type] : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_status"><?= __('Trạng thái') ?>: </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->interview_deposits) ? $financeStatus[$student->interview_deposits[0]->status] : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="payment_date"><?= __('Ngày đóng') ?>: </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->interview_deposits) ? $student->interview_deposits[0]->payment_date : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_notes"><?= __('Ghi chú') ?>: </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->interview_deposits) ? nl2br($student->interview_deposits[0]->notes) : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xs-12 right-col">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title"><?= __('Chi phí lần 1') ?></h3>
+                                        <div class="box-tools pull-right">
+                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->general_costs) ? $financeStatus[$student->general_costs[0]->status] : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->general_costs) ? $student->general_costs[0]->payment_date : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->general_costs) ? nl2br($student->general_costs[0]->notes) : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title"><?= __('Chi phí lần 2') ?></h3>
+                                        <div class="box-tools pull-right">
+                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        <?php if (!empty($student->general_costs)): ?>
+                                            <?= $this->Form->hidden('general_costs.1.id', ['value' => $student->general_costs[1]->id]) ?>
+                                        <?php endif; ?>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->general_costs) ? $financeStatus[$student->general_costs[1]->status] : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->general_costs) ? $student->general_costs[1]->payment_date : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                    <?= !empty($student->general_costs) ? nl2br($student->general_costs[1]->notes) : 'N/A' ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rows">
+                            <div class="col-md-12 col-xs-12 no-padding">
+                                <div class="box">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title"><?= __('Khám sức khỏe') ?></h3>
+                                        <div class="box-tools pull-right">
+                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="box-body">
+                                        <table class="table table-bordered custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                                    <th scope="col" class="col-md-3"><?= __('Ngày khám') ?></th>
+                                                    <th scope="col" class="col-md-3"><?= __('Kết quả') ?></th>
+                                                    <th scope="col" class="col-md-5"><?= __('Ghi chú') ?></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="phys-container">
+                                                <?php if (!empty($student->physical_exams)): ?>
+                                                    <?php foreach ($student->physical_exams as $key => $exam): ?>
+                                                        <tr class="row-phys" id="row-phys-<?=$key?>">
+                                                            <td class="cell stt-col text-center">
+                                                                <?= $key + 1 ?>
+                                                            </td>
+                                                            <td class="cell text-center">
+                                                                <span class="exam-date-txt"><?= h($exam->exam_date) ?></span>
+                                                                <div class="hidden">
+                                                                    <?= $this->Form->control('physical_exams.'.$key.'.id', [
+                                                                        'type' => 'text',
+                                                                        'label' => false, 
+                                                                        'class' => 'form-control col-md-7 col-xs-12 phys_id',
+                                                                        'value' => $exam->id
+                                                                        ]) ?>
+                                                                    <?= $this->Form->control('physical_exams.'.$key.'.exam_date', [
+                                                                        'type' => 'text',
+                                                                        'label' => false,
+                                                                        'class' => 'form-control exam_date',
+                                                                        'value' => $exam->exam_date
+                                                                        ])?>
+                                                                    <?= $this->Form->control('physical_exams.'.$key.'.result', [
+                                                                        'type' => 'text',
+                                                                        'label' => false,
+                                                                        'class' => 'form-control result',
+                                                                        'value' => $exam->result
+                                                                        ])?>
+                                                                    <?= $this->Form->control('physical_exams.'.$key.'.notes', [
+                                                                        'label' => false, 
+                                                                        'type' => 'textarea',
+                                                                        'rows' => 5,
+                                                                        'class' => 'form-control notes', 
+                                                                        'value' => $exam->notes
+                                                                        ]) ?>
+                                                                </div>
+                                                            </td>
+                                                            <td class="cell text-center result-txt">
+                                                                <?= h($physResult[$exam->result]) ?>
+                                                            </td>
+                                                            <td class="cell notes-txt">
+                                                                <?= nl2br($exam->notes) ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">
@@ -1116,16 +1431,16 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <?php else: ?>
                                                 <?php foreach ($student->orders as $key => $value): ?>
                                                     <tr>
-                                                        <td><?= $key + 1?></td>
+                                                        <td class="text-center"><?= $key + 1?></td>
                                                         <td><?= $this->Html->link($value->name, ['controller' => 'Orders', 'action' => 'view', $value->id]) ?></td>
                                                         <td><?= h($value->interview_date) ?></td>
                                                         <td>
-                                                            <a href="javascript:;" onclick="viewGuild(<?= $value->company->guild->id ?>)"><?= h($value->company->guild->name_romaji) ?></a>
+                                                            <a href="javascript:;" onclick="viewGuild(<?= $value->guild->id ?>)"><?= h($value->guild->name_romaji) ?></a>
                                                         </td>
                                                         <td>
                                                             <a href="javascript:;" onclick="viewCompany(<?= $value->company->id ?>)"><?= h($value->company->name_romaji) ?></a>
                                                         </td>
-                                                        <td><?= h($interviewResult[$value->_joinData->result]) ?></td>
+                                                        <td class="text-center <?= $value->_joinData->result == '1' ? 'bold-text' : '' ?>"><?= h($interviewResult[$value->_joinData->result]) ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -1136,7 +1451,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">
@@ -1206,7 +1521,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content7">
                     <div class="rows">
                         <div class="col-md-6 col-xs-12 left-col">
                             <div class="box">
@@ -1330,7 +1645,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content7">
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content8">
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">
                             <div class="box">

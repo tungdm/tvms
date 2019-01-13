@@ -38,50 +38,42 @@ $this->Paginator->setTemplates([
     'sortAsc' => '<a class="asc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-desc"></i></a></a>',
     'sortDesc' => '<a class="desc" href="{{url}}">{{text}} <i class="fa fa-sort-amount-asc"></i></a></a>',
 ]);
-
-$this->assign('title', 'Quản lý Lao động');
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('QUẢN LÝ LAO ĐỘNG') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chủ',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li class="active">Danh sách lao động</li>
-</ol>
+    <?php $this->assign('title', 'Quản lý lao động'); ?>
+    <h1><?= __('QUẢN LÝ LAO ĐỘNG') ?></h1>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Trang Chủ',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li class="active">Danh sách lao động</li>
+    </ol>
 <?php $this->end(); ?>
 
 <?php $this->start('floating-button'); ?>
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
-            <li data-toggle="tooltip" title="Xuất báo cáo">
-                <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" onclick="reportStudent()">
-                    <i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>
-                </a>
-            </li>
             <?php if ($permission == 0): ?>
-            <li>
-                <a onclick="showAddStudentModal()"
-                   class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out"
-                   data-toggle="tooltip" title="Tạo lịch hẹn">
-                    <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <?= $this->Html->link(__('<i class="fa fa-user-plus" aria-hidden="true"></i>'), 
-                    ['action' => 'info'],
-                    [   
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Thêm mới lao động',
-                        'escape' => false
-                    ]) ?>
-            </li>
+                <li data-toggle="tooltip" title="Xuất báo cáo">
+                    <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" onclick="reportStudent()">
+                        <i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li>
+                    <?= $this->Html->link(__('<i class="fa fa-user-plus" aria-hidden="true"></i>'), 
+                        ['action' => 'info'],
+                        [   
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Thêm mới lao động',
+                            'escape' => false
+                        ]) ?>
+                </li>
             <?php endif; ?>
         </ul>
     </div>
@@ -124,7 +116,7 @@ $this->assign('title', 'Quản lý Lao động');
                         <tr>
                             <th scope="col" class="col-num"><?= __('STT') ?></th>
                             <th scope="col" class="fullnameCol">
-                                <?= $this->Paginator->sort('fullname', 'Họ và tên') ?>
+                                <?= $this->Paginator->sort('fullname', 'Họ tên') ?>
                             </th>
                             <th scope="col" class="enrolledDateCol">
                                 <?= $this->Paginator->sort('enrolled_date', 'Ngày nhập học')?>
@@ -802,7 +794,7 @@ $this->assign('title', 'Quản lý Lao động');
                                                 </label>
                                             </div>
                                         </td>
-                                        <td class="cell text-center">
+                                        <td class="cell">
                                             <?= $this->Form->control('std.guild.name', [
                                                 'label' => false, 
                                                 'options' => [],

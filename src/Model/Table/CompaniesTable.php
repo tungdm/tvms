@@ -42,8 +42,10 @@ class CompaniesTable extends Table
         $this->addBehavior('Timestamp');
         $this->addBehavior('Author');
 
-        $this->belongsTo('Guilds', [
-            'foreignKey' => 'guild_id'
+        $this->belongsToMany('Guilds', [
+            'foreignKey' => 'company_id',
+            'targetForeignKey' => 'guild_id',
+            'joinTable' => 'guilds_companies'
         ]);
         $this->hasMany('Orders', [
             'foreignKey' => 'company_id',
@@ -114,17 +116,4 @@ class CompaniesTable extends Table
         return $validator;
     }
 
-    /**
-     * Returns a rules checker object that will be used for validating
-     * application integrity.
-     *
-     * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
-     * @return \Cake\ORM\RulesChecker
-     */
-    public function buildRules(RulesChecker $rules)
-    {
-        $rules->add($rules->existsIn(['guild_id'], 'Guilds'));
-
-        return $rules;
-    }
 }

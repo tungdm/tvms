@@ -109,6 +109,15 @@ class UsersTable extends Table
             'className' => 'Jtests'
         ]);
 
+        $this->hasMany('JlptTestsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'JlptTests'
+        ]);
+        $this->hasMany('JlptTestsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'JlptTests'
+        ]);
+
         $this->hasMany('GuildsCreatedBy', [
             'foreignKey' => 'created_by',
             'className' => 'Guilds'
@@ -143,6 +152,42 @@ class UsersTable extends Table
         $this->hasMany('JobsModifiedBy', [
             'foreignKey' => 'modified_by',
             'className' => 'Jobs'
+        ]);
+
+        $this->hasMany('CharsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Characteristics'
+        ]);
+        $this->hasMany('CharsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Characteristics'
+        ]);
+
+        $this->hasMany('StrengthsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Strengths'
+        ]);
+        $this->hasMany('StrengthsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Strengths'
+        ]);
+
+        $this->hasMany('PurposesCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'Purposes'
+        ]);
+        $this->hasMany('PurposesModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'Purposes'
+        ]);
+
+        $this->hasMany('AfterPlansCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'AfterPlans'
+        ]);
+        $this->hasMany('AfterPlansModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'AfterPlans'
         ]);
     }
 
@@ -231,7 +276,7 @@ class UsersTable extends Table
     public function findAuth(Query $query, array $options)
     {
         $query
-            ->select(['id', 'username', 'fullname', 'password', 'image', 'role_id', 'Roles.name', 'email'])
+            ->select(['id', 'username', 'fullname', 'password', 'image', 'role_id', 'Roles.name', 'email', 'del_flag'])
             ->contain(['Roles', 'Permissions']);
 
         return $query;

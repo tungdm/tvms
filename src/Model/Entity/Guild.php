@@ -39,9 +39,11 @@ class Guild extends Entity
         'signing_date' => true,
         'address_kanji' => true,
         'subsidy' => true,
+        'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
-        'modified_by' => true
+        'modified_by' => true,
+        'companies' => true
     ];
 }

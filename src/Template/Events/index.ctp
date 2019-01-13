@@ -225,7 +225,7 @@ $this->assign('title', 'Lịch công tác');
         <li><strong>Lớp thi: </strong>{{className}}</li>
         <li><strong>Bài thi: </strong>{{lesson_from}} ～ {{lesson_to}}</li>
         <li>
-            <strong>Kỹ năng thi: </strong>
+            <strong>Kỹ năng thi:</strong>
             <div class="box-body table-responsive">
                 <table class="table table-bordered custom-table test-table">
                     <thead>
@@ -246,6 +246,69 @@ $this->assign('title', 'Lịch công tác');
                                 </td>
                                 <td class="cell col-md-3">
                                     {{user.fullname}}
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </li>
+    </ul>
+</script>
+
+<script id="jlpt-test-template" type="text/x-handlebars-template">
+    <ul>
+        <li>
+            <strong>Giáo viên canh thi:</strong>
+            <div class="box-body table-responsive">
+                <table class="table table-bordered custom-table test-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="col-md-2">STT</th>
+                            <th scope="col" class="col-md-5">Kỹ năng</th>
+                            <th scope="col" class="col-md-5">Giáo viên phụ trách</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skill-container">
+                        {{#each skills}}
+                            <tr class="row-rec">
+                                <td class="cell stt-col text-center">
+                                    {{inc @index}}
+                                </td>
+                                <td class="cell ">
+                                    {{skill}}
+                                </td>
+                                <td class="cell">
+                                    {{user.fullname}}
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </li>
+        <li>
+            <strong>Danh sách thí sinh:</strong>
+            <div class="box-body table-responsive">
+                <table class="table table-bordered custom-table test-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="col-md-2">STT</th>
+                            <th scope="col" class="col-md-5">Họ tên</th>
+                            <th scope="col" class="col-md-5">Lớp học</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skill-container">
+                        {{#each students}}
+                            <tr class="row-rec">
+                                <td class="cell stt-col text-center">
+                                    {{inc @index}}
+                                </td>
+                                <td class="cell text-center">
+                                    {{fullname}}
+                                </td>
+                                <td class="cell text-center">
+                                    {{class jclasses.0.name}}
                                 </td>
                             </tr>
                         {{/each}}

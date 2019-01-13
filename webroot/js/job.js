@@ -4,12 +4,12 @@ function viewJob(jobId) {
         return;
     }
     ajaxing = true;
-    $('#list-job-overlay').removeClass('hidden');
+    $('#list-jobs-overlay').removeClass('hidden');
 
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/jobs/view/' + jobId,
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 $('#view-job-name-romaji').html(resp.data.job_name);
                 if (resp.data.job_name_jp) {
@@ -19,7 +19,7 @@ function viewJob(jobId) {
                 }
 
                 if (resp.data.description) {
-                    $('#job-description').html((resp.data.description).replace(/\r?\n/g,'<br/>'));
+                    $('#job-description').html((resp.data.description).replace(/\r?\n/g, '<br/>'));
                 } else {
                     $('#job-description').html('N/A');
                 }
@@ -42,14 +42,14 @@ function viewJob(jobId) {
                 } else {
                     $('.modified').addClass('hidden');
                 }
-                
+
                 // toggle modal
                 $('#view-job-modal').modal('toggle');
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
-            $('#list-job-overlay').addClass('hidden');
+            $('#list-jobs-overlay').addClass('hidden');
         }
     });
 }
@@ -77,9 +77,9 @@ function addJob() {
             type: "POST",
             url: $('#add-job-form').attr('action'),
             data: $('#add-job-form').serialize(),
-            success: function(resp){                    
+            success: function (resp) {
                 if (resp.status == 'success') {
-                    window.location = resp.redirect; 
+                    window.location = resp.redirect;
                 } else {
                     var notice = new PNotify({
                         title: '<strong>' + resp.flash.title + '</strong>',
@@ -93,12 +93,12 @@ function addJob() {
                             sticker: false
                         }
                     });
-                    notice.get().click(function() {
+                    notice.get().click(function () {
                         notice.remove();
                     });
                 }
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('#add-modal-overlay').addClass('hidden');
             }
@@ -117,7 +117,7 @@ function showEditJobModal(jobId) {
     $.ajax({
         type: 'GET',
         url: DOMAIN_NAME + '/jobs/view/' + jobId,
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 // reset form
                 $('#edit-job-form').parsley().reset();
@@ -127,12 +127,12 @@ function showEditJobModal(jobId) {
                 $('#edit_job_name').val(resp.data['job_name']);
                 $('#edit_job_name_jp').val(resp.data['job_name_jp']);
                 $('#edit_description').val(resp.data['description']);
-                
+
                 // toggle modal
                 $('#edit-job-modal').modal('toggle');
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#list-job-overlay').addClass('hidden');
         }

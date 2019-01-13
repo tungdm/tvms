@@ -31,7 +31,11 @@ class GuildsController extends AppController
         $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
 
         if (!empty($userPermission)) {
-            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view']))) {
+            // only admin can recover deleted record
+            if ($action == 'recover') {
+                return false;
+            }
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view', 'searchGuild']))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -91,12 +95,25 @@ class GuildsController extends AppController
             $query['records'] = 10;
             $allGuilds = $this->Guilds->find()->order(['Guilds.created' => 'DESC']);
         }
+        if ($this->Auth->user('role_id') != 1) {
+            // other user (not admin) can not view delete record
+            $allGuilds->where(['Guilds.del_flag' => FALSE]);
+        }
         $this->paginate = [
             'sortWhitelist' => ['name_romaji','name_kanji', 'address_romaji', 'address_kanji', 'phone_vn', 'phone_jp'],
             'limit' => $query['records']
         ];
         $guilds = $this->paginate($allGuilds);
-        $this->set(compact('guilds', 'query'));
+        $companies = $this->Guilds->Companies->find('list')
+                    ->where([
+                        'type' => '2',
+                        'del_flag' => FALSE
+                        ])
+                    ->order(['name_romaji' => 'ASC']); // cty tiep nhan
+        $allCompanies = $this->Guilds->Companies->find('list')
+                    ->where(['type' => '2'])
+                    ->order(['name_romaji' => 'ASC']); // cty tiep nhan
+        $this->set(compact('guilds', 'companies', 'allCompanies', 'query'));
     }
 
     public function searchGuild()
@@ -137,12 +154,26 @@ class GuildsController extends AppController
         ];
 
         try {
-            $guild = $this->Guilds->get($guildId, [
-                'contain' => [
-                    'CreatedByUsers',
-                    'ModifiedByUsers'
-                ]
-            ]);
+            if ($this->Auth->user('role_id') == 1) {
+                $guild = $this->Guilds->get($guildId, [
+                    'contain' => [
+                        'CreatedByUsers',
+                        'ModifiedByUsers',
+                        'Companies'
+                    ]
+                ]);
+            } else {
+                $guild = $this->Guilds->get($guildId, [
+                    'contain' => [
+                        'CreatedByUsers',
+                        'ModifiedByUsers',
+                        'Companies' => function($q) {
+                            return $q->where(['Companies.del_flag' => FALSE]);
+                        }
+                    ]
+                ]);
+            }
+            
             $resp = [
                 'status' => 'success',
                 'data' => $guild,
@@ -164,32 +195,20 @@ class GuildsController extends AppController
     public function add()
     {
         $guild = $this->Guilds->newEntity();
-        if($this->request->is('ajax')) {
-            $resp = [];
-            $guild = $this->Guilds->patchEntity($guild, $this->request->getData());
-            $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), $this->request->getParam('action'));
-            if($this->Guilds->save($guild)) {
-                $resp = [
-                    'status' => 'success',
-                    'redirect' => Router::url(['action' => 'index']),
-                ];    
+        if ($this->request->is('post')) {
+            $data = $this->request->getData();
+            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
+            $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'add');
+            if ($this->Guilds->save($guild)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
                     'entity' => $this->entity,
                     'name' => $guild->name_romaji
                 ]));
+            } else {
+                $this->Flash->error($this->errorMessage['add']);
             }
-        } else {
-            $resp = [
-                'status' => 'error',
-                'flash' => [
-                    'title' => 'Lỗi',
-                    'type' => 'error',
-                    'icon' => 'fa fa-warning',
-                    'message' => $this->errorMessage['add']
-                ]
-            ];
         }
-        return $this->jsonResponse($resp);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**
@@ -204,51 +223,61 @@ class GuildsController extends AppController
         $this->autoRender = false;
 
         if ($this->request->is('ajax')) {
-            $resp = [];
-            if ($this->request->is(['patch', 'post', 'put'])) {
-                $data = $this->request->getData();
-                $guild = $this->Guilds->get($data['id'], [
-                    'contain' => []
-                ]);
-                $guildName = $guild->name_romaji;
-
-                $guild = $this->Guilds->patchEntity($guild, $data);
-                $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), $this->request->getParam('action'));
-                if ($this->Guilds->save($guild)) {
-                    $resp = [
-                        'status' => 'success',
-                        'redirect' => Router::url(['action' => 'index']),
-                    ];
-                    $this->Flash->success(Text::insert($this->successMessage['edit'], [
-                        'entity' => $this->entity, 
-                        'name' => $guild->name_romaji
-                        ]));
-                } else {
-                    Log::write('debug', $guild->errors());
-                    $resp = [
-                        'status' => 'error',
-                        'flash' => [
-                            'title' => 'Lỗi',
-                            'type' => 'error',
-                            'icon' => 'fa fa-warning',
-                            'message' => Text::insert($this->errorMessage['edit'], [
-                                'entity' => $this->entity,
-                                'name' => $guildName
-                            ])
+            $guildId = $this->request->getQuery('id');
+            // get guild data
+            if ($this->Auth->user('role_id') == 1) {
+                $resp = $this->Guilds->get($guildId, [
+                    'contain' => [
+                        'Companies' => [
+                            'sort' => ['Companies.name_romaji' => 'ASC']
                         ]
-                    ];
-                }
-            } else {
-                $guildId = $this->request->getQuery('id');
-                // get guild data
-                $guild = $this->Guilds->get($guildId, [
-                    'contain' => []
+                    ]
                 ]);
-                $resp = $guild;
+            } else {
+                $resp = $this->Guilds->get($guildId, [
+                    'contain' => [
+                        'Companies' => function($q) {
+                            return $q->where(['Companies.del_flag' => FALSE])->order(['Companies.name_romaji' => 'ASC']);
+                        }
+                    ]
+                ]);
             }
+            
             return $this->jsonResponse($resp);
-        } else {
-            //TODO: throw 404 page not found
+        }
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            $delCompanies = [];
+            $guild = $this->Guilds->get($data['id'], ['contain' => ['Companies']]);
+            if (!empty($guild->companies)) {
+                foreach ($guild->companies as $key => $company) {
+                    if ($company->_joinData->del_flag) {
+                        $delCom = [
+                            'id' => $company->id,
+                            '_joinData' => [
+                                'modified_by' => $this->Auth->user('id'),
+                                'id' => $company->_joinData->id,
+                                'del_flag' => TRUE
+                            ]
+                        ];
+                        array_push($data['companies'], $delCom);
+                    }
+                }
+            }
+            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
+            $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
+            if ($this->Guilds->save($guild)) {
+                $this->Flash->success(Text::insert($this->successMessage['edit'], [
+                    'entity' => $this->entity,
+                    'name' => $guild->name_romaji
+                ]));
+            } else {
+                debug($guild->errors());
+                // exit;
+                $this->Flash->error($this->errorMessage['error']);
+            }
+            return $this->redirect(['action' => 'index']);
         }
     }
 
@@ -262,21 +291,148 @@ class GuildsController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $guild = $this->Guilds->get($id);
-        $guildName = $guild->name_romaji;
-        if ($this->Guilds->delete($guild)) {
+        $guild = $this->Guilds->get($id, ['contain' => 'Companies']);
+        $data = [
+            'del_flag' => TRUE, // guild del_flag
+        ];
+        if (!empty($guild->companies)) {
+            foreach ($guild->companies as $key => $company) {
+                $data['companies'][$key]['id'] = $company->id;
+                $data['companies'][$key]['_joinData']['del_flag'] = TRUE;
+                $data['companies'][$key]['_joinData']['modified_by'] = $this->Auth->user('id');
+            }
+        }
+
+        $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
+        $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
+        if ($this->Guilds->save($guild)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
-                'name' => $guildName
+                'name' => $guild->name_romaji
                 ]));
         } else {
             $this->Flash->error(Text::insert($this->errorMessage['delete'], [
                 'entity' => $this->entity,
-                'name' => $guildName
+                'name' => $guild->name_romaji
             ]));
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function recover($id = null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $guild = $this->Guilds->get($id, ['contain' => 'Companies']);
+        $data = [
+            'del_flag' => FALSE, // guild del_flag
+        ];
+        if (!empty($guild->companies)) {
+            foreach ($guild->companies as $key => $company) {
+                $data['companies'][$key]['id'] = $company->id;
+                $data['companies'][$key]['_joinData']['del_flag'] = FALSE;
+                $data['companies'][$key]['_joinData']['modified_by'] = $this->Auth->user('id');
+            }
+        }
+        $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
+        $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
+        if ($this->Guilds->save($guild)) {
+            $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                'entity' => $this->entity, 
+                'name' => $guild->name_romaji
+                ]));
+        } else {
+            $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                'entity' => $this->entity,
+                'name' => $guild->name_romaji
+            ]));
+        }
+
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function deleteCompany()
+    {
+        $this->request->allowMethod('ajax');
+        
+        $recordId = $this->request->getData('recordId');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+
+        $table = TableRegistry::get('GuildsCompanies');
+        $record = $table->get($recordId);
+        $record->del_flag = TRUE;
+        $record->modified_by = $this->Auth->user('id');
+
+        $guildId = $record->guild_id;
+        $guild = $this->Guilds->get($guildId);
+        $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
+        if ($table->save($record) && $this->Guilds->save($guild)) {
+            $resp = [
+                'status' => 'success',
+                'admin' => $this->Auth->user('role_id') == 1,
+                'alert' => [
+                    'title' => 'Thành Công',
+                    'type' => 'success',
+                    'message' => 'Đã xóa thành công dữ liệu'
+                ]
+            ];
+        }
+
+        return $this->jsonResponse($resp);
+    }
+
+    public function recoverCompany()
+    {
+        $this->request->allowMethod('ajax');
+        
+        $recordId = $this->request->getData('recordId');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+
+        $table = TableRegistry::get('GuildsCompanies');
+        $record = $table->get($recordId);
+        $record->del_flag = FALSE;
+        $record->modified_by = $this->Auth->user('id');
+
+        $guildId = $record->guild_id;
+        $guild = $this->Guilds->get($guildId);
+        $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
+
+        $companyId = $record->company_id;
+        $company = $this->Guilds->Companies->get($companyId);
+        if ($company->del_flag) {
+            $company->del_flag = FALSE;
+            $company = $this->Guilds->Companies->setAuthor($company, $this->Auth->user('id'), 'edit');
+        }
+
+        if ($table->save($record) && $this->Guilds->save($guild) && $this->Guilds->Companies->save($company)) {
+            $resp = [
+                'status' => 'success',
+                'admin' => $this->Auth->user('role_id') == 1,
+                'alert' => [
+                    'title' => 'Thành Công',
+                    'type' => 'success',
+                    'message' => 'Đã phục hồi thành công dữ liệu'
+                ]
+            ];
+        }
+
+        return $this->jsonResponse($resp);
     }
 }
 

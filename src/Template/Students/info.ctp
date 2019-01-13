@@ -42,6 +42,9 @@ $relationship = array_map('array_shift', $relationship);
 $smokedrink = Configure::read('smokedrink');
 $smokedrink = array_map('array_shift', $smokedrink);
 
+$physResult = Configure::read('physResult');
+$depositType = Configure::read('depositType');
+$financeStatus = Configure::read('financeStatus');
 $now = Time::now();
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
@@ -67,16 +70,30 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
         ]
     ]) 
 ?>
-<?= $this->Form->unlockField('b64code') ?>
+<?= $this->Form->hidden('candidate_id') ?>
+<?= $this->Form->unlockField('student_avatar') ?>
+<?= $this->Form->unlockField('cmnd_cropped_result_front')?>
+<?= $this->Form->unlockField('cmnd_cropped_result_back')?>
+<?= $this->Form->unlockField('pp_cropped_result')?>
+<?= $this->Form->unlockField('btn_cropped_result_1')?>
+<?= $this->Form->unlockField('btn_cropped_result_2')?>
 <?= $this->Form->unlockField('image') ?>
 <?= $this->Form->unlockField('addresses') ?>
 <?= $this->Form->unlockField('expectationJobs') ?>
+<?= $this->Form->unlockField('genitiveArr') ?>
+<?= $this->Form->unlockField('strengthArr') ?>
+<?= $this->Form->unlockField('purposeArr') ?>
+<?= $this->Form->unlockField('afterPlanArr') ?>
 <?= $this->Form->unlockField('families') ?>
 <?= $this->Form->unlockField('educations') ?>
 <?= $this->Form->unlockField('experiences') ?>
 <?= $this->Form->unlockField('language_abilities') ?>
 <?= $this->Form->unlockField('documents') ?>
 <?= $this->Form->unlockField('iq_tests') ?>
+<?= $this->Form->unlockField('physical_exams') ?>
+<?= $this->Form->unlockField('interview_deposits') ?>
+<?= $this->Form->unlockField('general_costs') ?>
+
 
 <?php if ($action == "add"): ?>
     <?php $this->assign('title', 'Thêm mới lao động'); ?>
@@ -185,16 +202,21 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
             <li role="presentation" class="">
                 <a href="#tab_content3" role="tab" id="experience-tab" data-toggle="tab" aria-expanded="false"><?= __('Học tập - Làm việc') ?></a>
             </li>
+            <?php if($currentUser['role_id'] == 1 || $currentUser['role_id'] == 4 || $currentUser['role_id'] == 6): ?>
+                <li role="presentation" class="">
+                    <a href="#tab_content4" role="tab" id="finance-physical-tab" data-toggle="tab" aria-expanded="false"><?= __('Tài chính - Sức khỏe') ?></a>
+                </li>
+            <?php endif; ?>
             <li role="presentation" class="">
-                <a href="#tab_content4" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
+                <a href="#tab_content5" role="tab" id="document-tab" data-toggle="tab" aria-expanded="false"><?= __('Hồ sơ bổ sung') ?></a>
             </li>
             <li role="presentation" class="">
-                <a href="#tab_content5" role="tab" id="input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
+                <a href="#tab_content6" role="tab" id="input-test-tab" data-toggle="tab" aria-expanded="false"><?= __('Kiểm tra đầu vào') ?></a>
             </li>
             <?php if (!empty($student->id)): ?>
-            <li role="presentation" class="">
-                <a href="#tab_content6" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
-            </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content7" role="tab" id="histories-tab" data-toggle="tab" aria-expanded="false"><?= __('Ghi chú hoạt động') ?></a>
+                </li>
             <?php endif; ?>
         </ul>
         <div id="student-tab-content" class="tab-content">
@@ -344,11 +366,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'accept' => 'image/*',
                                             'label' => false, 
                                             'class' => 'form-control avatar-image col-md-7 col-xs-12',
-                                            'onchange' => 'readURL(this)'
+                                            'onchange' => 'readURL2(this, "student_avatar", 2/3)'
                                             ]) ?>
-                                        <div id="cropped_result" class="col-md-7 col-xs-12">
+                                        <div id="student_avatar" class="col-md-7 col-xs-12 cropped-result-container">
                                             <?php if(!empty($student->image)):?>
-                                            <?= $this->Html->image($student->image) ?>
+                                            <?= $this->Html->image($student->image, ['class' => 'zoom-able']) ?>
                                             <?php endif; ?>
                                         </div> 
                                     </div>
@@ -590,10 +612,18 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="purpose"><?= __('Mục đích XKLĐ') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('purpose', [
+                                        <?php 
+                                            $purpose = explode(',', $student->purpose);
+                                            array_shift($purpose);
+                                            array_pop($purpose);
+                                        ?>
+                                        <?= $this->Form->control('purposeArr[]', [
+                                            'options' => $purposes,
                                             'label' => false,
-                                            'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Nhập mục đích đi xuất khẩu lao động'
+                                            'empty' => true,
+                                            'multiple' => 'multiple',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => $purpose
                                             ]) ?>
                                     </div>
                                 </div>
@@ -632,10 +662,18 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="after_plan"><?= __('Dự định sau khi về') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('after_plan', [
+                                        <?php 
+                                            $after_plan = explode(',', $student->after_plan);
+                                            array_shift($after_plan);
+                                            array_pop($after_plan);
+                                        ?>
+                                        <?= $this->Form->control('afterPlanArr[]', [
+                                            'options' => $afterPlans,
                                             'label' => false,
-                                            'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Nhập dự định sau khi về nước'
+                                            'empty' => true,
+                                            'multiple' => 'multiple',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => $after_plan
                                             ]) ?>
                                     </div>
                                 </div>
@@ -645,10 +683,18 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="strength"><?= __('Điểm mạnh - Chuyên môn') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('strength', [
+                                        <?php 
+                                            $strength = explode(',', $student->strength);
+                                            array_shift($strength);
+                                            array_pop($strength);
+                                        ?>
+                                        <?= $this->Form->control('strengthArr[]', [
+                                            'options' => $strengths,
                                             'label' => false,
-                                            'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Nhập thông tin điểm mạnh'
+                                            'empty' => true,
+                                            'multiple' => 'multiple',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => $strength
                                             ]) ?>
                                     </div>
                                 </div>
@@ -665,10 +711,18 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="form-group">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="genitive"><?= __('Tính cách') ?></label>
                                     <div class="col-md-7 col-sm-7 col-xs-12">
-                                        <?= $this->Form->control('genitive', [
+                                        <?php 
+                                            $genitive = explode(',', $student->genitive);
+                                            array_shift($genitive);
+                                            array_pop($genitive);
+                                        ?>
+                                        <?= $this->Form->control('genitiveArr[]', [
+                                            'options' => $characteristics,
                                             'label' => false,
-                                            'class' => 'form-control col-md-7 col-xs-12',
-                                            'placeholder' => 'Nhập tính cách của lao động'
+                                            'empty' => true,
+                                            'multiple' => 'multiple',
+                                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                                            'value' => $genitive
                                             ]) ?>
                                     </div>
                                 </div>
@@ -694,8 +748,8 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 </ul>
                                 <div id="address-tabs-content" class="tab-content">
                                     <div class="tab-pane fade in active" id="household">
-                                        <?php if (!empty($student->addresses)): ?>
-                                        <?= $this->Form->hidden('addresses.0.id', ['value' => $student->addresses[0]->id]) ?>
+                                        <?php if (!empty($student->addresses[0]['id'])): ?>
+                                            <?= $this->Form->hidden('addresses.0.id', ['value' => $student->addresses[0]->id]) ?>
                                         <?php endif; ?>
                                         <?= $this->Form->hidden('addresses.0.type', ['value' => $addressType[0]]) ?>
                                         <div class="form-group">
@@ -716,7 +770,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="district"><?= __('Quận/Huyện') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                                <?php if (!empty($student->addresses[0]->city_id)): ?>
+                                                <?php if (!empty($student->addresses[0]['city_id'])): ?>
                                                 <?= $this->Form->control('addresses.0.district_id', [
                                                     'options' => $districts[0], 
                                                     'required' => true, 
@@ -742,7 +796,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <div class="form-group">
                                             <label class="control-label col-md-4 col-sm-4 col-xs-12" for="ward"><?= __('Phường/Xã') ?></label>
                                             <div class="col-md-7 col-sm-7 col-xs-12">
-                                                <?php if (!empty($student->addresses[0]->district_id)): ?>
+                                                <?php if (!empty($student->addresses[0]['district_id'])): ?>
                                                 <?= $this->Form->control('addresses.0.ward_id', [
                                                     'options' => $wards[0], 
                                                     'required' => true,
@@ -1240,6 +1294,40 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             ]) ?>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="image_front"><?= __('Hình ảnh (mặt trước)') ?>: </label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('cards.0.image1', [
+                                            'type' => 'file',
+                                            'accept' => 'image/*',
+                                            'label' => false, 
+                                            'class' => 'form-control avatar-image col-md-7 col-xs-12 free-img',
+                                            'onchange' => 'readURL2(this, "cmnd_cropped_result_front", NaN)'
+                                            ]) ?>
+                                        <div id="cmnd_cropped_result_front" class="col-md-7 col-xs-12 cropped-result-container">
+                                            <?php if(!empty($student->cards[0]->image1)):?>
+                                                <?= $this->Html->image($student->cards[0]->image1, ['class' => 'zoom-able']) ?>
+                                            <?php endif; ?>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="image_back"><?= __('Hình ảnh (mặt sau)') ?>: </label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('cards.0.image2', [
+                                            'type' => 'file',
+                                            'accept' => 'image/*',
+                                            'label' => false, 
+                                            'class' => 'form-control avatar-image col-md-7 col-xs-12 free-img',
+                                            'onchange' => 'readURL2(this, "cmnd_cropped_result_back", NaN)'
+                                            ]) ?>
+                                        <div id="cmnd_cropped_result_back" class="col-md-7 col-xs-12 cropped-result-container">
+                                            <?php if(!empty($student->cards[0]->image2)):?>
+                                                <?= $this->Html->image($student->cards[0]->image2, ['class' => 'zoom-able']) ?>
+                                            <?php endif; ?>
+                                        </div> 
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="box">
@@ -1409,6 +1497,71 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             'data-parsley-check-empty' => '.passport-group',
                                             'placeholder' => 'Nhập nơi cấp Passport'
                                             ]) ?>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="pp_image"><?= __('Hình ảnh') ?>: </label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('cards.1.image1', [
+                                            'type' => 'file',
+                                            'accept' => 'image/*',
+                                            'label' => false, 
+                                            'class' => 'form-control avatar-image col-md-7 col-xs-12 free-img',
+                                            'onchange' => 'readURL2(this, "pp_cropped_result", NaN)'
+                                            ]) ?>
+                                        <div id="pp_cropped_result" class="col-md-7 col-xs-12 cropped-result-container">
+                                            <?php if(!empty($student->cards[1]->image1)):?>
+                                                <?= $this->Html->image($student->cards[1]->image1, ['class' => 'zoom-able']) ?>
+                                            <?php endif; ?>
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"><?= __('Bằng tốt nghiệp') ?></h3>
+                                <div class="box-tools pull-right">
+                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <?php if (!empty($student->cards[3])): ?>
+                                    <?= $this->Form->hidden('cards.3.id', ['value' => $student->cards[3]->id]) ?>
+                                <?php endif; ?>
+                                <?= $this->Form->hidden('cards.3.type', ['value' => $cardType[3]])?>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="image_1"><?= __('Hình ảnh (bằng chính)') ?>: </label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('cards.3.image1', [
+                                            'type' => 'file',
+                                            'accept' => 'image/*',
+                                            'label' => false, 
+                                            'class' => 'form-control avatar-image col-md-7 col-xs-12 free-img',
+                                            'onchange' => 'readURL2(this, "btn_cropped_result_1", NaN)'
+                                            ]) ?>
+                                        <div id="btn_cropped_result_1" class="col-md-7 col-xs-12 cropped-result-container">
+                                            <?php if(!empty($student->cards[3]->image1)):?>
+                                                <?= $this->Html->image($student->cards[3]->image1, ['class' => 'zoom-able']) ?>
+                                            <?php endif; ?>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="image_2"><?= __('Hình ảnh (bằng phụ)') ?>: </label>
+                                    <div class="col-md-7 col-sm-7 col-xs-12">
+                                        <?= $this->Form->control('cards.3.image2', [
+                                            'type' => 'file',
+                                            'accept' => 'image/*',
+                                            'label' => false, 
+                                            'class' => 'form-control avatar-image col-md-7 col-xs-12 free-img',
+                                            'onchange' => 'readURL2(this, "btn_cropped_result_2", NaN)'
+                                            ]) ?>
+                                        <div id="btn_cropped_result_2" class="col-md-7 col-xs-12 cropped-result-container">
+                                            <?php if(!empty($student->cards[3]->image2)):?>
+                                                <?= $this->Html->image($student->cards[3]->image2, ['class' => 'zoom-able']) ?>
+                                            <?php endif; ?>
+                                        </div> 
                                     </div>
                                 </div>
                             </div>
@@ -1582,7 +1735,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 <?php echo $counter + 1; ?>
                                             </td>
                                             <td class="cell col-md-2">
-                                                <?= $language[$value->lang_code]?>
+                                                <?= $language[$value->lang_code]?> <?= $value->type == 'internal' ? '(nội bộ)' : '' ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('language_abilities.' . $key . '.lang_code', [
                                                         'options' => $language,
@@ -1602,7 +1755,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 </div>
                                             </td>
                                             <td class="cell col-md-4">
-                                                <?= $this->Month->makeEdit($value->from_date) ?> ～ <?= $this->Month->makeEdit($value->to_date) ?>
+                                                <?= $value->from_date ? $this->Month->makeEdit($value->from_date) : 'N/A' ?> ～ <?= $value->to_date ? $this->Month->makeEdit($value->to_date) : 'N/A' ?>
                                                 <div class="hidden">
                                                     <?= $this->Form->control('language_abilities.' . $key . '.from_date', [
                                                         'type' => 'text',
@@ -1768,7 +1921,278 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content4">
+            <?php if($currentUser['role_id'] == 1 || $currentUser['role_id'] == 4 || $currentUser['role_id'] == 6): ?>
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content4">
+                    <div class="rows">
+                        <div class="col-md-6 col-xs-12 left-col">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Cọc phỏng vấn') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <?php if (!empty($student->interview_deposits)): ?>
+                                        <?= $this->Form->hidden('interview_deposits.0.id', ['value' => $student->interview_deposits[0]->id]) ?>
+                                    <?php endif; ?>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="deposit_type"><?= __('Loại cọc') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('interview_deposits.0.type', [
+                                                'options' => $depositType, 
+                                                'empty' => true,
+                                                'label' => false,
+                                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="deposit_status"><?= __('Trạng thái') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('interview_deposits.0.status', [
+                                                'options' => $financeStatus, 
+                                                'empty' => true,
+                                                'label' => false,
+                                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="payment_date"><?= __('Ngày đóng') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <div class="input-group date input-picker" id="patement-date-div">
+                                                <?= $this->Form->control('interview_deposits.0.payment_date', [
+                                                    'type' => 'text',
+                                                    'label' => false, 
+                                                    'class' => 'form-control',
+                                                    'placeholder' => 'dd-mm-yyyy',
+                                                    ])?>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="deposit_notes"><?= __('Ghi chú') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('interview_deposits.0.notes', [
+                                                'label' => false, 
+                                                'type' => 'textarea',
+                                                'rows' => 14,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                'placeholder' => 'Nhập ghi chú đóng cọc'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12 right-col">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Chi phí lần 1') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <?php if (!empty($student->general_costs)): ?>
+                                        <?= $this->Form->hidden('general_costs.0.id', ['value' => $student->general_costs[0]->id]) ?>
+                                    <?php endif; ?>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="cost_status"><?= __('Trạng thái') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('general_costs.0.status', [
+                                                'options' => $financeStatus, 
+                                                'empty' => true,
+                                                'label' => false,
+                                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <div class="input-group date input-picker" id="cost-patement-date-div">
+                                                <?= $this->Form->control('general_costs.0.payment_date', [
+                                                    'type' => 'text',
+                                                    'label' => false, 
+                                                    'class' => 'form-control',
+                                                    'placeholder' => 'dd-mm-yyyy',
+                                                    ])?>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="cost_notes"><?= __('Ghi chú') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('general_costs.0.notes', [
+                                                'label' => false, 
+                                                'type' => 'textarea',
+                                                'rows' => 3,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                'placeholder' => 'Nhập ghi chú đóng lần 1'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Chi phí lần 2') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <?php if (!empty($student->general_costs)): ?>
+                                        <?= $this->Form->hidden('general_costs.1.id', ['value' => $student->general_costs[1]->id]) ?>
+                                    <?php endif; ?>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="cost_status"><?= __('Trạng thái') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('general_costs.1.status', [
+                                                'options' => $financeStatus, 
+                                                'empty' => true,
+                                                'label' => false,
+                                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <div class="input-group date input-picker" id="cost-patement-date-div-1">
+                                                <?= $this->Form->control('general_costs.1.payment_date', [
+                                                    'type' => 'text',
+                                                    'label' => false, 
+                                                    'class' => 'form-control',
+                                                    'placeholder' => 'dd-mm-yyyy',
+                                                    ])?>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="cost_notes"><?= __('Ghi chú') ?></label>
+                                        <div class="col-md-7 col-sm-7 col-xs-12">
+                                            <?= $this->Form->control('general_costs.1.notes', [
+                                                'label' => false, 
+                                                'type' => 'textarea',
+                                                'rows' => 3,
+                                                'class' => 'form-control col-md-7 col-xs-12', 
+                                                'placeholder' => 'Nhập ghi chú đóng lần 2'
+                                                ]) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Khám sức khỏe') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <button type="button" class="btn btn-primary" onclick="showAddHealthCalendarModal();">
+                                        <?= __('Thêm lịch khám') ?>
+                                    </button>
+                                    <table class="table table-bordered custom-table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                                <th scope="col" class="col-md-2"><?= __('Ngày khám') ?></th>
+                                                <th scope="col" class="col-md-3"><?= __('Kết quả') ?></th>
+                                                <th scope="col" class="col-md-5"><?= __('Ghi chú') ?></th>
+                                                <th scope="col" class="actions col-md-1"><?= __('Thao tác') ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="phys-container">
+                                            <?php if (!empty($student->physical_exams)): ?>
+                                                <?php foreach ($student->physical_exams as $key => $exam): ?>
+                                                    <tr class="row-phys" id="row-phys-<?=$key?>">
+                                                        <td class="cell stt-col text-center">
+                                                            <?= $key + 1 ?>
+                                                        </td>
+                                                        <td class="cell text-center">
+                                                            <span class="exam-date-txt"><?= h($exam->exam_date) ?></span>
+                                                            <div class="hidden">
+                                                                <?= $this->Form->control('physical_exams.'.$key.'.id', [
+                                                                    'type' => 'text',
+                                                                    'label' => false, 
+                                                                    'class' => 'form-control col-md-7 col-xs-12 phys_id',
+                                                                    'value' => $exam->id
+                                                                    ]) ?>
+                                                                <?= $this->Form->control('physical_exams.'.$key.'.exam_date', [
+                                                                    'type' => 'text',
+                                                                    'label' => false,
+                                                                    'class' => 'form-control exam_date',
+                                                                    'value' => $exam->exam_date
+                                                                    ])?>
+                                                                <?= $this->Form->control('physical_exams.'.$key.'.result', [
+                                                                    'type' => 'text',
+                                                                    'label' => false,
+                                                                    'class' => 'form-control result',
+                                                                    'value' => $exam->result
+                                                                    ])?>
+                                                                <?= $this->Form->control('physical_exams.'.$key.'.notes', [
+                                                                    'label' => false, 
+                                                                    'type' => 'textarea',
+                                                                    'rows' => 5,
+                                                                    'class' => 'form-control notes', 
+                                                                    'value' => $exam->notes
+                                                                    ]) ?>
+                                                            </div>
+                                                        </td>
+                                                        <td class="cell text-center result-txt">
+                                                            <?= h($physResult[$exam->result]) ?>
+                                                        </td>
+                                                        <td class="cell notes-txt">
+                                                            <?= nl2br($exam->notes) ?>
+                                                        </td>
+                                                        <td class="cell action-btn actions">
+                                                            <?= $this->Html->link(
+                                                                '<i class="fa fa-2x fa-pencil"></i>', 
+                                                                'javascript:;',
+                                                                [
+                                                                    'escape' => false,
+                                                                    'onClick' => "showEditPhysModal(this)"
+                                                                ]) 
+                                                            ?>
+                                                            
+                                                            <?= $this->Html->link(
+                                                                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                                                                'javascript:;',
+                                                                [
+                                                                    'escape' => false, 
+                                                                    'onClick' => 'removePhys(this, true)'
+                                                                ]
+                                                            )?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
                 <div class="rows">
                     <div class="col-md-12 col-xs-12 no-padding">
                         <div class="box">
@@ -1876,7 +2300,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
             </div>
-            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content5">
+            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
                 <div class="rows">
                     <div class="col-md-6 col-xs-12 left-col">
                         <div class="box">
@@ -2061,65 +2485,71 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                 </div>
             </div>
             <?php if (!empty($student->id)): ?>
-            <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content6">
-                <div class="rows">
-                    <div class="col-md-12 col-xs-12 no-padding">
-                        <div class="box">
-                            <div class="box-header with-border">
-                                <h3 class="box-title"><?= __('Lịch sử hoạt động') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    <a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal(<?= $student->id ?>, 'main', 'students')"><i class="fa fa-plus"></i></a>
-                                    <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay', 'students')"><i class="fa fa-refresh"></i></a>
+                <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content7">
+                    <div class="rows">
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Lịch sử hoạt động') ?></h3>
+                                    <div class="box-tools pull-right">
+                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                        <a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal(<?= $student->id ?>, 'main', 'students')"><i class="fa fa-plus"></i></a>
+                                        <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay', 'students')"><i class="fa fa-refresh"></i></a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="box-body">
-                                <div class="overlay hidden" id="list-history-overlay">
-                                    <i class="fa fa-refresh fa-spin"></i>
+                                <div class="box-body">
+                                    <div class="overlay hidden" id="list-history-overlay">
+                                        <i class="fa fa-refresh fa-spin"></i>
+                                    </div>
+                                    <ul class="timeline">
+                                        <li class="time-label" id="now-tl">
+                                            <span class="bg-black"><?= h($now) ?></span>
+                                        </li>
+                                        <?php foreach($student->histories as $key => $value): ?>
+                                        <li class="history-detail" id="history-<?= $key ?>" history="<?= $value->id ?>">
+                                            <?php if (empty($value->users_created_by->image)): ?>
+                                                <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'img-circle timeline-avatar']) ?>
+                                            <?php else: ?>
+                                                <?= $this->Html->image($value->users_created_by->image, ['class' => 'img-circle timeline-avatar']) ?>
+                                            <?php endif; ?>
+                                            <div class="timeline-item">
+                                                <span class="time"><i class="fa fa-clock-o"></i> <?= $value->created ?></span>
+                                                <h3 class="timeline-header"><?= $value->title ?></h3>
+                                                <div class="timeline-body">
+                                                    <?= !empty($value->note) ? nl2br($value->note) : '' ?>
+                                                </div>
+                                                <div class="timeline-footer">
+                                                    <?php if ($currentUser['id'] == $value->created_by): ?>
+                                                        <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this, 'students')">Chỉnh sửa</button>
+                                                        <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this, 'students')">Xóa</button>
+                                                    <?php else: ?>
+                                                    <span class="history-creater">Người tạo: <?= h($value->users_created_by->fullname) ?></span>
+                                                    <?php endif;?>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <?php endforeach; ?>
+                                        <li class="time-label">
+                                            <span class="bg-blue" id="student-created"><?= h($student->created) ?></span>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <ul class="timeline">
-                                    <li class="time-label" id="now-tl">
-                                        <span class="bg-black"><?= h($now) ?></span>
-                                    </li>
-                                    <?php foreach($student->histories as $key => $value): ?>
-                                    <li class="history-detail" id="history-<?= $key ?>" history="<?= $value->id ?>">
-                                        <?php if (empty($value->users_created_by->image)): ?>
-                                            <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'img-circle timeline-avatar']) ?>
-                                        <?php else: ?>
-                                            <?= $this->Html->image($value->users_created_by->image, ['class' => 'img-circle timeline-avatar']) ?>
-                                        <?php endif; ?>
-                                        <div class="timeline-item">
-                                            <span class="time"><i class="fa fa-clock-o"></i> <?= $value->created ?></span>
-                                            <h3 class="timeline-header"><?= $value->title ?></h3>
-                                            <div class="timeline-body">
-                                                <?= !empty($value->note) ? nl2br($value->note) : '' ?>
-                                            </div>
-                                            <div class="timeline-footer">
-                                                <?php if ($currentUser['id'] == $value->created_by): ?>
-                                                    <button type="button" class="btn btn-primary btn-xs" id="edit-history-btn" onclick="showEditHistoryModal(this, 'students')">Chỉnh sửa</button>
-                                                    <button type="button" class="btn btn-danger btn-xs" id="delete-history-btn" onclick="deleteHistory(this, 'students')">Xóa</button>
-                                                <?php else: ?>
-                                                <span class="history-creater">Người tạo: <?= h($value->users_created_by->fullname) ?></span>
-                                                <?php endif;?>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <?php endforeach; ?>
-                                    <li class="time-label">
-                                        <span class="bg-blue" id="student-created"><?= h($student->created) ?></span>
-                                    </li>
-                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             <?php endif; ?>
         </div>
     </div>
 </div>
 
-<?= $this->Form->hidden('b64code')?>
+<?= $this->Form->hidden('student_avatar')?>
+<?= $this->Form->hidden('cmnd_cropped_result_front')?>
+<?= $this->Form->hidden('cmnd_cropped_result_back')?>
+<?= $this->Form->hidden('pp_cropped_result')?>
+<?= $this->Form->hidden('btn_cropped_result_1')?>
+<?= $this->Form->hidden('btn_cropped_result_2')?>
+
 <?= $this->Form->end() ?>
 
 <div id="cropper-modal" class="modal fade" role="dialog">
@@ -2448,6 +2878,17 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         ]
                     ]) ?>
                     <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="school"><?= __('Trường học') ?></label>
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <?= $this->Form->control('edu.school', [
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12 autoFocus', 
+                                'required' => true,
+                                'placeholder' => 'Nhập tên trường'
+                                ]) ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12" for="from_date"><?= __('Thời gian học') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
@@ -2455,7 +2896,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <?= $this->Form->control('edu.from_date', [
                                         'type' => 'text',
                                         'label' => false, 
-                                        'class' => 'form-control from-date-picker autoFocus',
+                                        'class' => 'form-control from-date-picker',
                                         'placeholder' => 'mm-yyyy',
                                         'required' => true,
                                         'data-parsley-errors-container' => '#error-edu-his-from',
@@ -2533,17 +2974,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <span id="error-certificate"></span>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="school"><?= __('Trường học') ?></label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-                            <?= $this->Form->control('edu.school', [
-                                'label' => false, 
-                                'class' => 'form-control col-md-7 col-xs-12', 
-                                'required' => true,
-                                'placeholder' => 'Nhập tên trường'
-                                ]) ?>
-                        </div>
-                    </div>
+                    
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="address"><?= __('Địa chỉ') ?></label>
                         <div class="col-md-9 col-sm-9 col-xs-12">
@@ -2674,13 +3105,148 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                     'onClick' => "showEditEduHisModal(this)"
                 ]) 
             ?>
-            
+
             <?= $this->Html->link(
                 '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
                 'javascript:;',
                 [
                     'escape' => false, 
                     'onClick' => 'removeEduHis(this, false)'
+                ]
+            )?>
+        </td>
+    </tr>
+</script>
+
+<div id="physical-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">KHÁM SỨC KHỎE</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-md-12 col-xs-12">
+                <?= $this->Form->create(null, [
+                    'class' => 'form-horizontal form-label-left', 
+                    'id' => 'physical-form', 
+                    'data-parsley-validate' => '',
+                    'templates' => [
+                        'inputContainer' => '{{content}}'
+                        ]
+                    ]) ?>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="exam_date"><?= __('Ngày khám') ?></label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="input-group date input-picker" id="exam-date-div">
+                                <?= $this->Form->control('phys.exam_date', [
+                                    'type' => 'text',
+                                    'label' => false, 
+                                    'class' => 'form-control',
+                                    'placeholder' => 'dd-mm-yyyy',
+                                    'required' => true,
+                                    'data-parsley-errors-container' => '#error-exam-date'
+                                    ])?>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            <span id="error-exam-date"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="result"><?= __('Kết quả') ?></label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <?= $this->Form->control('phys.result', [
+                                'options' => $physResult, 
+                                'required' => true, 
+                                'label' => false, 
+                                'empty' => true,
+                                'data-parsley-errors-container' => '#error-phys-result',
+                                'data-parsley-class-handler' => '#select2-phys-result',
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                                ]) ?>
+                            <span id="error-phys-result"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="notes"><?= __('Ghi chú') ?></label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <?= $this->Form->control('phys.notes', [
+                                'label' => false, 
+                                'type' => 'textarea',
+                                'rows' => 5,
+                                'class' => 'form-control col-md-7 col-xs-12', 
+                                'placeholder' => 'Nhập ghi chú khám sức khỏe'
+                                ]) ?>
+                        </div>
+                    </div>
+                <?= $this->Form->end(); ?>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="phys-submit-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-phys-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="phys-template" type="text/x-handlebars-template">
+    <tr class="row-phys" id="row-phys-{{counter}}">
+        <td class="cell stt-col text-center">
+            {{inc counter}}
+        </td>
+        <td class="cell text-center">
+            <span class="exam-date-txt">{{examDate}}</span>
+            <div class="hidden">
+                <?= $this->Form->control('physical_exams.{{counter}}.exam_date', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control exam_date',
+                    'value' => '{{examDate}}'
+                    ])?>
+                <?= $this->Form->control('physical_exams.{{counter}}.result', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control result',
+                    'value' => '{{result}}'
+                    ])?>
+                <?= $this->Form->control('physical_exams.{{counter}}.notes', [
+                    'label' => false, 
+                    'type' => 'textarea',
+                    'rows' => 5,
+                    'class' => 'form-control notes', 
+                    'value' => '{{notesRaw}}'
+                    ]) ?>
+            </div>
+        </td>
+        <td class="cell text-center result-txt">
+            {{resultTxt}}
+        </td>
+        <td class="cell notes-txt">
+            {{{notes}}}
+        </td>
+        <td class="cell action-btn actions">
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-pencil"></i>', 
+                'javascript:;',
+                [
+                    'escape' => false,
+                    'onClick' => "showEditPhysModal(this)"
+                ]) 
+            ?>
+            
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                'javascript:;',
+                [
+                    'escape' => false, 
+                    'onClick' => 'removePhys(this, false)'
                 ]
             )?>
         </td>

@@ -3,29 +3,29 @@ perData.recommendCounter = 0;
 perData.selectedCounter = 0;
 perData.selected = [];
 
-$(document).ready(function() {
+$(document).ready(function () {
     // init selected data
-    $('.candidate-id').each(function() {
+    $('.candidate-id').each(function () {
         perData.selected.push(parseInt($(this).find('input').val()));
         perData.selectedCounter++;
     });
 
-    $('.limit-min').change(function() {
+    $('.limit-min').change(function () {
         var targetId = $(this).attr('less-than');
         $(targetId).attr('min', $(this).val());
     });
 
-    $('.limit-max').change(function() {
+    $('.limit-max').change(function () {
         var targetId = $(this).attr('greater-than');
         $(targetId).attr('max', $(this).val());
     });
 
-    $('#work-time').change(function() {
+    $('#work-time').change(function () {
         var returnDate = calReturnDate($('#work-time').val(), $('#departure').val());
         setReturnDate(returnDate);
     });
 
-    $('#departure-div').on('dp.change', function() {
+    $('#departure-div').on('dp.change', function () {
         var returnDate = calReturnDate($('#work-time').val(), $('#departure').val());
         setReturnDate(returnDate);
     });
@@ -43,8 +43,8 @@ $(document).ready(function() {
             },
             processResults: function (data, params) {
                 params.page = params.page || 1;
-                var processedOptions = $.map(data.items, function(obj, index) {
-                    return {id: index, text: obj};
+                var processedOptions = $.map(data.items, function (obj, index) {
+                    return { id: index, text: obj };
                 });
                 return {
                     results: processedOptions,
@@ -60,10 +60,10 @@ $(document).ready(function() {
         allowClear: true,
         theme: "bootstrap",
         language: {
-            noResults: function() {
+            noResults: function () {
                 return "Không tìm thấy kết quả";
             },
-            searching: function() {
+            searching: function () {
                 return "Đang tìm kiếm...";
             },
             inputTooShort: function (args) {
@@ -89,7 +89,7 @@ $(document).ready(function() {
         });
     });
 
-    $('.js-switch').click(function(e) {
+    $('.js-switch').click(function (e) {
         if ($(this)[0].checked) {
             $(this).closest('tr').find('select').prop('disabled', false);
         } else {
@@ -97,6 +97,51 @@ $(document).ready(function() {
             $(this).closest('tr').find('select').prop('disabled', true);
         }
     });
+
+    initSelect2AjaxSearch('guild-id', DOMAIN_NAME + '/guilds/search-guild', 'Tìm kiếm nghiệp đoàn');
+
+    $('.selectGuild').change(function (e) {
+        if ($(this).val() == null || $(this).val() == '') {
+            $('.selectCompany').empty().append('<option value=""></option>');
+            initSelect2AjaxSearch('guild-id', DOMAIN_NAME + '/guilds/search-guild', 'Tìm kiếm nghiệp đoàn');
+        } else {
+            $.ajax({
+                type: 'GET',
+                url: DOMAIN_NAME + '/companies/getCompaniesByGuildId',
+                data: {
+                    guildId: $(this).val()
+                },
+                success: function (resp) {
+                    var processedOptions = $.map(resp, function (obj, index) {
+                        return { id: index, text: obj };
+                    });
+
+                    // init select with response data
+                    if ($('.selectCompany').hasClass('select2-hidden-accessible')) {
+                        $('.selectCompany').select2('destroy').empty().append('<option value=""></option>');
+                    }
+
+                    // enable select2
+                    $('.selectCompany').prop('disabled', false);
+
+                    // reset validation
+                    $('.selectCompany').parsley().reset();
+                    $('.selectCompany').select2({
+                        placeholder: 'Chọn thông tin',
+                        data: processedOptions,
+                        allowClear: true,
+                        theme: "bootstrap",
+                        language: {
+                            noResults: function () {
+                                return "Không tìm thấy kết quả";
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+
 });
 
 function showAddCandidateModal() {
@@ -120,19 +165,19 @@ function showAddCandidateModal() {
             weight: $('#weight').val(),
             job: $('#job-id').val()
         },
-        success: function(resp) {
+        success: function (resp) {
             $('#recommend-container').empty();
-            
+
             var candidates = resp.candidates;
             var removeIndexes = [];
 
-            $.each(candidates, function(index, value) {
+            $.each(candidates, function (index, value) {
                 if (perData.selected.indexOf(value.id) >= 0) {
                     removeIndexes.push(index);
                 }
             });
             // remove duplicate candidate
-            for (let index = removeIndexes.length-1; index >= 0; index--) {
+            for (let index = removeIndexes.length - 1; index >= 0; index--) {
                 candidates.splice(removeIndexes[index], 1);
             }
 
@@ -142,7 +187,7 @@ function showAddCandidateModal() {
                 var template = Handlebars.compile(source);
                 var html = template(candidates);
                 $('#recommend-container').html(html);
-    
+
                 // init switchery
                 var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
                 elems.forEach(function (html) {
@@ -153,8 +198,8 @@ function showAddCandidateModal() {
             }
             // show modal
             $('#add-candidate-modal').modal('toggle');
-        }, 
-        complete: function() {
+        },
+        complete: function () {
             ajaxing = false;
             $('#list-candidate-overlay').addClass('hidden');
         }
@@ -195,7 +240,7 @@ function addCandidate() {
         data: {
             id: candidateId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp) {
                 perData.recommendCounter++;
                 var source = $("#add-recommend-candidate-template").html();
@@ -217,7 +262,7 @@ function addCandidate() {
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#add-candidate-modal-overlay').addClass('hidden');
         }
@@ -266,8 +311,8 @@ function setPassed(ele) {
 
     var rowIdArr = $(ele).closest('.row-rec').attr('id').split('-');
     $('#set-interview-result-btn').remove();
-    $('<button type="button" class="btn btn-success" id="set-interview-result-btn" onclick="setInterviewResult('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-result-modal-btn');
-    
+    $('<button type="button" class="btn btn-success" id="set-interview-result-btn" onclick="setInterviewResult(' + rowIdArr[rowIdArr.length - 1] + ')">Hoàn tất</button>').insertBefore('#close-result-modal-btn');
+
     // show modal
     $('#set-pass-modal').modal('toggle');
 }
@@ -281,7 +326,7 @@ function calReturnDate(workTime, departureDate) {
 }
 
 function setReturnDate(returnDate) {
-    $('.return_date').each(function() {
+    $('.return_date').each(function () {
         var interviewResult = $(this).closest('.row-rec').find('.result').val();
         if (interviewResult == '1') { // passed
             $(this).val(returnDate);
@@ -293,10 +338,10 @@ function setInterviewResult(rowId) {
     // validate form
     var validateResult = $('#set-pass-form').parsley().validate();
     if (validateResult) {
-        $('#row-candidate-'+rowId).find('.result-text').html($('#result option:selected').html());
-        $('#row-candidate-'+rowId).find('.interviewResult').val($('#result').val()).trigger('change');
+        $('#row-candidate-' + rowId).find('.result-text').html($('#result option:selected').html());
+        $('#row-candidate-' + rowId).find('.interviewResult').val($('#result').val()).trigger('change');
 
-        $('#row-candidate-'+rowId).find('.interviewDesc').val($('#description').val());
+        $('#row-candidate-' + rowId).find('.interviewDesc').val($('#description').val());
 
         // update result counter
         resultCounter = updateResultCounter();
@@ -308,23 +353,23 @@ function setInterviewResult(rowId) {
 
         // show edit doc button when pass interview
         if ($('#result').val() === '1') {
-            $('#row-candidate-'+rowId).find('.result-text').addClass('bold-text');
+            $('#row-candidate-' + rowId).find('.result-text').addClass('bold-text');
             // set return date
             var returnDate = calReturnDate($('select[name="work_time"]').val(), $('input[name="departure"]').val());
-            $('#row-candidate-'+rowId).find('.return_date').val(returnDate);
-            if ($('#row-candidate-'+rowId).find('.status').val() != '3') {
-                $('#row-candidate-'+rowId).find('.status').val('3');
+            $('#row-candidate-' + rowId).find('.return_date').val(returnDate);
+            if ($('#row-candidate-' + rowId).find('.status').val() != '3') {
+                $('#row-candidate-' + rowId).find('.status').val('3');
             }
         } else {
-            $('#row-candidate-'+rowId).find('.result-text').removeClass('bold-text');
+            $('#row-candidate-' + rowId).find('.result-text').removeClass('bold-text');
 
             // set return date
-            $('#row-candidate-'+rowId).find('.return_date').val('');
-            if ($('#row-candidate-'+rowId).find('.status').val() == '3') {
-                $('#row-candidate-'+rowId).find('.status').val('2');
+            $('#row-candidate-' + rowId).find('.return_date').val('');
+            if ($('#row-candidate-' + rowId).find('.status').val() == '3') {
+                $('#row-candidate-' + rowId).find('.status').val('2');
             }
         }
-        
+
         $('#set-pass-modal').modal('toggle');
     }
 }
@@ -343,15 +388,15 @@ function deleteCandidate(delEl, sendAjax) {
         }).then((result) => {
             if (result.value) {
                 var rowIdArr = $(delEl).closest('.row-rec').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
 
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/orders/deleteCandidate',
                     data: {
-                        'id': $('#interview-'+rowId+'-id').find('input').val(),
+                        'id': $('#interview-' + rowId + '-id').find('input').val(),
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -374,9 +419,9 @@ function deleteRow(delEl, hiddenId) {
     $(delEl).closest('tr.row-rec').remove();
     if (hiddenId) {
         // case: remove record exists in database
-        var delId = parseInt($('#candidate-'+hiddenId+'-id').find('input').val());
-        $('#candidate-'+hiddenId+'-id').remove();
-        $('#interview-'+hiddenId+'-id').remove();
+        var delId = parseInt($('#candidate-' + hiddenId + '-id').find('input').val());
+        $('#candidate-' + hiddenId + '-id').remove();
+        $('#interview-' + hiddenId + '-id').remove();
     } else {
         var delId = parseInt($(delEl).closest('tr.row-rec').find('.id').val());
     }
@@ -384,7 +429,7 @@ function deleteRow(delEl, hiddenId) {
 
     // delete in selected array
     perData.selected.splice(perData.selected.indexOf(delId), 1);
-    
+
     var trows = $('#candidate-container > tr');
     var idField = $('.candidate-id').find('input');
     var interviewIdField = $('.interview-id').find('input');
@@ -405,16 +450,16 @@ function deleteRow(delEl, hiddenId) {
             if (i < idField.length) {
                 continue;
             }
-            $('#row-candidate-'+i).find('.id').attr('name', 'students[' + i + '][id]');
-            $('#row-candidate-'+i).find('.status').attr('name', 'students[' + i + '][_joinData][status]');
-            $('#row-candidate-'+i).find('.return_date').attr('name', 'students[' + i + '][return_date]');
+            $('#row-candidate-' + i).find('.id').attr('name', 'students[' + i + '][id]');
+            $('#row-candidate-' + i).find('.status').attr('name', 'students[' + i + '][_joinData][status]');
+            $('#row-candidate-' + i).find('.return_date').attr('name', 'students[' + i + '][return_date]');
         }
 
         classArr = selectField[i].className.split(' ');
-        selectField[i].name = 'students[' + i + '][_joinData][' + classArr[classArr.length-1] + ']';
+        selectField[i].name = 'students[' + i + '][_joinData][' + classArr[classArr.length - 1] + ']';
 
         classArr = textField[i].className.split(' ');
-        textField[i].name = 'students[' + i + '][_joinData][' + classArr[classArr.length-1] + ']';
+        textField[i].name = 'students[' + i + '][_joinData][' + classArr[classArr.length - 1] + ']';
     }
 }
 
@@ -434,7 +479,7 @@ function viewCompany(companyId) {
 
 function updateResultCounter() {
     result = 0;
-    $('.interviewResult').each(function() {
+    $('.interviewResult').each(function () {
         if ($(this).val() !== "0") {
             result++;
         }
@@ -462,7 +507,7 @@ function settings() {
 
 function search() {
     var filter = $('#studentname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-    $('#recommend-container').find('.row-rec').each(function() {
+    $('#recommend-container').find('.row-rec').each(function () {
         var fullname = $(this).find('#fullname').val().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         var age = $(this).find('#age').val();
         var gender = $(this).find('.gender-txt').html().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");

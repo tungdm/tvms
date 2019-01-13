@@ -50,6 +50,11 @@ class UsersController extends AppController
 
         // case: check permission on specific scope
         if (!empty($userPermission)) {
+            // only admin can recover deleted record
+            if ($action == 'recover') {
+                return false;
+            }
+
             // Check if user try to edit admin info
             if (in_array($action, ['edit', 'delete'])) {
                 $target_user = $this->Users->get($target_id, ['contain' => 'Roles']);
@@ -139,6 +144,11 @@ class UsersController extends AppController
         } else {
             $query['records'] = 10;
             $allUsers = $this->Users->find()->order(['Users.created' => 'DESC']);
+        }
+
+        if ($this->Auth->user('role_id') != 1) {
+            // other user (not admin) can not view deleted record
+            $allUsers->where(['Users.del_flag' => FALSE]);
         }
 
         $this->paginate = [
@@ -407,16 +417,38 @@ class UsersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $user = $this->Users->get($id);
-        $userName = $user->fullname;
-        if ($this->Users->delete($user)) {
+        $user->del_flag = TRUE;
+        $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
+        if ($this->Users->save($user)) {
             $this->Flash->success(Text::insert($this->successMessage['delete'], [
                 'entity' => $this->entity, 
-                'name' => $userName
+                'name' => $user->fullname
                 ]));
         } else {
             $this->Flash->error(Text::insert($this->errorMessage['delete'], [
                 'entity' => $this->entity,
-                'name' => $userName
+                'name' => $user->fullname
+            ]));
+        }
+
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function recover($id = null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $user = $this->Users->get($id);
+        $user->del_flag = FALSE;
+        $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
+        if ($this->Users->save($user)) {
+            $this->Flash->success(Text::insert($this->successMessage['recover'], [
+                'entity' => $this->entity, 
+                'name' => $user->fullname
+                ]));
+        } else {
+            $this->Flash->error(Text::insert($this->errorMessage['recover'], [
+                'entity' => $this->entity,
+                'name' => $user->fullname
             ]));
         }
 
@@ -458,6 +490,9 @@ class UsersController extends AppController
     public function resetPassword($id = null)
     {
         $user = $this->Users->get($id);
+        
+        $this->checkDeleteFlag($user, $this->Auth->user());
+
         $user->password = Configure::read('passwordDefault');
 
         if ($this->Users->save($user)) {

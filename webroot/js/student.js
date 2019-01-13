@@ -3,11 +3,13 @@ perData.familyCounter = 0;
 perData.eduCounter = 0;
 perData.expCounter = 0;
 perData.langCounter = 0;
+perData.physCounter = 0;
 var initGraph;
+var croppedIdGlobal, ratio;
 
 var testDate = '';
 if (typeof iqtests !== 'undefined' && iqtests.length > 0 && iqtests[0].test_date !== null) {
-    testDate =  moment(iqtests[0].test_date).format('YYYY-MM-DD')
+    testDate = moment(iqtests[0].test_date).format('YYYY-MM-DD')
 }
 
 var stName = '';
@@ -45,41 +47,41 @@ function generateChartOptions(title, maximum) {
                     display: false,
                 },
                 ticks: {
-                    beginAtZero:true,
+                    beginAtZero: true,
                     max: maximum
                 }
             }]
         },
         animation: {
-            onComplete: function() {
+            onComplete: function () {
                 isChartRendered = true
             }
         }
     };
 }
 // init handlebars
-if ($('#family-template')[0]){
+if ($('#family-template')[0]) {
     var family_template = Handlebars.compile($('#family-template').html());
 }
-if ($('#edu-template')[0]){
+if ($('#edu-template')[0]) {
     var edu_template = Handlebars.compile($('#edu-template').html());
 }
-if ($('#exp-template')[0]){
+if ($('#exp-template')[0]) {
     var exp_template = Handlebars.compile($('#exp-template').html());
 }
-if ($('#exp-template')[0]){
+if ($('#exp-template')[0]) {
     var lang_template = Handlebars.compile($('#lang-template').html());
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     // init dynamic data
     perData.familyCounter = $('#family-container > tr').length;
     perData.eduCounter = $('#edu-container > tr').length;
     perData.expCounter = $('#exp-container > tr').length;
     perData.langCounter = $('#lang-container > tr').length;
-
+    perData.physCounter = $('#phys-container > tr').length;
     // init select2 status
-    $('select[name="status"]').find('option').each(function() {
+    $('select[name="status"]').find('option').each(function () {
         if ($(this).attr('value') == "1") {
             $(this).prop('disabled', true);
         }
@@ -92,12 +94,12 @@ $(document).ready(function() {
         });
     });
     var changeCheckbox = document.getElementsByClassName('js-check-change');
-    for(var i=0; i < changeCheckbox.length; i++) {
-        changeCheckbox[i].onchange = function() {
+    for (var i = 0; i < changeCheckbox.length; i++) {
+        changeCheckbox[i].onchange = function () {
             if (this.checked) {
-                $('input[name="'+this.name+'"]').val('1');
+                $('input[name="' + this.name + '"]').val('1');
             } else {
-                $('input[name="'+this.name+'"]').val('0');
+                $('input[name="' + this.name + '"]').val('0');
             }
         };
     }
@@ -107,7 +109,7 @@ $(document).ready(function() {
     if ($('#iq-vn-line-chart').length) {
         // iq chart
         var chartId = 'iq-vn-line-chart';
-        var title = ['Biểu đồ điểm kiểm tra IQ * ' + studentNameVN + ' * ' +  testDate, 'Tổng điểm: ' + iqtests[0].total];
+        var title = ['Biểu đồ điểm kiểm tra IQ * ' + studentNameVN + ' * ' + testDate, 'Tổng điểm: ' + iqtests[0].total];
         var labels = [
             'Câu1', 'Câu2', 'Câu3', 'Câu4', 'Câu5', 'Câu6', 'Câu7', 'Câu8', 'Câu9', 'Câu10',
             'Câu11', 'Câu12', 'Câu13', 'Câu14', 'Câu15', 'Câu16', 'Câu17', 'Câu18', 'Câu19', 'Câu20',
@@ -134,7 +136,7 @@ $(document).ready(function() {
     if ($('#iq-jp-line-chart').length) {
         // iq chart
         var chartId = 'iq-jp-line-chart';
-        var title = ['クレペリン検査 * ' + stName + ' * ' +  testDate, '合計: ' + iqtests[0].total];
+        var title = ['クレペリン検査 * ' + stName + ' * ' + testDate, '合計: ' + iqtests[0].total];
         var labels = [
             '文1', '文2', '文3', '文4', '文5', '文6', '文7', '文8', '文9', '文10',
             '文11', '文12', '文13', '文14', '文15', '文16', '文17', '文18', '文19', '文20',
@@ -169,19 +171,19 @@ $(document).ready(function() {
         $('#student-tabs a[href="' + focusTab + '"]').tab('show');
     }
 
-    $('.iqtest_score').change(function() {
+    $('.iqtest_score').change(function () {
         var total = 0;
-        $('.iqtest_score').each(function() {
+        $('.iqtest_score').each(function () {
             total += parseInt($(this).val());
         });
         $('#iqtest_total').val(total);
     });
 
-    $('.select-city').change(function(e) {
+    $('.select-city').change(function (e) {
         var token = getToken(this);
         if (this.value == null || this.value == '') {
-            $('#addresses-'+token+'-district-id').empty().append('<option value=""></option>');
-            $('#addresses-'+token+'-district-id').prop('disabled', true);
+            $('#addresses-' + token + '-district-id').empty().append('<option value=""></option>');
+            $('#addresses-' + token + '-district-id').prop('disabled', true);
         } else {
             $.ajax({
                 type: 'GET',
@@ -189,28 +191,28 @@ $(document).ready(function() {
                 data: {
                     city: this.value
                 },
-                success: function(resp) {
-                    var processedOptions = $.map(resp, function(obj, index) {
-                        return {id: index, text: obj};
+                success: function (resp) {
+                    var processedOptions = $.map(resp, function (obj, index) {
+                        return { id: index, text: obj };
                     });
-    
+
                     // init select2-district with response data
-                    if ($('#addresses-'+token+'-district-id').hasClass('select2-hidden-accessible')) {
-                        $('#addresses-'+token+'-district-id').select2('destroy').empty().append('<option value=""></option>');
+                    if ($('#addresses-' + token + '-district-id').hasClass('select2-hidden-accessible')) {
+                        $('#addresses-' + token + '-district-id').select2('destroy').empty().append('<option value=""></option>');
                     }
-    
+
                     // enable select2
-                    $('#addresses-'+token+'-district-id').prop('disabled', false);
-    
+                    $('#addresses-' + token + '-district-id').prop('disabled', false);
+
                     // reset validation
-                    $('#addresses-'+token+'-district-id').parsley().reset();
-                    $('#addresses-'+token+'-district-id').select2({
+                    $('#addresses-' + token + '-district-id').parsley().reset();
+                    $('#addresses-' + token + '-district-id').select2({
                         placeholder: 'Xin hãy chọn giá trị',
                         data: processedOptions,
                         allowClear: true,
                         theme: "bootstrap",
                         language: {
-                            noResults: function() {
+                            noResults: function () {
                                 return "Không tìm thấy kết quả";
                             }
                         }
@@ -220,24 +222,24 @@ $(document).ready(function() {
         }
 
         // clear select2-ward, street input data
-        $('#addresses-'+token+'-ward-id').empty().append('<option value=""></option>');
-        $('#addresses-'+token+'-ward-id').prop('disabled', true);
-        $('#addresses-'+token+'-street').val('');
+        $('#addresses-' + token + '-ward-id').empty().append('<option value=""></option>');
+        $('#addresses-' + token + '-ward-id').prop('disabled', true);
+        $('#addresses-' + token + '-street').val('');
     });
 
-    $('.select-district').change(function(e) {
+    $('.select-district').change(function (e) {
         var token = getToken(this);
         // re-validate input
-        $('#addresses-'+token+'-district-id').parsley().validate();
-        if ($('#addresses-'+token+'-district-id').hasClass('parsley-success')) {
-            $('#select2-addresses-'+token+'-district-id').removeClass('parsley-error');
-        } else if ($('#addresses-'+token+'-district-id').hasClass('parsley-error')) {
-            $('#select2-addresses-'+token+'-district-id').addClass('parsley-error');
+        $('#addresses-' + token + '-district-id').parsley().validate();
+        if ($('#addresses-' + token + '-district-id').hasClass('parsley-success')) {
+            $('#select2-addresses-' + token + '-district-id').removeClass('parsley-error');
+        } else if ($('#addresses-' + token + '-district-id').hasClass('parsley-error')) {
+            $('#select2-addresses-' + token + '-district-id').addClass('parsley-error');
         }
 
         if (this.value == null || this.value == '') {
-            $('#addresses-'+token+'-ward-id').empty().append('<option value=""></option>');
-            $('#addresses-'+token+'-ward-id').prop('disabled', true);
+            $('#addresses-' + token + '-ward-id').empty().append('<option value=""></option>');
+            $('#addresses-' + token + '-ward-id').prop('disabled', true);
         } else {
             // Send ajax get ward options
             $.ajax({
@@ -246,28 +248,28 @@ $(document).ready(function() {
                 data: {
                     district: this.value
                 },
-                success: function(resp) {
-                    var processedOptions = $.map(resp, function(obj, index) {
-                        return {id: index, text: obj};
+                success: function (resp) {
+                    var processedOptions = $.map(resp, function (obj, index) {
+                        return { id: index, text: obj };
                     });
 
                     // init select2 with response data
-                    if ($('#addresses-'+token+'-ward-id').hasClass('select2-hidden-accessible')) {
-                        $('#addresses-'+token+'-ward-id').select2('destroy').empty().append('<option value=""></option>');
+                    if ($('#addresses-' + token + '-ward-id').hasClass('select2-hidden-accessible')) {
+                        $('#addresses-' + token + '-ward-id').select2('destroy').empty().append('<option value=""></option>');
                     }
 
                     // enable select2
-                    $('#addresses-'+token+'-ward-id').prop('disabled', false);
+                    $('#addresses-' + token + '-ward-id').prop('disabled', false);
 
                     // reset validation
-                    $('#addresses-'+token+'-ward-id').parsley().reset();
-                    $('#addresses-'+token+'-ward-id').select2({
+                    $('#addresses-' + token + '-ward-id').parsley().reset();
+                    $('#addresses-' + token + '-ward-id').select2({
                         placeholder: 'Xin hãy chọn giá trị',
                         data: processedOptions,
                         allowClear: true,
                         theme: "bootstrap",
                         language: {
-                            noResults: function() {
+                            noResults: function () {
                                 return "Không tìm thấy kết quả";
                             }
                         }
@@ -276,23 +278,23 @@ $(document).ready(function() {
             });
         }
         // clear street input data
-        $('#addresses-'+token+'-street').val('');
+        $('#addresses-' + token + '-street').val('');
     });
 
-    $('.select-ward').change(function(e) {
+    $('.select-ward').change(function (e) {
         var token = getToken(this);
         // re-validate input
-        $('#addresses-'+token+'-ward-id').parsley().validate();
-        if ($('#addresses-'+token+'-ward-id').hasClass('parsley-success')) {
-            $('#select2-addresses-'+token+'-ward-id').removeClass('parsley-error');
-        } else if ($('#addresses-'+token+'-ward-id').hasClass('parsley-error')) {
-            $('#select2-addresses-'+token+'-ward-id').addClass('parsley-error');
+        $('#addresses-' + token + '-ward-id').parsley().validate();
+        if ($('#addresses-' + token + '-ward-id').hasClass('parsley-success')) {
+            $('#select2-addresses-' + token + '-ward-id').removeClass('parsley-error');
+        } else if ($('#addresses-' + token + '-ward-id').hasClass('parsley-error')) {
+            $('#select2-addresses-' + token + '-ward-id').addClass('parsley-error');
         }
         // clear street input data
-        $('#addresses-'+token+'-street').val('');
+        $('#addresses-' + token + '-street').val('');
     });
 
-    $('.js-switch').click(function(e) {
+    $('.js-switch').click(function (e) {
         if ($(this)[0].checked) {
             $(this).closest('tr').find('select').prop('disabled', false);
         } else {
@@ -306,7 +308,7 @@ $(document).ready(function() {
     initSelect2AjaxSearch('std-company-name', DOMAIN_NAME + '/companies/search-company', 'Tìm kiếm công ty');
     initSelect2AjaxSearch('std-guild-name', DOMAIN_NAME + '/guilds/search-guild', 'Tìm kiếm nghiệp đoàn');
     initSelect2AjaxSearch('std-class-name', DOMAIN_NAME + '/jclasses/search-class', 'Tìm kiếm lớp học');
-   
+
     $('select[name="is_lived_in_japan"]').change(function () {
         if ($(this).val() == 'Y') {
             // show time input
@@ -319,19 +321,19 @@ $(document).ready(function() {
         }
     });
 
-    $('.create-student-btn').click(function() {        
+    $('.create-student-btn').click(function () {
         var validateResult = $('#create-student-form').parsley().validate();
 
         // check parsley error exists
-        for (var i=0; i < 2; i++) {
-            if ($('#addresses-'+i+'-district-id').hasClass('parsley-error')) {
-                $('#select2-addresses-'+i+'-district-id').addClass('parsley-error');
+        for (var i = 0; i < 2; i++) {
+            if ($('#addresses-' + i + '-district-id').hasClass('parsley-error')) {
+                $('#select2-addresses-' + i + '-district-id').addClass('parsley-error');
             }
-            if ($('#addresses-'+i+'-ward-id').hasClass('parsley-error')) {
-                $('#select2-addresses-'+i+'-ward-id').addClass('parsley-error');
+            if ($('#addresses-' + i + '-ward-id').hasClass('parsley-error')) {
+                $('#select2-addresses-' + i + '-ward-id').addClass('parsley-error');
             }
         }
-        
+
         if (validateResult) {
             // submit form
             $('#create-student-form').submit();
@@ -355,10 +357,16 @@ $(document).ready(function() {
                 $('#student-tabs-accordion .panel-collapse').not('#' + firstEleErrorId).collapse('hide');
             }
 
-            setTimeout(function() {
+            setTimeout(function () {
                 $('.parsley-error')[0].focus();
             }, 500);
         }
+    });
+
+    $('.zoom-able').click(function () {
+        $('#avatar').attr('src', $(this).attr('src'));
+        $('#crop-btn').addClass('hidden');
+        $('#cropper-modal').modal('toggle');
     });
 })
 
@@ -395,7 +403,7 @@ function viewSCandidate(candidateId) {
         data: {
             id: candidateId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 var phoneNum = str2Phone(resp.data.phone);
                 if (phoneNum == '') {
@@ -423,7 +431,7 @@ function viewSCandidate(candidateId) {
                 if (resp.data.note.length == 0) {
                     $('#view-candidate-note').html('N/A');
                 } else {
-                    $('#view-candidate-note').html((resp.data.note).replace(/\r?\n/g,'<br/>'));
+                    $('#view-candidate-note').html((resp.data.note).replace(/\r?\n/g, '<br/>'));
                 }
 
                 $('#view-candidate-modal').modal('toggle');
@@ -440,12 +448,12 @@ function viewSCandidate(candidateId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#list-student-overlay').addClass('hidden');
         }
@@ -474,10 +482,10 @@ function showEditStudentModal(candidateId) {
         data: {
             id: candidateId
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 // create hidden id for address
-                $('#add-candidate-form').append('<input type="hidden" id="addresses-0-id" name="addresses[0][id]" value="'+ resp.data.addresses[0].id +'" />');
+                $('#add-candidate-form').append('<input type="hidden" id="addresses-0-id" name="addresses[0][id]" value="' + resp.data.addresses[0].id + '" />');
                 // fill form
                 $('#fullname').val(resp.data.fullname);
                 $('#gender').val(resp.data.gender).trigger('change');
@@ -493,7 +501,7 @@ function showEditStudentModal(candidateId) {
                 $('#add-candidate-modal').find('.modal-title').html('CẬP NHẬT LỊCH HẸN');
                 // change to edit button
                 $('#add-candidate-btn').remove();
-                $('<button type="button" class="btn btn-success" id="add-candidate-btn" onclick="editCandidate('+resp.data.id+')">Hoàn tất</button>').insertBefore('#add-candidate-close-btn');
+                $('<button type="button" class="btn btn-success" id="add-candidate-btn" onclick="editCandidate(' + resp.data.id + ')">Hoàn tất</button>').insertBefore('#add-candidate-close-btn');
 
                 $('#add-candidate-modal').modal('toggle');
             } else {
@@ -509,12 +517,12 @@ function showEditStudentModal(candidateId) {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
             $('#list-student-overlay').addClass('hidden');
         }
@@ -535,9 +543,9 @@ function editCandidate(id) {
             type: 'POST',
             url: DOMAIN_NAME + '/students/edit/' + id,
             data: $('#add-candidate-form').serialize(),
-            success: function(resp){
+            success: function (resp) {
                 if (resp.status == 'success') {
-                    window.location = resp.redirect; 
+                    window.location = resp.redirect;
                 } else {
                     var notice = new PNotify({
                         title: '<strong>' + resp.flash.title + '</strong>',
@@ -551,12 +559,12 @@ function editCandidate(id) {
                             sticker: false
                         }
                     });
-                    notice.get().click(function() {
+                    notice.get().click(function () {
                         notice.remove();
                     });
                 }
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
             }
         });
@@ -570,7 +578,7 @@ function setTimeLived() {
         var timeInterval = $('#jp-from-date').val() + ' ～ ' + $('#jp-to-date').val();
         $('.time-lived-jp').removeClass('hidden');
         $('.time-lived').append(timeInterval);
-        
+
         // set value
         $('#lived-from').val($('#jp-from-date').val());
         $('#lived-to').val($('#jp-to-date').val());
@@ -621,7 +629,7 @@ function createMemberTemplate(counter) {
 
         'bankBranch': 'families[' + counter + '][bank_branch]',
         'bankBranchVal': $('#modal-bank-branch').val(),
-       
+
         'cmndNum': 'families[' + counter + '][cmnd_num]',
         'cmndNumVal': $('#modal-cmnd-num').val(),
 
@@ -650,14 +658,14 @@ function addMember() {
         $('#family-container').append(member_html);
 
         // set value for select box
-        $('select[name="families['+perData.familyCounter+'][relationship]"]').val($('#modal-relationship').val());
-        $('select[name="families['+perData.familyCounter+'][job_id]"]').val($('#modal-job').val());
-        $('select[name="families['+perData.familyCounter+'][bank_name]"]').val($('#modal-bank-name').val());
-        $('select[name="families['+perData.familyCounter+'][living_at]"]').val($('#modal-living-at').val());
+        $('select[name="families[' + perData.familyCounter + '][relationship]"]').val($('#modal-relationship').val());
+        $('select[name="families[' + perData.familyCounter + '][job_id]"]').val($('#modal-job').val());
+        $('select[name="families[' + perData.familyCounter + '][bank_name]"]').val($('#modal-bank-name').val());
+        $('select[name="families[' + perData.familyCounter + '][living_at]"]').val($('#modal-living-at').val());
 
         // close modal
         $('#add-member-modal').modal('toggle');
-        
+
         // reset form in modal
         resetFamilyModal();
 
@@ -684,10 +692,10 @@ function showEditMemberModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-member-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="editMember('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-modal-btn');
+    $('<button type="button" class="btn btn-success" id="add-member-btn" onclick="editMember(' + rowIdArr[rowIdArr.length - 1] + ')">Hoàn tất</button>').insertBefore('#close-modal-btn');
 
     $('#add-member-form').parsley().reset();
-    
+
     // show modal
     $('#add-member-modal').modal('toggle');
 }
@@ -698,13 +706,13 @@ function editMember(rowId) {
     if (validateResult) {
         var member_html = createMemberTemplate(rowId);
 
-        $('#row-member-'+rowId).replaceWith(member_html);
+        $('#row-member-' + rowId).replaceWith(member_html);
 
         // set value for select box
-        $('select[name="families['+rowId+'][relationship]"]').val($('#modal-relationship').val());
-        $('select[name="families['+rowId+'][job_id]"]').val($('#modal-job').val());
-        $('select[name="families['+rowId+'][bank_name]"]').val($('#modal-bank-name').val());
-        $('select[name="families['+rowId+'][living_at]"]').val($('#modal-living-at').val());
+        $('select[name="families[' + rowId + '][relationship]"]').val($('#modal-relationship').val());
+        $('select[name="families[' + rowId + '][job_id]"]').val($('#modal-job').val());
+        $('select[name="families[' + rowId + '][bank_name]"]').val($('#modal-bank-name').val());
+        $('select[name="families[' + rowId + '][living_at]"]').val($('#modal-living-at').val());
 
         // close modal
         $('#add-member-modal').modal('toggle');
@@ -729,17 +737,17 @@ function removeMember(delEl, sendAjax) {
             if (result.value) {
                 // send ajax delete request to server
                 var rowIdArr = $(delEl).closest('.row-member').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/students/deleteFamilyMember',
                     data: {
                         'id': $('#member-' + rowId + '-id').find('input').val()
                     },
-                    beforeSend: function(xhr){
+                    beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -762,7 +770,7 @@ function deleteMemberRow(delEl, hiddenId) {
     $(delEl).closest('tr.row-member').remove();
     if (hiddenId) {
         // case: remove hidden id fiedl of record exists in database
-        $('#member-'+hiddenId+'-id').remove();
+        $('#member-' + hiddenId + '-id').remove();
     }
     perData.familyCounter--;
 
@@ -783,12 +791,12 @@ function deleteMemberRow(delEl, hiddenId) {
 
     for (var i = 0; i < inputField.length; i++) {
         var classArr = inputField[i].className.split(' ');
-        inputField[i].name = 'families[' + Math.floor(i/7) + '][' + classArr[classArr.length-1] + ']';
+        inputField[i].name = 'families[' + Math.floor(i / 7) + '][' + classArr[classArr.length - 1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
         var classArr = selectField[i].className.split(' ');
-        selectField[i].name = 'families[' + Math.floor(i/4) + '][' + classArr[classArr.length-1] + ']';
+        selectField[i].name = 'families[' + Math.floor(i / 4) + '][' + classArr[classArr.length - 1] + ']';
     }
 }
 
@@ -823,11 +831,11 @@ function createEduHisTemplate(counter) {
     var edu_html = edu_template({
         'row': counter + 1,
         'counter': counter,
-        
+
         'fromdate': 'educations[' + counter + '][from_date]',
         'fromdateTxt': $('#edu-from-date').val(),
         'fromdateVal': moment($('#edu-from-date').val(), 'MM-YYYY').format('YYYY-MM'),
-        
+
         'todate': 'educations[' + counter + '][to_date]',
         'todateTxt': $('#edu-to-date').val(),
         'todateVal': moment($('#edu-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
@@ -837,7 +845,7 @@ function createEduHisTemplate(counter) {
 
         'degree': 'educations[' + counter + '][degree]',
         'degreeText': $('#modal-edu-level option:selected').html(),
-        
+
         'school': 'educations[' + counter + '][school]',
         'schoolVal': $('#edu-school').val(),
 
@@ -891,8 +899,8 @@ function showEditEduHisModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-edu-his-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="editEduHis('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-edu-modal-btn');
-    
+    $('<button type="button" class="btn btn-success" id="add-edu-his-btn" onclick="editEduHis(' + rowIdArr[rowIdArr.length - 1] + ')">Hoàn tất</button>').insertBefore('#close-edu-modal-btn');
+
     // reset validation
     $('#add-edu-his-form').parsley().reset();
     // show modal
@@ -908,7 +916,7 @@ function addEduHis() {
         $('#edu-container').append(edu_html);
 
         // set value for select box
-        $('select[name="educations['+perData.eduCounter+'][degree]"]').val($('#modal-edu-level').val());
+        $('select[name="educations[' + perData.eduCounter + '][degree]"]').val($('#modal-edu-level').val());
 
         // close modal
         $('#add-edu-his-modal').modal('toggle');
@@ -926,10 +934,10 @@ function editEduHis(rowId) {
     if (validateResult) {
         var edu_html = createEduHisTemplate(rowId);
 
-        $('#row-edu-his-'+rowId).replaceWith(edu_html);
+        $('#row-edu-his-' + rowId).replaceWith(edu_html);
 
         // set value for select box
-        $('select[name="educations['+rowId+'][degree]"]').val($('#modal-edu-level').val());
+        $('select[name="educations[' + rowId + '][degree]"]').val($('#modal-edu-level').val());
 
         // close modal
         $('#add-edu-his-modal').modal('toggle');
@@ -954,17 +962,17 @@ function removeEduHis(delEl, sendAjax) {
             if (result.value) {
                 // send ajax delete request to server
                 var rowIdArr = $(delEl).closest('.row-edu-his').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/students/deleteEducations',
                     data: {
-                        'id': $('#edu-his-'+rowId+'-id').find('input').val()
+                        'id': $('#edu-his-' + rowId + '-id').find('input').val()
                     },
-                    beforeSend: function(xhr){
+                    beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -987,7 +995,7 @@ function deleteEduHisRow(delEl, hiddenId) {
     $(delEl).closest('tr.row-edu-his').remove();
     if (hiddenId) {
         // case: remove record exists in database
-        $('#edu-his-'+hiddenId+'-id').remove();
+        $('#edu-his-' + hiddenId + '-id').remove();
     }
     perData.eduCounter--;
 
@@ -1008,12 +1016,12 @@ function deleteEduHisRow(delEl, hiddenId) {
 
     for (var i = 0; i < inputField.length; i++) {
         var classArr = inputField[i].className.split(' ');
-        inputField[i].name = 'educations[' + Math.floor(i/7) + '][' + classArr[classArr.length-1] + ']';
+        inputField[i].name = 'educations[' + Math.floor(i / 7) + '][' + classArr[classArr.length - 1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
         selectField[i].name = 'educations[' + i + '][' + selectField[i].id + ']';
-    }    
+    }
 }
 
 function resetEduHisModal() {
@@ -1039,11 +1047,11 @@ function createExpTemplate(counter) {
     var exp_html = exp_template({
         'row': counter + 1,
         'counter': counter,
-        
+
         'fromdate': 'experiences[' + counter + '][from_date]',
         'fromdateVal': moment($('#exp-from-date').val(), 'MM-YYYY').format('YYYY-MM'),
         'fromdateTxt': $('#exp-from-date').val(),
-        
+
         'todate': 'experiences[' + counter + '][to_date]',
         'todateVal': moment($('#exp-to-date').val(), 'MM-YYYY').format('YYYY-MM'),
         'todateTxt': $('#exp-to-date').val(),
@@ -1085,7 +1093,7 @@ function addExp() {
         $('#exp-container').append(exp_html);
 
         // set value for select box
-        $('select[name="experiences['+perData.expCounter+'][job_id]"]').val($('#exp-job').val());
+        $('select[name="experiences[' + perData.expCounter + '][job_id]"]').val($('#exp-job').val());
 
         // close modal
         $('#add-exp-modal').modal('toggle');
@@ -1114,8 +1122,8 @@ function showEditExpModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-exp-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="editExp('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-exp-modal-btn');
-    
+    $('<button type="button" class="btn btn-success" id="add-exp-btn" onclick="editExp(' + rowIdArr[rowIdArr.length - 1] + ')">Hoàn tất</button>').insertBefore('#close-exp-modal-btn');
+
     // reset validation
     $('#add-exp-form').parsley().reset();
 
@@ -1129,10 +1137,10 @@ function editExp(rowId) {
     if (validateResult) {
         var exp_html = createExpTemplate(rowId);
 
-        $('#row-exp-'+rowId).replaceWith(exp_html);
+        $('#row-exp-' + rowId).replaceWith(exp_html);
 
         // set value for select box
-        $('select[name="experiences['+rowId+'][job_id]"]').val($('#exp-job').val());
+        $('select[name="experiences[' + rowId + '][job_id]"]').val($('#exp-job').val());
 
         // close modal
         $('#add-exp-modal').modal('toggle');
@@ -1157,17 +1165,17 @@ function removeExp(delEl, sendAjax) {
             if (result.value) {
                 // send ajax delete request to server
                 var rowIdArr = $(delEl).closest('.row-exp').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/students/deleteExperience',
                     data: {
-                        'id': $('#exp-'+rowId+'-id').find('input').val()
+                        'id': $('#exp-' + rowId + '-id').find('input').val()
                     },
-                    beforeSend: function(xhr){
+                    beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -1190,7 +1198,7 @@ function deleteExpRow(delEl, hiddenId) {
     $(delEl).closest('tr.row-exp').remove();
     if (hiddenId) {
         // case: remove record exists in database
-        $('#exp-'+hiddenId+'-id').remove();
+        $('#exp-' + hiddenId + '-id').remove();
     }
     perData.expCounter--;
 
@@ -1211,12 +1219,12 @@ function deleteExpRow(delEl, hiddenId) {
 
     for (var i = 0; i < inputField.length; i++) {
         var classArr = inputField[i].className.split(' ');
-        inputField[i].name = 'experiences[' + Math.floor(i/5) + '][' + classArr[classArr.length-1] + ']';
+        inputField[i].name = 'experiences[' + Math.floor(i / 5) + '][' + classArr[classArr.length - 1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
         selectField[i].name = 'experiences[' + i + '][' + selectField[i].id + ']';
-    }    
+    }
 }
 
 function resetExpModal() {
@@ -1256,7 +1264,7 @@ function createLangTemplate(counter) {
         'fromdate': 'language_abilities[' + counter + '][from_date]',
         'fromdateTxt': fromdateTxt,
         'fromdateVal': fromdateVal,
-        
+
         'todate': 'language_abilities[' + counter + '][to_date]',
         'todateTxt': todateTxt,
         'todateVal': todateVal,
@@ -1283,7 +1291,7 @@ function addLang() {
         $('#lang-container').append(lang_html);
 
         // set value for select box
-        $('select[name="language_abilities['+perData.langCounter+'][lang_code]"]').val($('#lang-name').val());
+        $('select[name="language_abilities[' + perData.langCounter + '][lang_code]"]').val($('#lang-name').val());
 
         // close modal
         $('#add-lang-modal').modal('toggle');
@@ -1317,8 +1325,8 @@ function showEditLangModal(ele) {
 
     // replace add-btn with edit-btn
     $('#add-lang-btn').remove();
-    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="editLang('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-lang-modal-btn');
-    
+    $('<button type="button" class="btn btn-success" id="add-lang-btn" onclick="editLang(' + rowIdArr[rowIdArr.length - 1] + ')">Hoàn tất</button>').insertBefore('#close-lang-modal-btn');
+
     // reset validate
     $('#add-lang-form').parsley().reset();
 
@@ -1332,17 +1340,17 @@ function editLang(rowId) {
     if (validateResult) {
         var lang_html = createLangTemplate(rowId);
 
-        $('#row-lang-'+rowId).replaceWith(lang_html);
+        $('#row-lang-' + rowId).replaceWith(lang_html);
 
         // set value for select box
-        $('select[name="language_abilities['+rowId+'][lang_code]"]').val($('#lang-name').val());
+        $('select[name="language_abilities[' + rowId + '][lang_code]"]').val($('#lang-name').val());
 
         // close modal
         $('#add-lang-modal').modal('toggle');
 
         // reset form in modal
         resetLangModal();
-    }   
+    }
 }
 
 function removeLang(delEl, sendAjax) {
@@ -1360,17 +1368,17 @@ function removeLang(delEl, sendAjax) {
             if (result.value) {
                 // send ajax delete request to server
                 var rowIdArr = $(delEl).closest('.row-lang').attr('id').split('-');
-                var rowId = rowIdArr[rowIdArr.length-1];
+                var rowId = rowIdArr[rowIdArr.length - 1];
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/students/deleteLang',
                     data: {
-                        'id': $('#lang-'+rowId+'-id').find('input').val()
+                        'id': $('#lang-' + rowId + '-id').find('input').val()
                     },
-                    beforeSend: function(xhr){
+                    beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -1393,7 +1401,7 @@ function deleteLangRow(delEl, hiddenId) {
     $(delEl).closest('tr.row-lang').remove();
     if (hiddenId) {
         // case: remove record exists in database
-        $('#lang-'+hiddenId+'-id').remove();
+        $('#lang-' + hiddenId + '-id').remove();
     }
     perData.langCounter--;
 
@@ -1414,12 +1422,12 @@ function deleteLangRow(delEl, hiddenId) {
 
     for (var i = 0; i < inputField.length; i++) {
         var classArr = inputField[i].className.split(' ');
-        inputField[i].name = 'language_abilities[' + Math.floor(i/5) + '][' + classArr[classArr.length-1] + ']';
+        inputField[i].name = 'language_abilities[' + Math.floor(i / 5) + '][' + classArr[classArr.length - 1] + ']';
     }
 
     for (var i = 0; i < selectField.length; i++) {
         selectField[i].name = 'expelanguage_abilitiesriences[' + i + '][' + selectField[i].id + ']';
-    }    
+    }
 }
 
 function resetLangModal() {
@@ -1427,7 +1435,7 @@ function resetLangModal() {
     $('#lang-name').val(null).trigger('change');
     $('#lang-from').data('DateTimePicker').maxDate(false);
     $('#lang-to').data('DateTimePicker').minDate(false);
-    
+
     $('#add-lang-form').parsley().reset();
 }
 
@@ -1447,7 +1455,7 @@ function showEditDocModal(ele) {
     var rowIdArr = $(ele).closest('.row-document').attr('id').split('-');
 
     $('#submit-document-btn').remove();
-    $('<button type="button" class="btn btn-success" id="submit-document-btn" onclick="editDoc('+rowIdArr[rowIdArr.length-1]+')">Hoàn tất</button>').insertBefore('#close-document-modal-btn');
+    $('<button type="button" class="btn btn-success" id="submit-document-btn" onclick="editDoc(' + rowIdArr[rowIdArr.length - 1] + ')">Hoàn tất</button>').insertBefore('#close-document-modal-btn');
 
     // show modal
     $('#document-modal').modal('toggle');
@@ -1456,9 +1464,9 @@ function showEditDocModal(ele) {
 function editDoc(rowId) {
     var validateResult = $('#document-form').parsley().validate();
     if (validateResult) {
-        $('#row-document-'+rowId).find('.submit_date').val($('#modal-submit-date').val());
-        $('#row-document-'+rowId).find('.submit-date-txt').html($('#modal-submit-date').val());
-        $('#row-document-'+rowId).find('.submit_note').val($('#modal-note').val());
+        $('#row-document-' + rowId).find('.submit_date').val($('#modal-submit-date').val());
+        $('#row-document-' + rowId).find('.submit-date-txt').html($('#modal-submit-date').val());
+        $('#row-document-' + rowId).find('.submit_note').val($('#modal-note').val());
 
         $('#document-modal').modal('toggle');
     }
@@ -1485,10 +1493,10 @@ function getIqScore(studentId) {
         data: {
             id: studentId
         },
-        success: function(resp) {
+        success: function (resp) {
             console.log(resp);
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
         }
     });
@@ -1496,7 +1504,7 @@ function getIqScore(studentId) {
 
 function initChart(testData, chartId, title) {
     var labels = [];
-    
+
     var vocabularyScores = [];
     var grammarScores = [];
     var listeningScores = [];
@@ -1504,8 +1512,8 @@ function initChart(testData, chartId, title) {
     var totalVocScore = totalGraScore = totalLisScore = totalConScore = 0;
     var avgVoc = avgGra = avgLis = avgCon = 0;
     var countVoc = countGra = countLis = countCon = 0;
-    
-    testData.forEach(function(e) {
+
+    testData.forEach(function (e) {
         labels.push(e.date);
         // datasets[0].data.push(e.score)
         if (e.vocabulary_score) {
@@ -1576,7 +1584,7 @@ function initChart(testData, chartId, title) {
             pointHoverBackgroundColor: '#fff'
         }
     ];
-    
+
     if (countVoc != 0) {
         avgVoc = totalVocScore / countVoc;
     }
@@ -1668,7 +1676,7 @@ function reportStudent() {
     elems.forEach(function (e) {
         if (e.checked) {
             console.log(e);
-            $('input[name="'+e.name+'"]').click();
+            $('input[name="' + e.name + '"]').click();
         }
     });
     // show modal
@@ -1710,7 +1718,7 @@ function checkDuplicate() {
         data: {
             'q': $('#fullname').val()
         },
-        success: function(resp) {
+        success: function (resp) {
             if (resp) {
                 swal({
                     title: 'Cảnh báo!',
@@ -1729,8 +1737,171 @@ function checkDuplicate() {
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
         }
+    });
+}
+
+function showAddHealthCalendarModal() {
+    // clear data
+    $('#physical-form')[0].reset();
+    $('#phys-result').val(null).trigger('change');
+    $('#physical-form').parsley().reset();
+
+    $('#phys-submit-btn').remove();
+    $('<button type="button" class="btn btn-success" id="phys-submit-btn" onclick="addPhysCalendar()">Hoàn tất</button>').insertBefore('#close-phys-modal-btn');
+
+    // show modal
+    $('#physical-modal').modal('toggle');
+}
+
+function addPhysCalendar() {
+    var validateResult = $('#physical-form').parsley().validate();
+    if (validateResult) {
+        var source = $("#phys-template").html();
+        var template = Handlebars.compile(source);
+        var html = template({
+            'counter': perData.physCounter,
+            'examDate': $('#phys-exam-date').val(),
+            'resultTxt': $('#phys-result option:selected').html(),
+            'result': $('#phys-result').val(),
+            'notesRaw': $('#phys-notes').val(),
+            'notes': $('#phys-notes').val().replace(/\r?\n/g, '<br />'),
+        });
+        perData.physCounter++;
+        $('#phys-container').append(html);
+        $('#physical-modal').modal('toggle');
+    }
+}
+
+function showEditPhysModal(ele) {
+    var row = $(ele).closest('.row-phys');
+    var rowNum = $(row).attr('id').split('-')[2];
+    $('#phys-exam-date').val($(row).find('.exam_date').val());
+    $('#phys-result').val($(row).find('.result').val()).trigger('change');
+    $('#phys-notes').val($(row).find('.notes').val());
+    $('#phys-submit-btn').remove();
+    $('<button type="button" class="btn btn-success" id="phys-submit-btn" onclick="editPhysCalendar(' + rowNum + ')">Hoàn tất</button>').insertBefore('#close-phys-modal-btn');
+    // show modal
+    $('#physical-modal').modal('toggle');
+}
+
+function editPhysCalendar(rowNum) {
+    var validateResult = $('#physical-form').parsley().validate();
+    if (validateResult) {
+        $('#row-phys-' + rowNum).find('.exam-date-txt').html($('#phys-exam-date').val());
+        $('#row-phys-' + rowNum).find('.exam_date').val($('#phys-exam-date').val());
+
+        $('#row-phys-' + rowNum).find('.result').val($('#phys-result').val());
+        $('#row-phys-' + rowNum).find('.result-txt').html($('#phys-result option:selected').html());
+
+        $('#row-phys-' + rowNum).find('.notes').val($('#phys-notes').val());
+        $('#row-phys-' + rowNum).find('.notes-txt').html($('#phys-notes').val().replace(/\r?\n/g, '<br />'));
+        $('#physical-modal').modal('toggle');
+    }
+}
+
+function removePhys(delEl, sendAjax) {
+    if (sendAjax) {
+        swal({
+            title: 'Xóa lịch khám sức khỏe',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#222d32',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
+        }).then((result) => {
+            if (result.value) {
+                var rowNum = $(delEl).closest('.row-phys').attr('id').split('-')[2];
+
+                $.ajax({
+                    type: 'POST',
+                    url: DOMAIN_NAME + '/students/deletePhysicalCalendar',
+                    data: {
+                        'calendarId': $(delEl).closest('.row-phys').find('.phys_id').val()
+                    },
+                    success: function (resp) {
+                        swal({
+                            title: resp.alert.title,
+                            text: resp.alert.message,
+                            type: resp.alert.type
+                        })
+                        if (resp.status == 'success') {
+                            deletePhysRow(delEl);
+                        }
+                    }
+                });
+            }
+        });
+    } else {
+        deletePhysRow(delEl);
+    }
+}
+
+function deletePhysRow(delEl) {
+    $(delEl).closest('.row-phys').remove();
+    $('#phys-container > tr').each(function (index) {
+        $(this).find('.stt-col').html(index + 1);
+        $(this).find('.exam_date').attr('name', 'physical_exams[' + index + '][exam_date]');
+        $(this).find('.result').attr('name', 'physical_exams[' + index + '][result]');
+        $(this).find('.notes').attr('name', 'physical_exams[' + index + '][notes]');
+    });
+    perData.physCounter--;
+}
+
+function readURL2(input, croppedId, ratioCrop) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        if (/^image\/\w+$/.test(file.type)) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                if ($("#avatar").hasClass('cropper-hidden')) {
+                    $("#avatar").cropper('destroy');
+                }
+                $('#avatar').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+            ratio = ratioCrop;
+            croppedIdGlobal = croppedId;
+            setTimeout(initCropper2, 1000);
+            $('#crop-btn').removeClass('hidden');
+            $('#cropper-modal').modal('toggle');
+        } else {
+            window.alert('Xin hãy chọn đúng định dạng ảnh.');
+        }
+    } else {
+        // clear input
+        $('#' + croppedId).empty();
+        $('input[name="' + croppedId + '"]').val('');
+    }
+}
+
+function initCropper2() {
+    var imgCropper = $('#avatar').cropper({
+        aspectRatio: ratio,
+        crop: function (e) {
+            console.log(e)
+        }
+    });
+
+    $('#crop-btn').click(function () {
+        var imgurl = imgCropper.cropper('getCroppedCanvas').toDataURL();
+        var img = document.createElement("img");
+
+        img.addEventListener('load', function () {
+            // set body height        
+            var contentHeight = $('.right_col').height();
+            var newHeight = contentHeight + this.height + 1;
+            $('.right_col').css('min-height', newHeight);
+        });
+
+        img.src = imgurl;
+        img.id = croppedIdGlobal + '-cropped';
+        img.className = 'zoom-able';
+        $('#' + croppedIdGlobal).empty().append(img);
+        $('input[name="' + croppedIdGlobal + '"]').val(imgurl);
     });
 }

@@ -50,6 +50,9 @@ class EventsTable extends Table
         $this->belongsTo('Jtests', [
             'foreignKey' => 'jtest_id',
         ]);
+        $this->belongsTo('JlptTests', [
+            'foreignKey' => 'jlpt_test_id',
+        ]);
     }
 
     /**

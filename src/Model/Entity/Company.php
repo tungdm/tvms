@@ -44,12 +44,12 @@ class Company extends Entity
         'deputy_name_romaji' => true,
         'deputy_name_kanji' => true,
         'phone_jp' => true,
-        'guild_id' => true,
+        'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'guild' => true,
+        'guilds' => true,
         'orders' => true
     ];
 }

@@ -22,37 +22,38 @@ $this->assign('title', 'Quản lý nghề nghiệp');
 ?>
 
 <?php $this->start('content-header'); ?>
-<h1><?= __('QUẢN LÝ NGHỀ NGHIỆP') ?></h1>
-<ol class="breadcrumb">
-    <li>
-        <?= $this->Html->link(
-            '<i class="fa fa-home"></i> Trang Chủ',
-            '/',
-            ['escape' => false]) ?>
-    </li>
-    <li class="active">Danh sách nghề nghiệp</li>
-</ol>
+    <h1><?= __('QUẢN LÝ NGHỀ NGHIỆP') ?></h1>
+    <ol class="breadcrumb">
+        <li>
+            <?= $this->Html->link(
+                '<i class="fa fa-home"></i> Trang Chủ',
+                '/',
+                ['escape' => false]) ?>
+        </li>
+        <li class="active">Danh sách nghề nghiệp</li>
+    </ol>
 <?php $this->end(); ?>
 
-<?php $this->start('floating-button'); ?>
-    <div class="zoom" id="draggable-button">
-        <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
-        <ul class="zoom-menu">
-            <?php if ($permission == 0): ?>
-            <li>
-                <a href="javascript:;" 
-                    onclick="showAddJobModal()"
-                    class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
-                    data-toggle="tooltip" 
-                    title="" 
-                    data-original-title="Thêm mới">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                </a>
-            </li>
-            <?php endif; ?>
-        </ul>
-    </div>
-<?php $this->end(); ?>
+<?php if ($permission == 0): ?>
+    <?php $this->start('floating-button'); ?>
+        <div class="zoom" id="draggable-button">
+            <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
+            <ul class="zoom-menu">
+                
+                <li>
+                    <a href="javascript:;" 
+                        onclick="showAddJobModal()"
+                        class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
+                        data-toggle="tooltip" 
+                        title="" 
+                        data-original-title="Thêm mới">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    <?php $this->end(); ?>
+<?php endif; ?>
 
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -151,53 +152,64 @@ $this->assign('title', 'Quản lý nghề nghiệp');
                         <?= $this->Form->end() ?>
                         </tr>
                         <?php if (($jobs)->isEmpty()): ?>
-                        <tr>
-                            <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
-                        </tr>
+                            <tr>
+                                <td colspan="100" class="table-empty"><?= __('Hiện tại chưa có dữ liệu') ?></td>
+                            </tr>
                         <?php else: ?>
-                        <?php foreach ($jobs as $job): ?>
-                        <?php $counter++ ?>
-                        <tr>
-                            <td class="cell text-center"><?= $counter ?></td>
-                            <td class="cell nameVnCol">
-                                <a href="javascript:;" onclick="viewJob(<?= $job->id ?>)"><?= h($job->job_name) ?></a>
-                            </td>
-                            <td class="cell nameJpCol"><?= h($job->job_name_jp) ?></td>
-                            <td class="cell createdByCol">
-                                <?= !empty($job->created_by_user) ? h($job->created_by_user->fullname) : '' ?>
-                            </td>
-                            <td class="cell modifiedByCol">
-                                <?= !empty($job->modified_by_user) ? h($job->modified_by_user->fullname) : '' ?>
-                            </td>
-                            <td class="actions cell">
-                                <div class="btn-group">
-                                    <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
-                                    </button>
-                                    <ul role="menu" class="dropdown-menu">
-                                        <li>
-                                            <a href="javascript:;" onClick="viewJob(<?= $job->id ?>)">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
-                                            </a>
-                                        </li>
-                                        <?php if ($permission == 0): ?>
-                                        <li>
-                                            <a href="javascript:;" onClick="showEditJobModal('<?= $job->id ?>')">
-                                            <i class="fa fa-edit"></i> Sửa</a>
-                                        </li>
-                                        <li>
-                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
-                                                ['action' => 'delete', $job->id], 
-                                                [
-                                                    'escape' => false, 
-                                                    'confirm' => __('Bạn có chắc chắn muốn xóa nghề {0}?', $job->job_name)
-                                                ]) ?>
-                                        </li>
-                                        <?php endif; ?>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                            <?php foreach ($jobs as $job): ?>
+                                <?php $counter++ ?>
+                                <tr>
+                                    <td class="cell text-center <?= $job->del_flag ? 'deletedRecord' : '' ?>"><?= $counter ?></td>
+                                    <td class="cell nameVnCol">
+                                        <a href="javascript:;" onclick="viewJob(<?= $job->id ?>)"><?= h($job->job_name) ?></a>
+                                    </td>
+                                    <td class="cell nameJpCol"><?= h($job->job_name_jp) ?></td>
+                                    <td class="cell createdByCol">
+                                        <?= !empty($job->created_by_user) ? h($job->created_by_user->fullname) : '' ?>
+                                    </td>
+                                    <td class="cell modifiedByCol">
+                                        <?= !empty($job->modified_by_user) ? h($job->modified_by_user->fullname) : '' ?>
+                                    </td>
+                                    <td class="actions cell">
+                                        <div class="btn-group">
+                                            <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span>
+                                            </button>
+                                            <ul role="menu" class="dropdown-menu">
+                                                <li>
+                                                    <a href="javascript:;" onClick="viewJob(<?= $job->id ?>)">
+                                                        <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
+                                                    </a>
+                                                </li>
+                                                <?php if ($permission == 0): ?>
+                                                    <?php if ($job->del_flag): ?>
+                                                        <li>
+                                                            <?= $this->Form->postLink('<i class="fa fa-undo" aria-hidden="true"></i> Phục hồi', 
+                                                            ['action' => 'recover', $job->id], 
+                                                            [
+                                                                'escape' => false, 
+                                                                'confirm' => __('Bạn có chắc chắn muốn phục hồi nghề {0}?', $job->job_name)
+                                                            ]) ?>
+                                                        </li>
+                                                    <?php else: ?>
+                                                        <li>
+                                                            <a href="javascript:;" onClick="showEditJobModal('<?= $job->id ?>')">
+                                                            <i class="fa fa-edit"></i> Sửa</a>
+                                                        </li>
+                                                        <li>
+                                                            <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
+                                                                ['action' => 'delete', $job->id], 
+                                                                [
+                                                                    'escape' => false, 
+                                                                    'confirm' => __('Bạn có chắc chắn muốn xóa nghề {0}?', $job->job_name)
+                                                                ]) ?>
+                                                        </li>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>

@@ -47,3 +47,5 @@ tests/*
 *.sql
 *_bk.*
 
+# File pe,
+*.pem

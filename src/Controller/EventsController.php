@@ -80,6 +80,7 @@ class EventsController extends AppController
             ->where([
                 'start >=' => $query['start'],
                 'end <=' => $query['end'],
+                'del_flag' => FALSE
             ])
             ->where(function ($exp) use ($currentUserId) {
                 $orCondition = $exp->or_(['user_id' => $currentUserId])->eq('scope', '2');
@@ -129,21 +130,28 @@ class EventsController extends AppController
                 ->select($this->Events->Jtests)
                 ->select($this->Events->Jtests->Jclasses)
                 ->select($this->Events->Jtests->JtestContents->Users)
+                ->select($this->Events->JlptTests)
+                ->select($this->Events->JlptTests->JlptContents->Users)
+
                 ->contain([
                     'Users', 
                     'Orders', 
                     'Orders.Students', 
-                    'Orders.Students.Jclasses', 
+                    'Orders.Students.Jclasses',
                     'Orders.Students.Addresses' => function($q) {
                         return $q->where(['Addresses.type' => '1']);
                     }, 
                     'Orders.Students.Addresses.Cities',
                     'Orders.Companies', 
-                    'Orders.Companies.Guilds', 
+                    'Orders.Guilds', 
                     'Orders.Jobs',
                     'Jtests',
                     'Jtests.Jclasses',
-                    'Jtests.JtestContents.Users'
+                    'Jtests.JtestContents.Users',
+                    'JlptTests',
+                    'JlptTests.Students',
+                    'JlptTests.Students.Jclasses',
+                    'JlptTests.JlptContents.Users'
                     ])
                 ->first();
             $cityJP = Configure::read('cityJP');
@@ -151,17 +159,22 @@ class EventsController extends AppController
             $yesNoQuestion = Configure::read('yesNoQuestion');
             $interviewType = Configure::read('interviewType');
             $skills = Configure::read('skills');
+            $jlptSkills = Configure::read('jlpt_skills');
             $lessons = Configure::read('lessons');
 
             if (!empty($event->order)) {
                 $event->order->work_at = $cityJP[$event->order->work_at];
-                $event->order->skill_test = $yesNoQuestion[$event->order->skill_test];
-                $event->order->interview_type = $interviewType[$event->order->interview_type];
+                $event->order->skill_test = $event->order->skill_test ? $yesNoQuestion[$event->order->skill_test] : 'N/A';
+                $event->order->interview_type = $event->order->interview_type ? $interviewType[$event->order->interview_type] : 'N/A';
             } else if (!empty($event->jtest)) {
                 $event->jtest->lesson_from = $lessons[$event->jtest->lesson_from];
                 $event->jtest->lesson_to = $lessons[$event->jtest->lesson_to];
                 foreach ($event->jtest->jtest_contents as $key => $value) {
                     $event->jtest->jtest_contents[$key]->skill = $skills[$value->skill];
+                }
+            } else if (!empty($event->jlpt_test)) {
+                foreach ($event->jlpt_test->jlpt_contents as $key => $value) {
+                    $event->jlpt_test->jlpt_contents[$key]->skill = $jlptSkills[$value->skill];
                 }
             }
             $resp = $event;

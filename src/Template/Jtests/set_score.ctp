@@ -85,7 +85,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date .  ' - Nhập điểm thi'
                     <?php foreach ($jtest->students as $key => $value): ?>
                         <?= $this->Form->hidden('students.' . $key . '.id')?>
                         <tr>
-                            <td class="cell"><?= $key + 1 ?></td>
+                            <td class="cell text-center"><?= $key + 1 ?></td>
                             <td class="cell"><?= $value->fullname ?></td>
                             <?php foreach($skill as $value): ?>
                             <td class="cell">

@@ -11,6 +11,12 @@ return [
         'Y' => '有',
         'N' => '無'
     ],
+    'physResult' => [
+        1 => 'Đạt',
+        2 => 'Tái khám',
+        3 => 'Không đạt',
+        4 => 'Chờ kết quả'
+    ],
     'smokedrink' => [
         'Y' => [
             'vn' => 'Có',
@@ -18,12 +24,25 @@ return [
         ],
         'L' => [
             'vn' => 'Ít',
-            'jp' => '少',
+            'jp' => ' 有(少)',
         ],
         'N' => [
             'vn' => 'Không',
             'jp' => '無'
         ]
+    ],
+    'depositType' => [
+        1 => 'Thường',
+        2 => 'Trọn gói',
+        3 => 'Khác',
+        4 => 'Chưa có thông tin'
+    ],
+    'financeStatus' => [
+        1 => 'Đã đóng đủ',
+        2 => 'Chưa đóng',
+        3 => 'Đóng thiếu',
+        4 => 'Miễn đóng',
+        5 => 'Chưa có thông tin'
     ],
     'recordsDisplay' => [
         '10' => '10',
@@ -133,6 +152,17 @@ return [
         '1' => 'Tay phải',
         '2' => 'Tay trái',
     ],
+    'candidateSource' => [
+        '1' => 'Facebook',
+        '2' => 'Google',
+        '3' => 'Điện thoại'
+    ],
+    'candidateStatus' => [
+        '1' => 'Chưa tư vấn',
+        '2' => 'Đã tư vấn',
+        '3' => 'Tiềm năng',
+        '4' => 'Đã kí kết'
+    ],
     'eduLevel' => [
         '1' => [
             'vn' => 'Tiểu học',
@@ -162,6 +192,10 @@ return [
             'vn' => 'Trung tâm',
             'jp' => 'センター'
         ],
+        '99' => [
+            'vn' => 'Chưa có thông tin',
+            'jp' => '確認中'
+        ]
     ],
     'maritalStatus' => [
         '1' => [
@@ -175,6 +209,10 @@ return [
         '3' => [
             'vn' => 'Ly hôn',
             'jp' => '離婚',
+        ],
+        '99' => [
+            'vn' => 'Chưa có thông tin',
+            'jp' => '確認中'
         ]
     ],
     'religion' => [
@@ -260,6 +298,7 @@ return [
         '1' => 'CMND',
         '2' => 'PASSPORT',
         '3' => 'VISA',
+        '4' => 'BẰNG TỐT NGHIỆP',
     ],
     'language' => [
         '1' => [
@@ -289,6 +328,10 @@ return [
         '0' => '-',
         '1' => 'Đậu',
         '2' => 'Rớt',
+    ],
+    'jlptResult' => [
+        'Y' => 'Đậu',
+        'N' => 'Rớt',
     ],
     'workTime' => [
         '1' => '1 năm',
@@ -385,13 +428,38 @@ return [
         '1' => 'Từ vựng',
         '2' => 'Ngữ pháp',
         '3' => 'Nghe hiểu',
-        '4' => 'Đàm thoại'
+        '4' => 'Đàm thoại',
+        '5' => 'Số tự',
+        '6' => 'Ngày giờ',
+        '7' => 'Chào hỏi',
+        '8' => 'Chữ cái',
+    ],
+    'jlpt_skills' => [
+        '1' => 'Kiến thức chung',
+        '2' => 'Đọc hiểu',
+        '3' => 'Nghe',
+    ],
+    'jlpt_levels' => [
+        'N5' => 'N5',
+        'N4' => 'N4',
+        'N3' => 'N3',
+        'N2' => 'N2',
+        'N1' => 'N1',
     ],
     'score' => [
         '1' => 'vocabulary_score',
         '2' => 'grammar_score',
         '3' => 'listening_score',
-        '4' => 'conversation_score'
+        '4' => 'conversation_score',
+        '5' => 'num_word_score',
+        '6' => 'datetime_score',
+        '7' => 'greeting_score',
+        '8' => 'alphabet_score',
+    ],
+    'jlpt_score' => [
+        '1' => 'general_score',
+        '2' => 'reading_score',
+        '3' => 'listening_score',
     ],
     'testStatus' => [
         '1' => 'Chưa thi',
@@ -454,16 +522,20 @@ return [
     ],
     // user
     'scope' => [
+        'Candidates' => 'Quản lý tuyển dụng Online',
         'Users' => 'Quản lý nhân viên',
         'Students' => 'Quản lý lao động',
         'Events' => 'Quản lý lịch công tác',
         'Orders' => 'Quản lý đơn hàng',
         'Jclasses' => 'Quản lý lớp học',
         'Jtests' => 'Quản lý kì thi',
+        'JlptTests' => 'Quản lý JLPT',
         'Guilds' => 'Quản lý nghiệp đoàn',
         'Companies' => 'Quản lý công ty đối tác',
         'Presenters' => 'Quản lý cộng tác viên',
         'Jobs' => 'Quản lý nghề nghiệp',
+        'Characteristics' => 'Quản lý tính cách',
+        'Strengths' => 'Quản lý chuyên môn'
     ],
     'companyType' => [
         '1' => 'Công ty phái cử',
@@ -715,7 +787,7 @@ return [
 
     // student
     'studentStatus' => [
-        '1' => 'Lịch hẹn',
+        // '1' => 'Lịch hẹn',  ====> change into candidates
         '2' => 'Chưa đậu phỏng vấn',
         '3' => 'Đậu phỏng vấn',
         '4' => 'Đã xuất cảnh',
@@ -723,6 +795,7 @@ return [
         '6' => 'Bỏ trốn',
         '7' => 'Rút hồ sơ',
         '8' => 'Thanh lý hợp đồng',
+        '9' => 'Xuất cảnh lần 2',
     ],
     'studentSubject' => [
         '1' => 'Bộ đội xuất ngũ',
@@ -865,6 +938,16 @@ return [
         'testTitle' => "KẾT QUẢ KIỂM TRA NĂNG LỰC NHẬT NGỮ LỚP :class\nNGÀY THI :testDate\nBÀI THI: :testLessons",
         'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
     ],
+    'jlptResultXlsx' => [
+        'filename' => 'Điểm_:level_:testDate.xlsx',
+        'header' => "TRƯỜNG NHẬT NGỮ TÂM VIỆT\nKỲ THI NHẬT NGỮ TRÌNH ĐỘ :level\nNGÀY THI: :testDate\nBẢNG KẾT QUẢ",
+        'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+    ],
+    'jlptReportXlsx' => [
+        'filename' => 'BC_Điểm_JLPT.xlsx',
+        'header' => "TRƯỜNG NHẬT NGỮ TÂM VIỆT\nBÁO CÁO ĐIỂM THI NĂNG LỰC NHẬT NGỮ",
+        'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+    ],
     'iqTestXlsx' => [
         'filename' => 'iq_test.xlsx',
     ],
@@ -905,8 +988,10 @@ return [
     // message
     'successMessage' => [
         'add' => 'Đã lưu thông tin của :entity :name.',
+        'addNoName' => 'Đã lưu thông tin thành công',
         'edit' => 'Thông tin của :entity :name đã được cập nhật.',
         'delete' => 'Đã xóa dữ liệu của :entity :name.',
+        'recover' => 'Đã phục hồi dữ liệu của :entity :name.',
         'deleteNoName' => 'Đã xóa dữ liệu thành công',
         'updateProfile' => 'Hồ sơ cá nhân của bạn đã được cập nhật.',
         'updatePassword' => 'Mật khẩu của bạn đã được cập nhật.',
@@ -919,6 +1004,7 @@ return [
         'add' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
         'edit' => 'Không thể cập nhật thông tin của :entity :name. Xin hãy thử lại.',
         'delete' => 'Không thể xóa dữ liệu của :entity :name. Xin hãy thử lại.',
+        'recover' => 'Không thể phục hồi dữ liệu của :entity :name. Xin hãy thử lại.',
         'error' => 'Đã có lỗi xảy ra. Xin hãy thử lại.',
         'loginError' => 'Tên đăng nhập hoặc mật khẩu không đúng. Xin hãy thử lại.',
         'unAuthor' => 'Bạn không có quyền truy cập đến địa chỉ trên. Vui lòng Liên hệ Quản trị viên để được cấp quyền tương ứng.',
