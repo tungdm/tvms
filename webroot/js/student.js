@@ -364,7 +364,9 @@ $(document).ready(function () {
     });
 
     $('.zoom-able').click(function () {
+        $('.cropper-container').remove();
         $('#avatar').attr('src', $(this).attr('src'));
+        $('#avatar').removeClass('cropper-hidden');
         $('#crop-btn').addClass('hidden');
         $('#cropper-modal').modal('toggle');
     });
@@ -1868,7 +1870,8 @@ function readURL2(input, croppedId, ratioCrop) {
             croppedIdGlobal = croppedId;
             setTimeout(initCropper2, 1000);
             $('#crop-btn').removeClass('hidden');
-            $('#cropper-modal').modal('toggle');
+            // $('#cropper-modal').modal('toggle');
+            $('#cropper-modal').modal({ backdrop: 'static', keyboard: false });
         } else {
             window.alert('Xin hãy chọn đúng định dạng ảnh.');
         }

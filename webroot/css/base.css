@@ -545,3 +545,8 @@ label.optional {
     width: 20%;
     height: auto;
 }
+
+.select2-container--bootstrap .select2-selection--multiple .select2-selection__choice {
+    margin: 5px 6px 0 6px !important;
+    white-space: pre-line;
+}

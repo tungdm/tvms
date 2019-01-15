@@ -51,8 +51,8 @@ function addConsultant() {
             'consultantDate': $('#modal-consultant-date').val(),
             'consultantUser': $('#modal-consultant-user option:selected').html(),
             'consultantUserId': $('#modal-consultant-user').val(),
-            'noteRaw': $('#modal-note').val(),
-            'note': $('#modal-note').val().replace(/\r?\n/g, '<br />'),
+            'notesRaw': $('#modal-note').val(),
+            'notes': $('#modal-note').val().replace(/\r?\n/g, '<br />'),
         });
         data.consultantCounter++;
         $('#consultant-container').append(html);

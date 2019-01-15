@@ -605,11 +605,11 @@ class StudentsController extends AppController
             if (!empty($student->cards[1]->image1)) {
                 $ppImage1 = $student->cards[1]->image1;
             }
-            if (!empty($student->cards[2]->image1)) {
-                $btnImage1 = $student->cards[2]->image1;
+            if (!empty($student->cards[3]->image1)) {
+                $btnImage1 = $student->cards[3]->image1;
             }
-            if (!empty($student->cards[2]->image1)) {
-                $btnImage2 = $student->cards[2]->image1;
+            if (!empty($student->cards[3]->image1)) {
+                $btnImage2 = $student->cards[3]->image2;
             }
         } else {
             $student = $this->Students->newEntity();
@@ -623,6 +623,7 @@ class StudentsController extends AppController
                 $student->zalo = !empty($candidate->zalo_phone) ? $candidate->zalo_phone : $candidate->fb_name;
                 $student->birthday = $candidate->birthday;
                 $student->educational_level = $candidate->educational_level;
+                $student->presenter_id = 2; // Internet
                 $student->addresses = [
                     0 => [
                         'city_id' => $candidate->city_id,
@@ -668,9 +669,7 @@ class StudentsController extends AppController
 
             // setting expectation
             $expectJobs = $data['expectationJobs'];
-            Log::write('debug', $expectJobs);
             $expectStr = $this->convertTags($expectJobs);
-            Log::write('debug', $expectStr);
 
             $student->expectation = $expectStr;
             // setting genitive

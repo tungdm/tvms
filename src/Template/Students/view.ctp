@@ -213,7 +213,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div id="cropped_result" class="col-md-7 col-xs-12">
                                                 <?php if(!empty($student->image)):?>
-                                                <?= $this->Html->image($student->image) ?>
+                                                <?= $this->Html->image($student->image, ['class' => 'zoom-able']) ?>
                                                 <?php else: ?>
                                                 N/A
                                                 <?php endif; ?>
@@ -827,7 +827,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="col-md-7 col-xs-12 cropped-result-container">
                                                 <?php if(!empty($student->cards[0])):?>
-                                                    <?= $this->Html->image($student->cards[0]->image1) ?>
+                                                    <?= $this->Html->image($student->cards[0]->image1, ['class' => 'zoom-able']) ?>
                                                 <?php else: ?>
                                                     <?= __('N/A') ?>
                                                 <?php endif; ?>
@@ -839,7 +839,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="col-md-7 col-xs-12 cropped-result-container">
                                                 <?php if(!empty($student->cards[0])):?>
-                                                    <?= $this->Html->image($student->cards[0]->image2) ?>
+                                                    <?= $this->Html->image($student->cards[0]->image2,  ['class' => 'zoom-able']) ?>
                                                 <?php else: ?>
                                                     <?= __('N/A') ?>
                                                 <?php endif; ?>
@@ -953,7 +953,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="col-md-7 col-xs-12 cropped-result-container">
                                                 <?php if(!empty($student->cards[1])):?>
-                                                    <?= $this->Html->image($student->cards[1]->image1) ?>
+                                                    <?= $this->Html->image($student->cards[1]->image1, ['class' => 'zoom-able']) ?>
                                                 <?php else: ?>
                                                     <?= __('N/A') ?>
                                                 <?php endif; ?>
@@ -975,7 +975,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="col-md-7 col-xs-12 cropped-result-container">
                                                 <?php if(!empty($student->cards[3])):?>
-                                                    <?= $this->Html->image($student->cards[3]->image1) ?>
+                                                    <?= $this->Html->image($student->cards[3]->image1, ['class' => 'zoom-able']) ?>
                                                 <?php else: ?>
                                                     <?= __('N/A') ?>
                                                 <?php endif; ?>
@@ -989,7 +989,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="col-md-7 col-xs-12 cropped-result-container">
                                                 <?php if(!empty($student->cards[3])):?>
-                                                    <?= $this->Html->image($student->cards[3]->image2) ?>
+                                                    <?= $this->Html->image($student->cards[3]->image2, ['class' => 'zoom-able']) ?>
                                                 <?php else: ?>
                                                     <?= __('N/A') ?>
                                                 <?php endif; ?>
@@ -1809,3 +1809,23 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
     var studentNameVN = '<?= $studentName_VN ?>';
     var jtestScore = <?= json_encode($jtestScore) ?>;
 </script>
+
+<div id="cropper-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="image_container col-md-12 col-xs-12">
+                    <img id="avatar" src />
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="crop-btn" data-dismiss="modal">Cắt ảnh</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
