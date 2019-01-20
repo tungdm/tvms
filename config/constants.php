@@ -535,7 +535,9 @@ return [
         'Presenters' => 'Quản lý cộng tác viên',
         'Jobs' => 'Quản lý nghề nghiệp',
         'Characteristics' => 'Quản lý tính cách',
-        'Strengths' => 'Quản lý chuyên môn'
+        'Strengths' => 'Quản lý chuyên môn',
+        'Purposes' => 'Quản lý mục đích xuất khẩu lao động',
+        'AfterPlans' => 'Quản lý mục đích sau khi về nước'
     ],
     'companyType' => [
         '1' => 'Công ty phái cử',
