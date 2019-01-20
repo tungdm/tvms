@@ -76,6 +76,7 @@ class AfterPlansController extends AppController
             if (isset($query['modified_by']) && !empty($query['modified_by'])) {
                 $allPlans->where(['AfterPlans.modified_by' => $query['modified_by']]);
             }
+            $allPlans->order(['AfterPlans.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allPlans = $this->AfterPlans->find()->order(['AfterPlans.created' => 'DESC']);

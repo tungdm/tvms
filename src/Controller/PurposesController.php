@@ -77,6 +77,7 @@ class PurposesController extends AppController
             if (isset($query['modified_by']) && !empty($query['modified_by'])) {
                 $allPurposes->where(['Purposes.modified_by' => $query['modified_by']]);
             }
+            $allPurposes->order(['Purposes.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allPurposes = $this->Purposes->find()->order(['Purposes.created' => 'DESC']);

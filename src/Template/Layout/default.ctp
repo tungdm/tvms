@@ -58,7 +58,7 @@
                 </a>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-                        <li class="dropdown notifications-menu">
+                        <li class="dropdown notifications-menu hidden">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                                 <i class="fa fa-bell-o"></i>
                                 <span class="label label-danger">3</span>

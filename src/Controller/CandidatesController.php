@@ -92,6 +92,7 @@ class CandidatesController extends AppController
                         break;
                 }
             }
+            $allCandidates->order(['Candidates.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allCandidates = $this->Candidates->find()->order(['Candidates.created' => 'DESC']);

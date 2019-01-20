@@ -78,6 +78,7 @@ class PresentersController extends AppController
                     return $exp->like('type', '%'.$query['presenter_type'].'%');
                 });
             }
+            $allPresenters->order(['created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allPresenters = $this->Presenters->find()->order(['created' => 'DESC']);

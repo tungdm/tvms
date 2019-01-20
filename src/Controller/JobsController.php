@@ -77,6 +77,7 @@ class JobsController extends AppController
             if (isset($query['f_modified_by']) && !empty($query['f_modified_by'])) {
                 $allJobs->where(['Jobs.modified_by' => $query['f_modified_by']]);
             }
+            $allJobs->order(['Jobs.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allJobs = $this->Jobs->find()->order(['Jobs.created' => 'DESC']);

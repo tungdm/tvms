@@ -141,6 +141,8 @@ class UsersController extends AppController
             if (isset($query['role']) && !empty($query['role'])) {
                 $allUsers->where(['role_id' => $query['role']]);
             }
+            $allUsers->order(['Users.created' => 'DESC']);
+
         } else {
             $query['records'] = 10;
             $allUsers = $this->Users->find()->order(['Users.created' => 'DESC']);

@@ -120,6 +120,7 @@ class OrdersController extends AppController
             if (isset($query['created']) && !empty($query['created'])) {
                 $allOrders->where(['Orders.created >=' => $query['created']]);
             }
+            $allOrders->order(['Orders.interview_date' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allOrders = $this->Orders->find()->order(['Orders.interview_date' => 'DESC']);
@@ -236,7 +237,9 @@ class OrdersController extends AppController
                 'Students.Addresses.Cities',
                 'Events',
                 'Guilds',
-                'DisCompanies'
+                'DisCompanies' => function ($q) {
+                    return $q->where(['DisCompanies.del_flag' => FALSE]);
+                },
             ]
         ]);
         $this->checkDeleteFlag($order, $this->Auth->user());
@@ -280,9 +283,7 @@ class OrdersController extends AppController
                     return $q->where(['Guilds.id' => $order->guild_id]);
                 });
         }
-        if (!empty($order->dis_company_id) && !$order->dis_company->del_flag) {
-            $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
-        }
+        $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
         $jobs = $this->Orders->Jobs->find('list');
         $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs'));
         $this->render('/Orders/add');
@@ -927,7 +928,7 @@ class OrdersController extends AppController
         $order = $this->Orders->get($id, [
             'contain' => ['Students',
             'Companies', 
-            'Companies.Guilds',
+            'Guilds',
             'Jobs', 
             ]]);
         $this->checkDeleteFlag($order, $this->Auth->user());
@@ -936,7 +937,7 @@ class OrdersController extends AppController
             'order' => $order->name, 
             ]);
         $now = Time::now();
-        $guildJP = $this->checkData($order->company->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+        $guildJP = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
         $companyJP = $this->checkData($order->company->name_kanji, 'Tên phiên âm của công ty tiếp nhận');
         $departureDate = $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
         $departureDate = new Time($order->departure_date);
@@ -974,7 +975,7 @@ class OrdersController extends AppController
                 'contain' => [
                     'Jobs',
                     'Companies',
-                    'Companies.Guilds',
+                    'Guilds',
                     'Students' => function($q) {
                         return $q->where(['result' => '1']);
                     }
@@ -983,20 +984,20 @@ class OrdersController extends AppController
             $this->checkDeleteFlag($order, $this->Auth->user());
             $template = WWW_ROOT . 'document' . DS . $dispatchLetterConfig['template'];
             $missingFields = [];
-            $guildJP = $this->checkData($order->company->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
-            $guildVN = $this->checkData($order->company->guild->name_romaji, 'Tên nghiệp đoàn');
+            $guildJP = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+            $guildVN = $this->checkData($order->guild->name_romaji, 'Tên nghiệp đoàn');
 
-            $guildLicenseNum = $this->checkData($order->company->guild->license_number, 'Số giấy phép của nghiệp đoàn');
+            $guildLicenseNum = $this->checkData($order->guild->license_number, 'Số giấy phép của nghiệp đoàn');
 
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
 
-            $guildDeputyJP = $this->checkData($order->company->guild->deputy_name_kanji, 'Tên phiên âm người đại diện nghiệp đoàn');
-            $guildDeputyVN = $order->company->guild->deputy_name_romaji;
+            $guildDeputyJP = $this->checkData($order->guild->deputy_name_kanji, 'Tên phiên âm người đại diện nghiệp đoàn');
+            $guildDeputyVN = $order->guild->deputy_name_romaji;
 
-            $guildAddressJP = $this->checkData($order->company->guild->address_kanji, 'Địa chỉ phiên âm của nghiệp đoàn');
-            $guildAddressVN = $order->company->guild->address_romaji;
+            $guildAddressJP = $this->checkData($order->guild->address_kanji, 'Địa chỉ phiên âm của nghiệp đoàn');
+            $guildAddressVN = $order->guild->address_romaji;
 
-            $guildPhone = $order->company->guild->phone_jp;
+            $guildPhone = $order->guild->phone_jp;
 
             $this->tbs->VarRef['guildJP'] = $guildJP;
             $this->tbs->VarRef['guildVN'] = $guildVN;
@@ -1108,7 +1109,7 @@ class OrdersController extends AppController
                     'Students.Addresses.Wards',
                     'Jobs',
                     'Companies',
-                    'Companies.Guilds'
+                    'Guilds'
                 ]
             ]);
             $this->checkDeleteFlag($order, $this->Auth->user());
@@ -1220,7 +1221,7 @@ class OrdersController extends AppController
                     str_pad($order->work_time, 2, '0', STR_PAD_LEFT),
                     mb_strtoupper($cityJP[$order->work_at]['rmj']),
                     mb_strtoupper($order->job->job_name),
-                    mb_strtoupper($order->company->guild->name_romaji),
+                    mb_strtoupper($order->guild->name_romaji),
                 ];
                 array_push($listWorkers, $data);
             }
@@ -1291,7 +1292,7 @@ class OrdersController extends AppController
             'contain' => [
                 'Jobs',
                 'Companies',
-                'Companies.Guilds',
+                'Guilds',
                 'Students',
                 'Students.InputTests' => ['sort' => ['InputTests.type' => 'ASC']],
                 'Students.IqTests'
@@ -1315,7 +1316,7 @@ class OrdersController extends AppController
         $spreadsheet->getActiveSheet()->mergeCells('A3:N3');
         $spreadsheet->getActiveSheet()->mergeCells('A4:N4');
         $spreadsheet->getActiveSheet()->setCellValue('A1', '技能実習生候補者名簿');
-        $spreadsheet->getActiveSheet()->setCellValue('A2', '監理団体：' . $order->company->guild->name_kanji);
+        $spreadsheet->getActiveSheet()->setCellValue('A2', '監理団体：' . $order->guild->name_kanji);
         $spreadsheet->getActiveSheet()->setCellValue('A3', '受入企業：' . $order->company->name_kanji);
         $spreadsheet->getActiveSheet()->setCellValue('A4', '受入職種：' . $order->job->job_name_jp);
         $spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(100);
@@ -1479,7 +1480,7 @@ class OrdersController extends AppController
                 'contain' => [
                     'Jobs',
                     'Companies',
-                    'Companies.Guilds',
+                    'Guilds',
                     'Students',
                     'Students.IqTests',
                 ]
@@ -1500,7 +1501,7 @@ class OrdersController extends AppController
             
             $spreadsheet->getActiveSheet()
                 ->mergeCells('A1:AC2')->setCellValue('A1', '技能実習生候補者名簿')
-                ->mergeCells('A3:AC3')->setCellValue('A3', '監理団体：' . $order->company->guild->name_kanji)
+                ->mergeCells('A3:AC3')->setCellValue('A3', '監理団体：' . $order->guild->name_kanji)
                 ->mergeCells('A4:AC4')->setCellValue('A4', '受入企業：' . $order->company->name_kanji)
                 ->mergeCells('A5:AC5')->setCellValue('A5', '受入職種：' . $order->job->job_name_jp);
 
@@ -1715,7 +1716,9 @@ class OrdersController extends AppController
             $order = $this->Orders->get($id, [
                 'contain' => [
                     'Jobs',
-                    'DisCompanies',
+                    'DisCompanies' => function ($q) {
+                        return $q->where(['DisCompanies.del_flag' => FALSE]);
+                    },
                     'Students' => function($q) {
                         return $q->where(['result' => '1']);
                     }

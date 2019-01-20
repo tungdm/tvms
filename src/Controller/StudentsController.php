@@ -109,8 +109,9 @@ class StudentsController extends AppController
                     return $exp->between('return_date', $query['return_from'], $query['return_to'], 'date');
                 });
             }
+            $allStudents->order(['Students.created' => 'DESC']);
         } else {
-            $allStudents = $this->Students->find()->order(['Students.created' => 'DESC']);;
+            $allStudents = $this->Students->find()->order(['Students.created' => 'DESC']);
             $query['records'] = 10;
         }
         $this->paginate = [
@@ -1258,7 +1259,7 @@ class StudentsController extends AppController
                     'Orders',
                     'Orders.Jobs',
                     'Orders.Companies',
-                    'Orders.Companies.Guilds',
+                    'Orders.Guilds',
                     'Addresses' => function($q) {
                         return $q->where(['Addresses.type' => '1']);
                     },
@@ -1272,7 +1273,7 @@ class StudentsController extends AppController
                 'contain' => [
                     'Jobs',
                     'Companies',
-                    'Companies.Guilds'
+                    'Guilds'
                 ]
             ]);
 
@@ -1284,11 +1285,11 @@ class StudentsController extends AppController
 
             $job = $order->job;
 
-            $guild = $order->company->guild;
+            $guild = $order->guild;
 
             $company = $order->company;
 
-            $subsidy = $order->company->guild->subsidy ? Number::format($order->company->guild->subsidy, ['locale' => 'ja_JP']) : '';
+            $subsidy = $order->guild->subsidy ? Number::format($order->guild->subsidy, ['locale' => 'ja_JP']) : '';
             $this->checkData($subsidy, 'Tiền trợ cấp thực tập sinh của nghiệp đoàn');
             $this->checkData($order->application_date, 'Ngày làm hồ sơ');
             
@@ -1414,13 +1415,13 @@ class StudentsController extends AppController
                     'Orders',
                     'Orders.Jobs',
                     'Orders.Companies',
-                    'Orders.Companies.Guilds',
+                    'Orders.Guilds',
                 ]
             ]);
             $order = $this->Students->Orders->get($orderId, [
                 'contain' => [
                     'Companies',
-                    'Companies.Guilds'
+                    'Guilds'
                 ]
             ]);
             $output_file_name = $eduPlanConfig['filename'];
@@ -1431,7 +1432,7 @@ class StudentsController extends AppController
             $this->checkData($company_name_kanji, 'Tên phiên âm công ty tiếp nhận');
             $this->tbs->VarRef['company'] = $company_name_kanji;
 
-            $guild_name_kanji = $order->company->guild->name_kanji;
+            $guild_name_kanji = $order->guild->name_kanji;
             $this->checkData($guild_name_kanji, 'Tên phiên âm nghiệp đoàn quản lý');
             $this->tbs->VarRef['guild'] = $guild_name_kanji;
 
@@ -1799,7 +1800,7 @@ class StudentsController extends AppController
                     array_push($data, $companyName);
                 }
                 if (isset($condition['guild']) && !empty($condition['guild'])) {
-                    $guildName = $student->orders ? $student->orders[0]->company->guild->name_romaji : '';
+                    $guildName = $student->orders ? $student->orders[0]->guild->name_romaji : '';
                     array_push($data, $guildName);
                 }
                 if (isset($condition['class']) && !empty($condition['class'])) {

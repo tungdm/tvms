@@ -98,6 +98,7 @@ class JclassesController extends AppController
             if (isset($query['current_lesson']) && !empty($query['current_lesson'])) {
                 $allClasses->where(['current_lesson' => $query['current_lesson']]);
             }
+            $allClasses->order(['Jclasses.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allClasses = $this->Jclasses->find()->order(['Jclasses.created' => 'DESC']);

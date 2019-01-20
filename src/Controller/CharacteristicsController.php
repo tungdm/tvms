@@ -76,6 +76,7 @@ class CharacteristicsController extends AppController
             if (isset($query['modified_by']) && !empty($query['modified_by'])) {
                 $allChars->where(['Characteristics.modified_by' => $query['modified_by']]);
             }
+            $allChars->order(['Characteristics.created' => 'DESC']);
         } else {
             $query['records'] = 10;
             $allChars = $this->Characteristics->find()->order(['Characteristics.created' => 'DESC']);

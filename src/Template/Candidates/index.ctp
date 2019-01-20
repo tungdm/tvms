@@ -12,6 +12,8 @@ if (!empty($query['page'])) {
 }
 $currentUser = $this->request->session()->read('Auth.User');
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
+$this->Html->css('candidate.css', ['block' => 'styleTop']);
+
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('candidate.js', ['block' => 'scriptBottom']);
@@ -178,10 +180,18 @@ $this->Paginator->setTemplates([
                                 <?php 
                                     $counter++; 
                                     $candidateName = $candidate->source == 1 ? $candidate->fb_name : $candidate->fullname;
+                                    $status = '';
+                                    if ($candidate->status == 2) {
+                                        if ($candidate->potential) {
+                                            $status = 'potential';
+                                        } else {
+                                            $status = 'consulted';
+                                        }
+                                    }
                                 ?>
                                 <tr>
                                     <td class="cell text-center <?= $candidate->del_flag ? 'deletedRecord' : '' ?>"><?= h($counter) ?></td>
-                                    <td class="cell fullnameCol"><?= h($candidateName) ?></td>
+                                    <td class="cell fullnameCol <?= $status ?>"><?= h($candidateName) ?></td>
                                     <td class="cell text-center contactDateCol"><?= h($candidate->contact_date) ?></td>
                                     <td class="cell text-center phoneCol"><?= $candidate->phone ? h($this->Phone->makeEdit($candidate->phone)) : '' ?></td>
                                     <td class="cell sourceCol">
