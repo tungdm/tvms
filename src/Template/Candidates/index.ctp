@@ -181,12 +181,10 @@ $this->Paginator->setTemplates([
                                     $counter++; 
                                     $candidateName = $candidate->source == 1 ? $candidate->fb_name : $candidate->fullname;
                                     $status = '';
-                                    if ($candidate->status == 2) {
-                                        if ($candidate->potential) {
-                                            $status = 'potential';
-                                        } else {
-                                            $status = 'consulted';
-                                        }
+                                    if ($candidate->potential) {
+                                        $status = 'potential';
+                                    } else if ($candidate->status == 2) { {
+                                        $status = 'consulted';
                                     }
                                 ?>
                                 <tr>
