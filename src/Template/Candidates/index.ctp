@@ -183,7 +183,7 @@ $this->Paginator->setTemplates([
                                     $status = '';
                                     if ($candidate->potential) {
                                         $status = 'potential';
-                                    } else if ($candidate->status == 2) { {
+                                    } else if ($candidate->status == 2) {
                                         $status = 'consulted';
                                     }
                                 ?>
