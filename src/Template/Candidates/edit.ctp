@@ -83,16 +83,18 @@ $this->Html->script('candidate.js', ['block' => 'scriptBottom']);
                         'escape' => false
                     ]) ?>
             </li>
-            <li>
-                <?= $this->Html->link('<i class="fa fa-briefcase" aria-hidden="true"></i>', 
-                    ['action' => 'viewStudent', $candidate->id], 
-                    [
-                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out',
-                        'escape' => false, 
-                        'data-toggle' => 'tooltip',
-                        'title' => 'Thông tin lao động',
-                    ]) ?>
-            </li>
+            <?php if ($candidate->status == 4): ?>
+                <li>
+                    <?= $this->Html->link('<i class="fa fa-briefcase" aria-hidden="true"></i>', 
+                        ['action' => 'viewStudent', $candidate->id], 
+                        [
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out',
+                            'escape' => false, 
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Thông tin lao động',
+                        ]) ?>
+                </li>
+            <?php endif; ?>
             <li>
                 <a class="zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out submit-candidate-btn" data-toggle="tooltip" title="Lưu lại">
                     <i class="fa fa-paper-plane" aria-hidden="true"></i>

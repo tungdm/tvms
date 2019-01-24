@@ -77,16 +77,18 @@ $candidateName = $candidate->source == 1 ? $candidate->fb_name : $candidate->ful
                                 'escape' => false
                             ]) ?>
                     </li>
-                    <li>
-                        <?= $this->Html->link('<i class="fa fa-briefcase" aria-hidden="true"></i>', 
-                            ['action' => 'viewStudent', $candidate->id], 
-                            [
-                                'class' => 'zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out',
-                                'escape' => false, 
-                                'data-toggle' => 'tooltip',
-                                'title' => 'Thông tin lao động',
-                            ]) ?>
-                    </li>
+                    <?php if ($candidate->status == 4): ?>
+                        <li>
+                            <?= $this->Html->link('<i class="fa fa-briefcase" aria-hidden="true"></i>', 
+                                ['action' => 'viewStudent', $candidate->id], 
+                                [
+                                    'class' => 'zoom-fab zoom-btn-sm zoom-btn-save scale-transition scale-out',
+                                    'escape' => false, 
+                                    'data-toggle' => 'tooltip',
+                                    'title' => 'Thông tin lao động',
+                                ]) ?>
+                        </li>
+                    <?php endif; ?>
                 <?php endif; ?>
             </ul>
         </div>
@@ -201,19 +203,19 @@ $candidateName = $candidate->source == 1 ? $candidate->fb_name : $candidate->ful
                     <div class="form-group">
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cur_job"><?= __('Công việc hiện tại') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $candidate->cur_job ?? 'N/A' ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= !empty($candidate->cur_job) ? $candidate->cur_job : 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="job"><?= __('Công việc muốn đăng ký') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $candidate->job ?? 'N/A' ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= !empty($candidate->job) ? $candidate->job : 'N/A' ?></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="message"><?= __('Tin nhắn') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view"><?= $candidate->message ? nl2br($candidate->message) : 'N/A' ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view"><?= !empty($candidate->message) ? nl2br($candidate->message) : 'N/A' ?></div>
                         </div>
                     </div>
                 </div>

@@ -166,7 +166,7 @@ $this->Html->script('candidate.js', ['block' => 'scriptBottom']);
                     <div class="form-group">
                         <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="message"><?= __('Tin nhắn') ?></label>
                         <div class="col-md-4 col-sm-7 col-xs-12">
-                            <?= $this->Form->control('description', [
+                            <?= $this->Form->control('message', [
                                 'label' => false, 
                                 'type' => 'textarea',
                                 'rows' => 5,
