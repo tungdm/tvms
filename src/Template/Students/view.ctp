@@ -1222,7 +1222,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_type"><?= __('Loại cọc') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposits) ? $depositType[$student->interview_deposits[0]->type] : 'N/A' ?>
+                                                    <?= !empty($student->interview_deposits[0]->type) ? $depositType[$student->interview_deposits[0]->type] : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1230,7 +1230,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_status"><?= __('Trạng thái') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposits) ? $financeStatus[$student->interview_deposits[0]->status] : 'N/A' ?>
+                                                    <?= !empty($student->interview_deposits[0]->status) ? $financeStatus[$student->interview_deposits[0]->status] : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1238,7 +1238,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="payment_date"><?= __('Ngày đóng') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposits) ? $student->interview_deposits[0]->payment_date : 'N/A' ?>
+                                                    <?= !empty($student->interview_deposits[0]->payment_date) ? $student->interview_deposits[0]->payment_date : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1246,7 +1246,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_notes"><?= __('Ghi chú') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposits) ? nl2br($student->interview_deposits[0]->notes) : 'N/A' ?>
+                                                    <?= !empty($student->interview_deposits[0]->notes) ? nl2br($student->interview_deposits[0]->notes) : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1266,7 +1266,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs) ? $financeStatus[$student->general_costs[0]->status] : 'N/A' ?>
+                                                    <?= !empty($student->general_costs[0]->status) ? $financeStatus[$student->general_costs[0]->status] : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1274,7 +1274,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs) ? $student->general_costs[0]->payment_date : 'N/A' ?>
+                                                    <?= !empty($student->general_costs[0]->payment_date) ? $student->general_costs[0]->payment_date : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1282,7 +1282,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs) ? nl2br($student->general_costs[0]->notes) : 'N/A' ?>
+                                                    <?= !empty($student->general_costs[0]->notes) ? nl2br($student->general_costs[0]->notes) : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1303,7 +1303,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs) ? $financeStatus[$student->general_costs[1]->status] : 'N/A' ?>
+                                                    <?= !empty($student->general_costs[1]->status) ? $financeStatus[$student->general_costs[1]->status] : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1311,7 +1311,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs) ? $student->general_costs[1]->payment_date : 'N/A' ?>
+                                                    <?= !empty($student->general_costs[1]->payment_date) ? $student->general_costs[1]->payment_date : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -1319,7 +1319,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs) ? nl2br($student->general_costs[1]->notes) : 'N/A' ?>
+                                                    <?= !empty($student->general_costs[1]->notes) ? nl2br($student->general_costs[1]->notes) : 'N/A' ?>
                                                 </div>
                                             </div>
                                         </div>
