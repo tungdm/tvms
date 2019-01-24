@@ -204,7 +204,7 @@ $this->assign('title', 'Quản lý thi cử');
                                         <?= $lessons[$jtest->lesson_from] ?> ～ <?= $lessons[$jtest->lesson_to] ?>
                                     </td>
                                     <td class="cell classIdCol">
-                                        <?= h($jtest->jclass->name) ?>
+                                        <?= !empty($jtest->jclass) ? h($jtest->jclass->name) : 'N/A' ?>
                                     </td>
                                     <td class="cell statusCol">
                                         <?php 
