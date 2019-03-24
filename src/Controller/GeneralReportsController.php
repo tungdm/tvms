@@ -140,8 +140,8 @@ class GeneralReportsController extends AppController
                 $allStudents->where(function (QueryExpression $exp, Query $q) use($from, $to) {
                     return $exp->between(
                         'Students.enrolled_date', 
-                        $from->i18nFormat('yyyy-MM-dd'), 
-                        $to->i18nFormat('yyyy-MM-dd'), 
+                        $from, 
+                        $to, 
                         'date'
                     );
                 });

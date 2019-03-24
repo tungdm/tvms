@@ -21,6 +21,7 @@ use Cake\Routing\Router;
 use clsTinyButStrong;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
+use Cake\Log\Log;
 
 /**
  * Application Controller
@@ -136,8 +137,10 @@ class AppController extends Controller
 
     public function beforeRender(Event $event)
     {
-        $currentUser = $this->Auth->user('id');
-        $unreadMsg = TableRegistry::get('Notifications')->find()->where(['user_id' => $currentUser, 'is_seen' => FALSE])->count();
-        $this->set(compact('unreadMsg'));
+        if ($this->Auth) {
+            $currentUser = $this->Auth->user('id');
+            $unreadMsg = TableRegistry::get('Notifications')->find()->where(['user_id' => $currentUser, 'is_seen' => FALSE])->count();
+            $this->set(compact('unreadMsg'));
+        }
     }
 }

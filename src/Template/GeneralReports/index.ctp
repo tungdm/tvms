@@ -515,7 +515,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                                 </tr>
                             <?php endif; ?>
 
-                            <?php if (in_array($role['name'], ['admin', 'staff', 'manager', 'teacher'])): ?>
+                            <?php if (in_array($role['name'], ['admin', 'staff', 'manager', 'teacher', 'recruiter'])): ?>
                                 <tr class="group-2">
                                     <td class="cell text-center stt-col"></td>
                                     <td class="cell">

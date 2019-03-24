@@ -1068,17 +1068,17 @@ return [
         'studentTitle' => 'DANH SÁCH LAO ĐỘNG',
         'classTitle' => 'DANH SÁCH LỚP HỌC',
         'testTitle' => "KẾT QUẢ KIỂM TRA NĂNG LỰC NHẬT NGỮ LỚP :class\nNGÀY THI :testDate\nBÀI THI: :testLessons",
-        'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+        'branch' => 'TRƯỜNG NHẬT NGỮ TÂM VIỆT'
     ],
     'jlptResultXlsx' => [
         'filename' => 'Điểm_:level_:testDate.xlsx',
         'header' => "TRƯỜNG NHẬT NGỮ TÂM VIỆT\nKỲ THI NHẬT NGỮ TRÌNH ĐỘ :level\nNGÀY THI: :testDate\nBẢNG KẾT QUẢ",
-        'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+        'branch' => 'TRƯỜNG NHẬT NGỮ TÂM VIỆT'
     ],
     'jlptReportXlsx' => [
         'filename' => 'BC_Điểm_JLPT.xlsx',
         'header' => "TRƯỜNG NHẬT NGỮ TÂM VIỆT\nBÁO CÁO ĐIỂM THI NĂNG LỰC NHẬT NGỮ",
-        'branch' => 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)'
+        'branch' => 'TRƯỜNG NHẬT NGỮ TÂM VIỆT'
     ],
     'iqTestXlsx' => [
         'filename' => 'iq_test.xlsx',
