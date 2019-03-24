@@ -625,6 +625,21 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                             ]) ?>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="phone_vn">
+                        <?= __('Số Điện Thoại') ?> </label>
+                    <div class="col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('phone_vn', [
+                            'label' => false, 
+                            'type' => 'text',
+                            'minLength' => 10,
+                            'maxlength' => 11,
+                            'data-parsley-type' => 'digits',
+                            'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập số điện thoại'
+                            ]) ?>
+                    </div>
+                </div>
                 <?= $this->Form->end() ?>
             </div>
             <div class="modal-footer">

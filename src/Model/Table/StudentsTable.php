@@ -92,7 +92,7 @@ class StudentsTable extends Table
             'foreignKey' => 'student_id',
             'dependent' => true,
         ]);
-        $this->hasMany('InterviewDeposits', [
+        $this->hasOne('InterviewDeposits', [
             'foreignKey' => 'student_id',
             'dependent' => true,
         ]);

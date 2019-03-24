@@ -82,5 +82,6 @@ class Order extends Entity
         'job' => true,
         'students' => true,
         'events' => true,
+        'schedule' => true,
     ];
 }

@@ -91,7 +91,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
 <?= $this->Form->unlockField('documents') ?>
 <?= $this->Form->unlockField('iq_tests') ?>
 <?= $this->Form->unlockField('physical_exams') ?>
-<?= $this->Form->unlockField('interview_deposits') ?>
+<?= $this->Form->unlockField('interview_deposit') ?>
 <?= $this->Form->unlockField('general_costs') ?>
 
 
@@ -1933,13 +1933,13 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     </div>
                                 </div>
                                 <div class="box-body">
-                                    <?php if (!empty($student->interview_deposits)): ?>
-                                        <?= $this->Form->hidden('interview_deposits.0.id', ['value' => $student->interview_deposits[0]->id]) ?>
+                                    <?php if (!empty($student->interview_deposit)): ?>
+                                        <?= $this->Form->hidden('interview_deposit.id', ['value' => $student->interview_deposit->id]) ?>
                                     <?php endif; ?>
                                     <div class="form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="deposit_type"><?= __('Loại cọc') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
-                                            <?= $this->Form->control('interview_deposits.0.type', [
+                                            <?= $this->Form->control('interview_deposit.type', [
                                                 'options' => $depositType, 
                                                 'empty' => true,
                                                 'label' => false,
@@ -1950,7 +1950,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <div class="form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="deposit_status"><?= __('Trạng thái') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
-                                            <?= $this->Form->control('interview_deposits.0.status', [
+                                            <?= $this->Form->control('interview_deposit.status', [
                                                 'options' => $financeStatus, 
                                                 'empty' => true,
                                                 'label' => false,
@@ -1962,7 +1962,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="payment_date"><?= __('Ngày đóng') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
                                             <div class="input-group date input-picker" id="patement-date-div">
-                                                <?= $this->Form->control('interview_deposits.0.payment_date', [
+                                                <?= $this->Form->control('interview_deposit.payment_date', [
                                                     'type' => 'text',
                                                     'label' => false, 
                                                     'class' => 'form-control',
@@ -1977,7 +1977,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                     <div class="form-group">
                                         <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="deposit_notes"><?= __('Ghi chú') ?></label>
                                         <div class="col-md-7 col-sm-7 col-xs-12">
-                                            <?= $this->Form->control('interview_deposits.0.notes', [
+                                            <?= $this->Form->control('interview_deposit.notes', [
                                                 'label' => false, 
                                                 'type' => 'textarea',
                                                 'rows' => 14,
@@ -2157,7 +2157,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                             </div>
                                                         </td>
                                                         <td class="cell text-center result-txt">
-                                                            <?= h($physResult[$exam->result]) ?>
+                                                            <?= $exam->result ? h($physResult[$exam->result]) : 'N/A' ?>
                                                         </td>
                                                         <td class="cell notes-txt">
                                                             <?= nl2br($exam->notes) ?>
@@ -3155,11 +3155,10 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="result"><?= __('Kết quả') ?></label>
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="result"><?= __('Kết quả') ?></label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <?= $this->Form->control('phys.result', [
                                 'options' => $physResult, 
-                                'required' => true, 
                                 'label' => false, 
                                 'empty' => true,
                                 'data-parsley-errors-container' => '#error-phys-result',

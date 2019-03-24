@@ -87,7 +87,7 @@ class JtestsController extends AppController
             $allTest = $this->Jtests->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['test_date']) && !empty($query['test_date'])) {
                 $test_date = $this->Util->convertDate($query['test_date']);
@@ -122,7 +122,7 @@ class JtestsController extends AppController
             }
             $allTest->order(['Jtests.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allTest = $this->Jtests->find()->order(['Jtests.created' => 'DESC']);
         }
 

@@ -58,7 +58,7 @@ class CandidatesController extends AppController
             $allCandidates = $this->Candidates->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['candidate_name']) && !empty($query['candidate_name'])) {
                 $allCandidates->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -94,7 +94,7 @@ class CandidatesController extends AppController
             }
             $allCandidates->order(['Candidates.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allCandidates = $this->Candidates->find()->order(['Candidates.created' => 'DESC']);
         }
         if ($this->Auth->user('role_id') != 1) {

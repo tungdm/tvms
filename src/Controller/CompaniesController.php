@@ -63,7 +63,7 @@ class CompaniesController extends AppController
             $allCompanies = $this->Companies->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['type']) && !empty($query['type'])) {
                 $allCompanies->where(['type' => $query['type']]);
@@ -99,7 +99,7 @@ class CompaniesController extends AppController
             }
             $allCompanies->order(['Companies.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allCompanies = $this->Companies->find()->order(['Companies.created' => 'DESC']);
         }
         if ($this->Auth->user('role_id') != 1) {

@@ -111,7 +111,7 @@ class Student extends Entity
         'cards' => true,
         'families' => true,
         'physical_exams' => true,        
-        'interview_deposits' => true,       
+        'interview_deposit' => true,       
         'general_costs' => true,       
         'educations' => true,
         'experiences' => true,

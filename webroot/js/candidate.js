@@ -100,8 +100,6 @@ function deleteConsultant(delEl, sendAjax) {
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
-                var rowNum = $(delEl).closest('.cons-rec').attr('id').split('-')[1];
-
                 $.ajax({
                     type: 'POST',
                     url: DOMAIN_NAME + '/candidates/deleteConsultantNote',

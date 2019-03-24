@@ -183,9 +183,29 @@ class PagesController extends AppController
             $currentMonth = $now->i18nFormat('yyyy-MM') . '-01';
             $orderStudentsTable = TableRegistry::get('OrdersStudents');
             $newlyPassed = $orderStudentsTable->find()
-                            ->contain(['Orders', 'Students'])
+                            ->contain([
+                                'Orders' => function($q) {
+                                    return $q->where(['Orders.del_flag' => FALSE]);
+                                },
+                                'Students' => function($q) {
+                                    return $q->where(['Students.del_flag' => FALSE]);
+                                },
+                                'Students.Addresses' => function($q) {
+                                    return $q->where(['Addresses.type' => 1]);
+                                },
+                                'Students.Addresses.Cities'
+                            ])
                             ->where(['result' => '1', 'Orders.interview_date >=' => $currentMonth])
                             ->order(['Orders.id' => 'ASC']);
+            $newlyPassed->formatResults(function ($results) {
+                return $results->map(function ($row) {
+                    $jobId = $row['_matchingData']['Orders']['job_id'];
+                    $row['hometown'] = $row['student']['addresses'][0]['city']['name'];
+                    $row['north'] = $row['student']['addresses'][0]['city_id'] >= '01' && $row['student']['addresses'][0]['city_id'] <= '37';
+                    return $row;
+                });
+            });
+    
             $resp = [
                 'status' => 'success',
                 'data' => $newlyPassed

@@ -500,7 +500,6 @@ function showExportModal(orderId) {
 }
 
 function settings() {
-
     // show modal
     $('#setting-modal').modal('toggle');
 }

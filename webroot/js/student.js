@@ -294,20 +294,20 @@ $(document).ready(function () {
         $('#addresses-' + token + '-street').val('');
     });
 
-    $('.js-switch').click(function (e) {
-        if ($(this)[0].checked) {
-            $(this).closest('tr').find('select').prop('disabled', false);
-        } else {
-            // clear select value
-            $(this).closest('tr').find('select').val(null).trigger('change');
-            $(this).closest('tr').find('select').prop('disabled', true);
-        }
-    });
+    // $('.js-switch').click(function (e) {
+    //     if ($(this)[0].checked) {
+    //         $(this).closest('tr').find('select').prop('disabled', false);
+    //     } else {
+    //         // clear select value
+    //         $(this).closest('tr').find('select').val(null).trigger('change');
+    //         $(this).closest('tr').find('select').prop('disabled', true);
+    //     }
+    // });
 
-    initSelect2AjaxSearch('std-order-name', DOMAIN_NAME + '/orders/search-order', 'Tìm kiếm đơn hàng');
-    initSelect2AjaxSearch('std-company-name', DOMAIN_NAME + '/companies/search-company', 'Tìm kiếm công ty');
-    initSelect2AjaxSearch('std-guild-name', DOMAIN_NAME + '/guilds/search-guild', 'Tìm kiếm nghiệp đoàn');
-    initSelect2AjaxSearch('std-class-name', DOMAIN_NAME + '/jclasses/search-class', 'Tìm kiếm lớp học');
+    // initSelect2AjaxSearch('std-order-name', DOMAIN_NAME + '/orders/search-order', 'Tìm kiếm đơn hàng');
+    // initSelect2AjaxSearch('std-company-name', DOMAIN_NAME + '/companies/search-company', 'Tìm kiếm công ty');
+    // initSelect2AjaxSearch('std-guild-name', DOMAIN_NAME + '/guilds/search-guild', 'Tìm kiếm nghiệp đoàn');
+    // initSelect2AjaxSearch('std-class-name', DOMAIN_NAME + '/jclasses/search-class', 'Tìm kiếm lớp học');
 
     $('select[name="is_lived_in_japan"]').change(function () {
         if ($(this).val() == 'Y') {
@@ -421,7 +421,11 @@ function viewSCandidate(candidateId) {
                 $('#view-candidate-edu-level').html(resp.edu_level);
                 $('#view-candidate-exempt').html(resp.exempt);
 
-                $('#view-candidate-created-by').html(resp.data.created_by_user.fullname);
+                if (resp.data.created_by_user) {
+                    $('#view-candidate-created-by').html(resp.data.created_by_user.fullname);
+                } else {
+                    $('#view-candidate-created-by').html('N/A');
+                }
                 $('#view-candidate-created').html(resp.created);
                 if (resp.data.modified_by) {
                     $('.modified').removeClass('hidden');

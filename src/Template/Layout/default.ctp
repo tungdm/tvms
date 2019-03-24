@@ -58,44 +58,21 @@
                 </a>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-                        <li class="dropdown notifications-menu hidden">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true" onclick="viewTopNoti()">
                                 <i class="fa fa-bell-o"></i>
-                                <span class="label label-danger">3</span>
+                                <?php if ($unreadMsg != 0): ?>
+                                    <span class="label label-danger unreadMsg">
+                                        <?= h($unreadMsg) ?>
+                                    </span>
+                                <?php endif; ?>
                             </a>
-                            <ul class="dropdown-menu">
+                            <ul class="custom-dropdown-menu dropdown-menu">
                                 <li>
-                                    <ul class="menu">
-                                        <li class="new-item">
-                                            <a href="#">
-                                                <i class="fa fa-fw fa-table"></i> 5 new members joined today
-                                            </a>
-                                        </li>
-                                        <li class="new-item">
-                                            <a href="#">
-                                                <i class="fa fa-fw fa-table"></i> Very long description here that may not fit into the
-                                                page and may cause design problems
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-fw fa-users"></i> 5 new members joined
-                                            </a>
-                                        </li>
-                                        <li class="new-item">
-                                            <a href="#">
-                                                <i class="fa fa-fw fa-graduation-cap"></i> 25 sales made
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-fw fa-user"></i> You changed your username
-                                            </a>
-                                        </li>
-                                    </ul>
+                                    <ul class="menu" id="top-noti-container"></ul>
                                 </li>
-                                <li class="footer"><a href="#">Xem tất cả</a></li>
-                                </ul>
+                                <li class="footer"><a href="#" onclick="viewAllNoti()">Xem tất cả</a></li>
+                            </ul>
                         </li>
                         <li class="user user-menu user-profile">
                             <a href="javascript:;">
@@ -162,6 +139,11 @@
                                     ['escape' => false]) ?>
                             </li>
                         </ul>
+                    </li>
+                    <li>
+                        <?= $this->Html->link('<i class="fa fa-file"></i> <span>BÁO CÁO</span>', 
+                            ['controller' => 'GeneralReports', 'action' => 'index'],
+                            ['escape' => false]) ?>
                     </li>
                     <li>
                         <?= $this->Html->link('<i class="fa fa-calendar"></i> <span>LỊCH CÔNG TÁC</span>', 
@@ -262,6 +244,11 @@
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Dự định khi về nước', 
                                     ['controller' => 'AfterPlans', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Thiết lập thông báo', 
+                                    ['controller' => 'NotificationSettings', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
                         </ul>
@@ -554,6 +541,14 @@
                             <div class="col-md-6 col-sm-6 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-dis-company-address-romaji"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                    <span id="view-dis-company-phone"></span>
                                 </div>
                             </div>
                         </div>
@@ -951,6 +946,88 @@
             <tr>
                 <td colspan="3" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
             </tr>
+        {{/each}}
+    </script>
+
+    <div id="view-notifications-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">THÔNG BÁO</h4>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table class="table table-bordered custom-table candidate-table">
+                        <thead>
+                            <tr>
+                                <th scope="col col-md-1">STT</th>
+                                <th scope="col col-md-8">Nội dung</th>
+                                <th scope="col col-md-3">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notification-container"></tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="notification-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <tr class="row-noti">
+                <td class="cell stt-col text-center">
+                    {{inc @index}}
+                </td>
+                <td class="cell">
+                    {{content}}
+                </td>
+                <td class="cell actions">
+                    {{#unless is_seen}}
+                        <?= $this->Html->link(
+                            '<i class="fa fa-2x fa-eye"></i>', 
+                            'javascript:;',
+                            [
+                                'escape' => false,
+                                'class' => 'seenNoti',
+                                'onClick' => "seenNoti(this, {{id}}, true)"
+                            ]) 
+                        ?>
+                    {{/unless}}
+                    <?= $this->Html->link(
+                        '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                        'javascript:;',
+                        [
+                            'escape' => false, 
+                            'onClick' => "deleteNoti(this, {{id}})"
+                        ]
+                    )?>
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                <td colspan="2" class="table-empty"><?= __('Hiện tại bạn không có thông báo nào') ?></td>
+            </tr>
+        {{/each}}
+    </script>
+
+    <script id="top-notification-template" type="text/x-handlebars-template">
+        {{#each this}}
+            {{#if is_seen}}
+                <li class="old-item">
+                    <a href="{{url}}" onclick="seenNoti(this, {{id}})">
+                        {{content}}
+                    </a>
+                </li>
+            {{else}}
+                <li class="new-item">
+                    <a href="{{url}}" onclick="seenNoti(this, {{id}})">
+                        {{content}}
+                    </a>
+                </li>
+            {{/if}}
         {{/each}}
     </script>
 

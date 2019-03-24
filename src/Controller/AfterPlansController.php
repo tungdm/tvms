@@ -58,7 +58,7 @@ class AfterPlansController extends AppController
         if (!empty($query)) {
             $allPlans = $this->AfterPlans->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['plan_name']) && !empty($query['plan_name'])) {
                 $allPlans->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -78,7 +78,7 @@ class AfterPlansController extends AppController
             }
             $allPlans->order(['AfterPlans.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allPlans = $this->AfterPlans->find()->order(['AfterPlans.created' => 'DESC']);
         }
         $this->paginate = [
@@ -181,9 +181,10 @@ class AfterPlansController extends AppController
                 'entity' => $this->entity,
                 'name' => $afterPlan->name
             ]));
-            return $this->redirect(['action' => 'index']);
+        } else {
+            $this->Flash->error($this->errorMessage['error']);
         }
-        $this->Flash->error($this->errorMessage['error']);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**
@@ -211,7 +212,6 @@ class AfterPlansController extends AppController
                 'name' => $afterPlan->name
                 ]));
         }
-
         return $this->redirect(['action' => 'index']);
     }
 

@@ -205,12 +205,16 @@ $this->assign('title', 'TVMS - Trang Chủ');
                                 <th scope="col" class="col-md-2"><?= __('Đơn hàng') ?></th>
                                 <th scope="col" class="col-md-2"><?= __('Ngày phỏng vấn') ?></th>
                                 <th scope="col" class="col-md-3"><?= __('Thực tập sinh') ?></th>
-                                <th scope="col" class="col-md-3"><?= __('Số điện thoại') ?></th>
+                                <th scope="col" class="col-md-3"><?= __('Quê quán') ?></th>
                             </tr>
                         </thead>
                         <tbody id="newly-passed-container">
                         </tbody>
                     </table>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Vui lòng hướng dẫn hồ sơ cho các lao động trúng tuyển đơn hàng.</p>
+                    <p class="footer-note">Đối với lao động từ Phú Yên, Đak Lak trở ra Bắc xin lưu ý về vấn đề làm tạm trú.</p>
+                </div>
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
@@ -229,8 +233,11 @@ $this->assign('title', 'TVMS - Trang Chủ');
             <a href="/orders/view/{{order_id}}" target="_blank">{{order.name}}</a>
         </td>
         <td class="cell">{{dateTimeFormat order.interview_date}}</td>
-        <td class="cell">{{student.fullname}}</td>
-        <td class="cell text-center">{{phoneFormat student.phone}}</td>
+        <td class="cell {{#if north}}north-student{{/if}}">
+            
+            <a href="/students/view/{{student.id}}" target="_blank">{{student.fullname}}</a>
+        </td>
+        <td class="cell text-center">{{hometown}}</td>
     </tr>
     {{/each}}
 </script>

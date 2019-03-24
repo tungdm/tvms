@@ -119,8 +119,8 @@ $this->assign('title', 'Quản lý đơn hàng');
                             <th scope="col" class="guildIdCol">
                                 <?= __('Nghiệp đoàn') ?>
                             </th>
-                            <th scope="col" class="companyIdCol">
-                                <?= __('Công ty tiếp nhận') ?>
+                            <th scope="col" class="departureCol">
+                                <?= __('Dự kiến xuất cảnh') ?>
                             </th>
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
@@ -174,15 +174,19 @@ $this->assign('title', 'Quản lý đơn hàng');
                                         ])
                                     ?>
                             </td>
-                            <td class="col-md-1 companyIdCol" style="width: 12.499999995%;">
-                                <?= $this->Form->control('company_id', [
-                                        'options' => $companies, 
-                                        'empty' => true,
+                            <td class="col-md-1 departureCol" style="width: 12.499999995%;">
+                                <div class="input-group date input-picker month-mode" id="departure-month">
+                                    <?= $this->Form->control('departure_month', [
+                                        'type' => 'text',
                                         'label' => false, 
-                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                        'value' => $query['company_id'] ?? ''
-                                        ])
-                                    ?>
+                                        'class' => 'form-control',
+                                        'placeholder' => 'mm-yyyy',
+                                        'value' => $query['departure_month'] ?? ''
+                                        ])?>
+                                    <span class="input-group-addon" style="line-height: 1;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
                             </td>
                             <td class="col-md-1 statusCol">
                                 <?= $this->Form->control('status', [
@@ -221,9 +225,10 @@ $this->assign('title', 'Quản lý đơn hàng');
                                         <?php endif; ?>
                                     </td>
                                     <td class="cell companyIdCol">
-                                        <?php if ($order->has('company')): ?>
-                                            <a href="javascript:;" onclick="viewCompany(<?= $order->company_id ?>)"><?= h($order->company->name_romaji) ?></a>
-                                        <?php endif; ?>
+                                        <?php 
+                                            $departureMonth = $order->departure_date ? new Time($order->departure_date . '-01') : ''; 
+                                        ?>
+                                        <?= $departureMonth ? h($departureMonth->i18nFormat('MM-yyyy')) : '' ?>
                                     </td>
                                     <td class="cell statusCol">
                                         <?php 
@@ -304,6 +309,11 @@ $this->assign('title', 'Quản lý đơn hàng');
                                                 <?php endif; ?>
                                                 <?php if (!$order->del_flag): ?>
                                                     <li class="divider"></li>
+                                                    <li>
+                                                        <?= $this->Html->link(__('<i class="fa fa-calendar" aria-hidden="true"></i> Khóa học'), 
+                                                            ['action' => 'schedule', $order->id],
+                                                            ['escape' => false]) ?>
+                                                    </li>
                                                     <li>
                                                         <a href="javascript:;" onclick="showExportModal(<?= $order->id ?>)">
                                                             <i class="fa fa-book" aria-hidden="true"></i> Xuất hồ sơ
@@ -406,6 +416,14 @@ $this->assign('title', 'Quản lý đơn hàng');
     </tr>
     <tr>
         <td class="cell text-center"><?= __('6') ?></td>
+        <td class="cell"><?= __('1.20') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="./orders/export-declaration/{{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('7') ?></td>
         <td class="cell"><?= __('1.28') ?></td>
         <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">

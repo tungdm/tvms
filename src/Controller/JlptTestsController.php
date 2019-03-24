@@ -86,7 +86,7 @@ class JlptTestsController extends AppController
         if (!empty($query)) {
             $allTests = $this->JlptTests->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['level']) && !empty($query['level'])) {
                 $allTests->where(['level' => $query['level']]);
@@ -122,7 +122,7 @@ class JlptTestsController extends AppController
             }
             $allTests->order(['JlptTests.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allTests = $this->JlptTests->find()->order(['JlptTests.created' => 'DESC']);
         }
 

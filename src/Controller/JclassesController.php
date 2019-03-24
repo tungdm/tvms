@@ -72,7 +72,7 @@ class JclassesController extends AppController
         if (!empty($query)) {
             $allClasses = $this->Jclasses->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['name']) && !empty($query['name'])) {
                 $allClasses->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -98,10 +98,10 @@ class JclassesController extends AppController
             if (isset($query['current_lesson']) && !empty($query['current_lesson'])) {
                 $allClasses->where(['current_lesson' => $query['current_lesson']]);
             }
-            $allClasses->order(['Jclasses.created' => 'DESC']);
+            $allClasses->order(['Jclasses.name' => 'ASC']);
         } else {
-            $query['records'] = 10;
-            $allClasses = $this->Jclasses->find()->order(['Jclasses.created' => 'DESC']);
+            $query['records'] = $this->defaultDisplay;
+            $allClasses = $this->Jclasses->find()->order(['Jclasses.name' => 'ASC']);
         }
         
         $this->paginate = [

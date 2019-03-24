@@ -61,7 +61,7 @@ class GuildsController extends AppController
         if (!empty($query)) {
             $allGuilds = $this->Guilds->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['name']) && !empty($query['name'])) {
                 $allGuilds->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -93,7 +93,7 @@ class GuildsController extends AppController
             }
             $allGuilds->order(['Guilds.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allGuilds = $this->Guilds->find()->order(['Guilds.created' => 'DESC']);
         }
         if ($this->Auth->user('role_id') != 1) {

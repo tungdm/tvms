@@ -7,8 +7,10 @@ use Cake\Core\Configure;
 
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
-
+$role = $this->request->session()->read('Auth.User.role');
 $addressType = array_keys(Configure::read('addressType'));
+$financeStatus = Configure::read('financeStatus');
+$physResult = Configure::read('physResult');
 
 $gender = Configure::read('gender');
 $yesNoQuestion = Configure::read('yesNoQuestion');
@@ -59,11 +61,6 @@ $this->Paginator->setTemplates([
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
             <?php if ($permission == 0): ?>
-                <li data-toggle="tooltip" title="Xuất báo cáo">
-                    <a class="zoom-fab zoom-btn-sm zoom-btn-report scale-transition scale-out" onclick="reportStudent()">
-                        <i class="fa fa-fw fa-bar-chart-o" aria-hidden="true"></i>
-                    </a>
-                </li>
                 <li>
                     <?= $this->Html->link(__('<i class="fa fa-user-plus" aria-hidden="true"></i>'), 
                         ['action' => 'info'],
@@ -118,15 +115,39 @@ $this->Paginator->setTemplates([
                             <th scope="col" class="fullnameCol">
                                 <?= $this->Paginator->sort('fullname', 'Họ tên') ?>
                             </th>
-                            <th scope="col" class="enrolledDateCol">
-                                <?= $this->Paginator->sort('enrolled_date', 'Ngày nhập học')?>
+                            <?php if (!in_array($role['name'], ['staff'])): ?>
+                                <th scope="col" class="enrolledDateCol">
+                                    <?= $this->Paginator->sort('enrolled_date', 'Ngày nhập học')?>
+                                </th>
+                            <?php endif; ?>
+                            <th scope="col" class="birthdayCol">
+                                <?= $this->Paginator->sort('birthday', 'Ngày sinh')?>
                             </th>
-                            <th scope="col" class="genderCol">
-                                <?= __('Giới tính') ?>
-                            </th>
-                            <th scope="col" class="presenterCol">
-                                <?= __('Người giới thiệu') ?>
-                            </th>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher'])): ?>
+                                <th scope="col" class="genderCol">
+                                    <?= __('Giới tính') ?>
+                                </th>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
+                                <th scope="col" class="presenterCol">
+                                    <?= __('Người giới thiệu') ?>
+                                </th>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['recruiter', 'accountant'])): ?>
+                                <th scope="col" class="hometownCol">
+                                    <?= __('Quê quán') ?>
+                                </th>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
+                                <th scope="col" class="interviewDepositCol">
+                                    <?= __('Cọc phỏng vấn') ?>
+                                </th>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
+                                <th scope="col" class="healthCheckCol">
+                                    <?= __('Kết quả sức khỏe') ?>
+                                </th>
+                            <?php endif; ?>
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
                             </th>
@@ -144,14 +165,31 @@ $this->Paginator->setTemplates([
                                     ]) 
                                 ?>
                             </td>
+                            <?php if (!in_array($role['name'], ['staff'])): ?>
+                                <td class="col-md-2 enrolledDateCol">
+                                    <div class="input-group date input-picker" id="select-enrolled-date">
+                                        <?= $this->Form->control('enrolled_date', [
+                                            'type' => 'text',
+                                            'label' => false,
+                                            'placeholder' => 'dd-mm-yyyy',
+                                            'class' => 'form-control col-md-7 col-xs-12',
+                                            'value' => $query['enrolled_date'] ?? ''
+                                            ]) 
+                                        ?>
+                                        <span class="input-group-addon" style="line-height: 1;">
+                                            <span class="glyphicon glyphicon-calendar"></span>
+                                        </span>
+                                    </div>
+                                </td>
+                            <?php endif; ?>
                             <td class="col-md-2 enrolledDateCol">
-                                <div class="input-group date input-picker" id="select-enrolled-date">
-                                    <?= $this->Form->control('enrolled_date', [
+                                <div class="input-group date input-picker" id="select-birthday">
+                                    <?= $this->Form->control('birthday', [
                                         'type' => 'text',
                                         'label' => false,
                                         'placeholder' => 'dd-mm-yyyy',
                                         'class' => 'form-control col-md-7 col-xs-12',
-                                        'value' => $query['enrolled_date'] ?? ''
+                                        'value' => $query['birthday'] ?? ''
                                         ]) 
                                     ?>
                                     <span class="input-group-addon" style="line-height: 1;">
@@ -159,27 +197,67 @@ $this->Paginator->setTemplates([
                                     </span>
                                 </div>
                             </td>
-                            <td class="col-md-1 genderCol" style="width: 12.499999995%;">
-                                <?= $this->Form->control('student_gender', [
-                                    'options' => $gender, 
-                                    'empty' => true,
-                                    'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                    'id' => 'filter-gender',
-                                    'value' => $query['student_gender'] ?? ''
-                                    ])
-                                ?>
-                            </td>
-                            <td class="col-md-2 presenterCol">
-                                <?= $this->Form->control('presenter', [
-                                    'options' => $presenters, 
-                                    'empty' => true,
-                                    'label' => false, 
-                                    'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                    'value' => $query['presenter'] ?? ''
-                                    ])
-                                ?>
-                            </td>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher'])): ?>
+                                <td class="col-md-1 genderCol" style="width: 12.499999995%;">
+                                    <?= $this->Form->control('student_gender', [
+                                        'options' => $gender, 
+                                        'empty' => true,
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                        'id' => 'filter-gender',
+                                        'value' => $query['student_gender'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
+                                <td class="col-md-1 presenterCol">
+                                    <?= $this->Form->control('presenter', [
+                                        'options' => $presenters, 
+                                        'empty' => true,
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                        'value' => $query['presenter'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['recruiter', 'accountant'])): ?>
+                                <td class="col-md-2 hometownCol">
+                                    <?= $this->Form->control('hometown', [
+                                        'options' => $cities, 
+                                        'empty' => true,
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                        'value' => $query['hometown'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
+                                <td class="col-md-1 interviewDepositCol" style="width: 12.499999995%;">
+                                    <?= $this->Form->control('interview_deposit', [
+                                        'options' => $financeStatus, 
+                                        'empty' => true,
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                        'value' => $query['interview_deposit'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
+                                <td class="col-md-1 healthCheckCol" style="width: 12.499999995%;">
+                                    <?= $this->Form->control('health_check', [
+                                        'options' => $physResult, 
+                                        'empty' => true,
+                                        'label' => false, 
+                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
+                                        'value' => $query['health_check'] ?? ''
+                                        ])
+                                    ?>
+                                </td>
+                            <?php endif; ?>
                             <td class="col-md-2 statusCol">
                                 <?= $this->Form->control('student_status', [
                                     'options' => $studentStatus, 
@@ -217,15 +295,31 @@ $this->Paginator->setTemplates([
                                         ['escape' => false]) ?>
                                 <?php endif; ?>
                             </td>
-                            <td class="cell enrolledDateCol"><?= h($student->enrolled_date) ?></td>
-                            <td class="cell genderCol text-center"><?= h($gender[$student->gender]) ?></td>
-                            <td class="cell presenterCol">
-                                <?php if (!empty($student->presenter)): ?>
-                                <a href="javascript:;" onclick="viewPresenter(<?= $student->presenter->id ?>)">
-                                    <?= $student->presenter->name ?>
-                                </a>
-                                <?php endif; ?>
-                            </td>
+                            <?php if (!in_array($role['name'], ['staff'])): ?>
+                                <td class="cell enrolledDateCol"><?= h($student->enrolled_date) ?></td>
+                            <?php endif; ?>
+                            <td class="cell birthdayCol"><?= h($student->birthday) ?></td>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher'])): ?>
+                                <td class="cell genderCol text-center"><?= h($gender[$student->gender]) ?></td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
+                                <td class="cell presenterCol">
+                                    <?php if (!empty($student->presenter_id)): ?>
+                                    <a href="javascript:;" onclick="viewPresenter(<?= $student->presenter_id ?>)">
+                                        <?= $presenters->toArray()[$student->presenter_id] ?>
+                                    </a>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['recruiter', 'accountant'])): ?>
+                                <td class="cell hometownCol"><?= $student->addresses ? h($student->addresses[0]->city->name) : '' ?></td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
+                                <td class="cell interviewDepositCol"><?= $student->interview_deposit ? h($financeStatus[$student->interview_deposit->status]) : '' ?></td>
+                            <?php endif; ?>
+                            <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
+                                <td class="cell healthCheckCol"><?= $student->physical_exams ? h($physResult[$student->physical_exams[0]->result]) : '' ?></td>
+                            <?php endif; ?>
                             <td class="cell statusCol"><?= h($studentStatus[$student->status]) ?></td>
                             
                             <td class="actions cell">
@@ -614,225 +708,6 @@ $this->Paginator->setTemplates([
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="report-student-modal" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">XUẤT BÁO CÁO</h4>
-            </div>
-            <?= $this->Form->create(null, [
-                'class' => 'form-horizontal form-label-left', 
-                'url' => ['action' => 'exportReport'],
-                'id' => 'report-form', 
-                'data-parsley-validate' => '',
-                'templates' => [
-                    'inputContainer' => '{{content}}'
-                    ]
-                ]) ?>
-            <?= $this->Form->unlockField('std.order') ?>
-            <?= $this->Form->unlockField('std.class') ?>
-            <?= $this->Form->unlockField('std.company') ?>
-            <?= $this->Form->unlockField('std.guild') ?>
-            <?= $this->Form->unlockField('std.reportfrom') ?>
-            <?= $this->Form->unlockField('std.reportto') ?>
-            <div class="modal-body">
-                <div class="col-md-12 col-xs-12">
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="status"><?= __('Trạng thái') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <?= $this->Form->control('std.status', [
-                                'options' => $studentStatus, 
-                                'empty' => true,
-                                'label' => false, 
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                ]) ?>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="presenter"><?= __('Người giới thiệu') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <?= $this->Form->control('std.presenter', [
-                                'options' => $presenters, 
-                                'empty' => true,
-                                'label' => false, 
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                ]) ?>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="city"><?= __('Quê quán') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <?= $this->Form->control('std.city', [
-                                'options' => $cities, 
-                                'empty' => true,
-                                'label' => false, 
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                ]) ?>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="edulevel"><?= __('Trình độ học vấn') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <?= $this->Form->control('std.edulevel', [
-                                'options' => $eduLevel, 
-                                'empty' => true,
-                                'label' => false, 
-                                'data-parsley-errors-container' => '#error-std-edulevel',
-                                'data-parsley-class-handler' => '#select2-std-edulevel',
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                ]) ?>
-                            <span id="error-std-edulevel"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="gender"><?= __('Giới tính') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <?= $this->Form->control('std.gender', [
-                                'options' => $gender, 
-                                'empty' => true,
-                                'label' => false, 
-                                'data-parsley-errors-container' => '#error-std-gender',
-                                'data-parsley-class-handler' => '#select2-std-gender',
-                                'class' => 'form-control col-md-7 col-xs-12 select2-theme'
-                                ]) ?>
-                            <span id="error-std-gender"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="from_date"><?= __('Thời gian nhập học') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
-                                <div class="input-group date input-picker month-mode" id="report-from">
-                                    <?= $this->Form->control('std.reportfrom', [
-                                        'type' => 'text',
-                                        'label' => false, 
-                                        'class' => 'form-control from-date-picker',
-                                        'placeholder' => 'mm-yyyy',
-                                        'data-parsley-before-date' => '#std-reportto'
-                                        ])?>
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-2 col-xs-12 seperate-from-to"> ～ </div>
-                            <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
-                                <div class="input-group date input-picker month-mode" id="report-to">
-                                    <?= $this->Form->control('std.reportto', [
-                                        'type' => 'text',
-                                        'label' => false, 
-                                        'class' => 'form-control to-date-picker',
-                                        'placeholder' => 'mm-yyyy',
-                                        'data-parsley-after-date' => '#std-reportfrom'
-                                        ])?>
-                                    <span class="input-group-addon">
-                                        <span class="glyphicon glyphicon-calendar"></span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3 col-xs-12" for="additional"><?= __('Thông tin kèm theo') ?></label>
-                        <div class="col-md-8 col-sm-8 col-xs-12">
-                            <table class="table table-bordered custom-table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-md-2"><?= __('STT') ?></th>
-                                        <th scope="col" class="col-md-5"><?= __('Thông tin') ?></th>
-                                        <th scope="col" class="col-md-5"><?= __('Điều kiện') ?></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="cell text-center">1</td>
-                                        <td class="cell">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input name="std[order]" type="checkbox" class="js-switch">  Đơn hàng
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="cell">
-                                            <?= $this->Form->control('std.order.name', [
-                                                'label' => false, 
-                                                'options' => [],
-                                                'disabled' => true,
-                                                'class' => 'form-control col-md-7 col-xs-12', 
-                                                ]) ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="cell text-center">2</td>
-                                        <td class="cell">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input name="std[company]" type="checkbox" class="js-switch">  Công ty tiếp nhận
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="cell">
-                                            <?= $this->Form->control('std.company.name', [
-                                                'label' => false, 
-                                                'options' => [],
-                                                'disabled' => true,
-                                                'class' => 'form-control col-md-7 col-xs-12', 
-                                                ]) ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="cell text-center">3</td>
-                                        <td class="cell">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input name="std[guild]" type="checkbox" class="js-switch">  Nghiệp đoàn quản lý
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="cell">
-                                            <?= $this->Form->control('std.guild.name', [
-                                                'label' => false, 
-                                                'options' => [],
-                                                'disabled' => true,
-                                                'class' => 'form-control col-md-7 col-xs-12', 
-                                                ]) ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="cell text-center">4</td>
-                                        <td class="cell">
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input name="std[class]" type="checkbox" class="js-switch">  Lớp học
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td class="cell">
-                                            <?= $this->Form->control('std.class.name', [
-                                                'label' => false, 
-                                                'options' => [],
-                                                'disabled' => true,
-                                                'class' => 'form-control col-md-7 col-xs-12', 
-                                                ]) ?>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-success" id="export-report-btn">Tải về</button>
-                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
-            </div>
-            <?= $this->Form->end() ?>
         </div>
     </div>
 </div>

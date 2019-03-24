@@ -64,6 +64,8 @@ class OrdersTable extends Table
             'through' => 'OrdersStudents'
         ]);
 
+        $this->hasOne('Schedules');
+
         $this->belongsTo('CreatedByUsers', [
             'foreignKey' => 'created_by',
             'className' => 'Users'

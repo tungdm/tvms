@@ -20,6 +20,7 @@ use Cake\Event\Event;
 use Cake\Routing\Router;
 use clsTinyButStrong;
 use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 
 /**
  * Application Controller
@@ -49,6 +50,7 @@ class AppController extends Controller
         $this->loadComponent('Flash');
         $this->successMessage = Configure::read('successMessage');
         $this->errorMessage = Configure::read('errorMessage');
+        $this->defaultDisplay = Configure::Read('defaultDisplay');
 
         /*
          * Enable the following components for recommended CakePHP security settings.
@@ -130,5 +132,12 @@ class AppController extends Controller
         if ($entity->del_flag == TRUE && $user['role_id'] !== 1) {
             throw new NotFoundException();
         }
+    }
+
+    public function beforeRender(Event $event)
+    {
+        $currentUser = $this->Auth->user('id');
+        $unreadMsg = TableRegistry::get('Notifications')->find()->where(['user_id' => $currentUser, 'is_seen' => FALSE])->count();
+        $this->set(compact('unreadMsg'));
     }
 }

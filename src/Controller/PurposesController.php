@@ -59,7 +59,7 @@ class PurposesController extends AppController
         if (!empty($query)) {
             $allPurposes = $this->Purposes->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['purpose_name']) && !empty($query['purpose_name'])) {
                 $allPurposes->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -79,7 +79,7 @@ class PurposesController extends AppController
             }
             $allPurposes->order(['Purposes.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allPurposes = $this->Purposes->find()->order(['Purposes.created' => 'DESC']);
         }
         $this->paginate = [
@@ -183,10 +183,10 @@ class PurposesController extends AppController
                 'entity' => $this->entity,
                 'name' => $purpose->name
             ]));
-
-            return $this->redirect(['action' => 'index']);
+        } else {
+            $this->Flash->error($this->errorMessage['error']);
         }
-        $this->Flash->error($this->errorMessage['error']);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**

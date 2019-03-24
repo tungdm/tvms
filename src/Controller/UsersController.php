@@ -107,7 +107,7 @@ class UsersController extends AppController
             $allUsers = $this->Users->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             
             if (isset($query['username']) && !empty($query['username'])) {
@@ -144,7 +144,7 @@ class UsersController extends AppController
             $allUsers->order(['Users.created' => 'DESC']);
 
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allUsers = $this->Users->find()->order(['Users.created' => 'DESC']);
         }
 

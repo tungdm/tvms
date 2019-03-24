@@ -59,7 +59,7 @@ class StrengthsController extends AppController
         if (!empty($query)) {
             $allStrengths = $this->Strengths->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['strength_name']) && !empty($query['strength_name'])) {
                 $allStrengths->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -79,7 +79,7 @@ class StrengthsController extends AppController
             }
             $allStrengths->order(['Strengths.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allStrengths = $this->Strengths->find()->order(['Strengths.created' => 'DESC']);
         }
         $this->paginate = [
@@ -125,7 +125,7 @@ class StrengthsController extends AppController
                 $resp = [
                     'status' => 'success',
                     'data' => $strength,
-                    'created' => $strength->created ? $strength->created ->i18nFormat('dd-MM-yyyy HH:mm:ss') : '',
+                    'created' => $strength->created ? $strength->created->i18nFormat('dd-MM-yyyy HH:mm:ss') : '',
                     'modified' => $strength->modified ? $strength->modified->i18nFormat('dd-MM-yyyy HH:mm:ss') : ''
                 ];
             }
@@ -182,9 +182,10 @@ class StrengthsController extends AppController
                 'entity' => $this->entity,
                 'name' => $strength->name
             ]));
-            return $this->redirect(['action' => 'index']);
+        } else {
+            $this->Flash->error($this->errorMessage['error']);
         }
-        $this->Flash->error($this->errorMessage['error']);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**

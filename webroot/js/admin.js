@@ -1269,7 +1269,11 @@ function globalViewGuild(guildId, overlayId) {
                 var html = template(resp.data.companies);
                 $('#view-company-container').html(html);
 
-                $('#view-guild-created-by').html(resp.data.created_by_user.fullname);
+                if (resp.data.created_by_user) {
+                    $('#view-guild-created-by').html(resp.data.created_by_user.fullname);
+                } else {
+                    $('#view-guild-created-by').html('N/A');
+                }
                 $('#view-guild-created').html(resp.created);
 
                 if (resp.data.modified_by_user) {
@@ -1344,7 +1348,11 @@ function globalViewCompany(companyId, overlayId) {
                 $('#view-company-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-company-deputy-kanji').html(resp.data.deputy_name_kanji);
 
-                $('#view-company-created-by').html(resp.data.created_by_user.fullname);
+                if (resp.data.created_by_user) {
+                    $('#view-company-created-by').html(resp.data.created_by_user.fullname);
+                } else {
+                    $('#view-company-created-by').html('N/A');
+                }
                 $('#view-company-created').html(resp.created);
 
                 if (resp.data.modified_by_user) {
@@ -1399,12 +1407,26 @@ function globalViewDispatchingCompany(companyId, overlayId) {
             if (resp.status == 'success') {
                 $('#view-dis-company-name-romaji').html(resp.data.name_romaji);
                 $('#view-dis-company-name-kanji').html(resp.data.name_kanji);
-
-                $('#view-dis-company-address-romaji').html(resp.data.address_romaji);
-
-                $('#view-dis-company-deputy-romaji').html(resp.data.deputy_name_romaji);
-
-                $('#view-dis-company-created-by').html(resp.data.created_by_user.fullname);
+                if (resp.data.deputy_name_romaji) {
+                    $('#view-dis-company-address-romaji').html(resp.data.address_romaji);
+                } else {
+                    $('#view-dis-company-address-romaji').html('N/A');
+                }
+                if (resp.data.deputy_name_romaji) {
+                    $('#view-dis-company-deputy-romaji').html(resp.data.deputy_name_romaji);
+                } else {
+                    $('#view-dis-company-deputy-romaji').html('N/A');
+                }
+                if (resp.data.phone_vn) {
+                    $('#view-dis-company-phone').html(str2Phone(resp.data.phone_vn));
+                } else {
+                    $('#view-dis-company-phone').html('N/A');
+                }
+                if (resp.data.created_by_user) {
+                    $('#view-dis-company-created-by').html(resp.data.created_by_user.fullname);
+                } else {
+                    $('#view-dis-company-created-by').html('N/A');
+                }
                 $('#view-dis-company-created').html(resp.created);
 
                 if (resp.data.modified_by_user) {
@@ -1475,7 +1497,11 @@ function globalViewPresenter(presenterId, overlayId) {
 
                 $('#view-presenter-type').html(type);
 
-                $('#view-presenter-created-by').html(resp.data.created_by_user.fullname);
+                if (resp.data.created_by_user) {
+                    $('#view-presenter-created-by').html(resp.data.created_by_user.fullname);
+                } else {
+                    $('#view-presenter-created-by').html('N/A');
+                }
                 $('#view-presenter-created').html(resp.created);
 
                 if (resp.data.modified_by_user) {
@@ -1884,6 +1910,182 @@ function toDate(dateStr) {
     return new Date(parts[2], parts[1] - 1, parts[0]);
 }
 
+function seenNoti(ele, notiId, eye) {
+    if (ajaxing) {
+        return;
+    }
+    ajaxing = true;
+
+    $.ajax({
+        type: 'POST',
+        url: DOMAIN_NAME + '/notification-settings/change-state',
+        data: {
+            'id': notiId
+        },
+        success: function (resp) {
+            if (resp.status == 'success') {
+                $(ele).parent().removeClass('new-item');
+                $(ele).parent().addClass('old-item');
+                // update unread message counter
+                if (resp.unreadMsg == 0) {
+                    $('.unreadMsg').remove();
+                } else {
+                    $('.unreadMsg').html(resp.unreadMsg);
+                }
+                if (eye) {
+                    $('.seenNoti').remove();
+                }
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function () {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function () {
+            ajaxing = false;
+        }
+    });
+}
+
+function viewTopNoti() {
+    if (ajaxing) {
+        return;
+    }
+    ajaxing = true;
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/notification-settings/view-top-noti',
+        success: function (resp) {
+            if (resp.status == 'success') {
+                var source = $("#top-notification-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(resp.notifications);
+                $('#top-noti-container').html(html)
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function () {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function () {
+            ajaxing = false;
+        }
+    });
+}
+
+function viewAllNoti() {
+    if (ajaxing) {
+        return;
+    }
+    ajaxing = true;
+
+    $.ajax({
+        type: 'GET',
+        url: DOMAIN_NAME + '/notification-settings/view-all',
+        success: function (resp) {
+            if (resp.status == 'success') {
+                var source = $("#notification-template").html();
+                var template = Handlebars.compile(source);
+                var html = template(resp.notifications);
+                $('#notification-container').html(html)
+                $('#view-notifications-modal').modal('toggle');
+            } else {
+                var notice = new PNotify({
+                    title: '<strong>' + resp.flash.title + '</strong>',
+                    text: resp.flash.message,
+                    type: resp.flash.type,
+                    styling: 'bootstrap3',
+                    icon: resp.flash.icon,
+                    cornerclass: 'ui-pnotify-sharp',
+                    buttons: {
+                        closer: false,
+                        sticker: false
+                    }
+                });
+                notice.get().click(function () {
+                    notice.remove();
+                });
+            }
+        },
+        complete: function () {
+            ajaxing = false;
+        }
+    });
+}
+
+function deleteNoti(delEl, notiId) {
+    if (ajaxing) {
+        return;
+    }
+    ajaxing = true;
+
+    $.ajax({
+        type: 'POST',
+        url: DOMAIN_NAME + '/notification-settings/delete-notification',
+        data: {
+            'id': notiId
+        },
+        success: function (resp) {
+            var notice = new PNotify({
+                title: '<strong>' + resp.flash.title + '</strong>',
+                text: resp.flash.message,
+                type: resp.flash.type,
+                styling: 'bootstrap3',
+                icon: resp.flash.icon,
+                cornerclass: 'ui-pnotify-sharp',
+                buttons: {
+                    closer: false,
+                    sticker: false
+                }
+            });
+            notice.get().click(function () {
+                notice.remove();
+            });
+            if (resp.status == 'success') {
+                $(delEl).closest('.row-noti').remove();
+                $('#notification-container > tr').each(function (index) {
+                    $(this).find('.stt-col').html(index + 1);
+                });
+                // update unread message counter
+                if (resp.unreadMsg == 0) {
+                    $('.unreadMsg').remove();
+                } else {
+                    $('.unreadMsg').html(resp.unreadMsg);
+                }
+            }
+        },
+        complete: function () {
+            ajaxing = false;
+        }
+    });
+}
+
+
 $(document).ready(function () {
     init_sidebar();
     tableHover();
@@ -2010,6 +2212,10 @@ $(document).ready(function () {
     $('.form-check-status :input').change(function () {
         // console.log('changed');
         formChanged = true;
+    });
+
+    $(document).on('click', '.custom-dropdown-menu', function (e) {
+        e.stopPropagation();
     });
 });
 

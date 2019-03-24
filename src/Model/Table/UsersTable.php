@@ -189,6 +189,15 @@ class UsersTable extends Table
             'foreignKey' => 'modified_by',
             'className' => 'AfterPlans'
         ]);
+
+        $this->hasMany('NotificationSettingsCreatedBy', [
+            'foreignKey' => 'created_by',
+            'className' => 'NotificationSettings'
+        ]);
+        $this->hasMany('NotificationSettingsModifiedBy', [
+            'foreignKey' => 'modified_by',
+            'className' => 'NotificationSettings'
+        ]);
     }
 
     /**

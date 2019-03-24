@@ -204,7 +204,7 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $jtest->created_by_user->fullname ?>
+                                <?= !empty($jtest->created_by_user) ? $jtest->created_by_user->fullname : 'N/A'?>
                             </div>
                         </div>
                     </div>

@@ -59,7 +59,7 @@ class JobsController extends AppController
         if (!empty($query)) {
             $allJobs = $this->Jobs->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['f_job_name']) && !empty($query['f_job_name'])) {
                 $allJobs->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -79,7 +79,7 @@ class JobsController extends AppController
             }
             $allJobs->order(['Jobs.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allJobs = $this->Jobs->find()->order(['Jobs.created' => 'DESC']);
         }
         $this->paginate = [

@@ -7,7 +7,7 @@
     -webkit-box-shadow: none;
     right: 0;
     left: auto;
-    width: 300px;
+    width: 330px;
 }
 
 .custom-table>thead>tr {
@@ -22,11 +22,12 @@
     vertical-align: bottom;
     border-bottom: 0px;
 }
-.deletedRecord.highlight {
-    background-color: rgba(255, 0, 0, 0.781) !important;
-}
+
 .highlight {
     background-color: #f5f5f5 !important;
+}
+.deletedRecord.highlight {
+    background-color: rgba(255, 0, 0, 0.781) !important;
 }
 .table-empty {
     text-align: center
@@ -45,9 +46,9 @@
     vertical-align: middle;
     /* white-space: unset !important; */
 }
-.custom-table>tbody>tr>td span {
+/* .custom-table>tbody>tr>td span {
     line-height: unset;
-}
+} */
 .custom-table>tbody>tr>td button {
     margin-bottom: 0px;
 }
@@ -536,11 +537,13 @@ label.optional {
     font-weight: bold;
 }
 
-.deletedRecord {
+.deletedRecord, .north-student {
     background-color: red;
     color: #fff;
 }
-
+.north-student>a {
+    color: #fff;
+}
 .fb-icon > img {
     width: 20%;
     height: auto;
@@ -550,3 +553,6 @@ label.optional {
     margin: 5px 6px 0 6px !important;
     white-space: pre-line;
 }
+
+.ui-datepicker{ z-index:1151 !important; }
+

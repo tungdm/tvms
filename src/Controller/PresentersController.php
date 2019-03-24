@@ -56,7 +56,7 @@ class PresentersController extends AppController
         if (!empty($query)) {
             $allPresenters = $this->Presenters->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['name']) && !empty($query['name'])) {
                 $allPresenters->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -80,7 +80,7 @@ class PresentersController extends AppController
             }
             $allPresenters->order(['created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allPresenters = $this->Presenters->find()->order(['created' => 'DESC']);
         }
 

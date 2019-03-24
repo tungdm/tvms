@@ -59,7 +59,7 @@ class OrdersController extends AppController
                 }
             }
             
-            if ($userPermission->action == 0 || ($userPermission->action == 1 && (in_array($action, ['index', 'view']) || strpos($action, 'export') === 0))) {
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && (in_array($action, ['index', 'view', 'schedule']) || strpos($action, 'export') === 0))) {
                 $session->write($controller, $userPermission->action);
                 return true;
             }
@@ -81,7 +81,7 @@ class OrdersController extends AppController
             $allOrders = $this->Orders->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['name']) && !empty($query['name'])) {
                 $allOrders->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -98,8 +98,12 @@ class OrdersController extends AppController
             if (isset($query['guild_id']) && !empty($query['guild_id'])) {
                 $allOrders->where(['Companies.guild_id' => $query['guild_id']]);
             }
-            if (isset($query['company_id']) && !empty($query['company_id'])) {
-                $allOrders->where(['company_id' => $query['company_id']]);
+            if (isset($query['departure_month']) && !empty($query['departure_month'])) {
+                $from = new Time('01-' . $query['departure_month']);
+                $to = $this->Util->getLastDayOfMonth('01-' . $query['departure_month']);
+                $to = new Time($to);
+                $allOrders->where(['Orders.departure_date >=' => $from->i18nFormat('yyyy-MM'), 'Orders.departure_date <=' => $to->i18nFormat('yyyy-MM')]);
+                $query['departure_month'] = $from->i18nFormat('yyyy-MM');
             }
             if (isset($query['status']) && !empty($query['status'])) {
                 switch ($query['status']) {
@@ -122,7 +126,7 @@ class OrdersController extends AppController
             }
             $allOrders->order(['Orders.interview_date' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allOrders = $this->Orders->find()->order(['Orders.interview_date' => 'DESC']);
         }
 
@@ -174,8 +178,13 @@ class OrdersController extends AppController
                     return $q->where(['Jobs.del_flag' => FALSE]);
                 },
                 'Students' => function ($q) {
-                    return $q->where(['Students.del_flag' => FALSE]);
+                    return $q->where(['Students.del_flag' => FALSE])->order(['result' => 'ASC']);
                 },
+                'Students.InterviewDeposits',
+                'Students.Addresses' => function($q) {
+                    return $q->where(['Addresses.type' => '1']);
+                },
+                'Students.Addresses.Cities',
                 'CreatedByUsers',
                 'ModifiedByUsers'
             ]
@@ -242,6 +251,7 @@ class OrdersController extends AppController
                 },
             ]
         ]);
+        $currentStatus = $order->status;
         $this->checkDeleteFlag($order, $this->Auth->user());
         if ($order->status == '5' && $this->Auth->user('role_id') != 1) {
             $this->Flash->error($this->errorMessage['unAuthor']);
@@ -262,6 +272,30 @@ class OrdersController extends AppController
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), $this->request->getParam('action'));
 
             if ($this->Orders->save($order)) {
+                if ($order->status == 4 && $currentStatus !== $order->status) {
+                    // da co ket qua
+                    $notifications = [];
+                    $setting = TableRegistry::get('NotificationSettings')->get(5);
+                    $receiversArr = explode(',', $setting->receivers_groups);
+                    array_shift($receiversArr);
+                    array_pop($receiversArr);
+                    foreach ($receiversArr as $key => $role) {
+                        $receivers = TableRegistry::get('Users')->find()->where(['role_id' => $role, 'del_flag' => FALSE]);
+                        foreach ($receivers as $user) {
+                            $noti = [
+                                'user_id' => $user->id,
+                                'content' => Text::insert($setting->template, [
+                                    'time' => $order->interview_date->i18nFormat('dd-MM-yyyy'),
+                                    'orderName' => $order->name
+                                ])
+                            ];
+                            array_push($notifications, $noti);
+                        }
+                    }
+                    $entities = TableRegistry::get('Notifications')->newEntities($notifications);
+                    // save to db
+                    TableRegistry::get('Notifications')->saveMany($entities);
+                }
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
                     'entity' => $this->entity,
                     'name' => $order->name
@@ -303,7 +337,7 @@ class OrdersController extends AppController
             'contain' => ['Students', 'Events']
         ]);
 
-        if ($oder->del_flag) {
+        if ($order->del_flag) {
             $this->Flash->error(Text::insert($this->errorMessage['delete'], [
                 'entity' => $this->entity,
                 'name' => $order->name
@@ -360,7 +394,7 @@ class OrdersController extends AppController
     {
         $this->request->allowMethod(['post']);
         $order = $this->Orders->get($id, ['contain' => ['Students', 'Events']]);
-        if (!$oder->del_flag) {
+        if (!$order->del_flag) {
             $this->Flash->error(Text::insert($this->errorMessage['delete'], [
                 'entity' => $this->entity,
                 'name' => $order->name
@@ -457,10 +491,112 @@ class OrdersController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
+    public function schedule($id = null)
+    {
+        $order = $this->Orders->get($id, ['contain' => [
+            'Schedules', 
+            'Schedules.Holidays' => [
+                'sort' => ['Holidays.day' => 'ASC']
+            ]
+        ]]);
+        $start = $order->application_date;
+        if (empty($order->application_date)) {
+            $this->Flash->error('Thiếu thông tin ngày làm hồ sơ');
+            return $this->redirect(['action' => 'index']);
+        }
+        if (empty($order->schedule)) {
+            $schedule = $this->Orders->Schedules->newEntity();
+            $action = 'add';
+            $end = $this->addBussinessDay($start, 24);
+        } else {
+            $schedule = $order->schedule;
+            $action = 'edit';
+            $end = $schedule->end_date;
+        }
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            $schedule = $this->Orders->Schedules->patchEntity($schedule, $data, ['associated' => ['Holidays']]);
+            $schedule = $this->Orders->Schedules->setAuthor($schedule, $this->Auth->user('id'), $action);
+            if ($this->Orders->Schedules->save($schedule)) {
+                $this->Flash->success($this->successMessage['addNoName']);
+            } else{
+                $this->Flash->error($this->errorMessage['error']);
+            }
+            return $this->redirect(['action' => 'schedule', $order->id]);
+        }
+        
+        $this->set(compact('order', 'schedule', 'start', 'end', 'action'));
+    }
+
+    public function deleteSchedule($id = null)
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $schedule = $this->Orders->Schedules->get($id);
+        if ($this->Orders->Schedules->delete($schedule)) {
+            $this->Flash->success($this->successMessage['deleteNoName']);
+        } else {
+            $this->Flash->error($this->errorMessage['error']);
+        }
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function deleteHoliday()
+    {
+        $this->request->allowMethod('ajax');
+        $holidayId = $this->request->getData('holidayId');
+
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $holiday = $this->Orders->Schedules->Holidays->get($holidayId);
+            $schedule = $this->Orders->Schedules->get($holiday->schedule_id);
+            $newEndDay = $schedule->end_date;
+            $dayOfWeek = date('N', strtotime($holiday->day));
+            if ($dayOfWeek != 6 && $dayOfWeek != 7) {
+                $newEndDay = $newEndDay->subDays(1);
+            }
+            $schedule->end_date = $newEndDay;
+            Log::write('debug', $schedule);
+            $schedule = $this->Orders->Schedules->setAuthor($schedule, $this->Auth->user('id'), 'edit');
+            if ($this->Orders->Schedules->Holidays->delete($holiday) && $this->Orders->Schedules->save($schedule)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'message' => $this->successMessage['deleteNoName']
+                    ]
+                ];
+            }
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function addBussinessDay($date, $numOfDays)
+    {
+        while ($numOfDays > 0) {
+            $dayOfWeek = date('N', strtotime($date));
+            if ($dayOfWeek != 6 && $dayOfWeek != 7) {
+                $numOfDays--;
+            }
+            $date = $date->addDay(1);
+        }
+        return $date;
+    }
+
     public function deleteCandidate()
     {
         $this->request->allowMethod('ajax');
-        $interviewId = $this->request->getData('id');
+        $query = $this->request->getQuery();
 
         $resp = [
             'status' => 'error',
@@ -947,7 +1083,7 @@ class OrdersController extends AppController
         $this->tbs->VarRef['company'] = $companyJP;
         $this->tbs->VarRef['job'] = $order->job->job_name_jp;
         $this->tbs->VarRef['total'] = count($order->students);
-        $this->tbs->VarRef['departure_date'] = $departureDate->year . '年' . str_pad($departureDate->month, 2, '0', STR_PAD_LEFT) . '月';
+        $this->tbs->VarRef['departure_date'] = $departureDate->year . '年' . $departureDate->month;
 
         if (!empty($this->missingFields)) {
             $this->Flash->error(Text::insert($this->errorMessage['export'], [
@@ -1698,6 +1834,514 @@ class OrdersController extends AppController
             }
             // export XLSX file for download
             $this->ExportFile->export($spreadsheet, $iqTestConfig['filename']);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
+    public function exportDeclaration($id)
+    {
+        $declarationConfig = Configure::read('orderDeclaration');
+        $vnDateFormatFull = Configure::read('vnDateFormatFull');
+        $output_file_name = $declarationConfig['filename'];
+        try {
+            $order = $this->Orders->get($id, [
+                'contain' => [
+                    'Jobs',
+                ]
+            ]);
+            $this->checkDeleteFlag($order, $this->Auth->user());
+            $template = WWW_ROOT . 'document' . DS . $declarationConfig['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+            $createdDayJP = $order->application_date ? $order->application_date->i18nFormat('yyyy 年 M 月 d 日') : '';
+            $createdDayVN =  Text::insert($vnDateFormatFull, [
+                'day' => $order->application_date ? str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT) : '', 
+                'month' => $order->application_date ? str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT) : '', 
+                'year' => $order->application_date ? $order->application_date->year : '', 
+                ]);
+
+            $this->tbs->VarRef['jobJP'] = $order->job->job_name_jp;
+            $this->tbs->VarRef['jobVN'] = strtolower($order->job->job_name);
+            $this->tbs->VarRef['createdJP'] = $createdDayJP;
+            $this->tbs->VarRef['createdVN'] = ucfirst($createdDayVN);
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
+    public function exportSchedule($id)
+    {
+        $config = Configure::read('orderSchedule');
+        $tableData = $config['tableData'];
+        $output_file_name = $config['filename'];
+        try { 
+            $order = $this->Orders->get($id, ['contain' => [
+                'Students' => function($q) {
+                    return $q->where(['result' => '1']);
+                },
+                'Schedules', 
+                'Schedules.Holidays' => [
+                    'sort' => ['Holidays.day' => 'ASC']
+                ]
+            ]]);
+            $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
+            $departureDate = new Time($order->departure_date);
+            $template = WWW_ROOT . 'document' . DS . $config['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $start = $order->application_date;
+            $end = $order->schedule->end_date;
+            $holidays = [];
+            if (!empty($order->schedule->holidays)) {
+                foreach ($order->schedule->holidays as $key => $holiday) {
+                    $holidays[$holiday->day->i18nFormat('yyyy/M/d')] = $holiday->type;
+                }
+            }
+
+            $this->tbs->VarRef['sy'] = $start->year;
+            $this->tbs->VarRef['sm'] = $start->month;
+            $this->tbs->VarRef['sd'] = $start->day;
+
+            $this->tbs->VarRef['ey'] = $end->year;
+            $this->tbs->VarRef['em'] = $end->month;
+            $this->tbs->VarRef['ed'] = $end->day;
+
+            $table = [];
+            $counter = 1;
+            while ($start <= $end) {
+                $startTxt = $start->i18nFormat('yyyy/M/d');
+                $row = [
+                    'day' => $startTxt,
+                ];
+                $dayOfWeek = date('N', strtotime($start));
+                if ($dayOfWeek == 6 || $dayOfWeek == 7 || array_key_exists($startTxt, $holidays)) {
+                    if ($dayOfWeek == 6 || $dayOfWeek == 7) {
+                        $row['time'] = '休日';
+                    }
+                    if (array_key_exists($startTxt, $holidays)) {
+                        if ($holidays[$startTxt] == 1) {
+                            $row['time'] = '祝日';
+                        } else {
+                            $row['time'] = '休日';
+                        }
+                    }
+                    $row['content'] = '';
+                    $row['place'] = '';
+                    $row['teacher'] = '';
+                } else {
+                    $row['time'] = '7:30〜16:30';
+                    $row['content'] = $tableData[$counter]['content'];
+                    $row['place'] = $tableData[$counter]['place'];
+                    switch ($counter) {
+                        case $counter < 20:
+                            $row['teacher'] = $order->schedule->teacher1 . '(日本語教師)';
+                            break;
+                        case $counter >= 20 && $counter < 23:
+                            $row['teacher'] = $order->schedule->teacher2 . '(日本語教師)';
+                            break;
+                        default:
+                            $row['teacher'] = $order->schedule->teacher3 . '(日本語教師)';
+                            break;
+                    }
+                    $counter++;
+                }
+                $row['note'] = '';
+                $start = $start->addDay(1);
+                array_push($table, $row);
+            }
+            $students = [];
+            if (!empty($order->students)) {
+                foreach ($order->students as $key => $student) {
+                    $studentName_VN = mb_strtoupper($student->fullname);
+                    $studentName_EN = $this->Util->convertV2E($studentName_VN);
+                    $row = [
+                        'no' => $key + 1,
+                        'fullname' => $studentName_EN,
+                        'departure' => $departureDate->year . '/' . $departureDate->month
+                    ];
+                    array_push($students, $row);
+                }
+            }
+
+            $this->tbs->MergeBlock('a', $table);
+            $this->tbs->MergeBlock('b', $students);
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
+    public function exportScheduleRecord($id = null)
+    {
+        $config = Configure::read('orderScheduleRecord');
+        $output_file_name = $config['filename'];
+        try { 
+            $order = $this->Orders->get($id, ['contain' => [
+                'Guilds',
+                'Students' => function($q) {
+                    return $q->where(['result' => '1']);
+                },
+                'Schedules', 
+                'Schedules.Holidays' => [
+                    'sort' => ['Holidays.day' => 'ASC']
+                ]
+            ]]);
+            $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
+            $guildName = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+            $guildAddress = $this->checkData($order->guild->address_kanji, 'Địa chỉ phiên âm của nghiệp đoàn');
+            $deputy = $this->checkData($order->guild->deputy_name_kanji, 'Tên phiên âm của người đại diện nghiệp đoàn');
+            $departureDate = new Time($order->departure_date);
+            $template = WWW_ROOT . 'document' . DS . $config['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $start = $order->application_date;
+            $end = $order->schedule->end_date;
+            $holidays = [];
+            if (!empty($order->schedule->holidays)) {
+                foreach ($order->schedule->holidays as $key => $holiday) {
+                    $holidays[$holiday->day->i18nFormat('yyyy/M/d')] = $holiday->type;
+                }
+            }
+            $this->tbs->VarRef['guild'] = $guildName;
+            $this->tbs->VarRef['guildAddress'] = $guildAddress;
+
+
+            $this->tbs->VarRef['sy'] = $start->year;
+            $this->tbs->VarRef['sm'] = $start->month;
+            $this->tbs->VarRef['sd'] = $start->day;
+
+            $this->tbs->VarRef['ey'] = $end->year;
+            $this->tbs->VarRef['em'] = $end->month;
+            $this->tbs->VarRef['ed'] = $end->day;
+            $this->tbs->VarRef['deputy'] = $deputy;
+
+            $this->tbs->VarRef['p1Start'] = $start->i18nFormat('yyyy年M月d日');
+
+            $counter = 0;
+            while ($start <= $end) {
+                $startTxt = $start->i18nFormat('yyyy/M/d');
+                
+                $dayOfWeek = date('N', strtotime($start));
+                if ($dayOfWeek != 6 && $dayOfWeek != 7 && !array_key_exists($startTxt, $holidays)) {
+                    $counter++;
+                    switch ($counter) {
+                        case $counter == 19:
+                            $this->tbs->VarRef['p1End'] = $start->i18nFormat('yyyy年M月d日');
+                            $this->tbs->VarRef['p2Start'] = $start->addDay(1)->i18nFormat('yyyy年M月d日');
+                            break;
+                        case $counter == 22:
+                            $this->tbs->VarRef['p2End'] = $start->i18nFormat('yyyy年M月d日');
+                            $this->tbs->VarRef['p3Start'] = $start->addDay(1)->i18nFormat('yyyy年M月d日');
+                            break;
+                        case $counter == 25:
+                            $this->tbs->VarRef['p3End'] = $start->i18nFormat('yyyy年M月d日');
+                            break;
+                    }
+                }
+                $start = $start->addDay(1);
+            }
+
+            $students = [];
+            if (!empty($order->students)) {
+                foreach ($order->students as $key => $student) {
+                    $studentName_VN = mb_strtoupper($student->fullname);
+                    $studentName_EN = $this->Util->convertV2E($studentName_VN);
+                    $row = [
+                        'no' => $key + 1,
+                        'fullname' => $studentName_EN,
+                        'departure' => $departureDate->year . '/' . $departureDate->month
+                    ];
+                    array_push($students, $row);
+                }
+            }
+            $this->tbs->MergeBlock('a', $students);
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
+    public function exportScheduleReport($id = null)
+    {
+        // load config
+        $config = Configure::read('scheduleReportXlsx');
+        try {
+            $order = $this->Orders->get($id, ['contain' => ['Guilds', 'Schedules']]);
+            $start = $order->application_date;
+            $end = $order->schedule->end_date;
+            $guildName = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+
+            // init worksheet
+            $spreadsheet = $this->ExportFile->setXlsxProperties();
+            $spreadsheet->setActiveSheetIndex(0);
+            $spreadsheet->getDefaultStyle()->getFont()->setName('MS PMincho');
+            $spreadsheet->getDefaultStyle()->getFont()->setSize(12);
+            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(2.3);
+            // $spreadsheet->getActiveSheet()->getDefaultRowDimension()->setRowHeight(20);
+
+            $spreadsheet->getActiveSheet()->mergeCells('A1:AH1')->setCellValue('A1', '本邦外に於ける講習実施報告書');
+            $spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(54);
+            $spreadsheet->getActiveSheet()->getStyle('A1:A1')->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_TOP,
+                ],
+                'font' => [
+                    'size' => 16,
+                ],
+            ]);
+            
+            $spreadsheet->getActiveSheet()->setCellValue('A2', $guildName);
+            $spreadsheet->getActiveSheet()->setCellValue('P2', '御中');
+            $spreadsheet->getActiveSheet()->setCellValue('B4', '別添名簿の講習受講者に対する講習は、計画通り実施したことを報告いたします。');
+            $spreadsheet->getActiveSheet()->setCellValue('A6', '1.');
+            $spreadsheet->getActiveSheet()
+                ->setCellValueExplicit(
+                        'A6',
+                        '1.',
+                        \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                    )
+                ->setCellValue('B6', '講習実施施設')
+                ->setCellValue('B7', '施設名：')
+                ->setCellValue('F7', 'VIET NAM GENERAL IMPORT - EXPORT AND')
+                ->setCellValue('F8', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
+                ->setCellValue('F9', 'ホーチミン市支部所属人材教育センター')
+                ->setCellValue('B10', '所在地：')
+                ->setCellValue('F10', '12 TRINH DINH THAO STREET, HOA THANH WARD, TAN PHU DISTRICT,')
+                ->setCellValue('F11', 'HO CHI MINH CITY, VIETNAM')
+                ->setCellValueExplicit(
+                    'A12',
+                    '2.',
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                )
+                ->setCellValue('B12', '講習実施期間')
+                ->mergeCells('B13:D13')->setCellValue('B13', $start->year)
+                ->setCellValue('E13', '年')
+                ->mergeCells('F13:G13')->setCellValue('F13', $start->month)
+                ->setCellValue('H13', '月')
+                ->mergeCells('I13:J13')->setCellValue('I13', $start->day)
+                ->setCellValue('K13', '日')
+                ->mergeCells('L13:M13')->setCellValue('L13', '〜')
+                ->mergeCells('N13:P13')->setCellValue('N13', $end->year)
+                ->setCellValue('Q13', '年')
+                ->mergeCells('R13:S13')->setCellValue('R13', $end->month)
+                ->setCellValue('T13', '月')
+                ->mergeCells('U13:V13')->setCellValue('U13', $end->day)
+                ->setCellValue('W13', '日')
+                ->setCellValueExplicit(
+                    'A14',
+                    '3.',
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                )
+                ->setCellValue('B14', '講習実施時間')
+                ->setCellValue('B15', '合計175時間')
+                ->setCellValue('B16', '①')
+                ->setCellValue('C16', '日本語133時間')
+                ->setCellValue('B17', '②')
+                ->setCellValue('C17', '専門用語・日本での生活一般に関する知識21時間')
+                ->setCellValue('B18', '③')
+                ->setCellValue('C18', '日本での円滑な技能等の修得に資する知識21時間')
+                ->setCellValueExplicit(
+                    'A19',
+                    '4.',
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                )
+                ->setCellValue('B19', '講習宿泊施設')
+                ->setCellValue('B20', '施設名：')
+                ->setCellValue('F20', 'VIET NAM GENERAL IMPORT - EXPORT AND')
+                ->setCellValue('F21', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
+                ->setCellValue('F22', 'ホーチミン市支部所属人材教育センター 所属寮')
+                ->setCellValueExplicit(
+                    'A23',
+                    '5.',
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                )
+                ->setCellValue('B23', '別添書類')
+                ->setCellValue('B24', '①')
+                ->setCellValue('C24', '「入国前講習実施記録」')
+                ->setCellValue('B25', '②')
+                ->setCellValue('C25', '「技能実習生一覧表」')
+                ->mergeCells('Y26:AA26')->setCellValue('Y26', $end->year)
+                ->setCellValue('AB26', '年')
+                ->mergeCells('AC26:AD26')->setCellValue('AC26', $end->month)
+                ->setCellValue('AE26', '月')
+                ->mergeCells('AF26:AG26')->setCellValue('AF26', $end->day)
+                ->setCellValue('AH26', '日')
+                ->setCellValue('B27', '講習実施機関：')
+                ->setCellValue('H27', 'VIET NAM GENERAL IMPORT - EXPORT AND')
+                ->setCellValue('H28', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
+                ->setCellValue('H29', 'ホーチミン市支部所属人材教育センター')
+                ->setCellValue('B30', '所在地：')
+                ->setCellValue('H30', '12 TRINH DINH THAO STREET, HOA THANH  WARD,')
+                ->setCellValue('H31', 'TAN PHU DISTRICT, HO CHI MINH CITY, VIETNAM')
+                ->setCellValue('B32', '電話：')
+                ->setCellValue('H32', '(+84)28-3976-1448')
+                ->setCellValue('B33', '責任者：')
+                ->setCellValue('H33', '副総社長')
+                ->setCellValue('L33', 'NGUYEN NGOC LAN')
+                ->setCellValue('V33', '㊞');
+
+            $spreadsheet->getActiveSheet()->getStyle('B13:W13')->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            $spreadsheet->getActiveSheet()->getStyle('Y26:AH26')->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            $spreadsheet->getActiveSheet()->setSelectedCells('A1');
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+            // export XLSX file for download
+            $this->ExportFile->export($spreadsheet, $config['filename']);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+    public function exportFees($id = null)
+    {
+        $config = Configure::read('orderFees');
+        $output_file_name = $config['filename'];
+        $vnDateFormatFull = Configure::read('vnDateFormatFull');
+        $query = $this->request->getQuery();
+        try { 
+            $order = $this->Orders->get($id, ['contain' => [
+                'Companies',
+                'Guilds',
+                'Schedules', 
+                'Schedules.Holidays' => [
+                    'sort' => ['Holidays.day' => 'ASC']
+                ]
+            ]]);
+            $student = $this->Orders->Students->get($query['studentId']);
+            $template = WWW_ROOT . 'document' . DS . $config['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $guildKanji = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+            $companyKanji = $this->checkData($order->company->name_kanji, 'Tên phiên âm của công ty');
+            $this->checkData($order->application_date, 'Ngày làm hồ sơ');
+            $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
+
+            $departureDate = new Time($order->departure_date);
+
+            $healthCheckDate2 = $departureDate->subDays(21);
+
+            $dayOfWeek = date('N', strtotime($healthCheckDate2));
+            if ($dayOfWeek > 3) {
+                $healthCheckDate2 = $healthCheckDate2->subDays($dayOfWeek - 3);
+            } else if ($dayOfWeek < 3) {
+                $healthCheckDate2 = $healthCheckDate2->addDays(3 - $dayOfWeek);
+            }
+            
+            $studentNameVN = mb_strtoupper($student->fullname);
+            $studentNameEN = $this->Util->convertV2E($studentNameVN);
+
+            $this->tbs->VarRef['fullnameEN'] = $studentNameEN;
+            $this->tbs->VarRef['fullnameVN'] = $studentNameVN;
+
+            $this->tbs->VarRef['companyKanji'] = $companyKanji;
+            $this->tbs->VarRef['companyRomaji'] = $order->company->name_romaji;
+
+            $this->tbs->VarRef['guildKanji'] = $guildKanji;
+            $this->tbs->VarRef['guildRomaji'] = $order->guild->name_romaji;
+
+            $this->tbs->VarRef['startJP'] = $order->application_date->i18nFormat('yyyy年M月d日');
+            $this->tbs->VarRef['startVN'] = ucfirst(Text::insert($vnDateFormatFull, [
+                'day' => $order->application_date ? str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT) : '', 
+                'month' => $order->application_date ? str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT) : '', 
+                'year' => $order->application_date ? $order->application_date->year : '', 
+                ]));
+
+            $this->tbs->VarRef['health2JP'] = $healthCheckDate2->i18nFormat('yyyy年M月d日');
+            $this->tbs->VarRef['health2VN'] = ucfirst(Text::insert($vnDateFormatFull, [
+                'day' => str_pad($healthCheckDate2->day, 2, '0', STR_PAD_LEFT), 
+                'month' => str_pad($healthCheckDate2->month, 2, '0', STR_PAD_LEFT), 
+                'year' => $healthCheckDate2->year, 
+                ]));
+
+            $nextHealth =  $healthCheckDate2->addDays(1);
+            $this->tbs->VarRef['nextHealthJP'] = $nextHealth->i18nFormat('yyyy年M月d日');
+            $this->tbs->VarRef['nextHealthVN'] = ucfirst(Text::insert($vnDateFormatFull, [
+                'day' => str_pad($nextHealth->day, 2, '0', STR_PAD_LEFT), 
+                'month' => str_pad($nextHealth->month, 2, '0', STR_PAD_LEFT), 
+                'year' => $nextHealth->year, 
+                ]));
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);

@@ -73,12 +73,11 @@ class StudentsController extends AppController
     public function index()
     {   
         $query = $this->request->getQuery();
-        
         if (!empty($query)) {
             $allStudents = $this->Students->find();
 
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['student_name']) && !empty($query['student_name'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -104,23 +103,79 @@ class StudentsController extends AppController
                 $query['enrolled_date'] = date('d-m-Y', strtotime($enrolled_date));                
                 $allStudents->where(['Students.enrolled_date >=' => $enrolled_date]);
             }
+            if (isset($query['birthday']) && !empty($query['birthday'])) {
+                $birthday = $this->Util->convertDate($query['birthday']);
+                $query['birthday'] = date('d-m-Y', strtotime($birthday));                
+                $allStudents->where(['Students.birthday' => $birthday]);
+            }
+            if (isset($query['hometown']) && !empty($query['hometown'])) {
+                $allStudents->matching('Addresses', function($q) use ($query) {
+                    return $q->where(['Addresses.city_id' => $query['hometown'], 'Addresses.type' => 1]);
+                });
+            }
+            if (isset($query['interview_deposit']) && !empty($query['interview_deposit'])) {
+                $allStudents->matching('InterviewDeposits', function($q) use ($query) {
+                    return $q->where(['InterviewDeposits.status' => $query['interview_deposit']]);
+                });
+            }
+            if (isset($query['health_check']) && !empty($query['health_check'])) {
+                $allStudents->select($this->Students)
+                            ->select(['PhysicalExams.student_id', 'PhysicalExams.result', 'InterviewDeposits.status'])
+                            ->distinct(['PhysicalExams.student_id', 'InterviewDeposits.status']);
+                $allStudents->matching('PhysicalExams', function($q) use ($query) {
+                    return $q->where(['PhysicalExams.result' => $query['health_check']]);
+                });
+                $allStudents->matching('InterviewDeposits', function($q) {
+                    return $q->where(['InterviewDeposits.status >=' => 0]);
+                });
+            }
             if (isset($query['return_from']) && !empty($query['return_from']) && isset($query['return_to']) && !empty($query['return_to'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->between('return_date', $query['return_from'], $query['return_to'], 'date');
                 });
             }
-            $allStudents->order(['Students.created' => 'DESC']);
+            if (!isset($query['sort'])) {
+                $allStudents->order(['Students.created' => 'DESC']);
+            }
         } else {
-            $allStudents = $this->Students->find()->order(['Students.created' => 'DESC']);
-            $query['records'] = 10;
+            $allStudents = $this->Students->find();
+            $query['records'] = $this->defaultDisplay;
         }
-        $this->paginate = [
-            'contain' => [
-                'Presenters', 
-            ],
-            'sortWhitelist' => ['fullname', 'enrolled_date'],
-            'limit' => $query['records']
-        ];
+
+        Log::write('debug', $allStudents);
+
+        // debug($allStudents->toArray());
+        if (isset($query['hometown']) && !empty($query['hometown'])) {
+            $this->paginate = [
+                'contain' => [
+                    'Presenters',
+                    'Addresses.Cities',
+                    'InterviewDeposits',
+                    'PhysicalExams' => function ($q) {
+                        return $q->order(['exam_date' => 'DESC']);
+                    },
+                ],
+                'sortWhitelist' => ['fullname', 'enrolled_date', 'birthday'],
+                'limit' => $query['records']
+            ];
+        } else {
+            $this->paginate = [
+                'contain' => [
+                    'Presenters',
+                    'Addresses' => function($q) {
+                        return $q->where(['Addresses.type' => '1']);
+                    },
+                    'Addresses.Cities',
+                    'InterviewDeposits',
+                    'PhysicalExams' => function ($q) {
+                        return $q->order(['exam_date' => 'DESC']);
+                    },
+                ],
+                'sortWhitelist' => ['fullname', 'enrolled_date', 'birthday'],
+                'limit' => $query['records']
+            ];
+        }
+        
         $students = $this->paginate($allStudents);
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
         $presenters = $this->Students->Presenters->find('list');
@@ -195,7 +250,11 @@ class StudentsController extends AppController
        
         $jobs = TableRegistry::get('Jobs')->find('list')->toArray();
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
-        $this->set(compact(['student', 'jobs', 'cities', 'studentName_VN', 'studentName_EN', 'jtestScore']));
+        $characteristics = TableRegistry::get('Characteristics')->find('list')->where(['del_flag' => FALSE])->toArray();
+        $strengths = TableRegistry::get('Strengths')->find('list')->where(['del_flag' => FALSE])->toArray();
+        $purposes = TableRegistry::get('Purposes')->find('list')->where(['del_flag' => FALSE])->toArray();
+        $afterPlans = TableRegistry::get('AfterPlans')->find('list')->where(['del_flag' => FALSE])->toArray();
+        $this->set(compact(['student', 'jobs', 'cities', 'studentName_VN', 'studentName_EN', 'jtestScore', 'characteristics', 'strengths', 'purposes', 'afterPlans']));
     }
 
     public function getStudent()

@@ -5,8 +5,11 @@ use Cake\I18n\Time;
 $currentUser = $this->request->session()->read('Auth.User');
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
+$role = $this->request->session()->read('Auth.User.role');
+
 $now = Time::now()->i18nFormat('yyyy-MM-dd');
 $interviewStatus = Configure::read('interviewStatus');
+$financeStatus = Configure::read('financeStatus');
 $gender = Configure::read('gender');
 $interviewResult = Configure::read('interviewResult');
 $cityJP = Configure::read('cityJP');
@@ -55,6 +58,16 @@ if ($order->status == "4" || $order->status == "5") {
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
+            <li>
+                <?= $this->Html->link(__('<i class="fa fa-calendar" aria-hidden="true"></i>'), 
+                    ['action' => 'schedule', $order->id],
+                    [   
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-info scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Khóa học',
+                        'escape' => false
+                    ]) ?>
+            </li>
             <?php if ($permission == 0): ?>
                 <?php if ($order->del_flag): ?>
                     <li>
@@ -204,6 +217,14 @@ if ($order->status == "4" || $order->status == "5") {
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="healthcheck_date"><?= __('Ngày khám sức khỏe') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= $order->healthcheck_date ?? 'N/A' ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="application_date"><?= __('Ngày làm hồ sơ') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
@@ -319,7 +340,7 @@ if ($order->status == "4" || $order->status == "5") {
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $order->created_by_user->fullname ?>
+                                <?= !empty($order->created_by_user) ? $order->created_by_user->fullname : 'N/A' ?>
                             </div>
                         </div>
                     </div>
@@ -367,13 +388,22 @@ if ($order->status == "4" || $order->status == "5") {
                     <table class="table table-bordered custom-table candidate-table">
                         <thead>
                             <tr>
-                                <th scope="col"><?= __('STT') ?></th>
-                                <th scope="col"><?= __('Họ tên') ?></th>
-                                <th scope="col"><?= __('Tuổi') ?></th>
-                                <th scope="col"><?= __('Giới tính') ?></th>
-                                <th scope="col"><?= __('Số ĐT') ?></th>
-                                <th scope="col"><?= __('Kết quả') ?></th>
-                                <th scope="col" class="actions">Thao tác</th>
+                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-2"><?= __('Họ tên') ?></th>
+                                <th scope="col" class="col-md-1"><?= __('Tuổi') ?></th>
+                                <th scope="col" class="col-md-1"><?= __('Giới tính') ?></th>
+                                <?php if (!in_array($role['name'], ['accountant', 'staff', 'teacher'])): ?>
+                                    <th scope="col" class="col-md-1"><?= __('Số ĐT') ?></th>
+                                <?php endif; ?>
+                                <?php if (!in_array($role['name'], ['manager', 'staff', 'teacher'])): ?>
+                                    <th scope="col" class="col-md-2"><?= __('Cọc phỏng vấn') ?></th>
+                                <?php endif; ?>
+                                <?php if (!in_array($role['name'], ['accountant'])): ?>
+                                    <th scope="col" class="col-md-2"><?= __('Quê quán') ?></th>
+                                <?php endif; ?>
+
+                                <th scope="col" class="col-md-1"><?= __('Kết quả') ?></th>
+                                <th scope="col" class="actions col-md-1">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody id="candidate-container">
@@ -384,22 +414,32 @@ if ($order->status == "4" || $order->status == "5") {
                                     <?= $this->Form->hidden('students.'  . $key . '.id', ['value' => $value->id]) ?>
                                 </div>
                                 <tr class="row-rec" id="row-candidate-<?=$counter?>">
-                                    <td class="cell col-md-1 stt-col text-center">
+                                    <td class="cell stt-col text-center">
                                         <?= $counter+1 ?>
                                     </td>
-                                    <td class="cell col-md-3">
+                                    <td class="cell">
                                         <a href="javascript:;" onclick="viewCandidate(<?=$value->id?>);"><?= h($value->fullname) ?></a>
                                     </td>
-                                    <td class="cell col-md-1 text-center">
+                                    <td class="cell text-center">
                                         <?= h(($now->diff($value->birthday))->y) ?>
                                     </td>
-                                    <td class="cell col-md-1 text-center">
+                                    <td class="cell text-center">
                                         <?= $gender[$value->gender]?>
                                     </td>
-                                    <td class="cell col-md-3">
-                                        <?= $this->Phone->makeEdit($value->phone) ?>
+                                    <?php if (!in_array($role['name'], ['accountant', 'staff', 'teacher'])): ?>
+                                        <td class="cell">
+                                            <?= $this->Phone->makeEdit($value->phone) ?>
+                                        </td>
+                                    <?php endif; ?>
+                                    <?php if (!in_array($role['name'], ['manager', 'staff', 'teacher'])): ?>
+                                        <td class="cell text-center">
+                                            <?= $value->interview_deposit ? $financeStatus[$value->interview_deposit->status] : ''?>
+                                        </td>
+                                    <?php endif; ?>
+                                    <td class="cell text-center">
+                                        <?= !empty($value->addresses) ? $value->addresses[0]->city->name : '' ?>
                                     </td>
-                                    <td class="cell col-md-1 text-center">
+                                    <td class="cell text-center">
                                         <span class="result-text <?= $value->_joinData->result == '1' ? 'bold-text' : '' ?>"><?= $interviewResult[$value->_joinData->result] ?></span>
                                     </td>
                                     <td class="actions cell">
@@ -491,6 +531,16 @@ if ($order->status == "4" || $order->status == "5") {
                             </tr>
                             <tr>
                                 <td class="cell text-center"><?= __('6') ?></td>
+                                <td class="cell"><?= __('1.20') ?></td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportDeclaration', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell text-center"><?= __('7') ?></td>
                                 <td class="cell"><?= __('1.28') ?></td>
                                 <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
                                 <td class="actions cell">
@@ -500,7 +550,7 @@ if ($order->status == "4" || $order->status == "5") {
                                 </td>
                             </tr>
                             <tr>
-                                <td class="cell text-center"><?= __('7') ?></td>
+                                <td class="cell text-center"><?= __('8') ?></td>
                                 <td class="cell"><?= __('Điểm kiểm tra IQ') ?></td>
                                 <td class="cell text-center"><i class="fa fa-file-excel-o" aria-hidden="true"></i> MS Excel</td>
                                 <td class="actions cell">
@@ -591,6 +641,14 @@ if ($order->status == "4" || $order->status == "5") {
         <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
         <td class="actions cell">
             <a href="/students/export-edu-plan/{{studentId}}?order={{orderId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="cell text-center"><?= __('6') ?></td>
+        <td class="cell"><?= __('1.21') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/orders/export-fees/{{orderId}}?studentId={{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
     {{/if}}

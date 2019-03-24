@@ -58,7 +58,7 @@ class CharacteristicsController extends AppController
         if (!empty($query)) {
             $allChars = $this->Characteristics->find();
             if (!isset($query['records']) || empty($query['records'])) {
-                $query['records'] = 10;
+                $query['records'] = $this->defaultDisplay;
             }
             if (isset($query['char_name']) && !empty($query['char_name'])) {
                 $allChars->where(function (QueryExpression $exp, Query $q) use ($query) {
@@ -78,7 +78,7 @@ class CharacteristicsController extends AppController
             }
             $allChars->order(['Characteristics.created' => 'DESC']);
         } else {
-            $query['records'] = 10;
+            $query['records'] = $this->defaultDisplay;
             $allChars = $this->Characteristics->find()->order(['Characteristics.created' => 'DESC']);
         }
         $this->paginate = [
@@ -181,9 +181,10 @@ class CharacteristicsController extends AppController
                 'entity' => $this->entity,
                 'name' => $characteristic->name
             ]));
-            return $this->redirect(['action' => 'index']);
+        } else {
+            $this->Flash->error($this->errorMessage['error']);
         }
-        $this->Flash->error($this->errorMessage['error']);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**
