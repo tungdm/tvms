@@ -538,11 +538,11 @@ label.optional {
 }
 
 .deletedRecord, .north-student {
-    background-color: red;
+    background-color: #36aecc;
     color: #fff;
 }
 .north-student>a {
-    color: #36aecc;
+    color: #fff;
 }
 .fb-icon > img {
     width: 20%;

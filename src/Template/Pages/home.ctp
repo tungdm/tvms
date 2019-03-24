@@ -237,7 +237,7 @@ $this->assign('title', 'TVMS - Trang Chủ');
             
             <a href="/students/view/{{student.id}}" target="_blank">{{student.fullname}}</a>
         </td>
-        <td class="cell text-center">{{hometown}}</td>
+        <td class="cell text-center {{#if north}}north-student{{/if}}">{{hometown}}</td>
     </tr>
     {{/each}}
 </script>
