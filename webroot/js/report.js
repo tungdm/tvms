@@ -1,6 +1,7 @@
 var switcher = {};
 switcher.order = [];
 switcher.student = [];
+switcher.add = [];
 
 $(document).ready(function () {
     // init switchery
@@ -16,6 +17,12 @@ $(document).ready(function () {
                 size: 'small',
             });
             switcher.student.push(switchery);
+        } else if ($(html).hasClass('add-group')) {
+            var switchery = new Switchery(html, {
+                size: 'small',
+                disabled: true
+            });
+            switcher.add.push(switchery);
         } else {
             var switchery = new Switchery(html, {
                 size: 'small'
@@ -30,9 +37,15 @@ $(document).ready(function () {
                 switcher.student.forEach(function (ele) {
                     ele.disable();
                 });
+                switcher.add.forEach(function (ele) {
+                    ele.enable();
+                });
             } else if ($(this).hasClass('student-group')) {
                 switcher.order.forEach(function (ele) {
                     ele.disable();
+                });
+                switcher.add.forEach(function (ele) {
+                    ele.enable();
                 });
             }
         } else {
@@ -43,9 +56,25 @@ $(document).ready(function () {
                 switcher.student.forEach(function (ele) {
                     ele.enable();
                 });
+                $('.add-group').each(function() {
+                    if ($(this)[0].checked) {
+                        $(this).click();
+                    }
+                })
+                switcher.add.forEach(function (ele) {
+                    ele.disable();
+                });
             } else if ($(this).hasClass('student-group') && checkGroup(switcher.student)) {
                 switcher.order.forEach(function (ele) {
                     ele.enable();
+                });
+                $('.add-group').each(function() {
+                    if ($(this)[0].checked) {
+                        $(this).click();
+                    }
+                })
+                switcher.add.forEach(function (ele) {
+                    ele.disable();
                 });
             }
         }

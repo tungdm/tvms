@@ -548,7 +548,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                                     <td class="cell" colspan="3">
                                         <div class="checkbox">
                                             <label>
-                                                <input name="add[deposit_chk]" type="checkbox" class="js-switch">  Tiền cọc
+                                                <input name="add[deposit_chk]" type="checkbox" class="js-switch add-group">  Tiền cọc
                                             </label>
                                         </div>
                                     </td>
@@ -558,7 +558,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                                     <td class="cell" colspan="3">
                                         <div class="checkbox">
                                             <label>
-                                                <input name="add[healthcheck_chk]" type="checkbox" class="js-switch">  Ngày khám sức khỏe
+                                                <input name="add[healthcheck_chk]" type="checkbox" class="js-switch add-group">  Ngày khám sức khỏe
                                             </label>
                                         </div>
                                     </td>
@@ -568,7 +568,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                                     <td class="cell" colspan="3">
                                         <div class="checkbox">
                                             <label>
-                                                <input name="add[healthcheck_result_chk]" type="checkbox" class="js-switch">  Kết quả khám sức khỏe
+                                                <input name="add[healthcheck_result_chk]" type="checkbox" class="js-switch add-group">  Kết quả khám sức khỏe
                                             </label>
                                         </div>
                                     </td>
@@ -579,7 +579,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                                 <td class="cell" colspan="3">
                                     <div class="checkbox">
                                         <label>
-                                            <input name="add[jclass_chk]" type="checkbox" class="js-switch jclass-group-main">  Lớp học
+                                            <input name="add[jclass_chk]" type="checkbox" class="js-switch jclass-group-main add-group">  Lớp học
                                         </label>
                                     </div>
                                 </td>
@@ -589,7 +589,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                                 <td class="cell" colspan="3">
                                     <div class="checkbox">
                                         <label>
-                                            <input name="add[lesson_chk]" type="checkbox" class="js-switch jclass-group">  Bài học
+                                            <input name="add[lesson_chk]" type="checkbox" class="js-switch jclass-group add-group">  Bài học
                                         </label>
                                     </div>
                                 </td>

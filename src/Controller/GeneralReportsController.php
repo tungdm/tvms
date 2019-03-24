@@ -68,6 +68,7 @@ class GeneralReportsController extends AppController
                 $this->exporOrder($data);
             }
         }
+        return $this->redirect(['action' => 'index']);
     }
 
     public function exportStudent($data)
@@ -250,9 +251,6 @@ class GeneralReportsController extends AppController
                 $activeSheet->getColumnDimension($col)->setWidth(20);
             }
         }
-        // $allStudents->limit(5);
-        // debug($allStudents->toArray());
-        // exit;
         
         $listStudents = [];
         $counter = 6;
