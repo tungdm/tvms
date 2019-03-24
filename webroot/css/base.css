@@ -87,6 +87,9 @@
 #current-del-cell {
     background-color: #a70404 !important;
 }
+#current-cell.north-student, #current-cell.north-student > a {
+    color:black;
+}
 .input-group {
     margin-bottom: 0px !important;
 }
@@ -537,12 +540,13 @@ label.optional {
     font-weight: bold;
 }
 
-.deletedRecord, .north-student {
-    background-color: #36aecc;
+.deletedRecord {
+    background-color: red;
     color: #fff;
 }
-.north-student>a {
-    color: #fff;
+.north-student, .north-student>a {
+    background-color: #36aecc;
+    /* color: ; */
 }
 .fb-icon > img {
     width: 20%;

@@ -75,7 +75,6 @@ class StudentsController extends AppController
         $query = $this->request->getQuery();
         if (!empty($query)) {
             $allStudents = $this->Students->find();
-
             if (!isset($query['records']) || empty($query['records'])) {
                 $query['records'] = $this->defaultDisplay;
             }
@@ -96,7 +95,7 @@ class StudentsController extends AppController
                 $allStudents->where(['presenter_id' => $query['presenter']]);
             }
             if (isset($query['student_status']) && !empty($query['student_status'])) {
-                $allStudents->where(['status' => $query['student_status']]);
+                $allStudents->where(['Students.status' => $query['student_status']]);
             }
             if (isset($query['enrolled_date']) && !empty($query['enrolled_date'])) {
                 $enrolled_date = $this->Util->convertDate($query['enrolled_date']);
@@ -118,17 +117,6 @@ class StudentsController extends AppController
                     return $q->where(['InterviewDeposits.status' => $query['interview_deposit']]);
                 });
             }
-            if (isset($query['health_check']) && !empty($query['health_check'])) {
-                $allStudents->select($this->Students)
-                            ->select(['PhysicalExams.student_id', 'PhysicalExams.result', 'InterviewDeposits.status'])
-                            ->distinct(['PhysicalExams.student_id', 'InterviewDeposits.status']);
-                $allStudents->matching('PhysicalExams', function($q) use ($query) {
-                    return $q->where(['PhysicalExams.result' => $query['health_check']]);
-                });
-                $allStudents->matching('InterviewDeposits', function($q) {
-                    return $q->where(['InterviewDeposits.status >=' => 0]);
-                });
-            }
             if (isset($query['return_from']) && !empty($query['return_from']) && isset($query['return_to']) && !empty($query['return_to'])) {
                 $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->between('return_date', $query['return_from'], $query['return_to'], 'date');
@@ -141,19 +129,13 @@ class StudentsController extends AppController
             $allStudents = $this->Students->find();
             $query['records'] = $this->defaultDisplay;
         }
-
-        Log::write('debug', $allStudents);
-
-        // debug($allStudents->toArray());
         if (isset($query['hometown']) && !empty($query['hometown'])) {
             $this->paginate = [
                 'contain' => [
                     'Presenters',
+                    'Addresses',
                     'Addresses.Cities',
                     'InterviewDeposits',
-                    'PhysicalExams' => function ($q) {
-                        return $q->order(['exam_date' => 'DESC']);
-                    },
                 ],
                 'sortWhitelist' => ['fullname', 'enrolled_date', 'birthday'],
                 'limit' => $query['records']
@@ -167,15 +149,11 @@ class StudentsController extends AppController
                     },
                     'Addresses.Cities',
                     'InterviewDeposits',
-                    'PhysicalExams' => function ($q) {
-                        return $q->order(['exam_date' => 'DESC']);
-                    },
                 ],
                 'sortWhitelist' => ['fullname', 'enrolled_date', 'birthday'],
                 'limit' => $query['records']
             ];
         }
-        
         $students = $this->paginate($allStudents);
         $cities = TableRegistry::get('Cities')->find('list')->cache('cities', 'long');
         $presenters = $this->Students->Presenters->find('list');

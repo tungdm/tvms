@@ -102,7 +102,8 @@ class CandidatesController extends AppController
             $allCandidates->where(['Candidates.del_flag' => FALSE]);
         }
         $this->paginate = [
-            'contain' => ['Cities']
+            'contain' => ['Cities'],
+            'limit' => $query['records']
         ];
         $candidates = $this->paginate($allCandidates);
         $this->set(compact('candidates', 'query'));

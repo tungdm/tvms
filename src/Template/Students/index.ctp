@@ -143,11 +143,6 @@ $this->Paginator->setTemplates([
                                     <?= __('Cọc phỏng vấn') ?>
                                 </th>
                             <?php endif; ?>
-                            <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
-                                <th scope="col" class="healthCheckCol">
-                                    <?= __('Kết quả sức khỏe') ?>
-                                </th>
-                            <?php endif; ?>
                             <th scope="col" class="statusCol">
                                 <?= __('Trạng thái') ?>
                             </th>
@@ -246,18 +241,6 @@ $this->Paginator->setTemplates([
                                     ?>
                                 </td>
                             <?php endif; ?>
-                            <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
-                                <td class="col-md-1 healthCheckCol" style="width: 12.499999995%;">
-                                    <?= $this->Form->control('health_check', [
-                                        'options' => $physResult, 
-                                        'empty' => true,
-                                        'label' => false, 
-                                        'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                        'value' => $query['health_check'] ?? ''
-                                        ])
-                                    ?>
-                                </td>
-                            <?php endif; ?>
                             <td class="col-md-2 statusCol">
                                 <?= $this->Form->control('student_status', [
                                     'options' => $studentStatus, 
@@ -316,11 +299,8 @@ $this->Paginator->setTemplates([
                             <?php endif; ?>
                             <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
                                 <td class="cell interviewDepositCol">
-                                    <?= (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) ? $financeStatus[$value->interview_deposit->status] : ''?>
+                                    <?= (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) ? $financeStatus[$student->interview_deposit->status] : ''?>
                                 </td>
-                            <?php endif; ?>
-                            <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
-                                <td class="cell healthCheckCol"><?= $student->physical_exams ? h($physResult[$student->physical_exams[0]->result]) : '' ?></td>
                             <?php endif; ?>
                             <td class="cell statusCol"><?= h($studentStatus[$student->status]) ?></td>
                             
