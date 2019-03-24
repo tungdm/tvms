@@ -196,7 +196,7 @@ class PagesController extends AppController
                                 'Students.Addresses.Cities'
                             ])
                             ->where(['result' => '1', 'Orders.interview_date >=' => $currentMonth])
-                            ->order(['Orders.id' => 'ASC']);
+                            ->order(['Orders.interview_date' => 'DESC']);
             $newlyPassed->formatResults(function ($results) {
                 return $results->map(function ($row) {
                     $jobId = $row['_matchingData']['Orders']['job_id'];
