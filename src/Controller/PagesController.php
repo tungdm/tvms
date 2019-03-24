@@ -201,7 +201,7 @@ class PagesController extends AppController
                 return $results->map(function ($row) {
                     $jobId = $row['_matchingData']['Orders']['job_id'];
                     $row['hometown'] = $row['student']['addresses'][0]['city']['name'];
-                    $row['north'] = $row['student']['addresses'][0]['city_id'] >= '01' && $row['student']['addresses'][0]['city_id'] <= '37';
+                    $row['north'] = ($row['student']['addresses'][0]['city_id'] >= '01' && $row['student']['addresses'][0]['city_id'] <= '52') or in_array($row['student']['addresses'][0]['city_id'], ['62', '64']);
                     return $row;
                 });
             });
