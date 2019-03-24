@@ -1310,7 +1310,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="form-group">
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_notes"><?= __('Ghi chú') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                     <?= !empty($student->interview_deposit->notes) ? nl2br($student->interview_deposit->notes) : 'N/A' ?>
                                                 </div>
                                             </div>
@@ -1346,7 +1346,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="form-group">
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                     <?= !empty($student->general_costs[0]->notes) ? nl2br($student->general_costs[0]->notes) : 'N/A' ?>
                                                 </div>
                                             </div>
@@ -1383,7 +1383,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div class="form-group">
                                             <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                                     <?= !empty($student->general_costs[1]->notes) ? nl2br($student->general_costs[1]->notes) : 'N/A' ?>
                                                 </div>
                                             </div>

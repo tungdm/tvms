@@ -230,7 +230,6 @@ class PagesController extends AppController
             })
             ->group('city_id')
             ->order(['count'=>'DESC'])
-            ->limit(5)
             ->toArray();
         return $population;
     }
