@@ -433,7 +433,7 @@ if ($order->status == "4" || $order->status == "5") {
                                     <?php endif; ?>
                                     <?php if (!in_array($role['name'], ['manager', 'staff', 'teacher'])): ?>
                                         <td class="cell text-center">
-                                            <?= $value->interview_deposit ? $financeStatus[$value->interview_deposit->status] : ''?>
+                                            <?= (!empty($value->interview_deposit) && !empty($value->interview_deposit->status)) ? $financeStatus[$value->interview_deposit->status] : ''?>
                                         </td>
                                     <?php endif; ?>
                                     <td class="cell text-center">

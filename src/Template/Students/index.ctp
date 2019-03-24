@@ -315,7 +315,9 @@ $this->Paginator->setTemplates([
                                 <td class="cell hometownCol"><?= $student->addresses ? h($student->addresses[0]->city->name) : '' ?></td>
                             <?php endif; ?>
                             <?php if (!in_array($role['name'], ['manager', 'teacher', 'staff'])): ?>
-                                <td class="cell interviewDepositCol"><?= $student->interview_deposit ? h($financeStatus[$student->interview_deposit->status]) : '' ?></td>
+                                <td class="cell interviewDepositCol">
+                                    <?= (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) ? $financeStatus[$value->interview_deposit->status] : ''?>
+                                </td>
                             <?php endif; ?>
                             <?php if (!in_array($role['name'], ['teacher', 'staff'])): ?>
                                 <td class="cell healthCheckCol"><?= $student->physical_exams ? h($physResult[$student->physical_exams[0]->result]) : '' ?></td>

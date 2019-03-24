@@ -616,6 +616,9 @@ class GeneralReportsController extends AppController
                         $counter++;
                         array_push($listStudents, $studentData);
                     }
+                } else {
+                    $counter++;
+                    array_push($listStudents, []);
                 }
                 
                 $end = $counter;
