@@ -249,8 +249,13 @@ class OrdersController extends AppController
                 'DisCompanies' => function ($q) {
                     return $q->where(['DisCompanies.del_flag' => FALSE]);
                 },
+                'Schedules',
+                'Schedules.Holidays' => [
+                    'sort' => ['Holidays.day' => 'ASC']
+                ]
             ]
         ]);
+        $currentApplicationDate = $order->application_date;
         $currentStatus = $order->status;
         $this->checkDeleteFlag($order, $this->Auth->user());
         if ($order->status == '5' && $this->Auth->user('role_id') != 1) {
@@ -264,7 +269,7 @@ class OrdersController extends AppController
             $data['departure_date'] = $this->Util->reverseStr($data['departure_date']);
             $newInterviewDate = $this->Util->convertDate($data['interview_date']);
             if ($currentInterviewDate !== $newInterviewDate) {
-                // uppdate system event
+                // update system event
                 $event = $this->SystemEvent->update($order->events[0]->id, $data['interview_date']);
                 $data['events'][0] = $event;
             }
@@ -295,6 +300,12 @@ class OrdersController extends AppController
                     $entities = TableRegistry::get('Notifications')->newEntities($notifications);
                     // save to db
                     TableRegistry::get('Notifications')->saveMany($entities);
+                }
+                if ($currentApplicationDate !== $order->application_date && !empty($order->schedule)) {
+                    $end = $this->addBussinessDay($order->application_date, 24, $order->schedule->holidays);
+                    $schedule = $order->schedule;
+                    $schedule->end_date = $end;
+                    $this->Orders->Schedules->save($schedule);
                 }
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
                     'entity' => $this->entity,
@@ -507,7 +518,7 @@ class OrdersController extends AppController
         if (empty($order->schedule)) {
             $schedule = $this->Orders->Schedules->newEntity();
             $action = 'add';
-            $end = $this->addBussinessDay($start, 24);
+            $end = $this->addBussinessDay($start, 24, []);
         } else {
             $schedule = $order->schedule;
             $action = 'edit';
@@ -581,14 +592,22 @@ class OrdersController extends AppController
         return $this->jsonResponse($resp);
     }
 
-    public function addBussinessDay($date, $numOfDays)
+    public function addBussinessDay($date, $numOfDays, $holidays)
     {
+        $holidaysArr = [];
+        if (!empty($holidays)) {
+            foreach ($holidays as $holiday) {
+                debug($holiday->day->i18nFormat('dd-MM-yyyy'));
+                array_push($holidaysArr, $holiday->day->i18nFormat('dd-MM-yyyy'));
+            }
+        }
+        
         while ($numOfDays > 0) {
+            $date = $date->addDay(1);
             $dayOfWeek = date('N', strtotime($date));
-            if ($dayOfWeek != 6 && $dayOfWeek != 7) {
+            if ($dayOfWeek != 6 && $dayOfWeek != 7 && !in_array($date->i18nFormat('dd-MM-yyyy'), $holidaysArr )) {
                 $numOfDays--;
             }
-            $date = $date->addDay(1);
         }
         return $date;
     }
@@ -596,7 +615,7 @@ class OrdersController extends AppController
     public function deleteCandidate()
     {
         $this->request->allowMethod('ajax');
-        $query = $this->request->getQuery();
+        $interviewId = $this->request->getData('id');
 
         $resp = [
             'status' => 'error',
@@ -610,11 +629,17 @@ class OrdersController extends AppController
         try {
             $table = TableRegistry::get('OrdersStudents');
             $interview = $table->find()->where(['OrdersStudents.id' => $interviewId])->contain(['Students'])->first();
+            Log::write('debug', $interview);
             $order = $this->Orders->get($interview->order_id);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit');
+            $student = $this->Orders->Students->get($interview->student_id);
+            if ($student->status == 3 && $interview->result == 1) {
+                $student->status = 2;
+                $student = $this->Orders->setAuthor($student, $this->Auth->user('id'), 'edit');
+            }
 
             $candidateName = $interview->student->fullname;
-            if (!empty($interview) && $table->delete($interview) && $this->Orders->save($order)) {
+            if (!empty($interview) && $table->delete($interview) && $this->Orders->save($order) && $this->Orders->Students->save($student)) {
                 $resp = [
                     'status' => 'success',
                     'alert' => [
