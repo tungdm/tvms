@@ -238,7 +238,7 @@ class OrdersController extends AppController
     {
         $order = $this->Orders->get($id, [
             'contain' => [
-                'Students', 
+                'Students' => ['sort' => ['result' => 'ASC']], 
                 'Students.Jclasses',
                 'Students.Addresses' => function($q) {
                     return $q->where(['Addresses.type' => '1']);
