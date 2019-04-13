@@ -131,10 +131,10 @@ class GeneralReportsController extends AppController
         if (isset($condition['enrolled_date_chk']) && $condition['enrolled_date_chk'] == 'on') {
             if (!empty($condition['enrolled_from']) && empty($condition['enrolled_to'])) {
                 $from = $this->Util->convertDate($condition['enrolled_from']);
-                $allStudents->where(['Students.birthday >=' => $from]);
+                $allStudents->where(['Students.enrolled_date >=' => $from]);
             } else if (empty($condition['enrolled_from']) && !empty($condition['enrolled_to'])) {
                 $to = $this->Util->convertDate($condition['enrolled_to']);
-                $allStudents->where(['Students.birthday <=' => $to]);
+                $allStudents->where(['Students.enrolled_date <=' => $to]);
             } else if (!empty($condition['enrolled_from']) && !empty($condition['enrolled_to'])) {
                 $from = $this->Util->convertDate($condition['enrolled_from']);
                 $to = $this->Util->convertDate($condition['enrolled_to']);

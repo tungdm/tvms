@@ -306,7 +306,7 @@ $this->Html->script('jlpt.js', ['block' => 'scriptBottom']);
                                             </div>
                                         </td>
                                         <td class="cell text-center">
-                                            <?= h($student->jclasses[0]->name) ?>
+                                            <?= h($student->jclasses ? $student->jclasses[0]->name : 'N/A') ?>
                                         </td>
                                         <td class="actions cell">
                                             <?= $this->Html->link(

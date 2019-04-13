@@ -139,17 +139,15 @@ class NotificationShell extends Shell
             foreach ($receiversArr as $key => $role) {
                 $receivers = $this->Users->find()->where(['role_id' => $role, 'del_flag' => FALSE]);
                 foreach ($receivers as $user) {
-                    foreach ($student->physical_exams as $key => $exam) {
-                        $noti = [
-                            'user_id' => $user->id,
-                            'content' => Text::insert($setting->template, [
-                                'time' => $exam->exam_date->i18nFormat('dd-MM-yyyy'),
-                                'fullname' => $student->fullname
-                            ]),
-                            'url' => '/students/view/' . $student->id
-                        ];
-                        array_push($data, $noti);
-                    }
+                    $noti = [
+                        'user_id' => $user->id,
+                        'content' => Text::insert($setting->template, [
+                            'time' => $student->enrolled_date->i18nFormat('dd-MM-yyyy'),
+                            'fullname' => $student->fullname
+                        ]),
+                        'url' => '/students/view/' . $student->id
+                    ];
+                    array_push($data, $noti);
                 }
             }
         }

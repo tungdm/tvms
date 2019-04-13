@@ -169,7 +169,7 @@ class JlptTestsController extends AppController
     {
         $jtest = $this->JlptTests->get($id, [
             'contain' => [
-                'Students',
+                'Students' => ['sort' => ['result' => 'DESC']],
                 'JlptContents' => ['sort' => ['skill' => 'ASC']], 
                 'JlptContents.Users',
                 'CreatedByUsers',

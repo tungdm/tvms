@@ -46,7 +46,8 @@ return [
         2 => 'Chưa đóng',
         3 => 'Đóng thiếu',
         4 => 'Miễn đóng',
-        5 => 'Chưa có thông tin'
+        5 => 'Chưa có thông tin',
+        6 => 'Đã hoàn trả'
     ],
     'recordsDisplay' => [
         '10' => '10',
@@ -833,7 +834,8 @@ return [
     'folderImgTemplate' =>  ROOT . DS . 'webroot' . DS . 'img' . DS . 'templates',
     'resume' => [
         'filename' => '履歴書-:firstName.docx',
-        'template' => 'resume.docx'
+        'template' => 'resume.docx',
+        'defaultLevel' => 'N5'
     ],
     'contract' => [
         'filename_jp' => '1. :firstName 日本での契約書（日本語).docx',

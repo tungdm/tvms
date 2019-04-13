@@ -74,7 +74,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                             <?= $this->Form->unlockField('add') ?>
                             <tr>
                                 <td colspan="3">
-                                    I. THÔNG TIN CÁ NHÂN
+                                    I. XUẤT THEO THÔNG TIN CÁ NHÂN CỦA LAO ĐỘNG
                                 </td>
                             </tr>
                             <tr class="group-1">
@@ -297,7 +297,7 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
                             <?php endif; ?>
                             
                             <tr>
-                                <td colspan="3">II. PHỎNG VẤN - ĐƠN HÀNG</td>
+                                <td colspan="3">II. XUẤT THEO ĐƠN HÀNG</td>
                             </tr>
                             <tr class="group-2">
                                 <td class="cell text-center stt-col"></td>

@@ -106,10 +106,12 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <ul id="student-tabs" class="nav nav-tabs bar_tabs" role="tablist">
-                <?php if (!in_array($role['name'], ['teacher'])): ?>
+                <?php if (!(in_array($role['name'], ['teacher']) && $permission == 1)): ?>
                     <li role="presentation" class="active">
                         <a href="#tab_content1" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true"><?= __('Thông tin cơ bản') ?></a>
                     </li>
+                <?php endif; ?>
+                <?php if (!in_array($role['name'], ['teacher'])): ?>
                     <li role="presentation" class="">
                         <a href="#tab_content2" role="tab" id="personal-document-tab" data-toggle="tab" aria-expanded="false"><?= __('Giấy tờ tùy thân') ?></a>
                     </li>
@@ -119,7 +121,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         <a href="#tab_content3" role="tab" id="experience-tab" data-toggle="tab" aria-expanded="false"><?= __('Học tập - Làm việc') ?></a>
                     </li>
                 <?php endif ?>
-                <?php if(in_array($role['name'], ['admin', 'recruiter', 'accountant'])): ?>
+                <?php if(in_array($role['name'], ['admin', 'recruiter', 'accountant', 'staff'])): ?>
                     <li role="presentation" class="">
                         <a href="#tab_content4" role="tab" id="finance-physical-tab" data-toggle="tab" aria-expanded="false"><?= __('Tài chính - Sức khỏe') ?></a>
                     </li>
@@ -142,7 +144,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                 </li>
             </ul>
             <div id="student-tab-content" class="tab-content">
-                <?php if (!in_array($role['name'], ['teacher'])): ?>
+                <?php if (!(in_array($role['name'], ['teacher']) && $permission == 1)): ?>
                     <div role="tabpanel" class="tab-pane root-tab-pane fade active in" id="tab_content1">
                         <div class="rows">
                             <div class="col-md-6 col-xs-12 left-col">
@@ -246,14 +248,16 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->phone) ? $this->Phone->makeEdit($student->phone) : 'N/A' ?>
+                                        <?php if (!in_array($role['name'], ['teacher'])): ?>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->phone) ? $this->Phone->makeEdit($student->phone) : 'N/A' ?>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        <?php endif; ?>
                                         <div class="form-group">
                                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="birthday"><?= __('Ngày sinh') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -849,6 +853,8 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             </div>
                         </div>
                     </div>
+                <?php endif ?>
+                <?php if (!in_array($role['name'], ['teacher'])): ?>
                     <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content2">
                         <div class="rows">
                             <div class="col-md-6 col-xs-12 left-col">
@@ -1271,127 +1277,129 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 <?php endif ?>
-                <?php if(in_array($role['name'], ['admin', 'recruiter', 'accountant'])): ?>
+                <?php if(in_array($role['name'], ['admin', 'recruiter', 'accountant', 'staff'])): ?>
                     <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content4">
-                        <div class="rows">
-                            <div class="col-md-6 col-xs-12 left-col">
-                                <div class="box">
-                                    <div class="box-header with-border">
-                                        <h3 class="box-title"><?= __('Cọc phỏng vấn') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                        <?php if($role['name'] != 'staff'): ?>
+                            <div class="rows">
+                                <div class="col-md-6 col-xs-12 left-col">
+                                    <div class="box">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title"><?= __('Cọc phỏng vấn') ?></h3>
+                                            <div class="box-tools pull-right">
+                                                <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_type"><?= __('Loại cọc') ?>: </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->interview_deposit->type) ? $depositType[$student->interview_deposit->type] : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_status"><?= __('Trạng thái') ?>: </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->interview_deposit->status) ? $financeStatus[$student->interview_deposit->status] : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="payment_date"><?= __('Ngày đóng') ?>: </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->interview_deposit->payment_date) ? $student->interview_deposit->payment_date : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_notes"><?= __('Ghi chú') ?>: </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                                        <?= !empty($student->interview_deposit->notes) ? nl2br($student->interview_deposit->notes) : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="box-body">
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_type"><?= __('Loại cọc') ?>: </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposit->type) ? $depositType[$student->interview_deposit->type] : 'N/A' ?>
+                                </div>
+                                <div class="col-md-6 col-xs-12 right-col">
+                                    <div class="box">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title"><?= __('Chi phí lần 1') ?></h3>
+                                            <div class="box-tools pull-right">
+                                                <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="box-body">
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->general_costs[0]->status) ? $financeStatus[$student->general_costs[0]->status] : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->general_costs[0]->payment_date) ? $student->general_costs[0]->payment_date : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                                        <?= !empty($student->general_costs[0]->notes) ? nl2br($student->general_costs[0]->notes) : 'N/A' ?>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_status"><?= __('Trạng thái') ?>: </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposit->status) ? $financeStatus[$student->interview_deposit->status] : 'N/A' ?>
-                                                </div>
+                                    </div>
+                                    <div class="box">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title"><?= __('Chi phí lần 2') ?></h3>
+                                            <div class="box-tools pull-right">
+                                                <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="payment_date"><?= __('Ngày đóng') ?>: </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->interview_deposit->payment_date) ? $student->interview_deposit->payment_date : 'N/A' ?>
+                                        <div class="box-body">
+                                            <?php if (!empty($student->general_costs)): ?>
+                                                <?= $this->Form->hidden('general_costs.1.id', ['value' => $student->general_costs[1]->id]) ?>
+                                            <?php endif; ?>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->general_costs[1]->status) ? $financeStatus[$student->general_costs[1]->status] : 'N/A' ?>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="deposit_notes"><?= __('Ghi chú') ?>: </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
-                                                    <?= !empty($student->interview_deposit->notes) ? nl2br($student->interview_deposit->notes) : 'N/A' ?>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12">
+                                                        <?= !empty($student->general_costs[1]->payment_date) ? $student->general_costs[1]->payment_date : 'N/A' ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                                        <?= !empty($student->general_costs[1]->notes) ? nl2br($student->general_costs[1]->notes) : 'N/A' ?>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-xs-12 right-col">
-                                <div class="box">
-                                    <div class="box-header with-border">
-                                        <h3 class="box-title"><?= __('Chi phí lần 1') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="box-body">
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs[0]->status) ? $financeStatus[$student->general_costs[0]->status] : 'N/A' ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs[0]->payment_date) ? $student->general_costs[0]->payment_date : 'N/A' ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
-                                                    <?= !empty($student->general_costs[0]->notes) ? nl2br($student->general_costs[0]->notes) : 'N/A' ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="box">
-                                    <div class="box-header with-border">
-                                        <h3 class="box-title"><?= __('Chi phí lần 2') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="box-body">
-                                        <?php if (!empty($student->general_costs)): ?>
-                                            <?= $this->Form->hidden('general_costs.1.id', ['value' => $student->general_costs[1]->id]) ?>
-                                        <?php endif; ?>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_status"><?= __('Trạng thái') ?></label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs[1]->status) ? $financeStatus[$student->general_costs[1]->status] : 'N/A' ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_payment_date"><?= __('Ngày đóng') ?></label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                    <?= !empty($student->general_costs[1]->payment_date) ? $student->general_costs[1]->payment_date : 'N/A' ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="control-label col-md-6 col-sm-6 col-xs-12" for="cost_notes"><?= __('Ghi chú') ?></label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
-                                                    <?= !empty($student->general_costs[1]->notes) ? nl2br($student->general_costs[1]->notes) : 'N/A' ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                         <div class="rows">
                             <div class="col-md-12 col-xs-12 no-padding">
                                 <div class="box">

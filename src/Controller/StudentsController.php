@@ -61,6 +61,9 @@ class StudentsController extends AppController
         parent::initialize();
         $this->loadComponent('ExportFile');
         $this->loadComponent('Util');
+        $this->loadModel('Notifications');
+        $this->loadModel('NotificationSettings');
+        $this->loadModel('Users');
         $this->entity = 'lao động';
         $this->missingFields = '';
     }
@@ -126,7 +129,7 @@ class StudentsController extends AppController
                 $allStudents->order(['Students.created' => 'DESC']);
             }
         } else {
-            $allStudents = $this->Students->find();
+            $allStudents = $this->Students->find()->order(['Students.created' => 'DESC']);
             $query['records'] = $this->defaultDisplay;
         }
         if (isset($query['hometown']) && !empty($query['hometown'])) {
@@ -609,6 +612,7 @@ class StudentsController extends AppController
         $ppImage1 = NULL;
         $btnImage1 = NULL;
         $btnImage2 = NULL;
+        $prevEnrolledDate = NULL;
         if (!empty($id)) {
             $student = $this->Students->get($id, [
                 'contain' => [
@@ -634,6 +638,7 @@ class StudentsController extends AppController
                 ]);
             $action = 'edit';
             $prevImage = $student->image;
+            $prevEnrolledDate = $student->enrolled_date;
             if (!empty($student->cards[0]->image1)) {
                 $cmndImage1 = $student->cards[0]->image1;
             }
@@ -737,6 +742,34 @@ class StudentsController extends AppController
                             'entity' => $this->entity,
                             'name' => $student->fullname
                         ]));
+                    }
+                    # create notification for enrolled date
+                    if ($prevEnrolledDate != $student->enrolled_date) {
+                        $setting = $this->NotificationSettings->get(4);
+                        $receiversArr = explode(',', $setting->receivers_groups);
+                        array_shift($receiversArr);
+                        array_pop($receiversArr);
+                        $now = Time::now()->addDays($setting->send_before)->i18nFormat('yyyy-MM-dd');
+                        if ($student->enrolled_date->i18nFormat('yyyy-MM-dd') == $now) {
+                            $data = [];
+                            foreach ($receiversArr as $key => $role) {
+                                $receivers = $this->Users->find()->where(['role_id' => $role, 'del_flag' => FALSE]);
+                                foreach ($receivers as $user) {
+                                    $noti = [
+                                        'user_id' => $user->id,
+                                        'content' => Text::insert($setting->template, [
+                                            'time' => $student->enrolled_date->i18nFormat('dd-MM-yyyy'),
+                                            'fullname' => $student->fullname
+                                        ]),
+                                        'url' => '/students/view/' . $student->id
+                                    ];
+                                    array_push($data, $noti);
+                                }
+                            }
+                            $entities = $this->Notifications->newEntities($data);
+                            // save to db
+                            $this->Notifications->saveMany($entities);
+                        }
                     }
                     return $this->redirect(['action' => 'info', $student->id]);
                 } else {
@@ -1110,6 +1143,9 @@ class StudentsController extends AppController
                             break;
                     }
                 }
+            } else {
+                $jplevel_JP = $resumeConfig['defaultLevel'] . '相当';
+                $jplevel_VN = 'Tương đương ' . $resumeConfig['defaultLevel'];
             }
             $jplang = $enlang = $folderImgTemplate . DS . 'circle.png';
             if (empty(str_replace(" ", "", $jplevel_JP))) {
@@ -1145,7 +1181,7 @@ class StudentsController extends AppController
             $this->tbs->VarRef['maritalno'] = $marital_n;
     
             $this->tbs->VarRef['jplevel_jp'] = $jplevel_JP;
-            $this->tbs->VarRef['jplevel_vn'] = $jplevel_JP;
+            $this->tbs->VarRef['jplevel_vn'] = $jplevel_VN;
             $this->tbs->VarRef['enlevel_jp'] = $enlevel_JP;
             $this->tbs->VarRef['enlevel_vn'] = $enlevel_VN;
             $this->tbs->VarRef['jplang'] = $jplang;
@@ -1407,6 +1443,7 @@ class StudentsController extends AppController
             } else {
                 $this->tbs->VarRef['student_name'] = $studentName_VN;
             }
+            $this->tbs->VarRef['year'] = $now->year;
             $this->tbs->VarRef['birthday'] = $birthday;
             $this->tbs->VarRef['cmnd'] = $student->cards[0]->code;
             $this->tbs->VarRef['from_day'] = $cmnd_from_date;

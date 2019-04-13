@@ -629,7 +629,6 @@ class OrdersController extends AppController
         try {
             $table = TableRegistry::get('OrdersStudents');
             $interview = $table->find()->where(['OrdersStudents.id' => $interviewId])->contain(['Students'])->first();
-            Log::write('debug', $interview);
             $order = $this->Orders->get($interview->order_id);
             $order = $this->Orders->setAuthor($order, $this->Auth->user('id'), 'edit');
             $student = $this->Orders->Students->get($interview->student_id);
