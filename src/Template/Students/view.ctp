@@ -298,6 +298,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php if (in_array($role['name'], ['recruiter', 'accountant', 'admin'])): ?>
                                         <div class="form-group">
                                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="presenter"><?= __('Người giới thiệu') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -312,6 +313,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 </div>
                                             </div>
                                         </div>
+                                        <?php endif; ?>
                                         <div class="form-group">
                                             <label class="control-label col-md-5 col-sm-5 col-xs-12" for="expectationJobs"><?= __('Nghề mong muốn') ?>: </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
