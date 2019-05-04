@@ -568,7 +568,7 @@ class GeneralReportsController extends AppController
                     foreach ($order->students as $student) {
                         if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
                             $jclassName = '';
-                            if ($student->status >= 3) {
+                            if ($student->status == 4) {
                                 # lao dong da dau pv
                                 $jclassName = !empty($student->last_class) ? $student->last_class : '';
                             } else {
