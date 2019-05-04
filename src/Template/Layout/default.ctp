@@ -140,10 +140,27 @@
                             </li>
                         </ul>
                     </li>
-                    <li>
-                        <?= $this->Html->link('<i class="fa fa-file"></i> <span>BÁO CÁO</span>', 
-                            ['controller' => 'GeneralReports', 'action' => 'index'],
-                            ['escape' => false]) ?>
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-file"></i>
+                            <span><?= __('BÁO CÁO') ?></span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Lao động', 
+                                    ['controller' => 'GeneralReports', 'action' => 'student'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Đơn hàng', 
+                                    ['controller' => 'GeneralReports', 'action' => 'order'],
+                                    ['escape' => false]) ?>
+                            </li>
+                        </ul>
+                        
                     </li>
                     <li>
                         <?= $this->Html->link('<i class="fa fa-calendar"></i> <span>LỊCH CÔNG TÁC</span>', 

@@ -33,42 +33,18 @@ class GeneralReportsController extends AppController
         return true;
     }
 
-    public function index()
+    public function student()
     {
-        $cities = TableRegistry::get('Cities')->find('list');
-        $disCompanies = TableRegistry::get('Companies')->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
-        $disCompaniesArr = $disCompanies->toArray();
-
-        $companies = TableRegistry::get('Companies')->find('list')->where(['type' => '2', 'del_flag' => FALSE]);
-        $companiesArr = $companies->toArray();
-
-        $guilds = TableRegistry::get('Guilds')->find('list')->where(['del_flag' => FALSE]);
-        $guildsArr = $guilds->toArray();
-
         $presenters = $this->Students->Presenters->find('list');
         $jclasses = $this->Students->Jclasses->find('list');
-        $orders = $this->Students->Orders->find()
-                    ->where(['del_flag' => FALSE])
-                    ->map(function ($row) {
-                        $row->name = $row->name . ' (' . $row->interview_date->i18nFormat('dd/MM/yyyy') . ')';
-                            return $row;
-                        })
-                    ->combine('id', 'name')
-                    ->toArray();
-        $this->set(compact('cities', 'presenters', 'jclasses', 'orders', 'disCompanies', 'companies', 'guilds'));
-    }
-
-    public function exportGeneralInfo()
-    {
+        $cities = TableRegistry::get('Cities')->find('list');
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-            if (!empty($data['std'])) {
+            if (!empty($data)) {
                 $this->exportStudent($data);
-            } else if (!empty($data['order'])) {
-                $this->exporOrder($data);
             }
         }
-        return $this->redirect(['action' => 'index']);
+        $this->set(compact('cities', 'presenters', 'jclasses'));
     }
 
     public function exportStudent($data)
@@ -86,6 +62,11 @@ class GeneralReportsController extends AppController
             },
         ]])->where(['Students.del_flag' => FALSE]);
         $condition = $data['std'];
+        if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on' && !empty($condition['jclass'])) {
+            $allStudents->matching('Jclasses', function($q) use ($condition) {
+                return $q->where(['Jclasses.id' => $condition['jclass']]);
+            });
+        }
         if (isset($condition['status_chk']) && $condition['status_chk'] == 'on' && !empty($condition['status'])) {
             $allStudents->where(['Students.status' => $condition['status']]);
         }
@@ -149,7 +130,6 @@ class GeneralReportsController extends AppController
             }
         }
         $allStudents->order(['Students.fullname' => 'ASC']);
-
         // Load config
         $reportConfig = Configure::read('reportXlsx');
         $studentStatus = Configure::read('studentStatus');
@@ -223,8 +203,18 @@ class GeneralReportsController extends AppController
             $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Ngày nhập học'); 
             $activeSheet->getColumnDimension($col)->setWidth(15);
         }
-        if (isset($data['add']) && !empty($data['add'])) {
-            $additionalData = $data['add'];
+        if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
+            $col = $this->nextChar($col);
+            $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Lớp học'); 
+            $activeSheet->getColumnDimension($col)->setWidth(15);
+        }
+        if (isset($data['additional']) && !empty($data['additional'])) {
+            $additionalData = $data['additional'];
+            if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
+                $col = $this->nextChar($col);
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Bài đang học'); 
+                $activeSheet->getColumnDimension($col)->setWidth(20);
+            }
             if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
                 $col = $this->nextChar($col);
                 $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Tiền cọc'); 
@@ -239,16 +229,6 @@ class GeneralReportsController extends AppController
                 $col = $this->nextChar($col);
                 $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Kết quả khám sức khỏe'); 
                 $activeSheet->getColumnDimension($col)->setWidth(30);
-            }
-            if (isset($additionalData['jclass_chk']) && $additionalData['jclass_chk'] == 'on') {
-                $col = $this->nextChar($col);
-                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Lớp học'); 
-                $activeSheet->getColumnDimension($col)->setWidth(15);
-            }
-            if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
-                $col = $this->nextChar($col);
-                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Bài đang học'); 
-                $activeSheet->getColumnDimension($col)->setWidth(20);
             }
         }
         
@@ -298,8 +278,28 @@ class GeneralReportsController extends AppController
                 $enrollDate = !empty($student->enrolled_date) ? $student->enrolled_date->i18nFormat('dd-MM-yyyy') : '';
                 array_push($studentData, $enrollDate);
             }
-            if (isset($data['add']) && !empty($data['add'])) {
-                $additionalData = $data['add'];
+            if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
+                $jclassName = '';
+                if ($student->status >= 3) {
+                    # lao dong da dau pv
+                    $jclassName = !empty($student->last_class) ? $student->last_class : '';
+                } else {
+                    $jclassName = !empty($student->_matchingData) ? $student->_matchingData['Jclasses']->name : '';
+                }
+                array_push($studentData, $jclassName);
+            }
+            if (isset($data['additional']) && !empty($data['additional'])) {
+                $additionalData = $data['additional'];
+                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
+                    $jlesson = '';
+                    if ($student->status >= 3) {
+                        # lao dong da dau pv
+                        $jlesson = $student->last_lesson != NULL ? $jLessons[$student->last_lesson] : '';
+                    } else {
+                        $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
+                    }
+                    array_push($studentData, $jlesson);
+                }
                 if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
                     $deposit = '';
                     if (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) {
@@ -318,31 +318,9 @@ class GeneralReportsController extends AppController
                     }
                     array_push($studentData, $result);
                 }
-                if (isset($additionalData['jclass_chk']) && $additionalData['jclass_chk'] == 'on') {
-                    $jclassName = '';
-                    if ($student->status >= 3) {
-                        # lao dong da dau pv
-                        $jclassName = !empty($student->last_class) ? $student->last_class : '';
-                    } else {
-                        $jclassName = !empty($student->jclasses) ? $student->jclasses[0]->name : '';
-                    }
-                    array_push($studentData, $jclassName);
-                }
-                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
-                    $jlesson = '';
-                    if ($student->status >= 3) {
-                        # lao dong da dau pv
-                        $jlesson = $student->last_lesson != NULL ? $jLessons[$student->last_lesson] : '';
-                    } else {
-                        $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
-                    }
-                    array_push($studentData, $jlesson);
-                }
             }
             array_push($listStudents, $studentData);
         }
-        // debug($listStudents);
-        // exit;
         
         $activeSheet->fromArray($listStudents, NULL, 'A7');
         $activeSheet->getStyle('A5:'. $col . $counter)->getAlignment()->setWrapText(true);
@@ -373,6 +351,27 @@ class GeneralReportsController extends AppController
         // export XLSX file for download
         $this->ExportFile->export($spreadsheet, $reportConfig['filename']);
         exit;
+    }
+
+    public function order()
+    {
+        $disCompanies = TableRegistry::get('Companies')->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
+        $companies = TableRegistry::get('Companies')->find('list')->where(['type' => '2', 'del_flag' => FALSE]);
+        $guilds = TableRegistry::get('Guilds')->find('list')->where(['del_flag' => FALSE]);
+        $jclasses = $this->Students->Jclasses->find('list');
+        $orders = $this->Students->Orders->find()
+                    ->where(['del_flag' => FALSE])
+                    ->map(function ($row) {
+                        $row->name = $row->name . ' (' . $row->interview_date->i18nFormat('dd/MM/yyyy') . ')';
+                            return $row;
+                        })
+                    ->combine('id', 'name')
+                    ->toArray();
+        if ($this->request->is('post')) {
+            $data = $this->request->getData();
+            $this->exporOrder($data);
+        }
+        $this->set(compact('companies', 'disCompanies', 'guilds', 'orders', 'jclasses'));
     }
 
     public function exporOrder($data)
@@ -525,8 +524,18 @@ class GeneralReportsController extends AppController
             $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Kết quả phỏng vấn'); 
             $activeSheet->getColumnDimension($col)->setWidth(20);
 
-            if (isset($data['add']) && !empty($data['add'])) {
-                $additionalData = $data['add'];
+            if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
+                $col = $this->nextChar($col);
+                $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Lớp học'); 
+                $activeSheet->getColumnDimension($col)->setWidth(15);
+            }
+            if (isset($data['additional']) && !empty($data['additional'])) {
+                $additionalData = $data['additional'];
+                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
+                    $col = $this->nextChar($col);
+                    $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Bài đang học'); 
+                    $activeSheet->getColumnDimension($col)->setWidth(20);
+                }
                 if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
                     $col = $this->nextChar($col);
                     $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Tiền cọc'); 
@@ -542,84 +551,84 @@ class GeneralReportsController extends AppController
                     $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Kết quả khám sức khỏe'); 
                     $activeSheet->getColumnDimension($col)->setWidth(30);
                 }
-                if (isset($additionalData['jclass_chk']) && $additionalData['jclass_chk'] == 'on') {
-                    $col = $this->nextChar($col);
-                    $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Lớp học'); 
-                    $activeSheet->getColumnDimension($col)->setWidth(15);
-                }
-                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
-                    $col = $this->nextChar($col);
-                    $activeSheet->mergeCells($col.'5:'.$col.'6')->setCellValue($col.'5', 'Bài đang học'); 
-                    $activeSheet->getColumnDimension($col)->setWidth(20);
-                }
             }
 
             $listStudents = [];
             $counter = 6;
-            
+
+            $selectedJclass = NULL;
+            if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on' && !empty($condition['jclass'])) {
+                $selectedJclass = $this->Students->Jclasses->get($condition['jclass'])->name;
+            }
             foreach ($allOrders as $key => $order) {
                 $start = $counter + 1;
+                // debug('start: ' . $start);
                 if (!empty($order->students)) {
+                    $studentData = [];
                     foreach ($order->students as $student) {
-                        if (isset($condition['interview_result_chk']) && $condition['interview_result_chk'] == 'on') {
-                            if ($condition['interview_result'] != NULL) {
-                                if ($student->_joinData->result !== $condition['interview_result']) {
-                                    continue;
+                        if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
+                            $jclassName = '';
+                            if ($student->status >= 3) {
+                                # lao dong da dau pv
+                                $jclassName = !empty($student->last_class) ? $student->last_class : '';
+                            } else {
+                                $jclassName = !empty($student->jclasses) ? $student->jclasses[0]->name : '';
+                            }
+                            if (!empty($selectedJclass) && $jclassName === $selectedJclass) {
+                                if (isset($condition['interview_result_chk']) && $condition['interview_result_chk'] == 'on') {
+                                    if ($condition['interview_result'] != NULL) {
+                                        if ($student->_joinData->result !== $condition['interview_result']) {
+                                            continue;
+                                        }
+                                    }
                                 }
+                                $counter++;
+                                // debug('=> counter increase: '. $counter);
+                                $studentData = [$student->fullname, $interviewResult[$student->_joinData->result], $jclassName];
+                                if (isset($data['additional']) && !empty($data['additional'])) {
+                                    $additionalData = $data['additional'];
+                                    if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
+                                        $deposit = '';
+                                        if (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) {
+                                            $deposit = $financeStatus[$student->interview_deposit->status];
+                                        }
+                                        array_push($studentData, $deposit);
+                                    }
+                                    if (isset($additionalData['healthcheck_chk']) && $additionalData['healthcheck_chk'] == 'on') {
+                                        $healthcheck = !empty($student->physical_exams) ? $student->physical_exams[0]->exam_date->i18nFormat('dd-MM-yyyy') : '';
+                                        array_push($studentData, $healthcheck);
+                                    }
+                                    if (isset($additionalData['healthcheck_result_chk']) && $additionalData['healthcheck_result_chk'] == 'on') {
+                                        $result = '';
+                                        if (!empty($student->physical_exams) && !empty($student->physical_exams[0]->result)) {
+                                            $result = $physResult[$student->physical_exams[0]->result];
+                                        }
+                                        array_push($studentData, $result);
+                                    }
+                                    if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
+                                        $jlesson = '';
+                                        if ($student->status >= 3) {
+                                            # lao dong da dau pv
+                                            $jlesson = $student->last_lesson != NULL ? $jLessons[$student->last_lesson] : '';
+                                        } else {
+                                            $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
+                                        }
+                                        array_push($studentData, $jlesson);
+                                    }
+                                }
+                                array_push($listStudents, $studentData);
                             }
                         }
-                        $studentData = [$student->fullname, $interviewResult[$student->_joinData->result]];
-    
-                        if (isset($data['add']) && !empty($data['add'])) {
-                            $additionalData = $data['add'];
-                            if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
-                                $deposit = '';
-                                if (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) {
-                                    $deposit = $financeStatus[$student->interview_deposit->status];
-                                }
-                                array_push($studentData, $deposit);
-                            }
-                            if (isset($additionalData['healthcheck_chk']) && $additionalData['healthcheck_chk'] == 'on') {
-                                $healthcheck = !empty($student->physical_exams) ? $student->physical_exams[0]->exam_date->i18nFormat('dd-MM-yyyy') : '';
-                                array_push($studentData, $healthcheck);
-                            }
-                            if (isset($additionalData['healthcheck_result_chk']) && $additionalData['healthcheck_result_chk'] == 'on') {
-                                $result = '';
-                                if (!empty($student->physical_exams) && !empty($student->physical_exams[0]->result)) {
-                                    $result = $physResult[$student->physical_exams[0]->result];
-                                }
-                                array_push($studentData, $result);
-                            }
-                            if (isset($additionalData['jclass_chk']) && $additionalData['jclass_chk'] == 'on') {
-                                $jclassName = '';
-                                if ($student->status >= 3) {
-                                    # lao dong da dau pv
-                                    $jclassName = !empty($student->last_class) ? $student->last_class : '';
-                                } else {
-                                    $jclassName = !empty($student->jclasses) ? $student->jclasses[0]->name : '';
-                                }
-                                array_push($studentData, $jclassName);
-                            }
-                            if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
-                                $jlesson = '';
-                                if ($student->status >= 3) {
-                                    # lao dong da dau pv
-                                    $jlesson = $student->last_lesson != NULL ? $jLessons[$student->last_lesson] : '';
-                                } else {
-                                    $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
-                                }
-                                array_push($studentData, $jlesson);
-                            }
-                        }
-                        $counter++;
-                        array_push($listStudents, $studentData);
                     }
                 } else {
-                    $counter++;
                     array_push($listStudents, []);
                 }
-                
+                // debug($listStudents);
+                if ($counter < $start) {
+                    $counter = $start;
+                }
                 $end = $counter;
+                
                 $activeSheet->mergeCells('A'.$start.':A'.$end)->setCellValue('A'.$start, $key+1);
                 $activeSheet->mergeCells('B'.$start.':B'.$end)->setCellValue('B'.$start, $order->name);
                 $ccol = 'B';
@@ -644,7 +653,8 @@ class GeneralReportsController extends AppController
                 }
                 if (isset($condition['discompany_chk']) && $condition['discompany_chk'] == 'on') {
                     $ccol = $this->nextChar($ccol);
-                    $activeSheet->mergeCells($ccol.$start.':'.$ccol.$end)->setCellValue($ccol.$start, $order->dis_company->name_romaji);
+                    $dis_company_name = $order->dis_company ? $order->dis_company->name_romaji : '';
+                    $activeSheet->mergeCells($ccol.$start.':'.$ccol.$end)->setCellValue($ccol.$start, $dis_company_name);
                 }
                 if (isset($condition['company_chk']) && $condition['company_chk'] == 'on') {
                     $ccol = $this->nextChar($ccol);
