@@ -280,9 +280,9 @@ class GeneralReportsController extends AppController
             }
             if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
                 $jclassName = '';
-                if ($student->status >= 3) {
+                if ($student->status == 4 && !empty($student->last_class)) {
                     # lao dong da dau pv
-                    $jclassName = !empty($student->last_class) ? $student->last_class : '';
+                    $jclassName = $student->last_class;
                 } else {
                     $jclassName = !empty($student->_matchingData) ? $student->_matchingData['Jclasses']->name : '';
                 }
@@ -292,9 +292,9 @@ class GeneralReportsController extends AppController
                 $additionalData = $data['additional'];
                 if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
                     $jlesson = '';
-                    if ($student->status >= 3) {
+                    if ($student->status == 4 && $student->last_lesson != NULL) {
                         # lao dong da dau pv
-                        $jlesson = $student->last_lesson != NULL ? $jLessons[$student->last_lesson] : '';
+                        $jlesson = $jLessons[$student->last_lesson];
                     } else {
                         $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
                     }
@@ -568,9 +568,9 @@ class GeneralReportsController extends AppController
                     foreach ($order->students as $student) {
                         if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
                             $jclassName = '';
-                            if ($student->status == 4) {
+                            if ($student->status == 4 && !empty($student->last_class) ) {
                                 # lao dong da dau pv
-                                $jclassName = !empty($student->last_class) ? $student->last_class : '';
+                                $jclassName = $student->last_class;
                             } else {
                                 $jclassName = !empty($student->jclasses) ? $student->jclasses[0]->name : '';
                             }
@@ -607,9 +607,9 @@ class GeneralReportsController extends AppController
                                     }
                                     if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
                                         $jlesson = '';
-                                        if ($student->status >= 3) {
+                                        if ($student->status == 4 && $student->last_lesson != NULL) {
                                             # lao dong da dau pv
-                                            $jlesson = $student->last_lesson != NULL ? $jLessons[$student->last_lesson] : '';
+                                            $jlesson = $jLessons[$student->last_lesson];
                                         } else {
                                             $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
                                         }
