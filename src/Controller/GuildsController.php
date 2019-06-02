@@ -274,8 +274,6 @@ class GuildsController extends AppController
                     'name' => $guild->name_romaji
                 ]));
             } else {
-                debug($guild->errors());
-                // exit;
                 $this->Flash->error($this->errorMessage['error']);
             }
             return $this->redirect(['action' => 'index']);

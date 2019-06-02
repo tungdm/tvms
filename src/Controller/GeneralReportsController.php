@@ -562,68 +562,69 @@ class GeneralReportsController extends AppController
             }
             foreach ($allOrders as $key => $order) {
                 $start = $counter + 1;
-                // debug('start: ' . $start);
                 if (!empty($order->students)) {
                     $studentData = [];
-                    foreach ($order->students as $student) {
-                        if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
-                            $jclassName = '';
-                            if ($student->status == 4 && !empty($student->last_class) ) {
-                                # lao dong da dau pv
-                                $jclassName = $student->last_class;
-                            } else {
-                                $jclassName = !empty($student->jclasses) ? $student->jclasses[0]->name : '';
-                            }
-                            if (!empty($selectedJclass) && $jclassName === $selectedJclass) {
-                                if (isset($condition['interview_result_chk']) && $condition['interview_result_chk'] == 'on') {
-                                    if ($condition['interview_result'] != NULL) {
-                                        if ($student->_joinData->result !== $condition['interview_result']) {
-                                            continue;
+                    foreach ($order->students as $index => $student) {
+                        $jclassName = '';
+                        if ($student->status == 4 && !empty($student->last_class) ) {
+                            # lao dong da dau pv
+                            $jclassName = $student->last_class;
+                        } else {
+                            $jclassName = !empty($student->jclasses) ? $student->jclasses[0]->name : '';
+                        }
+                        if ((!empty($selectedJclass) && $jclassName === $selectedJclass) || empty($selectedJclass)) {
+                            if (isset($condition['interview_result_chk']) && $condition['interview_result_chk'] == 'on') {
+                                if ($condition['interview_result'] != NULL) {
+                                    if ($student->_joinData->result !== $condition['interview_result']) {
+                                        if ($index == sizeof($order->students) - 1) {
+                                            array_push($listStudents, []);
                                         }
+                                        continue;
                                     }
                                 }
-                                $counter++;
-                                // debug('=> counter increase: '. $counter);
-                                $studentData = [$student->fullname, $interviewResult[$student->_joinData->result], $jclassName];
-                                if (isset($data['additional']) && !empty($data['additional'])) {
-                                    $additionalData = $data['additional'];
-                                    if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
-                                        $deposit = '';
-                                        if (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) {
-                                            $deposit = $financeStatus[$student->interview_deposit->status];
-                                        }
-                                        array_push($studentData, $deposit);
-                                    }
-                                    if (isset($additionalData['healthcheck_chk']) && $additionalData['healthcheck_chk'] == 'on') {
-                                        $healthcheck = !empty($student->physical_exams) ? $student->physical_exams[0]->exam_date->i18nFormat('dd-MM-yyyy') : '';
-                                        array_push($studentData, $healthcheck);
-                                    }
-                                    if (isset($additionalData['healthcheck_result_chk']) && $additionalData['healthcheck_result_chk'] == 'on') {
-                                        $result = '';
-                                        if (!empty($student->physical_exams) && !empty($student->physical_exams[0]->result)) {
-                                            $result = $physResult[$student->physical_exams[0]->result];
-                                        }
-                                        array_push($studentData, $result);
-                                    }
-                                    if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
-                                        $jlesson = '';
-                                        if ($student->status == 4 && $student->last_lesson != NULL) {
-                                            # lao dong da dau pv
-                                            $jlesson = $jLessons[$student->last_lesson];
-                                        } else {
-                                            $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
-                                        }
-                                        array_push($studentData, $jlesson);
-                                    }
-                                }
-                                array_push($listStudents, $studentData);
                             }
+                            $counter++;
+                            $studentData = [$student->fullname, $interviewResult[$student->_joinData->result]];
+                            if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {
+                                array_push($studentData, $jclassName);
+                            }
+                            if (isset($data['additional']) && !empty($data['additional'])) {
+                                $additionalData = $data['additional'];
+                                if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
+                                    $deposit = '';
+                                    if (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) {
+                                        $deposit = $financeStatus[$student->interview_deposit->status];
+                                    }
+                                    array_push($studentData, $deposit);
+                                }
+                                if (isset($additionalData['healthcheck_chk']) && $additionalData['healthcheck_chk'] == 'on') {
+                                    $healthcheck = !empty($student->physical_exams) ? $student->physical_exams[0]->exam_date->i18nFormat('dd-MM-yyyy') : '';
+                                    array_push($studentData, $healthcheck);
+                                }
+                                if (isset($additionalData['healthcheck_result_chk']) && $additionalData['healthcheck_result_chk'] == 'on') {
+                                    $result = '';
+                                    if (!empty($student->physical_exams) && !empty($student->physical_exams[0]->result)) {
+                                        $result = $physResult[$student->physical_exams[0]->result];
+                                    }
+                                    array_push($studentData, $result);
+                                }
+                                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
+                                    $jlesson = '';
+                                    if ($student->status == 4 && $student->last_lesson != NULL) {
+                                        # lao dong da dau pv
+                                        $jlesson = $jLessons[$student->last_lesson];
+                                    } else {
+                                        $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
+                                    }
+                                    array_push($studentData, $jlesson);
+                                }
+                            }
+                            array_push($listStudents, $studentData);
                         }
                     }
                 } else {
                     array_push($listStudents, []);
                 }
-                // debug($listStudents);
                 if ($counter < $start) {
                     $counter = $start;
                 }
