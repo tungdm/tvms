@@ -564,6 +564,7 @@ class GeneralReportsController extends AppController
                 $start = $counter + 1;
                 if (!empty($order->students)) {
                     $studentData = [];
+                    $have_student = FALSE;
                     foreach ($order->students as $index => $student) {
                         $jclassName = '';
                         if ($student->status == 4 && !empty($student->last_class) ) {
@@ -576,13 +577,14 @@ class GeneralReportsController extends AppController
                             if (isset($condition['interview_result_chk']) && $condition['interview_result_chk'] == 'on') {
                                 if ($condition['interview_result'] != NULL) {
                                     if ($student->_joinData->result !== $condition['interview_result']) {
-                                        if ($index == sizeof($order->students) - 1) {
+                                        if ($index == sizeof($order->students) - 1 && !$have_student) {
                                             array_push($listStudents, []);
                                         }
                                         continue;
                                     }
                                 }
                             }
+                            $have_student = TRUE;
                             $counter++;
                             $studentData = [$student->fullname, $interviewResult[$student->_joinData->result]];
                             if (isset($condition['jclass_chk']) && $condition['jclass_chk'] == 'on') {

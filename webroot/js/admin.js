@@ -1933,7 +1933,7 @@ function seenNoti(ele, notiId, eye) {
                     $('.unreadMsg').html(resp.unreadMsg);
                 }
                 if (eye) {
-                    $('.seenNoti').remove();
+                    $(ele).remove();
                 }
             } else {
                 var notice = new PNotify({

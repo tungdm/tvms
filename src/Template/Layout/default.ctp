@@ -995,13 +995,13 @@
     <script id="notification-template" type="text/x-handlebars-template">
         {{#each this}}
             <tr class="row-noti">
-                <td class="cell stt-col text-center">
+                <td class="cell col-md-1 stt-col text-center">
                     {{inc @index}}
                 </td>
-                <td class="cell">
+                <td class="cell col-md-8">
                     {{content}}
                 </td>
-                <td class="cell actions">
+                <td class="cell col-md-3 actions">
                     {{#unless is_seen}}
                         <?= $this->Html->link(
                             '<i class="fa fa-2x fa-eye"></i>', 
