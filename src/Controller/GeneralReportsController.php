@@ -35,8 +35,8 @@ class GeneralReportsController extends AppController
 
     public function student()
     {
-        $presenters = $this->Students->Presenters->find('list');
-        $jclasses = $this->Students->Jclasses->find('list');
+        $presenters = $this->Students->Presenters->find('list')->order(['Presenters.name' => 'ASC']);
+        $jclasses = $this->Students->Jclasses->find('list')->order(['Jclasses.name' => 'ASC']);
         $cities = TableRegistry::get('Cities')->find('list');
         if ($this->request->is('post')) {
             $data = $this->request->getData();
@@ -355,10 +355,15 @@ class GeneralReportsController extends AppController
 
     public function order()
     {
-        $disCompanies = TableRegistry::get('Companies')->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
-        $companies = TableRegistry::get('Companies')->find('list')->where(['type' => '2', 'del_flag' => FALSE]);
-        $guilds = TableRegistry::get('Guilds')->find('list')->where(['del_flag' => FALSE]);
-        $jclasses = $this->Students->Jclasses->find('list');
+        $disCompanies = TableRegistry::get('Companies')->find('list')
+                                                       ->where(['type' => '1', 'del_flag' => FALSE])
+                                                       ->order(['Companies.name_romaji' => 'ASC']);
+        $companies = TableRegistry::get('Companies')->find('list')
+                                                    ->where(['type' => '2', 'del_flag' => FALSE])
+                                                    ->order(['Companies.name_romaji' => 'ASC']);
+        $guilds = TableRegistry::get('Guilds')->find('list')->where(['del_flag' => FALSE])
+                                              ->order(['Guilds.name_romaji' => 'ASC']);
+        $jclasses = $this->Students->Jclasses->find('list')->order(['Jclasses.name' => 'ASC']);
         $orders = $this->Students->Orders->find()
                     ->where(['del_flag' => FALSE])
                     ->map(function ($row) {
@@ -454,7 +459,6 @@ class GeneralReportsController extends AppController
                 $allOrders->where(['Orders.guild_id' => $condition['guild']]);
             }
             $allOrders->order(['Orders.interview_date' => 'DESC']);
-
             // Load config
             $reportConfig = Configure::read('reportXlsx');
             $interviewResult = Configure::read('interviewResult');
@@ -622,6 +626,9 @@ class GeneralReportsController extends AppController
                                 }
                             }
                             array_push($listStudents, $studentData);
+                        }
+                        if ($index == sizeof($order->students) - 1 && !$have_student) {
+                            array_push($listStudents, []);
                         }
                     }
                 } else {
