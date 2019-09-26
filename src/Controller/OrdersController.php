@@ -2179,7 +2179,7 @@ class OrdersController extends AppController
                 ->setCellValue('F8', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
                 ->setCellValue('F9', 'ホーチミン市支部所属人材教育センター')
                 ->setCellValue('B10', '所在地：')
-                ->setCellValue('F10', '12 TRINH DINH THAO STREET, HOA THANH WARD, TAN PHU DISTRICT,')
+                ->setCellValue('F10', '403 LUY BAN BICH STREET, HOA THANH WARD, TAN PHU DISTRICT,')
                 ->setCellValue('F11', 'HO CHI MINH CITY, VIETNAM')
                 ->setCellValueExplicit(
                     'A12',
@@ -2244,7 +2244,7 @@ class OrdersController extends AppController
                 ->setCellValue('H28', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
                 ->setCellValue('H29', 'ホーチミン市支部所属人材教育センター')
                 ->setCellValue('B30', '所在地：')
-                ->setCellValue('H30', '12 TRINH DINH THAO STREET, HOA THANH  WARD,')
+                ->setCellValue('H30', '403 LUY BAN BICH STREET, HOA THANH  WARD,')
                 ->setCellValue('H31', 'TAN PHU DISTRICT, HO CHI MINH CITY, VIETNAM')
                 ->setCellValue('B32', '電話：')
                 ->setCellValue('H32', '(+84)28-3976-1448')
