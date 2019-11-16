@@ -12,8 +12,10 @@ jobs:
     steps:
       - name: TVMS Deployment
         uses: appleboy/ssh-action@master
+        env:
+          PATH: ${{ secrets.TVMS_PATH }}
         with:
           host: ${{ secrets.TVMS_HOST }}
           username: ${{ secrets.TVMS_USERNAME }}
           password: ${{ secrets.TVMS_PASSWD }}
-          script: cd /home/ubuntu/tvms && ./deployment.sh
+          script: cd $PATH && git pull
