@@ -331,24 +331,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="application_date"><?= __('Ngày làm hồ sơ') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="input-group date input-picker" id="application-date"> <!-- Remove validate for user input past data -->
-                            <?= $this->Form->control('application_date', [
-                                'type' => 'text',
-                                'label' => false, 
-                                'class' => 'form-control',
-                                'placeholder' => 'dd-mm-yyyy',
-                                'data-parsley-errors-container' => '#error-application-date'
-                                ])?>
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                        <span id="error-application-date"></span>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="skill_test"><?= __('Thi tay nghề') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('skill_test', [
@@ -409,6 +391,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 <span class="glyphicon glyphicon-calendar"></span>
                             </span>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="airport"><?= __('Sân bay Nhật') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <?= $this->Form->control('japanese_airport', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập sân bay tại Nhật'
+                            ]) ?>
                     </div>
                 </div>
             </div>
@@ -513,6 +505,88 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'placeholder' => 'Nhập yêu cầu khác (nếu có)'
                             ]) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title"><?= __('Thông tin bổ sung') ?></h3>
+                <div class="box-tools pull-right">
+                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="application_date"><?= __('Ngày làm hồ sơ') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="application-date"> <!-- Remove validate for user input past data -->
+                            <?= $this->Form->control('application_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                'data-parsley-errors-container' => '#error-application-date'
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="error-application-date"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="submitted_date"><?= __('Ngày gửi hồ sơ sang Nhật') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="submitted-date">
+                            <?= $this->Form->control('submitted_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                'data-parsley-errors-container' => '#error-submitted-date'
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="error-submitted-date"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="visa_apply_date"><?= __('Ngày xin visa') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="visa-apply-date">
+                            <?= $this->Form->control('visa_apply_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                'data-parsley-errors-container' => '#error-visa-date'
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="error-visa-date"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12 optional" for="temporary_stay_date"><?= __('Ngày có tạm trú') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="temporary-stay-date">
+                            <?= $this->Form->control('temporary_stay_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                'data-parsley-errors-container' => '#error-temporary-stay-date'
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="error-temporary-stay-date"></span>
                     </div>
                 </div>
             </div>
@@ -855,6 +929,16 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
                                         ['action' => 'exportIqTest', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell text-center"><?= __('9') ?></td>
+                                <td class="cell"><?= __('Thông tin đơn hàng') ?></td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportSummary', $order->id],
                                         ['escape' => false]) ?>
                                 </td>
                             </tr>

@@ -853,11 +853,11 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         <thead>
                             <tr>
                                 <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                <th scope="col" class="col-md-2"><?= __('Đơn hàng') ?></th>
                                 <th scope="col" class="col-md-2"><?= __('Họ tên') ?></th>
                                 <th scope="col" class="col-md-3"><?= __('Ngày bay chính thức') ?></th>
                                 <th scope="col" class="col-md-2"><?= __('Thời gian làm việc') ?></th>
                                 <th scope="col" class="col-md-2"><?= __('Quê quán') ?></th>
-                                <th scope="col" class="col-md-2"><?= __('Nghề nghiệp') ?></th>
                             </tr>
                         </thead>
                         <tbody id="workers-container"></tbody>
@@ -878,14 +878,14 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
     <tr>
         <td class="cell text-center">{{inc @index}}</td>
         <td class="cell">
+            <a href="/orders/view/{{_matchingData.Orders.id}}" target="_blank">{{_matchingData.Orders.name}}</a>
+        </td>
+        <td class="cell">
             <a href="javascript:;" onclick="viewWorkers({{id}});">{{fullname}}</a>
         </td>
         <td class="cell">{{dateTimeFormat _matchingData.Orders.departure}}</td>
         <td class="cell">{{_matchingData.Orders.work_time}} năm</td>
         <td class="cell">{{addresses.0.city.name}}</td>
-        <td class="cell">
-            <a href="javascript:;" onclick="viewOrder({{_matchingData.Orders.id}});">{{job}}</a>
-        </td>
     </tr>
     {{else}}
     <tr>

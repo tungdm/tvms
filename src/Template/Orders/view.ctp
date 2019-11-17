@@ -225,14 +225,6 @@ if ($order->status == "4" || $order->status == "5") {
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="application_date"><?= __('Ngày làm hồ sơ') ?>: </label>
-                        <div class="col-md-7 col-sm-7 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= $order->application_date ?? 'N/A' ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="skill_test"><?= __('Thi tay nghề') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->skill_test ? $yesNoQuestion[$order->skill_test] : 'N/A' ?></div>
@@ -254,6 +246,14 @@ if ($order->status == "4" || $order->status == "5") {
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="departure"><?= __('Ngày bay chính thức') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->departure ?? 'N/A' ?></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="japanese_airport"><?= __('Sân bay Nhật') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
+                                <?= !empty($order->japanese_airport) ? nl2br($order->japanese_airport) : 'N/A' ?>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -323,6 +323,48 @@ if ($order->status == "4" || $order->status == "5") {
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12 textarea-view">
                                 <?= !empty($order->requirement) ? nl2br($order->requirement) : 'N/A' ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title"><?= __('Thông tin bổ sung') ?></h3>
+                    <div class="box-tools pull-right">
+                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="application_date"><?= __('Ngày làm hồ sơ') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= $order->application_date ?? 'N/A' ?>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="submitted_date"><?= __('Ngày gửi hồ sơ sang Nhật') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= !empty($order->submitted_date) ? $order->submitted_date : 'N/A' ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="visa_apply_date"><?= __('Ngày xin visa') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= !empty($order->visa_apply_date) ? $order->visa_apply_date : 'N/A' ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="temporary_stay_date"><?= __('Ngày có tạm trú') ?>: </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12">
+                                <?= !empty($order->temporary_stay_date) ? $order->temporary_stay_date : 'N/A' ?>
                             </div>
                         </div>
                     </div>
@@ -556,6 +598,16 @@ if ($order->status == "4" || $order->status == "5") {
                                 <td class="actions cell">
                                     <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
                                         ['action' => 'exportIqTest', $order->id],
+                                        ['escape' => false]) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="cell text-center"><?= __('9') ?></td>
+                                <td class="cell"><?= __('Thông tin đơn hàng') ?></td>
+                                <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+                                <td class="actions cell">
+                                    <?= $this->Html->link('<i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về', 
+                                        ['action' => 'exportSummary', $order->id],
                                         ['escape' => false]) ?>
                                 </td>
                             </tr>

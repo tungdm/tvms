@@ -823,7 +823,7 @@ class OrdersController extends AppController
             $studentName_EN = $this->Util->convertV2E($studentName_VN);
             $studentName = explode(' ', $studentName_EN);
             $studentFirstName = array_pop($studentName);
-            $output_file_name = Text::insert($cvTemplateConfig['filename'], [
+            $outputFileName = Text::insert($cvTemplateConfig['filename'], [
                 'firstName' => $studentFirstName, 
                 ]);
             $now = Time::now();
@@ -1068,7 +1068,7 @@ class OrdersController extends AppController
                 return $this->redirect(['action' => 'index']);
             }
 
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit();
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -1093,7 +1093,7 @@ class OrdersController extends AppController
             ]]);
         $this->checkDeleteFlag($order, $this->Auth->user());
 
-        $output_file_name = Text::insert($coverConfig['filename'], [
+        $outputFileName = Text::insert($coverConfig['filename'], [
             'order' => $order->name, 
             ]);
         $now = Time::now();
@@ -1119,17 +1119,113 @@ class OrdersController extends AppController
                 ]);
             return $this->redirect(['action' => 'index']);
         }
-        $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+        $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
         exit;
     }
 
+    public function exportSummary($id = null)
+    {
+        // load config
+        $summaryConfig = Configure::read('orderSummary');
+        $gender = Configure::read('gender');
+        $studentStatus = Configure::read('studentStatus');
+        $outputFileName = $summaryConfig['filename'];
+        try {
+            $order = $this->Orders->get($id, [
+                'contain' => [
+                    'Jobs',
+                    'Companies',
+                    'Guilds',
+                    'Students' => function($q) {
+                        return $q->where(['result' => '1']);
+                    }
+                ]
+            ]);
+            $this->checkDeleteFlag($order, $this->Auth->user());
+            $template = WWW_ROOT . 'document' . DS . $summaryConfig['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $missingFields = [];
+            $guildJP = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
+            $guildVN = $this->checkData($order->guild->name_romaji, 'Tên nghiệp đoàn');
+            $this->tbs->VarRef['guildJP'] = $guildJP;
+            $this->tbs->VarRef['guildVN'] = $guildVN;
+
+            $companyJP = $this->checkData($order->company->name_kanji, 'Tên phiên âm của công ty tiếp nhận');
+            $companyVN = $order->company->name_romaji;
+            $this->tbs->VarRef['companyJP'] = $companyJP;
+            $this->tbs->VarRef['companyVN'] = $companyVN;
+
+            $this->tbs->VarRef['jobJP'] = $order->job->job_name_jp;
+            $this->tbs->VarRef['jobVN'] = $order->job->job_name;
+                
+            $this->tbs->VarRef['interviewDateJP'] = !empty($order->interview_date) ? $order->interview_date->i18nFormat('yyyy年M月d日') : 'N/A';
+            $this->tbs->VarRef['interviewDateVN'] = !empty($order->interview_date) ? $order->interview_date->i18nFormat('dd/MM/yyyy') : 'N/A';
+
+            $this->tbs->VarRef['tempDateJP'] = !empty($order->temporary_stay_date) ? $order->temporary_stay_date->i18nFormat('yyyy年M月d日') : 'N/A';
+            $this->tbs->VarRef['tempDateVN'] = !empty($order->temporary_stay_date) ? $order->temporary_stay_date->i18nFormat('dd/MM/yyyy') : 'N/A';
+
+            $this->tbs->VarRef['submittedDateJP'] = !empty($order->submitted_date) ? $order->submitted_date->i18nFormat('yyyy年M月d日') : 'N/A';
+            $this->tbs->VarRef['submittedDateVN'] = !empty($order->submitted_date) ? $order->submitted_date->i18nFormat('dd/MM/yyyy') : 'N/A';
+
+            $this->tbs->VarRef['visaDateJP'] = !empty($order->visa_apply_date) ? $order->visa_apply_date->i18nFormat('yyyy年M月d日') : 'N/A';
+            $this->tbs->VarRef['visaDateVN'] = !empty($order->visa_apply_date) ? $order->visa_apply_date->i18nFormat('dd/MM/yyyy') : 'N/A';
+
+            $this->tbs->VarRef['departureDateJP'] = !empty($order->departure) ? $order->departure->i18nFormat('yyyy年M月d日') : 'N/A';
+            $this->tbs->VarRef['departureDateVN'] = !empty($order->departure) ? $order->departure->i18nFormat('dd/MM/yyyy') : 'N/A';
+
+            $this->tbs->VarRef['nowJP'] = Time::now()->i18nFormat('yyyy年M月d日');
+
+            $return_date_jp = $return_date_vn = 'N/A';
+            if (!empty($order->departure) && !empty($order->work_time)) {
+                $workTime = Configure::read('workTime');
+                $return_date = $order->interview_date->addYear((int)$workTime[$order->work_time]);
+                $return_date_jp = $return_date->i18nFormat('yyyy年M月');
+                $return_date_vn = $return_date->i18nFormat('MM/yyyy');
+            }
+            $this->tbs->VarRef['returnDateJP'] = $return_date_jp;
+            $this->tbs->VarRef['returnDateVN'] = $return_date_vn;
+
+            $this->tbs->VarRef['jpairport'] = $order->japanese_airport ?? 'N/A';
+
+            $listVN = [];
+            foreach ($order->students as $key => $student) {
+                $studentName_VN = mb_strtoupper($student->fullname);
+                $studentVN = [
+                    'no' => $key + 1,
+                    'studentName' => $studentName_VN,
+                    'birthday' => $student->birthday->i18nFormat('dd/MM/yyyy'),
+                    'gender' => $gender[$student->gender],
+                    'status' => $studentStatus[$student->status]
+                ];
+                array_push($listVN, $studentVN);
+            }
+            $this->tbs->MergeBlock('a', $listVN);            
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
     public function exportDispatchLetter($id = null)
     {
         // load config
         $dispatchLetterConfig = Configure::read('dispatchLetter');
         $gender = Configure::read('gender');
         $genderJP = Configure::read('genderJP');
-        $output_file_name = $dispatchLetterConfig['filename'];
+        $outputFileName = $dispatchLetterConfig['filename'];
         try {
             $order = $this->Orders->get($id, [
                 'contain' => [
@@ -1239,7 +1335,7 @@ class OrdersController extends AppController
                     ]);
                 return $this->redirect(['action' => 'index']);
             }
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -1870,7 +1966,7 @@ class OrdersController extends AppController
     {
         $declarationConfig = Configure::read('orderDeclaration');
         $vnDateFormatFull = Configure::read('vnDateFormatFull');
-        $output_file_name = $declarationConfig['filename'];
+        $outputFileName = $declarationConfig['filename'];
         try {
             $order = $this->Orders->get($id, [
                 'contain' => [
@@ -1904,7 +2000,7 @@ class OrdersController extends AppController
                     ]);
                 return $this->redirect(['action' => 'index']);
             }
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -1917,7 +2013,7 @@ class OrdersController extends AppController
     {
         $config = Configure::read('orderSchedule');
         $tableData = $config['tableData'];
-        $output_file_name = $config['filename'];
+        $outputFileName = $config['filename'];
         try { 
             $order = $this->Orders->get($id, ['contain' => [
                 'Students' => function($q) {
@@ -2020,7 +2116,7 @@ class OrdersController extends AppController
                 return $this->redirect(['action' => 'index']);
             }
 
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -2032,7 +2128,7 @@ class OrdersController extends AppController
     public function exportScheduleRecord($id = null)
     {
         $config = Configure::read('orderScheduleRecord');
-        $output_file_name = $config['filename'];
+        $outputFileName = $config['filename'];
         try { 
             $order = $this->Orders->get($id, ['contain' => [
                 'Guilds',
@@ -2124,7 +2220,7 @@ class OrdersController extends AppController
                 return $this->redirect(['action' => 'index']);
             }
 
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -2289,7 +2385,7 @@ class OrdersController extends AppController
     public function exportFees($id = null)
     {
         $config = Configure::read('orderFees');
-        $output_file_name = $config['filename'];
+        $outputFileName = $config['filename'];
         $vnDateFormatFull = Configure::read('vnDateFormatFull');
         $query = $this->request->getQuery();
         try { 
@@ -2365,7 +2461,7 @@ class OrdersController extends AppController
                 return $this->redirect(['action' => 'index']);
             }
 
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);
@@ -2377,7 +2473,7 @@ class OrdersController extends AppController
     public function exportCertificate($id)
     {
         $orderCertificateConfig = Configure::read('orderCertificate');
-        $output_file_name = $orderCertificateConfig['filename'];
+        $outputFileName = $orderCertificateConfig['filename'];
         $genderJP = Configure::read('genderJP');
 
         try {
@@ -2440,7 +2536,7 @@ class OrdersController extends AppController
                     ]);
                 return $this->redirect(['action' => 'index']);
             }
-            $this->tbs->Show(OPENTBS_DOWNLOAD, $output_file_name);
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
             Log::write('debug', $e);

@@ -985,6 +985,10 @@ return [
         'filename' => '1.21.docx',
         'template' => 'fees.docx',
     ],
+    'orderSummary' => [
+        'filename' => '実習生の日本出国.docx',
+        'template' => 'order_summary.docx',
+    ],
     'cvTemplate' => [
         'filename' => ':firstName-CV.docx',
         'template' => 'cv.docx',
