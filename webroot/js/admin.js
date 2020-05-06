@@ -2085,6 +2085,28 @@ function deleteNoti(delEl, notiId) {
     });
 }
 
+function initTextToNumberHelper() {
+    $(".textToNumber")
+        .keypress(function (event) {
+            var charCode = (event.which) ? event.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        })
+        .keyup(function (event) {
+            var charCode = (event.which) ? event.which : event.keyCode
+            // skip for arrow keys
+            if (charCode >= 37 && charCode <= 40) return;
+            // format number
+            $(this).val(function (index, value) {
+                aliasId = $(this).attr("alias");
+                number = value.replace(/\D/g, "").replace(/^0+/, '');;
+                $(`#${aliasId}`).val(number);
+                return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            });
+        });
+}
+
 
 $(document).ready(function () {
     init_sidebar();
@@ -2092,6 +2114,7 @@ $(document).ready(function () {
     initSelect2();
     initDatetimePicker();
     initFloatingButton();
+    initTextToNumberHelper();
 
     // set state for sidebar
     $('.sidebar-toggle').click(function () {

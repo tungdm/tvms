@@ -178,6 +178,35 @@ function deleteDayOff(delEl, sendAjax) {
     }
 }
 
+function refreshEndDate(scheduleId) {
+    swal({
+        title: 'Cập nhật thời gian dự kiến',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#222d32',
+        cancelButtonText: 'Đóng',
+        confirmButtonText: 'Vâng, tôi muốn cập nhật!'
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: 'POST',
+                url: DOMAIN_NAME + '/orders/refreshScheduleEndDate/' + scheduleId,
+                success: function (resp) {
+                    swal({
+                        title: resp.alert.title,
+                        text: resp.alert.message,
+                        type: resp.alert.type
+                    })
+                    if (resp.status == 'success') {
+                        $('#end-date-div').html(resp.newEndDate);
+                    }
+                }
+            });
+        }
+    })
+}
+
 function deleteRow(delEl) {
     var endDateTxt = $('#end-date-div').html();
     var endDateVal = moment(endDateTxt, 'DD-MM-YYYY').format('YYYY-MM-DD');
@@ -200,8 +229,8 @@ function deleteRow(delEl) {
     $(delEl).closest('.row-rec').remove();
     $('#day-off-container > tr').each(function (index) {
         $(this).find('.stt-col').html(index + 1);
-        $(this).find('.dayOffDate').attr('name', 'dayoff[' + index + '][date]');
-        $(this).find('.dayOffType').attr('name', 'dayoff[' + index + '][type]');
+        $(this).find('.dayOffDate').attr('name', 'holidays[' + index + '][date]');
+        $(this).find('.dayOffType').attr('name', 'holidays[' + index + '][type]');
     });
 }
 

@@ -77,7 +77,9 @@ class StrengthsController extends AppController
             if (isset($query['modified_by']) && !empty($query['modified_by'])) {
                 $allStrengths->where(['Strengths.modified_by' => $query['modified_by']]);
             }
-            $allStrengths->order(['Strengths.created' => 'DESC']);
+            if (!isset($query['sort'])) {
+                $allStrengths->order(['Strengths.created' => 'DESC']);
+            }
         } else {
             $query['records'] = $this->defaultDisplay;
             $allStrengths = $this->Strengths->find()->order(['Strengths.created' => 'DESC']);

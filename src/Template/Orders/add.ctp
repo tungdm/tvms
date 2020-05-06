@@ -197,6 +197,20 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-4 col-sm-4 col-xs-12" for="admin-company"><?= __('Phân nhánh') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <?= $this->Form->control('admin_company_id', [
+                            'options' => $adminCompanies, 
+                            'empty' => true, 
+                            'required' => true, 
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 select-job',
+                            'data-parsley-errors-container' => '#error-admin-company',
+                            ]) ?>
+                        <span id="error-admin-company"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-4 col-sm-4 col-xs-12" for="job_id"><?= __('Nghề nghiệp') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
                         <?= $this->Form->control('job_id', [

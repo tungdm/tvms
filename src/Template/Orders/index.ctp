@@ -113,8 +113,8 @@ $this->assign('title', 'Quản lý đơn hàng');
                             <th scope="col" class="interviewDateCol">
                                 <?= $this->Paginator->sort('interview_date', 'Ngày tuyển') ?>
                             </th>
-                            <th scope="col" class="workAtCol">
-                                <?= __('Nơi làm việc') ?>
+                            <th scope="col" class="adCompCol">
+                                <?= __('Phân nhánh') ?>
                             </th>
                             <th scope="col" class="guildIdCol">
                                 <?= __('Nghiệp đoàn') ?>
@@ -139,7 +139,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                                     ]) 
                                 ?>
                             </td>
-                            <td class="col-md-2 interviewDateCol">
+                            <td class="col-md-1 interviewDateCol"  style="width: 12.499999995%;">
                                 <div class="input-group date input-picker" id="interview-date">
                                     <?= $this->Form->control('interview_date', [
                                         'type' => 'text',
@@ -154,13 +154,13 @@ $this->assign('title', 'Quản lý đơn hàng');
                                     </span>
                                 </div>
                             </td>
-                            <td class="col-md-1 workAtCol" style="width: 12.499999995%;">
-                                <?= $this->Form->control('work_at', [
-                                        'options' => $cityJP, 
+                            <td class="col-md-2 adCompCol">
+                                <?= $this->Form->control('ad_comp_id', [
+                                        'options' => $adminCompanies, 
                                         'empty' => true,
                                         'label' => false, 
                                         'class' => 'form-control col-md-7 col-xs-12 select2-theme', 
-                                        'value' => $query['work_at'] ?? ''
+                                        'value' => $query['ad_comp_id'] ?? ''
                                         ])
                                     ?>
                             </td>
@@ -218,7 +218,7 @@ $this->assign('title', 'Quản lý đơn hàng');
                                             ['escape' => false]) ?>
                                     </td>
                                     <td class="cell interviewDateCol"><?= h($order->interview_date->i18nFormat('dd-MM-yyyy')) ?></td>
-                                    <td class="cell workAtCol"><?= h($cityJP[$order->work_at]) ?></td>
+                                    <td class="cell adCompCol"><?= h($order->admin_company->alias) ?></td>
                                     <td class="cell guildIdCol">
                                         <?php if ($order->has('guild')): ?>
                                             <a href="javascript:;" onclick="viewGuild(<?= $order->guild_id ?>)"><?= h($order->guild->name_romaji) ?></a>

@@ -97,7 +97,9 @@ class CompaniesController extends AppController
                     return $exp->like('Companies.phone_jp', '%'.$query['phone_jp'].'%');
                 });
             }
-            $allCompanies->order(['Companies.created' => 'DESC']);
+            if (!isset($query['sort'])) {
+                $allCompanies->order(['Companies.created' => 'DESC']);
+            }
         } else {
             $query['records'] = $this->defaultDisplay;
             $allCompanies = $this->Companies->find()->order(['Companies.created' => 'DESC']);
@@ -107,7 +109,7 @@ class CompaniesController extends AppController
             $allCompanies->where(['Companies.del_flag' => FALSE]);
         }
         $this->paginate = [
-            'sortWhitelist' => ['test_date'],
+            'sortWhitelist' => ['name_romaji', 'address_romaji'],
             'contain' => ['Guilds'],
             'limit' => $query['records']
         ];

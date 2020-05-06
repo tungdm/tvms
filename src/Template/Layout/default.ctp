@@ -238,6 +238,13 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
+                            <?php if ($this->request->session()->read('Auth.User.role.name') == 'admin'): ?>
+                            <li>
+                                <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty', 
+                                    ['controller' => 'AdminCompanies', 'action' => 'index'],
+                                    ['escape' => false]) ?>
+                            </li>
+                            <?php endif; ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghề nghiệp', 
                                     ['controller' => 'Jobs', 'action' => 'index'],

@@ -543,7 +543,8 @@ return [
         'Characteristics' => 'Quản lý tính cách',
         'Strengths' => 'Quản lý chuyên môn',
         'Purposes' => 'Quản lý mục đích xuất khẩu lao động',
-        'AfterPlans' => 'Quản lý mục đích sau khi về nước'
+        'AfterPlans' => 'Quản lý mục đích sau khi về nước',
+        'AdminCompanies' => 'Quản lý công ty'
     ],
     'companyType' => [
         '1' => 'Công ty phái cử',

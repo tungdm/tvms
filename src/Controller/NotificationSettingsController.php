@@ -71,7 +71,9 @@ class NotificationSettingsController extends AppController
             if (isset($query['f_modified_by']) && !empty($query['f_modified_by'])) {
                 $allSettings->where(['NotificationSettings.modified_by' => $query['f_modified_by']]);
             }
-            $allSettings->order(['NotificationSettings.created' => 'DESC']);
+            if (!isset($query['sort'])) {
+                $allSettings->order(['NotificationSettings.created' => 'DESC']);
+            }
         } else {
             $query['records'] = $this->defaultDisplay;
             $allSettings = $this->NotificationSettings->find()->order(['NotificationSettings.created' => 'DESC']);

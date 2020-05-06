@@ -95,6 +95,9 @@ class OrdersController extends AppController
             if (isset($query['work_at']) && !empty($query['work_at'])) {
                 $allOrders->where(['work_at' => $query['work_at']]);
             }
+            if (isset($query['ad_comp_id']) && !empty($query['ad_comp_id'])) {
+                $allOrders->where(['admin_company_id' => $query['ad_comp_id']]);
+            }
             if (isset($query['guild_id']) && !empty($query['guild_id'])) {
                 $allOrders->where(['Companies.guild_id' => $query['guild_id']]);
             }
@@ -139,7 +142,8 @@ class OrdersController extends AppController
             'contain' => [
                 'Companies', 
                 'Guilds',
-                'Jobs'
+                'Jobs',
+                'AdminCompanies'
             ],
             'sortWhitelist' => ['name', 'interview_date'],
             'limit' => $query['records'],
@@ -150,8 +154,8 @@ class OrdersController extends AppController
         $jobs = $this->Orders->Jobs->find('list');
         $companies = $this->Orders->Companies->find('list');
         $guilds = $this->Orders->Companies->Guilds->find('list');
-
-        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query'));
+        $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
+        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query', 'adminCompanies'));
     }
 
     /**
@@ -186,11 +190,12 @@ class OrdersController extends AppController
                 },
                 'Students.Addresses.Cities',
                 'CreatedByUsers',
-                'ModifiedByUsers'
+                'ModifiedByUsers',
+                'AdminCompanies'
             ]
         ]);
         $this->checkDeleteFlag($order, $this->Auth->user());
-        $this->set('order', $order);
+        $this->set(compact('order'));
     }
 
     /**
@@ -220,11 +225,10 @@ class OrdersController extends AppController
             $this->Flash->error($this->errorMessage['add']);
         }
         $guilds = $companies = [];
-        // $companies = $this->Orders->Companies->find('list')->where(['type' => '2', 'del_flag' => FALSE]);
         $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
-
+        $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
         $jobs = $this->Orders->Jobs->find('list');
-        $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs'));
+        $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs', 'adminCompanies'));
     }
 
     /**
@@ -330,7 +334,8 @@ class OrdersController extends AppController
         }
         $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
         $jobs = $this->Orders->Jobs->find('list');
-        $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs'));
+        $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
+        $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs', 'adminCompanies'));
         $this->render('/Orders/add');
     }
 
@@ -527,6 +532,8 @@ class OrdersController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $schedule = $this->Orders->Schedules->patchEntity($schedule, $data, ['associated' => ['Holidays']]);
+            $end = $this->addBussinessDay($start, 24, $schedule->holidays);
+            $schedule->end_date = $end;
             $schedule = $this->Orders->Schedules->setAuthor($schedule, $this->Auth->user('id'), $action);
             if ($this->Orders->Schedules->save($schedule)) {
                 $this->Flash->success($this->successMessage['addNoName']);
@@ -566,14 +573,19 @@ class OrdersController extends AppController
         ];
         try {
             $holiday = $this->Orders->Schedules->Holidays->get($holidayId);
-            $schedule = $this->Orders->Schedules->get($holiday->schedule_id);
-            $newEndDay = $schedule->end_date;
-            $dayOfWeek = date('N', strtotime($holiday->day));
-            if ($dayOfWeek != 6 && $dayOfWeek != 7) {
-                $newEndDay = $newEndDay->subDays(1);
+            $schedule = $this->Orders->Schedules->get($holiday->schedule_id, ['contain' => [
+                'Orders',
+                'Holidays' => [
+                    'sort' => ['Holidays.day' => 'ASC']
+                ]
+            ]]);
+            $holidays = $schedule->holidays;
+            $key = array_search($holiday->id, array_column($holidays, 'id'));
+            if ($key !== FALSE) {
+                unset($holidays[$key]);
             }
-            $schedule->end_date = $newEndDay;
-            Log::write('debug', $schedule);
+            $newEndDate = $this->addBussinessDay($schedule->order->application_date, 24, $holidays);
+            $schedule->end_date = $newEndDate;
             $schedule = $this->Orders->Schedules->setAuthor($schedule, $this->Auth->user('id'), 'edit');
             if ($this->Orders->Schedules->Holidays->delete($holiday) && $this->Orders->Schedules->save($schedule)) {
                 $resp = [
@@ -592,12 +604,51 @@ class OrdersController extends AppController
         return $this->jsonResponse($resp);
     }
 
+    public function refreshScheduleEndDate($scheduleId)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $schedule = $this->Orders->Schedules->get($scheduleId, ['contain' => [
+                'Orders',
+                'Holidays' => [
+                    'sort' => ['Holidays.day' => 'ASC']
+                ]
+            ]]);
+            $newEndDate = $this->addBussinessDay($schedule->order->application_date, 24, $schedule->holidays);
+            if ($newEndDate != $schedule->end_date) {
+                Log::write('debug', $newEndDate);
+                $schedule->end_date = $newEndDate;
+                $schedule = $this->Orders->Schedules->setAuthor($schedule, $this->Auth->user('id'), 'edit');
+                $this->Orders->Schedules->save($schedule);
+            }
+            $resp = [
+                'status' => 'success',
+                'alert' => [
+                    'title' => 'Thành Công',
+                    'type' => 'success',
+                    'message' => 'Cập nhật thời gian dự kiến thành công!'
+                ],
+                'newEndDate' => $newEndDate->i18nFormat('dd-MM-yyyy')
+            ];
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
     public function addBussinessDay($date, $numOfDays, $holidays)
     {
         $holidaysArr = [];
         if (!empty($holidays)) {
             foreach ($holidays as $holiday) {
-                debug($holiday->day->i18nFormat('dd-MM-yyyy'));
                 array_push($holidaysArr, $holiday->day->i18nFormat('dd-MM-yyyy'));
             }
         }
@@ -1035,7 +1086,7 @@ class OrdersController extends AppController
             }
             $this->tbs->VarRef['after_plan'] = $afterPlanArr;
 
-            $this->tbs->VarRef['salary'] = $student->salary ?? 0;
+            $this->tbs->VarRef['salary'] = $student->salary ?number_format($student->salary) : 0;
             $this->tbs->VarRef['saving'] = $this->checkData($student->saving_expected, 'Số tiền mong muốn');
             $this->tbs->VarRef['maritalStatus'] = $maritalStatus[$student->marital_status]['jp'];
             $this->tbs->VarRef['reh'] = $this->checkData($student->right_eye_sight_hospital, 'Thị lực mắt phải đo tại bệnh viện');
@@ -1135,12 +1186,14 @@ class OrdersController extends AppController
                 'contain' => [
                     'Jobs',
                     'Companies',
+                    'AdminCompanies',
                     'Guilds',
                     'Students' => function($q) {
                         return $q->where(['result' => '1']);
                     }
                 ]
             ]);
+            $adminCompany = $order->admin_company;
             $this->checkDeleteFlag($order, $this->Auth->user());
             $template = WWW_ROOT . 'document' . DS . $summaryConfig['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
@@ -1148,6 +1201,7 @@ class OrdersController extends AppController
             $missingFields = [];
             $guildJP = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
             $guildVN = $this->checkData($order->guild->name_romaji, 'Tên nghiệp đoàn');
+            $this->tbs->VarRef['adCompShortName'] = $adminCompany->short_name;
             $this->tbs->VarRef['guildJP'] = $guildJP;
             $this->tbs->VarRef['guildVN'] = $guildVN;
 
@@ -1219,6 +1273,7 @@ class OrdersController extends AppController
             return $this->redirect(['action' => 'index']);
         }
     }
+
     public function exportDispatchLetter($id = null)
     {
         // load config
@@ -1232,11 +1287,13 @@ class OrdersController extends AppController
                     'Jobs',
                     'Companies',
                     'Guilds',
+                    'AdminCompanies',
                     'Students' => function($q) {
                         return $q->where(['result' => '1']);
                     }
                 ]
             ]);
+            $adminCompany = $order->admin_company; 
             $this->checkDeleteFlag($order, $this->Auth->user());
             $template = WWW_ROOT . 'document' . DS . $dispatchLetterConfig['template'];
             $missingFields = [];
@@ -1254,6 +1311,22 @@ class OrdersController extends AppController
             $guildAddressVN = $order->guild->address_romaji;
 
             $guildPhone = $order->guild->phone_jp;
+
+            $this->tbs->VarRef['adCompNameEN'] = $adminCompany->name_en;
+            $this->tbs->VarRef['adCompNameVN'] = $adminCompany->name_vn;
+            $this->tbs->VarRef['adCompShortName'] = $adminCompany->short_name;
+            $this->tbs->VarRef['adCompLicense'] = $adminCompany->license;
+            $this->tbs->VarRef['deputyRoleJP'] = $adminCompany->deputy_role_jp;
+            $this->tbs->VarRef['deputyNameEN'] = $this->Util->convertV2E($adminCompany->deputy_name);
+            $this->tbs->VarRef['deputyNameVN'] = $adminCompany->deputy_name;
+            $this->tbs->VarRef['deputyRoleVN'] = $adminCompany->deputy_role_vn;
+
+            $this->tbs->VarRef['addressEN'] = $adminCompany->address_en;
+            $this->tbs->VarRef['addressVN'] = $adminCompany->address_vn;
+            $this->tbs->VarRef['phone'] = $adminCompany->phone_number;
+            $this->tbs->VarRef['fax'] = $adminCompany->fax_number;
+
+            $this->tbs->VarRef['guildJP'] = $guildJP;
 
             $this->tbs->VarRef['guildJP'] = $guildJP;
             $this->tbs->VarRef['guildVN'] = $guildVN;
@@ -1360,14 +1433,19 @@ class OrdersController extends AppController
                     'Students.Addresses' => function($q) {
                         return $q->where(['Addresses.type' => '1']);
                     },
+                    'Students.Cards' => function($q) {
+                        return $q->where(['Cards.type' => '1']); # CMND
+                    },
                     'Students.Addresses.Cities',
                     'Students.Addresses.Districts',
                     'Students.Addresses.Wards',
                     'Jobs',
                     'Companies',
-                    'Guilds'
+                    'Guilds',
+                    'AdminCompanies'
                 ]
             ]);
+            $adminCompany = $order->admin_company;
             $this->checkDeleteFlag($order, $this->Auth->user());
             // init worksheet
             $spreadsheet = $this->ExportFile->setXlsxProperties();
@@ -1377,7 +1455,11 @@ class OrdersController extends AppController
             $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
 
             $spreadsheet->getActiveSheet()->setShowGridLines(false);
-            $spreadsheet->getActiveSheet()->setCellValue('A1', 'CHI NHÁNH CÔNG TY VINAGIMEX., JSC (TP HCM)');
+            if (!empty($adminCompany->branch)) {
+                $spreadsheet->getActiveSheet()->setCellValue('A1', mb_strtoupper($adminCompany->branch) . ' - ' . mb_strtoupper($adminCompany->short_name));
+            } else {
+                $spreadsheet->getActiveSheet()->setCellValue('A1', mb_strtoupper($adminCompany->short_name));
+            }
             $spreadsheet->getActiveSheet()->getStyle('A1:A1')->applyFromArray([
                 'font' => [
                     'bold' => true,
@@ -1386,7 +1468,7 @@ class OrdersController extends AppController
             ]);
 
             $spreadsheet->getActiveSheet()->getRowDimension('3')->setRowHeight(30);
-            $spreadsheet->getActiveSheet()->mergeCells('A3:M3');
+            $spreadsheet->getActiveSheet()->mergeCells('A3:P3');
             $spreadsheet->getActiveSheet()->setCellValue('A3', 'ĐỀ NGHỊ CẤP THƯ PHÁI CỬ');
             $spreadsheet->getActiveSheet()->getStyle('A3:A3')->applyFromArray([
                 'font' => [
@@ -1399,7 +1481,7 @@ class OrdersController extends AppController
                 ],
             ]);
 
-            $spreadsheet->getActiveSheet()->mergeCells('A4:M4');
+            $spreadsheet->getActiveSheet()->mergeCells('A4:P4');
             $spreadsheet->getActiveSheet()->setCellValue('A4', '(Kiêm biên bản giao nhận giấy tờ)');
             $spreadsheet->getActiveSheet()->getStyle('A4:A4')->applyFromArray([
                 'font' => [
@@ -1416,35 +1498,45 @@ class OrdersController extends AppController
             $dear->getFont()->setBold(true)->setItalic(true)->setUnderline(true);
             $richText->createText(' Công ty CP XNK tổng hợp và CGCN Việt Nam');
             $spreadsheet->getActiveSheet()->setCellValue('A5', $richText);
-            $spreadsheet->getActiveSheet()->setCellValue('A6', 'Chi nhánh TP HCM xin đề nghị cấp thư phái cử cho các Tu nghiệp sinh Nhật bản theo danh sách sau:');
+            if (!empty($adminCompany->branch)) {
+                $spreadsheet->getActiveSheet()->setCellValue('A6', $adminCompany->branch . ' xin đề nghị cấp thư phái cử cho các Tu nghiệp sinh Nhật bản theo danh sách sau:');
+            } else {
+                $spreadsheet->getActiveSheet()->setCellValue('A6', 'xin đề nghị cấp thư phái cử cho các Tu nghiệp sinh Nhật bản theo danh sách sau:');
+            }
             
             $spreadsheet->getActiveSheet()
                 ->mergeCells('A8:A9')->setCellValue('A8', 'STT')
                 ->mergeCells('B8:B9')->setCellValue('B8', 'Họ và tên')
                 ->mergeCells('C8:C9')->setCellValue('C8', 'Ngày sinh')
-                ->mergeCells('D8:E8')->setCellValue('D8', 'Giới tính')->setCellValue('D9', 'Nam')->setCellValue('E9', 'Nữ')
-                ->mergeCells('F8:H8')->setCellValue('F8', 'Quê quán')->setCellValue('F9', 'Xã')->setCellValue('G9', 'Huyện')->setCellValue('H9', 'Tỉnh,TP')
-                ->mergeCells('I8:I9')->setCellValue('I8', 'Thời hạn HĐ')
-                ->mergeCells('J8:J9')->setCellValue('J8', 'Nơi làm việc')
-                ->mergeCells('K8:K9')->setCellValue('K8', 'Ngành nghề')
-                ->mergeCells('L8:L9')->setCellValue('L8', 'Nghiệp đoàn')
-                ->mergeCells('M8:M9')->setCellValue('M8', 'Ghi chú');
+                ->mergeCells('D8:D9')->setCellValue('D8', 'CMND')
+                ->mergeCells('E8:E9')->setCellValue('E8', 'Số điện thoại')
+                ->mergeCells('F8:G8')->setCellValue('F8', 'Giới tính')->setCellValue('F9', 'Nam')->setCellValue('G9', 'Nữ')
+                ->mergeCells('H8:J8')->setCellValue('H8', 'Quê quán')->setCellValue('H9', 'Xã')->setCellValue('I9', 'Huyện')->setCellValue('J9', 'Tỉnh,TP')
+                ->mergeCells('K8:K9')->setCellValue('K8', 'Thời hạn HĐ')
+                ->mergeCells('L8:L9')->setCellValue('L8', 'Nơi làm việc')
+                ->mergeCells('M8:M9')->setCellValue('M8', 'Ngành nghề')
+                ->mergeCells('N8:N9')->setCellValue('N8', 'Nghiệp đoàn')
+                ->mergeCells('O8:O9')->setCellValue('O8', 'Công ty tiếp nhận')
+                ->mergeCells('P8:P9')->setCellValue('P8', 'Chủ sử dụng');
             
-            $spreadsheet->getActiveSheet()->getStyle('I8')->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('K8')->getAlignment()->setWrapText(true);
             $spreadsheet->getActiveSheet()->getRowDimension('8')->setRowHeight(34);
             $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(5);
             $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(32);
             $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(12);
-            $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(5);
-            $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(5);
-            $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(20);
-            $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(12);
+            $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(12);
+            $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(5);
+            $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(5);
             $spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(20);
-            $spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(6);
-            $spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(12);
-            $spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(20);
-            $spreadsheet->getActiveSheet()->getColumnDimension('L')->setWidth(26);
-            $spreadsheet->getActiveSheet()->getColumnDimension('M')->setWidth(10);
+            $spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(6);
+            $spreadsheet->getActiveSheet()->getColumnDimension('L')->setWidth(12);
+            $spreadsheet->getActiveSheet()->getColumnDimension('M')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('N')->setWidth(26);
+            $spreadsheet->getActiveSheet()->getColumnDimension('O')->setWidth(26);
+            $spreadsheet->getActiveSheet()->getColumnDimension('P')->setWidth(20);
 
             $listWorkers = [];
             $counter = 9;
@@ -1469,6 +1561,8 @@ class OrdersController extends AppController
                     $key+1,
                     mb_strtoupper($student->fullname),
                     $student->birthday->i18nFormat('dd/MM/yyyy'),
+                    $student->cards[0]->code,
+                    $student->phone,
                     $male,
                     $female,
                     mb_strtoupper($ward),
@@ -1478,13 +1572,15 @@ class OrdersController extends AppController
                     mb_strtoupper($cityJP[$order->work_at]['rmj']),
                     mb_strtoupper($order->job->job_name),
                     mb_strtoupper($order->guild->name_romaji),
+                    mb_strtoupper($order->company->name_romaji),
+                    mb_strtoupper($order->company->deputy_name_romaji)
                 ];
                 array_push($listWorkers, $data);
             }
             // fill data to table
             $spreadsheet->getActiveSheet()->fromArray($listWorkers, NULL, 'A10');
-            $spreadsheet->getActiveSheet()->getStyle('A8:M'. $counter)->getAlignment()->setWrapText(true);
-            $spreadsheet->getActiveSheet()->getStyle('A8:M'.$counter)->applyFromArray([
+            $spreadsheet->getActiveSheet()->getStyle('A8:P'. $counter)->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('A8:P'.$counter)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Style\Border::BORDER_THIN,
@@ -1495,7 +1591,7 @@ class OrdersController extends AppController
                     'vertical' => Style\Alignment::VERTICAL_CENTER,
                 ],
             ]);
-            $spreadsheet->getActiveSheet()->getStyle('A8:M9')->applyFromArray([
+            $spreadsheet->getActiveSheet()->getStyle('A8:P9')->applyFromArray([
                 'font' => [
                     'bold' => true,
                 ],
@@ -1511,7 +1607,7 @@ class OrdersController extends AppController
             $day = $order->application_date ? str_pad($order->application_date->day, 2, '0', STR_PAD_LEFT) : '';
             $month = $order->application_date ? str_pad($order->application_date->month, 2, '0', STR_PAD_LEFT) : '';
             $year = $order->application_date ? $order->application_date->year : '';
-            $spreadsheet->getActiveSheet()->mergeCells('A'.$footer.':M'.$footer)
+            $spreadsheet->getActiveSheet()->mergeCells('A'.$footer.':P'.$footer)
                 ->setCellValue('A'.$footer, 'TPHCM, ngày ' . $day . ' tháng ' . $month . ' năm ' . $year);
             $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getFont()->setItalic(true);
             $spreadsheet->getActiveSheet()->getStyle('A'.$footer)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
@@ -1986,7 +2082,7 @@ class OrdersController extends AppController
                 ]);
 
             $this->tbs->VarRef['jobJP'] = $order->job->job_name_jp;
-            $this->tbs->VarRef['jobVN'] = strtolower($order->job->job_name);
+            $this->tbs->VarRef['jobVN'] = mb_strtolower($order->job->job_name);
             $this->tbs->VarRef['createdJP'] = $createdDayJP;
             $this->tbs->VarRef['createdVN'] = ucfirst($createdDayVN);
 
@@ -2016,6 +2112,7 @@ class OrdersController extends AppController
         $outputFileName = $config['filename'];
         try { 
             $order = $this->Orders->get($id, ['contain' => [
+                'AdminCompanies',
                 'Students' => function($q) {
                     return $q->where(['result' => '1']);
                 },
@@ -2024,6 +2121,7 @@ class OrdersController extends AppController
                     'sort' => ['Holidays.day' => 'ASC']
                 ]
             ]]);
+            $adminCompany = $order->admin_company;
             $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
             $departureDate = new Time($order->departure_date);
             $template = WWW_ROOT . 'document' . DS . $config['template'];
@@ -2071,16 +2169,20 @@ class OrdersController extends AppController
                 } else {
                     $row['time'] = '7:30〜16:30';
                     $row['content'] = $tableData[$counter]['content'];
-                    $row['place'] = $tableData[$counter]['place'];
+                    if ($counter == 1) {
+                        $row['place'] = $adminCompany->edu_center_name_jp;
+                    } else {
+                        $row['place'] = '//';
+                    }
                     switch ($counter) {
                         case $counter < 20:
-                            $row['teacher'] = $order->schedule->teacher1 . '(日本語教師)';
+                            $row['teacher'] = $this->Util->convertV2E($order->schedule->teacher1) . '(日本語教師)';
                             break;
                         case $counter >= 20 && $counter < 23:
-                            $row['teacher'] = $order->schedule->teacher2 . '(日本語教師)';
+                            $row['teacher'] = $this->Util->convertV2E($order->schedule->teacher2) . '(日本語教師)';
                             break;
                         default:
-                            $row['teacher'] = $order->schedule->teacher3 . '(日本語教師)';
+                            $row['teacher'] = $this->Util->convertV2E($order->schedule->teacher3) . '(日本語教師)';
                             break;
                     }
                     $counter++;
@@ -2105,6 +2207,8 @@ class OrdersController extends AppController
 
             $this->tbs->MergeBlock('a', $table);
             $this->tbs->MergeBlock('b', $students);
+            $this->tbs->VarRef['signRole'] = $adminCompany->signer_role_jp;
+            $this->tbs->VarRef['signName'] = $this->Util->convertV2E($adminCompany->signer_name);
             if (!empty($this->missingFields)) {
                 $this->Flash->error(Text::insert($this->errorMessage['export'], [
                     'fields' => $this->missingFields,
@@ -2131,6 +2235,7 @@ class OrdersController extends AppController
         $outputFileName = $config['filename'];
         try { 
             $order = $this->Orders->get($id, ['contain' => [
+                'AdminCompanies',
                 'Guilds',
                 'Students' => function($q) {
                     return $q->where(['result' => '1']);
@@ -2140,6 +2245,7 @@ class OrdersController extends AppController
                     'sort' => ['Holidays.day' => 'ASC']
                 ]
             ]]);
+            $adminCompany = $order->admin_company;
             $this->checkData($order->departure_date, 'Ngày xuất cảnh dự kiến');
             $guildName = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
             $guildAddress = $this->checkData($order->guild->address_kanji, 'Địa chỉ phiên âm của nghiệp đoàn');
@@ -2156,6 +2262,9 @@ class OrdersController extends AppController
                     $holidays[$holiday->day->i18nFormat('yyyy/M/d')] = $holiday->type;
                 }
             }
+            $this->tbs->VarRef['adCompName'] = $adminCompany->name_en;
+            $this->tbs->VarRef['eduCenterAddr'] = mb_strtoupper($adminCompany->edu_center_address_en);
+
             $this->tbs->VarRef['guild'] = $guildName;
             $this->tbs->VarRef['guildAddress'] = $guildAddress;
 
@@ -2234,7 +2343,8 @@ class OrdersController extends AppController
         // load config
         $config = Configure::read('scheduleReportXlsx');
         try {
-            $order = $this->Orders->get($id, ['contain' => ['Guilds', 'Schedules']]);
+            $order = $this->Orders->get($id, ['contain' => ['Guilds', 'Schedules', 'AdminCompanies']]);
+            $adminCompany = $order->admin_company;
             $start = $order->application_date;
             $end = $order->schedule->end_date;
             $guildName = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
@@ -2245,7 +2355,6 @@ class OrdersController extends AppController
             $spreadsheet->getDefaultStyle()->getFont()->setName('MS PMincho');
             $spreadsheet->getDefaultStyle()->getFont()->setSize(12);
             $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(2.3);
-            // $spreadsheet->getActiveSheet()->getDefaultRowDimension()->setRowHeight(20);
 
             $spreadsheet->getActiveSheet()->mergeCells('A1:AH1')->setCellValue('A1', '本邦外に於ける講習実施報告書');
             $spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(54);
@@ -2271,12 +2380,10 @@ class OrdersController extends AppController
                     )
                 ->setCellValue('B6', '講習実施施設')
                 ->setCellValue('B7', '施設名：')
-                ->setCellValue('F7', 'VIET NAM GENERAL IMPORT - EXPORT AND')
-                ->setCellValue('F8', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
+                ->mergeCells('F7:AH8')->setCellValue('F7', $adminCompany->name_en)
                 ->setCellValue('F9', 'ホーチミン市支部所属人材教育センター')
                 ->setCellValue('B10', '所在地：')
-                ->setCellValue('F10', '403 LUY BAN BICH STREET, HIEP TAN WARD, TAN PHU DISTRICT,')
-                ->setCellValue('F11', 'HO CHI MINH CITY, VIETNAM')
+                ->mergeCells('F10:AH11')->setCellValue('F10', mb_strtoupper($adminCompany->edu_center_address_en))
                 ->setCellValueExplicit(
                     'A12',
                     '2.',
@@ -2336,31 +2443,26 @@ class OrdersController extends AppController
                 ->mergeCells('AF26:AG26')->setCellValue('AF26', $end->day)
                 ->setCellValue('AH26', '日')
                 ->setCellValue('B27', '講習実施機関：')
-                ->setCellValue('H27', 'VIET NAM GENERAL IMPORT - EXPORT AND')
-                ->setCellValue('H28', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
+                ->mergeCells('H27:AH28')->setCellValue('H27', $adminCompany->name_en)
                 ->setCellValue('H29', 'ホーチミン市支部所属人材教育センター')
                 ->setCellValue('B30', '所在地：')
-                ->setCellValue('H30', '403 LUY BAN BICH STREET, HIEP TAN WARD,')
-                ->setCellValue('H31', 'TAN PHU DISTRICT, HO CHI MINH CITY, VIETNAM')
+                ->mergeCells('H30:AH31')->setCellValue('H30', mb_strtoupper($adminCompany->edu_center_address_en))
                 ->setCellValue('B32', '電話：')
-                ->setCellValue('H32', '(+84)28-3976-1448')
+                ->setCellValue('H32', $adminCompany->phone_number)
                 ->setCellValue('B33', '責任者：')
-                ->setCellValue('H33', '副総社長')
-                ->setCellValue('L33', 'NGUYEN NGOC LAN')
-                ->setCellValue('V33', '㊞');
+                ->setCellValue('H33', $adminCompany->signer_role_jp . $this->Util->convertV2E($adminCompany->signer_name . '    ㊞'));
+            
+            $spreadsheet->getActiveSheet()->getStyle('F7')->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('F10')->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('H27')->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('H30')->getAlignment()->setWrapText(true);
 
-            $spreadsheet->getActiveSheet()->getStyle('B13:W13')->applyFromArray([
+            $spreadsheet->getActiveSheet()->getStyle('A2:AH33')->applyFromArray([
                 'alignment' => [
-                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
-                ],
+                    'vertical' => Style\Alignment::VERTICAL_TOP,
+                ]
             ]);
-
-            $spreadsheet->getActiveSheet()->getStyle('Y26:AH26')->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ]);
-
+            
             $spreadsheet->getActiveSheet()->setSelectedCells('A1');
 
             if (!empty($this->missingFields)) {
@@ -2391,12 +2493,14 @@ class OrdersController extends AppController
         try { 
             $order = $this->Orders->get($id, ['contain' => [
                 'Companies',
+                'AdminCompanies',
                 'Guilds',
                 'Schedules', 
                 'Schedules.Holidays' => [
                     'sort' => ['Holidays.day' => 'ASC']
                 ]
             ]]);
+            $adminCompanies = $order->admin_company;
             $student = $this->Orders->Students->get($query['studentId']);
             $template = WWW_ROOT . 'document' . DS . $config['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
@@ -2416,9 +2520,16 @@ class OrdersController extends AppController
             } else if ($dayOfWeek < 3) {
                 $healthCheckDate2 = $healthCheckDate2->addDays(3 - $dayOfWeek);
             }
-            
             $studentNameVN = mb_strtoupper($student->fullname);
             $studentNameEN = $this->Util->convertV2E($studentNameVN);
+
+            $this->tbs->VarRef['adCompNameEN'] = $adminCompanies->name_en;
+            $this->tbs->VarRef['adCompNameVN'] = $adminCompanies->name_vn;
+            $this->tbs->VarRef['adCompShortName'] = $adminCompanies->short_name;
+            $this->tbs->VarRef['signRoleJP'] = $adminCompanies->signer_role_jp;
+            $this->tbs->VarRef['signRoleVN'] = $adminCompanies->signer_role_vn;
+            $this->tbs->VarRef['signNameEN'] = $this->Util->convertV2E($adminCompanies->signer_name);
+            $this->tbs->VarRef['signNameVN'] = $adminCompanies->signer_name;
 
             $this->tbs->VarRef['fullnameEN'] = $studentNameEN;
             $this->tbs->VarRef['fullnameVN'] = $studentNameVN;

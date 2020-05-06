@@ -1346,10 +1346,11 @@ class StudentsController extends AppController
                 'contain' => [
                     'Jobs',
                     'Companies',
-                    'Guilds'
+                    'Guilds',
+                    'AdminCompanies'
                 ]
             ]);
-
+            $adminCompany = $order->admin_company;               
             $now = Time::now();
             $birthday = $student->birthday;
             $cmnd = $this->checkData($student->cards[0], 'Giấy chứng minh nhân dân');
@@ -1363,14 +1364,29 @@ class StudentsController extends AppController
             $company = $order->company;
 
             $subsidy = $order->guild->subsidy ? Number::format($order->guild->subsidy, ['locale' => 'ja_JP']) : '';
+
+            $studentName_VN = mb_strtoupper($student->fullname);
+            $studentName_EN = $this->Util->convertV2E($studentName_VN);
+            $studentNameArr = explode(' ', $studentName_EN);
+            $studentFirstName = array_pop($studentNameArr);
+            $output_file_name = Text::insert($contractConfig[$filenameLang], [
+                'firstName' => $studentFirstName, 
+                ]);
             $this->checkData($subsidy, 'Tiền trợ cấp thực tập sinh của nghiệp đoàn');
             $this->checkData($order->application_date, 'Ngày làm hồ sơ');
-            
+
             $cmnd_from_date = '';
             $signingDate = '';
+            $licenseAt = $adminCompany->license_at;
             if ($lang == 'jp') {
+                $adminCompanySignerName = $this->Util->convertV2E($adminCompany->signer_name);
+                $studentName = $studentName_EN;
                 $createdDay = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') : '';
                 $birthday = $birthday->i18nFormat('yyyy年M月d日');
+                $licenseAt = $licenseAt->i18nFormat('yyyy年M月d日');
+                $adminCompanyFullName = $adminCompany->name_en;
+                $adminCompanySignerRole = $adminCompany->signer_role_jp;
+                $adminCompanyAddress = $adminCompany->address_en;
                 if (!empty($cmnd) && !empty($cmnd->from_date)) {
                     $cmnd_from_date = $cmnd->from_date->i18nFormat('yyyy年M月d日');
                 }
@@ -1391,6 +1407,12 @@ class StudentsController extends AppController
                 $company = $company ? $company->name_kanji : '';
                 $this->checkData($company, 'Tên phiên âm công ty tiếp nhận');
             } else {
+                $adminCompanySignerName = $adminCompany->signer_name;
+                $studentName = $studentName_VN;
+                $licenseAt = $licenseAt->i18nFormat('dd/MM/yyyy');
+                $adminCompanyFullName = $adminCompany->name_vn;
+                $adminCompanySignerRole = $adminCompany->signer_role_vn;
+                $adminCompanyAddress = $adminCompany->address_vn;
                 if (empty($order->application_date)) {
                     $createdDay = '';
                 } else {
@@ -1430,29 +1452,29 @@ class StudentsController extends AppController
                 $company = $company ? $company->name_romaji : '';
                 $this->checkData($company, 'Tên công ty tiếp nhận');
             }
-            $studentName_VN = mb_strtoupper($student->fullname);
-            $studentName_EN = $this->Util->convertV2E($studentName_VN);
-            $studentName = explode(' ', $studentName_EN);
-            $studentFirstName = array_pop($studentName);
-            $output_file_name = Text::insert($contractConfig[$filenameLang], [
-                'firstName' => $studentFirstName, 
-                ]);
-            $this->tbs->VarRef['created_day'] = $createdDay;
-            if ($lang == 'jp') {
-                $this->tbs->VarRef['student_name'] = $studentName_EN;
-            } else {
-                $this->tbs->VarRef['student_name'] = $studentName_VN;
-            }
+            
+            $this->tbs->VarRef['createdDay'] = $createdDay;
+            $this->tbs->VarRef['adCompLicense'] = $adminCompany->license;
+            $this->tbs->VarRef['adCompLicenseAt'] = $licenseAt;
+            $this->tbs->VarRef['adCompShortName'] = $adminCompany->short_name;
+            $this->tbs->VarRef['adCompName'] = $adminCompanyFullName;
+            $this->tbs->VarRef['signerName'] = $adminCompanySignerName;
+            $this->tbs->VarRef['signerRole'] = $adminCompanySignerRole;
+            $this->tbs->VarRef['adCompAddress'] = $adminCompanyAddress;
+            $this->tbs->VarRef['adCompPhone'] = $adminCompany->phone_number;
+            $this->tbs->VarRef['adCompFax'] = $adminCompany->fax_number;
+
             $this->tbs->VarRef['year'] = $now->year;
+            $this->tbs->VarRef['studentName'] = $studentName;
             $this->tbs->VarRef['birthday'] = $birthday;
             $this->tbs->VarRef['cmnd'] = $student->cards[0]->code;
-            $this->tbs->VarRef['from_day'] = $cmnd_from_date;
+            $this->tbs->VarRef['fromDay'] = $cmnd_from_date;
             $this->tbs->VarRef['address'] = $address;
             $this->tbs->VarRef['job'] = $job;
             $this->tbs->VarRef['guild'] = $guild;
             $this->tbs->VarRef['company'] = $company;
             $this->tbs->VarRef['subsidy'] = $subsidy;
-            $this->tbs->VarRef['signing_date'] = $signingDate;
+            $this->tbs->VarRef['signingDate'] = $signingDate;
 
             if (!empty($this->missingFields)) {
                 $this->Flash->error(Text::insert($this->errorMessage['export'], [
@@ -1495,9 +1517,11 @@ class StudentsController extends AppController
             $order = $this->Students->Orders->get($orderId, [
                 'contain' => [
                     'Companies',
-                    'Guilds'
+                    'Guilds',
+                    'AdminCompanies'
                 ]
             ]);
+            $adminCompany = $order->admin_company;
             $output_file_name = $eduPlanConfig['filename'];
             $studentName_VN = mb_strtoupper($student->fullname);
             $studentName_EN = $this->Util->convertV2E($studentName_VN);
@@ -1513,7 +1537,12 @@ class StudentsController extends AppController
             $this->tbs->VarRef['fullname'] = $studentName_EN;
             $this->tbs->VarRef['created'] = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') .'　'. $jpKingYearName : '';
             $this->checkData($order->application_date, 'Ngày làm hồ sơ');
-
+            
+            $this->tbs->VarRef['adCompName'] = $adminCompany->name_en;
+            $this->tbs->VarRef['adCompShortName'] = $adminCompany->short_name;
+            $this->tbs->VarRef['signerName'] = $this->Util->convertV2E($adminCompany->signer_name);
+            $this->tbs->VarRef['signerRole'] = $adminCompany->signer_role_jp;
+            
             if (!empty($this->missingFields)) {
                 $this->Flash->error(Text::insert($this->errorMessage['export'], [
                     'fields' => $this->missingFields,
@@ -1536,8 +1565,12 @@ class StudentsController extends AppController
 
     public function exportCompanyCommitment($orderId = null)
     {
-        $order = $this->Students->Orders->get($orderId);
-
+        $order = $this->Students->Orders->get($orderId, [
+            'contain' => [
+                'AdminCompanies'
+            ]
+        ]);
+        $adminCompany = $order->admin_company;
         // load config
         $commitmentConfig = Configure::read('commitment');
         $jpKingYearName = Configure::read('jpKingYearName');
@@ -1547,6 +1580,21 @@ class StudentsController extends AppController
         $template = WWW_ROOT . 'document' . DS . $commitmentConfig['template'];
         $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
         $this->tbs->VarRef['created'] = $order->application_date ? $order->application_date->i18nFormat('yyyy年M月d日') .'　'. $jpKingYearName : '';
+        $this->tbs->VarRef['adCompShortName'] = $adminCompany->short_name;
+        $this->tbs->VarRef['adCompName'] = $adminCompany->name_en;
+        $this->tbs->VarRef['deputyName'] = $this->Util->convertV2E($adminCompany->deputy_name);
+        $this->tbs->VarRef['addressEN'] = $adminCompany->address_en;
+        $this->tbs->VarRef['phone'] = $adminCompany->phone_number;
+        $this->tbs->VarRef['email'] = $adminCompany->email;
+        $this->tbs->VarRef['incorpDate'] = $adminCompany->incorporation_date->i18nFormat('yyyy年M月d日');
+        $this->tbs->VarRef['signRole'] = $adminCompany->signer_role_jp;
+        $this->tbs->VarRef['signName'] = $this->Util->convertV2E($adminCompany->signer_name);
+        $this->tbs->VarRef['staffs'] = number_format($adminCompany->staffs_number);
+        $this->tbs->VarRef['capitalVN'] = number_format($adminCompany->capital_vn);
+        $this->tbs->VarRef['capitalJP'] = number_format($adminCompany->capital_jp);
+        $this->tbs->VarRef['revVN'] = number_format($adminCompany->latest_revenue_vn);
+        $this->tbs->VarRef['revJP'] = number_format($adminCompany->latest_revenue_jp);
+
         $this->checkData($order->application_date, 'Ngày làm hồ sơ');
         if (!empty($this->missingFields)) {
             $this->Flash->error(Text::insert($this->errorMessage['export'], [

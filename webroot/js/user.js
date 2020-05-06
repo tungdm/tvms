@@ -13,7 +13,7 @@ function removePermissionRow(delEl) {
 
     selectFields = $('#permission-container').find('select');
     for (var i = 0; i < selectFields.length; i++) {
-        var counter = Math.floor(i/2);
+        var counter = Math.floor(i / 2);
         if (i % 2 == 0) {
             selectFields[i].name = 'permissions[' + counter + '][scope]';
             selectFields[i].id = 'scope-' + counter;
@@ -44,10 +44,10 @@ function removePermission(delEl, sendAjax) {
                     data: {
                         'id': $(delEl).closest('tr.row-permission').find('input').val()
                     },
-                    beforeSend: function(xhr){
+                    beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         swal({
                             title: resp.alert.title,
                             text: resp.alert.message,
@@ -65,7 +65,7 @@ function removePermission(delEl, sendAjax) {
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     // init datetime picker
     var birthday = $('#birthday').val();
     $('#user-birthday').datetimepicker({
@@ -74,11 +74,11 @@ $(document).ready(function() {
         format: 'DD-MM-YYYY',
         locale: 'vi'
     });
-    $('#user-birthday').on('dp.change', function(e) {
+    $('#user-birthday').on('dp.change', function (e) {
         $('#user-birthday input').parsley().validate();
     });
-    
-    if ($('#permission-template')[0]){
+
+    if ($('#permission-template')[0]) {
         var permission_template = Handlebars.compile($('#permission-template').html());
     }
     perData.counter = $('#permission-container > tr').length;
@@ -91,14 +91,14 @@ $(document).ready(function() {
             'counter': perData.counter
         });
 
-        $('#permission-container').append(permission_html);
+        $('#permission-container').prepend(permission_html);
         perData.counter++;
     });
 
-    $('body').on('change', '.select-group', function(e) {
+    $('body').on('change', '.select-group', function (e) {
         $(this).parsley().validate();
     });
-    
+
     $('select[name=role_id]').change(function () {
         var role_id = $(this).val();
         if (role_id == 1 || role_id == '') {
@@ -109,13 +109,13 @@ $(document).ready(function() {
                 // add mode, remove all permission data
                 $('#permission-container').empty();
             }
-            
+
         } else {
             $('.permission-group').show();
         }
     });
 
-    $('#create-user-btn').click(function() {
+    $('#create-user-btn').click(function () {
         var validateResult = $('#create-user-form').parsley().validate();
         if (validateResult) {
             if (ajaxing) {
@@ -128,10 +128,10 @@ $(document).ready(function() {
                 type: "POST",
                 url: $('#create-user-form').attr('action'),
                 data: $('#create-user-form').serialize(),
-        
-                success: function(resp){
+
+                success: function (resp) {
                     if (resp.status == 'success') {
-                        window.location = resp.redirect; 
+                        window.location = resp.redirect;
                     } else {
                         var notice = new PNotify({
                             title: '<strong>' + resp.flash.title + '</strong>',
@@ -145,26 +145,26 @@ $(document).ready(function() {
                                 sticker: false
                             }
                         });
-                        notice.get().click(function() {
+                        notice.get().click(function () {
                             notice.remove();
                         });
                     }
                 },
-                complete: function() {
+                complete: function () {
                     ajaxing = false;
                 }
             });
         }
     });
-    
-    $('#update-profile-btn').click(function() {
+
+    $('#update-profile-btn').click(function () {
         var validateResult = $('#update-profile-form').parsley().validate();
         if (validateResult) {
             $('#update-profile-form')[0].submit();
         }
     });
     // select display fields
-    $('#settings-submit-btn').click(function() {
+    $('#settings-submit-btn').click(function () {
         var elems = Array.prototype.slice.call($('#setting-form').find('input[type="checkbox"]'));
         elems.forEach(function (ele) {
             if (ele.checked) {
@@ -176,16 +176,16 @@ $(document).ready(function() {
         $('#setting-modal').modal('hide');
     });
 
-    $('#setting-close-btn').click(function() {
+    $('#setting-close-btn').click(function () {
         // reset form before close
         $('#setting-form')[0].reset();
     });
 
-    $('#filter-refresh-btn').click(function() {
+    $('#filter-refresh-btn').click(function () {
         $('#filter-form')[0].reset();
     });
 
-    $('#change-password-btn').click(function() {
+    $('#change-password-btn').click(function () {
         var validateResult = $('#change-password-form').parsley().validate();
         if (validateResult) {
             if (ajaxing) {
@@ -199,46 +199,10 @@ $(document).ready(function() {
                 type: "POST",
                 url: $('#change-password-form').attr('action'),
                 data: $('#change-password-form').serialize(),
-        
-                success: function(resp){
-                    if (resp.status == 'success') {
-                        window.location = resp.redirect; 
-                    } else {
-                        var notice = new PNotify({
-                            title: '<strong>' + resp.flash.title + '</strong>',
-                            text: resp.flash.message,
-                            type: resp.flash.type,
-                            styling: 'bootstrap3',
-                            icon: resp.flash.icon,
-                        cornerclass: 'ui-pnotify-sharp',
-                            buttons: {
-                                closer: false,
-                                sticker: false
-                            }
-                        });
-                        notice.get().click(function() {
-                            notice.remove();
-                        });
-                    }
-                },
-                complete: function() {
-                    ajaxing = false;
-                    $('#change-password-overlay').addClass('hidden');
-                }
-            });
-        }
-    });
 
-    $('#edit-permission-btn').click(function() {
-        var validateResult = $('#edit-permission-form').parsley().validate();
-        if (validateResult) {
-            $.ajax({
-                type: "POST",
-                url: $('#edit-permission-form').attr('action'),
-                data: $('#edit-permission-form').serialize(),
-                success: function (resp){
+                success: function (resp) {
                     if (resp.status == 'success') {
-                        window.location = resp.redirect; 
+                        window.location = resp.redirect;
                     } else {
                         var notice = new PNotify({
                             title: '<strong>' + resp.flash.title + '</strong>',
@@ -252,7 +216,43 @@ $(document).ready(function() {
                                 sticker: false
                             }
                         });
-                        notice.get().click(function() {
+                        notice.get().click(function () {
+                            notice.remove();
+                        });
+                    }
+                },
+                complete: function () {
+                    ajaxing = false;
+                    $('#change-password-overlay').addClass('hidden');
+                }
+            });
+        }
+    });
+
+    $('#edit-permission-btn').click(function () {
+        var validateResult = $('#edit-permission-form').parsley().validate();
+        if (validateResult) {
+            $.ajax({
+                type: "POST",
+                url: $('#edit-permission-form').attr('action'),
+                data: $('#edit-permission-form').serialize(),
+                success: function (resp) {
+                    if (resp.status == 'success') {
+                        window.location = resp.redirect;
+                    } else {
+                        var notice = new PNotify({
+                            title: '<strong>' + resp.flash.title + '</strong>',
+                            text: resp.flash.message,
+                            type: resp.flash.type,
+                            styling: 'bootstrap3',
+                            icon: resp.flash.icon,
+                            cornerclass: 'ui-pnotify-sharp',
+                            buttons: {
+                                closer: false,
+                                sticker: false
+                            }
+                        });
+                        notice.get().click(function () {
                             notice.remove();
                         });
                     }
@@ -263,13 +263,13 @@ $(document).ready(function() {
 
     // custom validator for select2
     window.Parsley.addValidator('notDuplicateScope', {
-        validateString: function(value, requirement , parsleyField) {
+        validateString: function (value, requirement, parsleyField) {
             var currentClass = parsleyField.$element[0].className.split(' ')[0];
             var elems = Array.prototype.slice.call($('#permission-container').find('.' + currentClass));
             var selectedValues = [];
             elems.forEach(function (ele) {
                 if (ele.name !== parsleyField.$element[0].name) {
-                    var selected = $('select[name="'+ ele.name +'"] :selected').val();
+                    var selected = $('select[name="' + ele.name + '"] :selected').val();
                     selectedValues.push(selected);
                 }
             });
@@ -289,14 +289,14 @@ function showEditPerModal(userId, userRole) {
         }
         ajaxing = true;
         $('.overlay').removeClass('hidden');
-        
+
         $.ajax({
             type: "GET",
             url: $('#edit-permission-form').attr('action'),
             data: {
                 id: userId
             },
-            success: function(resp) {
+            success: function (resp) {
                 var allPermissions = resp.permissions;
 
                 $('input[name="id"]').val(userId);
@@ -306,19 +306,19 @@ function showEditPerModal(userId, userRole) {
                 var template = Handlebars.compile(source);
                 var html = template(allPermissions);
                 $('#permission-container').html(html);
-                
+
                 // set value for selectbox
                 for (var index = 0; index < allPermissions.length; index++) {
                     var obj = allPermissions[index];
-                    $('select[name="permissions['+index+'][scope]"]').val(obj.scope);
-                    $('select[name="permissions['+index+'][action]"]').val(obj.action);
+                    $('select[name="permissions[' + index + '][scope]"]').val(obj.scope);
+                    $('select[name="permissions[' + index + '][action]"]').val(obj.action);
                 }
 
                 perData.counter = allPermissions.length;
 
                 $('#edit-permission-modal').modal('toggle');
             },
-            complete: function() {
+            complete: function () {
                 ajaxing = false;
                 $('.overlay').addClass('hidden');
             }

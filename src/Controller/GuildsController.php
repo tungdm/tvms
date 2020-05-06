@@ -91,7 +91,9 @@ class GuildsController extends AppController
                     return $exp->like('phone_jp', '%'.$query['phone_jp'].'%');
                 });
             }
-            $allGuilds->order(['Guilds.created' => 'DESC']);
+            if (!isset($query['sort'])) {
+                $allGuilds->order(['Guilds.created' => 'DESC']);
+            }
         } else {
             $query['records'] = $this->defaultDisplay;
             $allGuilds = $this->Guilds->find()->order(['Guilds.created' => 'DESC']);

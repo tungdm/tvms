@@ -109,6 +109,7 @@
                         <div class="col-md-9 col-sm-9 col-xs-12">
                             <div class="form-control form-control-view">
                                 <span id="start-date-div"><?= $start ?></span> ～ <span id="end-date-div"><?= $end ?></span>
+                                <a href="javascript:;" onclick="refreshEndDate(<?= $schedule->id ?>)"><i class="fa fa-refresh"></i></a>
                                 <div class="hidden">
                                     <?= $this->Form->control('end_date', [
                                         'type' => 'text',

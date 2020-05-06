@@ -149,6 +149,12 @@ if ($order->status == "4" || $order->status == "5") {
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="admin-company"><?= __('Phân nhánh') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->admin_company->alias ?></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="job_id"><?= __('Nghề nghiệp') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $order->job->job_name ?></div>

@@ -49,6 +49,7 @@ class Order extends Entity
      */
     protected $_accessible = [
         'name' => true,
+        'admin_company_id' => true,
         'interview_date' => true,
         'salary_from' => true,
         'salary_to' => true,

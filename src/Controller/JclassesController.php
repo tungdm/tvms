@@ -98,7 +98,9 @@ class JclassesController extends AppController
             if (isset($query['current_lesson']) && !empty($query['current_lesson'])) {
                 $allClasses->where(['current_lesson' => $query['current_lesson']]);
             }
-            $allClasses->order(['Jclasses.name' => 'ASC']);
+            if (!isset($query['sort'])) {
+                $allClasses->order(['Jclasses.name' => 'ASC']);
+            }
         } else {
             $query['records'] = $this->defaultDisplay;
             $allClasses = $this->Jclasses->find()->order(['Jclasses.name' => 'ASC']);
@@ -111,6 +113,7 @@ class JclassesController extends AppController
                     return $q->where(['status <' => '4']);
                 }
             ],
+            'sortWhitelist' => ['name', 'start'],
             'limit' => $query['records']
         ];
         $jclasses = $this->paginate($allClasses);

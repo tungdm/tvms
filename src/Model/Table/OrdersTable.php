@@ -43,6 +43,9 @@ class OrdersTable extends Table
         $this->addBehavior('Timestamp');
         $this->addBehavior('Author');
 
+        $this->belongsTo('AdminCompanies', [
+            'foreignKey' => 'admin_company_id',
+        ]);
         $this->belongsTo('Companies', [
             'foreignKey' => 'company_id',
         ]);
