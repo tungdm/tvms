@@ -316,10 +316,19 @@ $this->assign('title', 'Quản lý công ty');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="branch">
                         <?= __('Chi nhánh') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('branch', [
+                        <?= $this->Form->control('branch_vn', [
                             'label' => false, 
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'placeholder' => 'Nhập chi nhánh (nếu có)'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('branch_jp', [
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập chi nhánh bằng kanji'
                             ]) ?>
                     </div>
                 </div>
@@ -702,12 +711,21 @@ $this->assign('title', 'Quản lý công ty');
                     <label class="control-label col-md-4 col-sm-5 col-xs-12 optional" for="branch">
                         <?= __('Chi nhánh') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('branch', [
+                        <?= $this->Form->control('branch_vn', [
                             'label' => false, 
-                            'required' => true,
-                            'id' => 'edit-branch',
+                            'id' => 'edit-branch-vn',
                             'class' => 'form-control col-md-7 col-xs-12', 
                             'placeholder' => 'Nhập chi nhánh công ty'
+                            ]) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
+                        <?= $this->Form->control('branch_jp', [
+                            'label' => false, 
+                            'id' => 'edit-branch-jp',
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập chi nhánh công ty bằng kanji'
                             ]) ?>
                     </div>
                 </div>

@@ -2348,7 +2348,7 @@ class OrdersController extends AppController
             $start = $order->application_date;
             $end = $order->schedule->end_date;
             $guildName = $this->checkData($order->guild->name_kanji, 'Tên phiên âm của nghiệp đoàn');
-
+            $adminCompanyBranchJP = $adminCompany->branch_jp;
             // init worksheet
             $spreadsheet = $this->ExportFile->setXlsxProperties();
             $spreadsheet->setActiveSheetIndex(0);
@@ -2381,7 +2381,7 @@ class OrdersController extends AppController
                 ->setCellValue('B6', '講習実施施設')
                 ->setCellValue('B7', '施設名：')
                 ->mergeCells('F7:AH8')->setCellValue('F7', $adminCompany->name_en)
-                ->setCellValue('F9', 'ホーチミン市支部所属人材教育センター')
+                ->setCellValue('F9', $adminCompanyBranchJP . '人材教育センター')
                 ->setCellValue('B10', '所在地：')
                 ->mergeCells('F10:AH11')->setCellValue('F10', mb_strtoupper($adminCompany->edu_center_address_en))
                 ->setCellValueExplicit(
@@ -2425,7 +2425,7 @@ class OrdersController extends AppController
                 ->setCellValue('B20', '施設名：')
                 ->setCellValue('F20', 'VIET NAM GENERAL IMPORT - EXPORT AND')
                 ->setCellValue('F21', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
-                ->setCellValue('F22', 'ホーチミン市支部所属人材教育センター 所属寮')
+                ->setCellValue('F22', $adminCompanyBranchJP . '人材教育センター')
                 ->setCellValueExplicit(
                     'A23',
                     '5.',
@@ -2444,14 +2444,23 @@ class OrdersController extends AppController
                 ->setCellValue('AH26', '日')
                 ->setCellValue('B27', '講習実施機関：')
                 ->mergeCells('H27:AH28')->setCellValue('H27', $adminCompany->name_en)
-                ->setCellValue('H29', 'ホーチミン市支部所属人材教育センター')
                 ->setCellValue('B30', '所在地：')
                 ->mergeCells('H30:AH31')->setCellValue('H30', mb_strtoupper($adminCompany->edu_center_address_en))
                 ->setCellValue('B32', '電話：')
                 ->setCellValue('H32', $adminCompany->phone_number)
                 ->setCellValue('B33', '責任者：')
                 ->setCellValue('H33', $adminCompany->signer_role_jp . $this->Util->convertV2E($adminCompany->signer_name . '    ㊞'));
-            
+            if (!empty($adminCompanyBranchJP)) {
+                $spreadsheet->getActiveSheet()
+                    ->setCellValue('H29', 'ホーチミン市支部所属人材教育センター')
+                    ->setCellValue('H30', mb_strtoupper($adminCompany->edu_center_address_en))
+                    ->getStyle('H30')->getAlignment()->setWrapText(true);
+            } else {
+                $spreadsheet->getActiveSheet()
+                    ->removeRow('29')
+                    ->setCellValue('H29', mb_strtoupper($adminCompany->address_en))
+                    ->getStyle('H29')->getAlignment()->setWrapText(true);
+            }
             $spreadsheet->getActiveSheet()->getStyle('F7')->getAlignment()->setWrapText(true);
             $spreadsheet->getActiveSheet()->getStyle('F10')->getAlignment()->setWrapText(true);
             $spreadsheet->getActiveSheet()->getStyle('H27')->getAlignment()->setWrapText(true);

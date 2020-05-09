@@ -19,8 +19,14 @@ function viewAdminCompany(adCompId) {
                 $('#view-address-vn').html(resp.data.address_vn);
                 $('#view-address-en').html(resp.data.address_en);
 
-                $('#view-branch').html(resp.data.branch);
-
+                var branch = '';
+                if (resp.data.branch_vn) {
+                    branch += `${resp.data.branch_vn}<br/>`;
+                }
+                if (resp.data.branch_jp) {
+                    branch += `${resp.data.branch_jp}`;
+                }
+                $('#view-branch').html(branch);
 
                 $('#view-license').html(resp.data.license);
                 $('#view-license-at').html(moment(resp.data.license_at).format('DD-MM-YYYY'));
@@ -117,7 +123,8 @@ function showEditAdminCompanyModal(adCompId) {
 
             $('#edit-address-vn').val(resp.data.address_vn);
             $('#edit-address-en').val(resp.data.address_en);
-            $('#edit-branch').val(resp.data.branch);
+            $('#edit-branch-vn').val(resp.data.branch_vn);
+            $('#edit-branch-jp').val(resp.data.branch_jp);
 
             $('#edit-license').val(resp.data.license);
             $('#edit-license-at').val(moment(resp.data.license_at).format('DD-MM-YYYY'));
