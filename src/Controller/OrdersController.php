@@ -2354,7 +2354,7 @@ class OrdersController extends AppController
             $spreadsheet->setActiveSheetIndex(0);
             $spreadsheet->getDefaultStyle()->getFont()->setName('MS PMincho');
             $spreadsheet->getDefaultStyle()->getFont()->setSize(12);
-            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(2.3);
+            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(2.2);
 
             $spreadsheet->getActiveSheet()->mergeCells('A1:AH1')->setCellValue('A1', '本邦外に於ける講習実施報告書');
             $spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(54);
@@ -2425,7 +2425,7 @@ class OrdersController extends AppController
                 ->setCellValue('B20', '施設名：')
                 ->setCellValue('F20', 'VIET NAM GENERAL IMPORT - EXPORT AND')
                 ->setCellValue('F21', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
-                ->setCellValue('F22', $adminCompanyBranchJP . '人材教育センター')
+                ->setCellValue('F22', $adminCompanyBranchJP . '人材教育センター所属寮')
                 ->setCellValueExplicit(
                     'A23',
                     '5.',
