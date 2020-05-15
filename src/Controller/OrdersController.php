@@ -2354,7 +2354,7 @@ class OrdersController extends AppController
             $spreadsheet->setActiveSheetIndex(0);
             $spreadsheet->getDefaultStyle()->getFont()->setName('MS PMincho');
             $spreadsheet->getDefaultStyle()->getFont()->setSize(12);
-            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(2.2);
+            $spreadsheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(2.5);
 
             $spreadsheet->getActiveSheet()->mergeCells('A1:AH1')->setCellValue('A1', '本邦外に於ける講習実施報告書');
             $spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(54);
@@ -2423,8 +2423,7 @@ class OrdersController extends AppController
                 )
                 ->setCellValue('B19', '講習宿泊施設')
                 ->setCellValue('B20', '施設名：')
-                ->setCellValue('F20', 'VIET NAM GENERAL IMPORT - EXPORT AND')
-                ->setCellValue('F21', 'TECHNOLOGICAL TRANSFER JOINT STOCK COMPANY')
+                ->mergeCells('F20:AH21')->setCellValue('F20', $adminCompany->name_en)
                 ->setCellValue('F22', $adminCompanyBranchJP . '人材教育センター所属寮')
                 ->setCellValueExplicit(
                     'A23',
@@ -2449,7 +2448,7 @@ class OrdersController extends AppController
                 ->setCellValue('B32', '電話：')
                 ->setCellValue('H32', $adminCompany->phone_number)
                 ->setCellValue('B33', '責任者：')
-                ->setCellValue('H33', $adminCompany->signer_role_jp . $this->Util->convertV2E($adminCompany->signer_name . '    ㊞'));
+                ->setCellValue('H33', $adminCompany->signer_role_jp .'    '. $this->Util->convertV2E($adminCompany->signer_name . '    ㊞'));
             if (!empty($adminCompanyBranchJP)) {
                 $spreadsheet->getActiveSheet()
                     ->setCellValue('H29', 'ホーチミン市支部所属人材教育センター')
@@ -2463,6 +2462,7 @@ class OrdersController extends AppController
             }
             $spreadsheet->getActiveSheet()->getStyle('F7')->getAlignment()->setWrapText(true);
             $spreadsheet->getActiveSheet()->getStyle('F10')->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle('F20')->getAlignment()->setWrapText(true);
             $spreadsheet->getActiveSheet()->getStyle('H27')->getAlignment()->setWrapText(true);
             $spreadsheet->getActiveSheet()->getStyle('H30')->getAlignment()->setWrapText(true);
 
