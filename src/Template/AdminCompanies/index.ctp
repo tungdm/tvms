@@ -923,12 +923,19 @@ $this->assign('title', 'Quản lý công ty');
                         <div class="col-md-5 col-sm-5 col-xs-12 group-picker">
                             <?= $this->Form->control('capital_jp', [
                                 'label' => false,
+                                'type' => 'text',
+                                'id' => 'edit-capital-jp-txt',
+                                'required' => true, 
+                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
+                                'alias' => 'edit-capital-jp', 
+                                'placeholder' => '円'
+                                ]) ?>
+                            <?= $this->Form->control('capital_jp', [
+                                'label' => false,
                                 'type' => 'number',
                                 'id' => 'edit-capital-jp',
-                                'required' => true, 
                                 'min' => '0',
-                                'class' => 'form-control col-md-7 col-xs-12',
-                                'placeholder' => '円'
+                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
                                 ]) ?>
                         </div>
                     </div>

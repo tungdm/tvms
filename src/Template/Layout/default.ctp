@@ -172,6 +172,13 @@
                             ['controller' => 'Orders', 'action' => 'index'],
                             ['escape' => false]) ?>
                     </li>
+                    <?php if ($this->request->session()->read('Auth.User.role.name') == 'admin'): ?>
+                    <li <?php if(isset($sbInstallmentActive) && $sbInstallmentActive): ?>class="active"<?php endif; ?>>
+                        <?= $this->Html->link('<i class="fa fa-folder-open-o"></i> <span>PHÍ QUẢN LÝ</span>',
+                            ['controller' => 'Installments', 'action' => 'index'],
+                            ['escape' => false]) ?>
+                    </li>
+                    <?php endif; ?>
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-graduation-cap"></i>

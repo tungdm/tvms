@@ -2085,6 +2085,11 @@ function deleteNoti(delEl, notiId) {
     });
 }
 
+
+function numberWithCommas(number) {
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 function initTextToNumberHelper() {
     $(".textToNumber")
         .keypress(function (event) {
@@ -2100,9 +2105,12 @@ function initTextToNumberHelper() {
             // format number
             $(this).val(function (index, value) {
                 aliasId = $(this).attr("alias");
-                number = value.replace(/\D/g, "").replace(/^0+/, '');;
+                number = value.replace(/\D/g, "");
+                if (number.length > 1) {
+                    number = number.replace(/^0+/, '')
+                }
                 $(`#${aliasId}`).val(number);
-                return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                return numberWithCommas(number);
             });
         });
 }

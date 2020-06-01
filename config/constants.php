@@ -1169,6 +1169,11 @@ return [
         '11' => '11',
         '12' => '12',
     ],
+    'installmentStatus' => [
+        'init' => 'Khởi tạo',
+        'sent_invoice' => 'Đã gửi hóa đơn',
+        'completed' => 'Đã thanh toán',
+    ],
     'orders' => [
         1 => [
             'field' => 'name',

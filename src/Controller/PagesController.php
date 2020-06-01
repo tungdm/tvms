@@ -104,7 +104,7 @@ class PagesController extends AppController
         $totalStudent = $studentTable->find()->count();
 
         $totalPassed = $studentTable->find()->where(['status' => '3'])->count();
-        $totalImmigrationCount = $studentTable->find()->where(['status' => '5'])->count();
+        $totalImmigrationCount = $studentTable->find()->where(['status' => '4'])->count();
         $rateImmi = round($totalImmigrationCount/$totalStudent, 4) * 100;
         
         $totalReturn = $studentTable->find()->where(['status IN' => ['5', '8']])->count();

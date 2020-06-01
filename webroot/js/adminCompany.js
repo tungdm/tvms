@@ -145,6 +145,8 @@ function showEditAdminCompanyModal(adCompId) {
             $('#edit-capital-vn').val(resp.data.capital_vn);
             $('#edit-capital-vn-txt').val(resp.data.capital_vn.toLocaleString());
             $('#edit-capital-jp').val(resp.data.capital_jp);
+            $('#edit-capital-jp-txt').val(resp.data.capital_jp.toLocaleString());
+
             $('#edit-latest-revenue-vn').val(resp.data.latest_revenue_vn);
             $('#edit-latest-revenue-jp').val(resp.data.latest_revenue_jp);
             $('#edit-staffs-number').val(resp.data.staffs_number);
