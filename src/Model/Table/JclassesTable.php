@@ -43,7 +43,7 @@ class JclassesTable extends Table
 
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
-            'joinType' => 'INNER'
+            'joinType' => 'LEFT'
         ]);
         $this->belongsToMany('Students', [
             'through' => 'JclassesStudents'

@@ -2,17 +2,21 @@ var data = {};
 data.counter = 0;
 
 $(document).ready(function () {
-    $('#setting-guild-submit-btn').click(function () {
-        var elems = Array.prototype.slice.call($('#setting-guild-form').find('input[type="checkbox"]'));
-        elems.forEach(function (ele) {
-            if (ele.checked) {
-                $('.' + ele.name).removeClass('hidden');
-            } else {
-                $('.' + ele.name).addClass('hidden');
-            }
-        });
-        $('#setting-guild-modal').modal('hide');
+    data.counter = $('#add-company-container > tr').length;
+
+    $('#guilds-tabs').tabCollapse();
+    var focusTab = window.location.hash;
+    if (focusTab) {
+        $('#guilds-tabs a[href="' + focusTab + '"]').tab('show');
+    }
+
+    $('.submit-guild-btn').click(function () {
+        var validateResult = $('#guild-form').parsley().validate();
+        if (validateResult) {
+            $('#guild-form')[0].submit();
+        }
     });
+
 
     // custom validator for select2
     window.Parsley.addValidator('notDuplicateCompany', {
@@ -121,7 +125,7 @@ function addCompany(eleId) {
         "counter": data.counter
     });
     data.counter++;
-    $('#' + eleId).append(html);
+    $('#' + eleId).prepend(html);
 }
 
 function deleteCompany(delEl, sendAjax) {
@@ -143,7 +147,7 @@ function deleteCompany(delEl, sendAjax) {
                 var recordId = $(delEl).closest('.row-company').find('.recordId').val();
                 $.ajax({
                     type: 'POST',
-                    url: DOMAIN_NAME + '/guilds/deleteCompany',
+                    url: DOMAIN_NAME + '/guilds/deleteGuildCompany',
                     data: {
                         'recordId': recordId
                     },
@@ -154,20 +158,7 @@ function deleteCompany(delEl, sendAjax) {
                             type: resp.alert.type
                         })
                         if (resp.status == 'success') {
-                            if (resp.admin) {
-                                var source = $("#deleted-company-template").html();
-                                var template = Handlebars.compile(source);
-                                var counter = parseInt($(delEl).closest('.row-company').find('.stt-col').html()) - 1;
-                                var html = template({
-                                    "counter": counter,
-                                    "recordId": recordId,
-                                    "companyId": deleteCompanyId,
-                                    "name_romaji": deleteCompanyName
-                                });
-                                $(delEl).closest('.row-company').html(html);
-                            } else {
-                                deleteRow(delEl);
-                            }
+                            deleteRow(delEl);
                         }
                     }
                 });
@@ -178,16 +169,15 @@ function deleteCompany(delEl, sendAjax) {
     }
 }
 
-function deleteRow(delEl) {
+function deleteRow(delEl, hiddenId) {
+    // remove DOM
     $(delEl).closest('.row-company').remove();
+    data.counter--;
     $('.company-container > tr').each(function (index) {
         $(this).find('.stt-col').html(index + 1);
-        $(this).find('.companyId').attr('name', 'companies[' + index + '][id]');
-        $(this).find('.createdBy').attr('name', 'companies[' + index + '][_joinData][created_by]');
-        $(this).find('.recordId').attr('name', 'companies[' + index + '][_joinData][id]');
-        $(this).find('.modifiedBy').attr('name', 'companies[' + index + '][_joinData][modified_by]');
+        $(this).find('.companyId').attr('name', `companies[${index}][id]`);
+        $(this).find('.recordId').attr('name', `companies[${index}][_joinData][id]`);
     });
-    data.counter--;
 }
 
 function recoverCompany(ele, recordId, deletedCompanyId) {

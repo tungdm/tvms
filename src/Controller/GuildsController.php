@@ -127,6 +127,7 @@ class GuildsController extends AppController
         if (isset($query['q']) && !empty($query['q'])) {
             $guilds = $this->Guilds
                 ->find('list')
+                ->where(['del_flag' => FALSE])
                 ->where(function (QueryExpression $exp, Query $q) use ($query) {
                     return $exp->like('name_romaji', '%'.$query['q'].'%');
                 });
@@ -135,6 +136,26 @@ class GuildsController extends AppController
         return $this->jsonResponse($resp);   
     }
 
+    public function view($id = null)
+    {
+        $guild = $this->Guilds->get($id, [
+            'contain' => [
+                'CreatedByUsers',
+                'ModifiedByUsers',
+                'Companies' => ['sort' => ['Companies.name_romaji' => 'ASC']],
+                // 'InstallmentFees' => ['sort' => ['Installments.name' => 'ASC']],
+                'InstallmentFees' => ['sort' => [
+                    'Installments.created' => 'DESC',
+                    'InstallmentFees.installment_id' => 'ASC'
+                ]],
+                'InstallmentFees.Installments'
+            ]
+        ]);
+        $this->checkDeleteFlag($guild, $this->Auth->user());
+        $this->set(compact('guild'));
+    }
+
+
     /**
      * View method
      *
@@ -142,7 +163,7 @@ class GuildsController extends AppController
      * @return \Cake\Http\Response|void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view()
+    public function viewJson()
     {
         $this->request->allowMethod('ajax');
         $guildId = $this->request->getQuery('id');
@@ -198,6 +219,12 @@ class GuildsController extends AppController
     public function add()
     {
         $guild = $this->Guilds->newEntity();
+        $companies = $this->Guilds->Companies->find('list')
+                    ->where([
+                        'type' => '2',
+                        'del_flag' => FALSE
+                        ])
+                    ->order(['name_romaji' => 'ASC']); // cty tiep nhan
         if ($this->request->is('post')) {
             $data = $this->request->getData();
             $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
@@ -210,8 +237,9 @@ class GuildsController extends AppController
             } else {
                 $this->Flash->error($this->errorMessage['add']);
             }
+            return $this->redirect(['action' => 'index']);
         }
-        return $this->redirect(['action' => 'index']);
+        $this->set(compact('guild', 'companies'));
     }
 
     /**
@@ -221,38 +249,34 @@ class GuildsController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
-    public function edit()
+    public function edit($id = null)
     {
-        $this->autoRender = false;
-
-        if ($this->request->is('ajax')) {
-            $guildId = $this->request->getQuery('id');
-            // get guild data
-            if ($this->Auth->user('role_id') == 1) {
-                $resp = $this->Guilds->get($guildId, [
-                    'contain' => [
-                        'Companies' => [
-                            'sort' => ['Companies.name_romaji' => 'ASC']
-                        ]
-                    ]
-                ]);
-            } else {
-                $resp = $this->Guilds->get($guildId, [
-                    'contain' => [
-                        'Companies' => function($q) {
-                            return $q->where(['Companies.del_flag' => FALSE])->order(['Companies.name_romaji' => 'ASC']);
-                        }
-                    ]
-                ]);
-            }
-            
-            return $this->jsonResponse($resp);
+        $companies = $this->Guilds->Companies->find('list')
+                    ->where([
+                        'type' => '2', // cty tiep nhan
+                        'del_flag' => FALSE
+                        ])
+                    ->order(['name_romaji' => 'ASC']); 
+        // get guild data
+        if ($this->Auth->user('role_id') == 1) {
+            $guild = $this->Guilds->get($id, [
+                'contain' => [
+                    'Companies' => ['sort' => ['Companies.name_romaji' => 'ASC']]
+                ]
+            ]);
+        } else {
+            $guild = $this->Guilds->get($id, [
+                'contain' => [
+                    'Companies' => function($q) {
+                        return $q->where(['Companies.del_flag' => FALSE])->order(['Companies.name_romaji' => 'ASC']);
+                    }
+                ]
+            ]);
         }
-
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $delCompanies = [];
-            $guild = $this->Guilds->get($data['id'], ['contain' => ['Companies']]);
+            // $guild = $this->Guilds->get($data['id'], ['contain' => ['Companies']]);
             if (!empty($guild->companies)) {
                 foreach ($guild->companies as $key => $company) {
                     if ($company->_joinData->del_flag) {
@@ -275,11 +299,12 @@ class GuildsController extends AppController
                     'entity' => $this->entity,
                     'name' => $guild->name_romaji
                 ]));
-            } else {
-                $this->Flash->error($this->errorMessage['error']);
+                return $this->redirect(['action' => 'edit', $id]);
             }
-            return $this->redirect(['action' => 'index']);
+            $this->Flash->error($this->errorMessage['error']);
         }
+        $this->set(compact('guild', 'companies'));
+        $this->render('/Guilds/add');
     }
 
     /**
@@ -296,13 +321,13 @@ class GuildsController extends AppController
         $data = [
             'del_flag' => TRUE, // guild del_flag
         ];
-        if (!empty($guild->companies)) {
-            foreach ($guild->companies as $key => $company) {
-                $data['companies'][$key]['id'] = $company->id;
-                $data['companies'][$key]['_joinData']['del_flag'] = TRUE;
-                $data['companies'][$key]['_joinData']['modified_by'] = $this->Auth->user('id');
-            }
-        }
+        // if (!empty($guild->companies)) {
+        //     foreach ($guild->companies as $key => $company) {
+        //         $data['companies'][$key]['id'] = $company->id;
+        //         $data['companies'][$key]['_joinData']['del_flag'] = TRUE;
+        //         $data['companies'][$key]['_joinData']['modified_by'] = $this->Auth->user('id');
+        //     }
+        // }
 
         $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
         $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
@@ -352,7 +377,7 @@ class GuildsController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    public function deleteCompany()
+    public function deleteGuildCompany()
     {
         $this->request->allowMethod('ajax');
         
@@ -369,16 +394,12 @@ class GuildsController extends AppController
 
         $table = TableRegistry::get('GuildsCompanies');
         $record = $table->get($recordId);
-        $record->del_flag = TRUE;
-        $record->modified_by = $this->Auth->user('id');
-
         $guildId = $record->guild_id;
         $guild = $this->Guilds->get($guildId);
         $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
-        if ($table->save($record) && $this->Guilds->save($guild)) {
+        if ($table->delete($record) && $this->Guilds->save($guild)) {
             $resp = [
                 'status' => 'success',
-                'admin' => $this->Auth->user('role_id') == 1,
                 'alert' => [
                     'title' => 'Thành Công',
                     'type' => 'success',

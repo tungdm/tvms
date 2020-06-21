@@ -1496,7 +1496,7 @@ class OrdersController extends AppController
             $richText = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
             $dear = $richText->createTextRun('Kính gửi:');
             $dear->getFont()->setBold(true)->setItalic(true)->setUnderline(true);
-            $richText->createText(' Công ty CP XNK tổng hợp và CGCN Việt Nam');
+            $richText->createText(' '.  $adminCompany->name_vn);
             $spreadsheet->getActiveSheet()->setCellValue('A5', $richText);
             if (!empty($adminCompany->branch)) {
                 $spreadsheet->getActiveSheet()->setCellValue('A6', $adminCompany->branch . ' xin đề nghị cấp thư phái cử cho các Tu nghiệp sinh Nhật bản theo danh sách sau:');

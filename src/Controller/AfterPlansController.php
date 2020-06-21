@@ -122,6 +122,7 @@ class AfterPlansController extends AppController
                     'ModifiedByUsers'
                 ]
             ]);
+            $this->checkDeleteFlag($afterPlan, $this->Auth->user());
             if (!$afterPlan->del_flag || $this->Auth->user('role_id') == 1) {
                 $resp = [
                     'status' => 'success',

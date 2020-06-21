@@ -123,6 +123,7 @@ class StrengthsController extends AppController
                     'ModifiedByUsers'
                 ]
             ]);
+            $this->checkDeleteFlag($strength, $this->Auth->user());
             if (!$strength->del_flag || $this->Auth->user('role_id') == 1) {
                 $resp = [
                     'status' => 'success',

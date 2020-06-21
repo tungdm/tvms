@@ -108,7 +108,9 @@ class JclassesController extends AppController
         
         $this->paginate = [
             'contain' => [
-                'Users', 
+                'Users' => function($q) {
+                    return $q->where(['Users.del_flag' => false]);
+                }, 
                 'Students' => function($q) {
                     return $q->where(['status <' => '4']);
                 }
@@ -117,7 +119,7 @@ class JclassesController extends AppController
             'limit' => $query['records']
         ];
         $jclasses = $this->paginate($allClasses);
-        $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
+        $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3', 'del_flag' => false]);
         $this->set(compact('jclasses', 'teachers', 'query'));
     }
 
@@ -156,7 +158,9 @@ class JclassesController extends AppController
                 },
                 'Students.Addresses.Cities',
                 'Jtests', 
-                'Users',
+                'Users' => function($q) {
+                    return $q->where(['Users.del_flag' => false]);
+                },
                 'CreatedByUsers',
                 'ModifiedByUsers'
                 ]
@@ -447,7 +451,7 @@ class JclassesController extends AppController
             }
             $this->Flash->error($this->errorMessage['add']);
         }
-        $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
+        $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3', 'del_flag' => false]);
         $classes = []; // dummy data
         $this->set(compact('jclass', 'teachers', 'classes'));
     }
@@ -471,7 +475,10 @@ class JclassesController extends AppController
                 },
                 'Students.Addresses.Cities',
                 'Jtests', 
-                'Users']
+                'Users' => function($q) {
+                    return $q->where(['del_flag' => false]);
+                }
+            ]
         ]);
         $className = $jclass->name;
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -491,7 +498,7 @@ class JclassesController extends AppController
                 'name' => $className
             ]));
         }
-        $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3']);
+        $teachers = $this->Jclasses->Users->find('list')->where(['role_id' => '3', 'del_flag' => false]);
         $classes = $this->Jclasses->find('list')->where(['id !=' => $id]);
 
         $this->set(compact('jclass', 'teachers', 'classes'));

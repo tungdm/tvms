@@ -860,6 +860,9 @@ return [
     'scheduleReportXlsx' => [
         'filename' => '12.xlsx'
     ],
+    'installmentFeesXlsx' => [
+        'filename' => 'Bảng theo dõi chi phí.xlsx'
+    ],
     'orderDeclaration' => [
         'filename' => '1.20.docx',
         'template' => 'declaration.docx'

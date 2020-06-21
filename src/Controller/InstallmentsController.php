@@ -2,12 +2,15 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
 use Cake\Log\Log;
 use Cake\Utility\Text;
 
+use PhpOffice\PhpSpreadsheet\Style;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 /**
  * Installments Controller
  *
@@ -21,6 +24,7 @@ class InstallmentsController extends AppController
     {
         parent::initialize();
         $this->entity = 'đợt thu phí';
+        $this->loadComponent('ExportFile');
     }
 
     public function isAuthorized($user)
@@ -79,7 +83,7 @@ class InstallmentsController extends AppController
         $installments = $this->paginate($allInstallments);
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
         $usersTable = TableRegistry::get('Users');
-        $allUsers = $usersTable->find('list');
+        $allUsers = $usersTable->find('list')->where(['del_flag' => false]);
         $this->set(compact('installments', 'allUsers', 'adminCompanies', 'query'));
     }
 
@@ -95,12 +99,11 @@ class InstallmentsController extends AppController
         $installment = $this->Installments->get($id, [
             'contain' => [
                 'AdminCompanies',
-                'InstallmentFees' => ['sort' => ['name_romaji' => 'ASC']], 
+                'InstallmentFees' => ['sort' => ['name_romaji' => 'ASC', 'invoice_date' => 'ASC']], 
                 'InstallmentFees.Guilds'
             ]
         ]);
-        $sbInstallmentActive = true;
-        $this->set(compact('installment', 'sbInstallmentActive'));
+        $this->set(compact('installment'));
     }
 
     /**
@@ -122,9 +125,8 @@ class InstallmentsController extends AppController
             $this->Flash->error($this->errorMessage['add']);
         }
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
-        $guilds = TableRegistry::get('Guilds')->find('list');
-        $sbInstallmentActive = true;
-        $this->set(compact('installment', 'guilds', 'adminCompanies', 'sbInstallmentActive'));
+        $guilds = TableRegistry::get('Guilds')->find('list')->where(['del_flag' => false]);
+        $this->set(compact('installment', 'guilds', 'adminCompanies'));
     }
 
     /**
@@ -139,7 +141,7 @@ class InstallmentsController extends AppController
         $installment = $this->Installments->get($id, [
             'contain' => [
                 'AdminCompanies',
-                'InstallmentFees' => ['sort' => ['name_romaji' => 'ASC']], 
+                'InstallmentFees' => ['sort' => ['name_romaji' => 'ASC', 'invoice_date' => 'ASC']], 
                 'InstallmentFees.Guilds'
                 ]
         ]);
@@ -154,16 +156,160 @@ class InstallmentsController extends AppController
             $this->Flash->error($this->errorMessage['error']);
         }
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
-        $guilds = TableRegistry::get('Guilds')->find('list');
-        $sbInstallmentActive = true;
-        $this->set(compact('installment', 'guilds', 'adminCompanies', 'sbInstallmentActive'));
+        $guilds = TableRegistry::get('Guilds')->find('list')->where(['del_flag' => false]);
+        $this->set(compact('installment', 'guilds', 'adminCompanies'));
         $this->render('/Installments/add');
-
     }
 
     public function export($id = null)
     {
-        
+        $config = Configure::read('installmentFeesXlsx');
+        $installmentStatus = Configure::read('installmentStatus');
+        try {
+            # get data
+            $installment = $this->Installments->get($id, [
+                'contain' => [
+                    'AdminCompanies',
+                    'InstallmentFees' => ['sort' => ['name_romaji' => 'ASC', 'invoice_date' => 'ASC']], 
+                    'InstallmentFees.Guilds'
+                    ]
+            ]);
+            // init worksheet
+            $spreadsheet = $this->ExportFile->setXlsxProperties();
+            $spreadsheet->setActiveSheetIndex(0);
+            $spreadsheet->getActiveSheet()->getSheetView()->setZoomScale(80);
+            $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
+            $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
+            $spreadsheet->getActiveSheet()->setShowGridLines(false);
+            $spreadsheet->getActiveSheet()
+                ->mergeCells('A1:L1')->setCellValue('A1', 'BẢNG THEO DÕI CHI PHÍ')
+                ->mergeCells('A2:L2')->setCellValue('A2', $installment->name)
+                ->mergeCells('A3:L3')->setCellValue('A3', 'Phân nhánh: '. $installment->admin_company->short_name);
+            
+            $spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(35);
+            $spreadsheet->getActiveSheet()->getRowDimension('2')->setRowHeight(20);
+            $spreadsheet->getActiveSheet()->getRowDimension('3')->setRowHeight(20);
+            $spreadsheet->getActiveSheet()->getRowDimension('4')->setRowHeight(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(5);
+            $spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+            $spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(15);
+            $spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+            $spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(15);
+            $spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(15);
+            $spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(15);
+            $spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(25);
+            $spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(18);
+            $spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(18);
+            $spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(15);
+            $spreadsheet->getActiveSheet()->getColumnDimension('L')->setWidth(25);
+            $spreadsheet->getActiveSheet()->getStyle('A1:A3')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'size' => 16,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle('A4:L4')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()
+                ->setCellValue('A4', 'STT')
+                ->setCellValue('B4', 'Tên Nghiệp Đoàn')
+                ->setCellValue('C4', 'Phí quản lý (¥)')
+                ->setCellValue('D4', 'Vé máy bay (¥)')
+                ->setCellValue('E4', 'Phí đào tạo (¥)')
+                ->setCellValue('F4', 'Khoản khác (¥)')
+                ->setCellValue('G4', 'Tổng cộng (¥)')
+                ->setCellValue('H4', 'Tổng tiền vào tài khoản (₫)')
+                ->setCellValue('I4', 'Ngày gửi hóa đơn')
+                ->setCellValue('J4', 'Ngày nhận tiền')
+                ->setCellValue('K4', 'Trạng thái')
+                ->setCellValue('L4', 'Ghi chú');
+            
+            $installmentFees = [];
+            $counter = 4;
+            $total_vn = $total_jp = $sum_management_fee = $sum_air_ticket_fee = $sum_training_fee = $sum_other_fees = 0;
+            foreach ($installment->installment_fees as $key => $value) {
+                if (isset($value->total_vn)) {
+                    $total_vn += $value->total_vn;
+                }
+                if (isset($value->total_jp)) {
+                    $total_jp += $value->total_jp;
+                }
+                $sum_management_fee += $value->management_fee;
+                $sum_air_ticket_fee += $value->air_ticket_fee;
+                $sum_training_fee += $value->training_fee;
+                $sum_other_fees += $value->other_fees;
+                $data = [
+                    $key+1,
+                    $value->guild->name_romaji,
+                    number_format($value->management_fee),
+                    number_format($value->air_ticket_fee),
+                    number_format($value->training_fee),
+                    number_format($value->other_fees),
+                    number_format($value->total_jp),
+                    isset($value->total_vn) ? number_format($value->total_vn) : '',
+                    $value->invoice_date ? $value->invoice_date->i18nFormat('dd/MM/yyyy') : '',
+                    $value->receiving_money_date ? $value->receiving_money_date->i18nFormat('dd/MM/yyyy') : '',
+                    $installmentStatus[$value->status],
+                    $value->notes
+                ];
+                array_push($installmentFees, $data);
+                $counter++;
+            }
+            // fill data to table
+            $spreadsheet->getActiveSheet()->fromArray($installmentFees, NULL, 'A5');
+            $counter++;
+            $spreadsheet->getActiveSheet()
+                ->mergeCells("A{$counter}:B{$counter}")->setCellValue("A{$counter}", 'Tổng kết')
+                ->setCellValue("C{$counter}", number_format($sum_management_fee))
+                ->setCellValue("D{$counter}", number_format($sum_air_ticket_fee))
+                ->setCellValue("E{$counter}", number_format($sum_training_fee))
+                ->setCellValue("F{$counter}", number_format($sum_other_fees))
+                ->setCellValue("G{$counter}", number_format($total_jp));
+            if ($total_vn != 0) {
+                $spreadsheet->getActiveSheet()->setCellValue("H{$counter}", number_format($total_vn));
+            }
+            $spreadsheet->getActiveSheet()->getStyle("A5:L{$counter}")->getAlignment()->setWrapText(true);
+            $spreadsheet->getActiveSheet()->getStyle("A4:L{$counter}")->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Style\Border::BORDER_THIN,
+                    ]
+                ],
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Style\Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle("B4:B{$counter}")->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_LEFT,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->getStyle("L5:L{$counter}")->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Style\Alignment::HORIZONTAL_LEFT,
+                ],
+            ]);
+            $spreadsheet->getActiveSheet()->setSelectedCells('A1');
+            // export XLSX file for download
+            $this->ExportFile->export($spreadsheet, $config['filename']);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
     }
 
 

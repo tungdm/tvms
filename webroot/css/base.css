@@ -450,17 +450,17 @@ label.optional {
     padding-left: 1px;
 }
 
-#student-tabs {
+#student-tabs, #guilds-tabs {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-#student-tabs>li>a {
+#student-tabs>li>a, #guilds-tabs>li>a{
     color: white;
     border: none !important;
     margin-right: 0px !important;
     transition: 0.2s ease-out;
 }
-#student-tabs>li>a:hover, #student-tabs>li.active>a{
+#student-tabs>li>a:hover, #student-tabs>li.active>a, #guilds-tabs>li>a:hover, #guilds-tabs>li.active>a {
     color: #444;
     border: none !important;
 }

@@ -52,7 +52,7 @@ class InstallmentFee extends Entity
         'notes' => true,
         'created' => true,
         'created_by' => true,
-        'updated' => true,
-        'updated_by' => true,
+        'modified' => true,
+        'modified_by' => true,
     ];
 }

@@ -857,7 +857,14 @@ function init_sidebar() {
             return obj.indexOf('type') !== -1;
         });
     } else {
-        fixedURL = CURRENT_URL;
+        if (urlArr[urlArr.length - 1].match(/^-{0,1}\d+$/)) {
+            urlArr.pop();
+        }
+        if (['add', 'edit', 'view', 'info', 'schedule', 'set-score'].includes(urlArr[urlArr.length - 1])) {
+            urlArr.pop();
+        }
+        // fixedURL = CURRENT_URL;
+        fixedURL = urlArr.join('/')
     }
     $SIDEBAR_MENU.find('a').filter(function () {
         return this.href == fixedURL;
@@ -1234,7 +1241,7 @@ function globalViewGuild(guildId, overlayId) {
 
     $.ajax({
         type: 'GET',
-        url: DOMAIN_NAME + '/guilds/view',
+        url: DOMAIN_NAME + '/guilds/viewJson',
         data: {
             id: guildId
         },

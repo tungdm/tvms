@@ -32,8 +32,8 @@ class Installment extends Entity
         'admin_company_id' => true,
         'created' => true,
         'created_by' => true,
-        'updated' => true,
-        'updated_by' => true,
+        'modified' => true,
+        'modified_by' => true,
         'installment_fees' => true,
     ];
 }

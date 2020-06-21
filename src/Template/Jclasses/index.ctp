@@ -208,7 +208,7 @@ $this->assign('title', 'Quản lý lớp học');
                             </td>
                             <td class="cell startCol"><?= h($jclass->start) ?></td>
                             <td class="cell numStudentsCol"><?= count($jclass->students) ?></td>
-                            <td class="cell userCol"><?= h($jclass->user->fullname) ?></td>
+                            <td class="cell userCol"><?= $jclass->user ? h($jclass->user->fullname) : 'N/A' ?></td>
                             <td class="cell currentLessonCol"><?= h($lessons[$jclass->current_lesson]) ?></td>
                             <td class="cell actions">
                                 <div class="btn-group">

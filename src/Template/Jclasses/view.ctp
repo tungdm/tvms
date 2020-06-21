@@ -95,7 +95,7 @@ $this->assign('title', 'Lớp ' . $jclass->name . ' - Thông tin chi tiết');
                         <label class="control-label col-md-6 col-sm-6 col-xs-12" for="user_id"><?= __('Giáo viên chủ nhiệm') ?>: </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                <?= h($jclass->user->fullname) ?>
+                                <?= $jclass->user ? h($jclass->user->fullname) : 'N/A' ?>
                             </div>
                         </div>
                     </div>

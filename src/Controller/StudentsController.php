@@ -659,20 +659,22 @@ class StudentsController extends AppController
             $query = $this->request->getQuery();
             if (isset($query['candidateId']) && !empty($query['candidateId'])) {
                 $candidate = $this->Students->Candidates->get($query['candidateId']);
-                $student->candidate_id = $candidate->id;
-                $student->fullname = $candidate->fullname;
-                $student->gender = $candidate->gender;
-                $student->phone = $candidate->phone;
-                $student->zalo = !empty($candidate->zalo_phone) ? $candidate->zalo_phone : $candidate->fb_name;
-                $student->birthday = $candidate->birthday;
-                $student->educational_level = $candidate->educational_level;
-                $student->presenter_id = 2; // Internet
-                $student->addresses = [
-                    0 => [
-                        'city_id' => $candidate->city_id,
-                        'district_id' => NULL,
-                    ]
-                ];
+                if (!$candidate->del_flag) {
+                    $student->candidate_id = $candidate->id;
+                    $student->fullname = $candidate->fullname;
+                    $student->gender = $candidate->gender;
+                    $student->phone = $candidate->phone;
+                    $student->zalo = !empty($candidate->zalo_phone) ? $candidate->zalo_phone : $candidate->fb_name;
+                    $student->birthday = $candidate->birthday;
+                    $student->educational_level = $candidate->educational_level;
+                    $student->presenter_id = 2; // Internet
+                    $student->addresses = [
+                        0 => [
+                            'city_id' => $candidate->city_id,
+                            'district_id' => NULL,
+                        ]
+                    ];
+                }
             }
             
             $action = 'add';
@@ -727,7 +729,7 @@ class StudentsController extends AppController
             $student = $this->Students->setAuthor($student, $this->Auth->user('id'), $action);
             try{
                 // save to db
-                if (isset($candidate) && !empty($candidate)) {
+                if (isset($candidate) && !empty($candidate) && !$candidate->del_flag) {
                     $candidate->status = 4; // da ki ket
                     $this->Students->Candidates->save($candidate);
                 }

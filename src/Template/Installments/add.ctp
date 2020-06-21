@@ -160,9 +160,9 @@ $installmentStatus = Configure::read('installmentStatus');
                             <thead>
                                 <tr>
                                     <th scope="col"><?= __('Nghiệp đoàn') ?></th>
-                                    <th scope="col" class="col-md-2"><?= __('Các loại phí') ?></th>
-                                    <th scope="col"><?= __('Tổng cộng') ?></th>
-                                    <th scope="col"><?= __('Tổng tiền vào TK') ?></th>
+                                    <th scope="col" class="col-md-2"><?= __('Các loại phí (¥)') ?></th>
+                                    <th scope="col"><?= __('Tổng cộng (¥)') ?></th>
+                                    <th scope="col"><?= __('Tổng tiền vào TK (₫)') ?></th>
                                     <th scope="col"><?= __('Ngày gửi hóa đơn') ?></th>
                                     <th scope="col"><?= __('Ngày nhận tiền') ?></th>
                                     <th scope="col"><?= __('Trạng thái') ?></th>
@@ -171,10 +171,10 @@ $installmentStatus = Configure::read('installmentStatus');
                                 </tr>
                             </thead>
                             <tbody id="installment-fees-container">
-                                <?php if (!empty($installment->installment_fees)): ?>
                                 <?php 
                                     $counter = $total_vn = $total_jp = $sum_management_fee = $sum_air_ticket_fee = $sum_training_fee = $sum_other_fees = 0;
                                 ?>
+                                <?php if (!empty($installment->installment_fees)): ?>
                                 <?php foreach ($installment->installment_fees as $key => $value): ?>
                                 <?php 
                                     if (isset($value->total_vn)) {
@@ -204,10 +204,10 @@ $installmentStatus = Configure::read('installmentStatus');
                                         </div>
                                     </td>
                                     <td class="cell">
-                                        <div class="management-fee-txt">- Phí quản lý: <?= number_format($value->management_fee) ?> ¥</div>
-                                        <div class="air-ticket-fee-txt">- Vé máy bay: <?= number_format($value->air_ticket_fee) ?> ¥</div>
-                                        <div class="training-fee-txt">- Phí đào tạo: <?= number_format($value->training_fee) ?> ¥</div>
-                                        <div class="other-fees-txt">- Khoản khác: <?= number_format($value->other_fees) ?> ¥</div>
+                                        <div class="management-fee-txt">- Phí quản lý: <?= number_format($value->management_fee) ?></div>
+                                        <div class="air-ticket-fee-txt">- Vé máy bay: <?= number_format($value->air_ticket_fee) ?></div>
+                                        <div class="training-fee-txt">- Phí đào tạo: <?= number_format($value->training_fee) ?></div>
+                                        <div class="other-fees-txt">- Khoản khác: <?= number_format($value->other_fees) ?></div>
                                         <div class="hidden">
                                             <?= $this->Form->control('installment_fees.'  . $key . '.management_fee', [
                                                 'type' => 'number',
@@ -232,7 +232,7 @@ $installmentStatus = Configure::read('installmentStatus');
                                         </div>
                                     </td>
                                     <td class="cell">
-                                        <div class="total-jp-txt"><?= number_format($value->total_jp) ?> ¥</div>
+                                        <div class="total-jp-txt"><?= number_format($value->total_jp) ?></div>
                                         <div class="hidden">
                                             <?= $this->Form->control('installment_fees.'  . $key . '.total_jp', [
                                                 'type' => 'number',
@@ -242,7 +242,7 @@ $installmentStatus = Configure::read('installmentStatus');
                                         </div>
                                     </td>
                                     <td class="cell">
-                                        <div class="total-vn-txt"><?= isset($value->total_vn) ? number_format($value->total_vn) . ' ₫' : ''?></div>
+                                        <div class="total-vn-txt"><?= isset($value->total_vn) ? number_format($value->total_vn) : ''?></div>
                                         <div class="hidden">
                                             <?= $this->Form->control('installment_fees.'  . $key . '.total_vn', [
                                                 'type' => 'number',
@@ -312,27 +312,27 @@ $installmentStatus = Configure::read('installmentStatus');
                                     </td>
                                 </tr>
                                 <?php $counter++; ?>
-                                <?php endforeach; ?> 
+                                <?php endforeach; ?>
+                                <?php endif; ?>
                                 <tr class="summary">
                                     <td class="cell">
                                         <?= __('Tổng kết') ?>
                                     </td>
                                     <td class="cell">
                                         <div class="summary_fees">
-                                            <div id="summary-management-fee">- Phí quản lý: <?= number_format($sum_management_fee) ?> ¥</div>
-                                            <div id="summary-air-ticket-fee">- Vé máy bay: <?= number_format($sum_air_ticket_fee) ?> ¥</div>
-                                            <div id="summary-training-fee">- Phí đào tạo: <?= number_format($sum_training_fee) ?> ¥</div>
-                                            <div id="summary-other-fees">- Khoản khác: <?= number_format($sum_other_fees) ?> ¥</div>
+                                            <div id="summary-management-fee">- Phí quản lý: <?= number_format($sum_management_fee) ?></div>
+                                            <div id="summary-air-ticket-fee">- Vé máy bay: <?= number_format($sum_air_ticket_fee) ?></div>
+                                            <div id="summary-training-fee">- Phí đào tạo: <?= number_format($sum_training_fee) ?></div>
+                                            <div id="summary-other-fees">- Khoản khác: <?= number_format($sum_other_fees) ?></div>
                                         </div>
                                     </td>
                                     <td class="cell">
-                                        <div id="summary-total-jp"><?= number_format($total_jp) ?> ¥</div>
+                                        <div id="summary-total-jp"><?= number_format($total_jp) ?></div>
                                     </td>
                                     <td class="cell">
-                                        <div id="summary-total-vn"><?= number_format($total_vn) ?> ₫</div>
+                                        <div id="summary-total-vn"><?= number_format($total_vn) ?></div>
                                     </td>
                                 </tr>
-                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -601,10 +601,10 @@ $installmentStatus = Configure::read('installmentStatus');
             </div>
         </td>
         <td class="cell">
-            <div class="management-fee-txt">- Phí quản lý: {{managementFeeTxt}} ¥</div>
-            <div class="air-ticket-fee-txt">- Vé máy bay: {{airTicketFeeTxt}} ¥</div>
-            <div class="training-fee-txt">- Phí đào tạo: {{trainingFeeTxt}} ¥</div>
-            <div class="other-fees-txt">- Khoản khác: {{otherFeesTxt}} ¥</div>
+            <div class="management-fee-txt">- Phí quản lý: {{managementFeeTxt}}</div>
+            <div class="air-ticket-fee-txt">- Vé máy bay: {{airTicketFeeTxt}}</div>
+            <div class="training-fee-txt">- Phí đào tạo: {{trainingFeeTxt}}</div>
+            <div class="other-fees-txt">- Khoản khác: {{otherFeesTxt}}</div>
             <div class="hidden">
                 <?= $this->Form->control('{{managementFee}}', [
                     'type' => 'number',

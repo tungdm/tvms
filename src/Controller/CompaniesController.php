@@ -140,29 +140,17 @@ class CompaniesController extends AppController
         ];
 
         try {
-            if ($this->Auth->user('role_id') == 1) {
-                $company = $this->Companies->get($companyId, [
-                    'contain' => [
-                        'Guilds',
-                        // 'Orders',
-                        // 'Orders.Students',
-                        'CreatedByUsers',
-                        'ModifiedByUsers'
-                    ]
-                ]);
-            } else {
-                $company = $this->Companies->get($companyId, [
-                    'contain' => [
-                        'Guilds' => function($q) {
-                            return $q->where(['Guilds.del_flag' => FALSE]);
-                        },
-                        // 'Orders',
-                        // 'Orders.Students',
-                        'CreatedByUsers',
-                        'ModifiedByUsers'
-                    ]
-                ]);
-            }
+            $company = $this->Companies->get($companyId, [
+                'contain' => [
+                    'Guilds' => function($q) {
+                        return $q->where(['Guilds.del_flag' => FALSE]);
+                    },
+                    // 'Orders',
+                    // 'Orders.Students',
+                    'CreatedByUsers',
+                    'ModifiedByUsers'
+                ]
+            ]);
             
             $resp = [
                 'status' => 'success',

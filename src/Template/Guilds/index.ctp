@@ -18,7 +18,7 @@ $this->Html->css('flag-icon.css', ['block' => 'styleTop']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
-$this->Html->script('guild.js', ['block' => 'scriptBottom']);
+// $this->Html->script('guild.js', ['block' => 'scriptBottom']);
 
 $this->Paginator->setTemplates([
     'sort' => '<a href="{{url}}">{{text}} <i class="fa fa-sort"></i></a>',
@@ -48,11 +48,14 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
         <ul class="zoom-menu">
             <?php if ($permission == 0): ?>
             <li>
-                <a  data-toggle='tooltip' title='Thêm mới'
-                    class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
-                    onclick="showAddGuildModal()">
-                    <i class="fa fa-plus"></i>
-                </a>
+                <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                    ['action' => 'add'],
+                    [
+                        'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                        'data-toggle' => 'tooltip',
+                        'title' => 'Thêm mới',
+                        'escape' => false
+                    ]) ?>
             </li>
             <?php endif; ?>
         </ul>
@@ -169,9 +172,9 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                         <tr>
                             <td class="cell text-center <?= $guild->del_flag ? 'deletedRecord' : '' ?>"><?= h($counter) ?></td>
                             <td class="cell nameCol">
-                                <a href="javascript:;" onclick="viewGuild(<?= $guild->id ?>)">
-                                    <?= h($guild->name_romaji) ?><br/><?= h($guild->name_kanji) ?>
-                                </a>
+                                <?= $this->Html->link(h($guild->name_romaji) . '<br/>' . h($guild->name_kanji), 
+                                    ['action' => 'view', $guild->id],
+                                    ['escape' => false]) ?>
                             </td>
                             <td class="cell addressCol"><?= h($guild->address_romaji) ?></td>
                             <td class="cell phonevnCol"><?= h($this->Phone->makeEdit($guild->phone_vn)) ?></td>
@@ -182,9 +185,9 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                                     <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle btn-sm" type="button" aria-expanded="false">Mở rộng <span class="caret"></span></button>
                                     <ul role="menu" class="dropdown-menu">
                                         <li>
-                                            <a href="javascript:;" onclick="viewGuild(<?= $guild->id ?>)">
-                                                <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
-                                            </a>
+                                            <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                ['action' => 'view', $guild->id],
+                                                ['escape' => false]) ?>
                                         </li>
                                         <?php if ($permission == 0): ?>
                                             <?php if ($guild->del_flag): ?>
@@ -198,8 +201,9 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                                                 </li>
                                             <?php else: ?>
                                                 <li>
-                                                    <a href="javascript:;" id="edit-guild-btn" onClick="showEditGuildModal('<?= $guild->id ?>')">
-                                                    <i class="fa fa-edit"></i> Sửa</a>
+                                                    <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
+                                                        ['action' => 'edit', $guild->id],
+                                                        ['escape' => false]) ?>
                                                 </li>
                                                 <li>
                                                     <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
@@ -366,7 +370,11 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                 </div>
                 <div class="form-group">
                     <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                        <?= $this->Form->control('phone_jp', ['label' => false, 'required' => true, 'class' => 'form-control col-md-7 col-xs-12', 'placeholder' => 'Nhập số điện thoại tại Nhật Bản']) ?>
+                        <?= $this->Form->control('phone_jp', [
+                            'label' => false, 
+                            'required' => true, 
+                            'class' => 'form-control col-md-7 col-xs-12', 
+                            'placeholder' => 'Nhập số điện thoại tại Nhật Bản']) ?>
                     </div>
                 </div>
                 <div class="form-group">
@@ -543,6 +551,9 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                             'label' => false, 
                             'id' => 'edit-phone-vn',
                             'class' => 'form-control col-md-7 col-xs-12', 
+                            'minLength' => 10,
+                            'maxlength' => 11,
+                            'data-parsley-type' => 'digits',
                             'placeholder' => 'Nhập số điện thoại tại Việt Nam']) ?>
                     </div>
                 </div>
@@ -583,210 +594,3 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="setting-guild-modal" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Chọn Lọc</h4>
-            </div>
-            <div class="modal-body">
-                <?= $this->Form->create(null, [
-                    'type' => 'get',
-                    'id' => 'setting-guild-form',
-                    'class' => 'form-horizontal form-label-left',
-                    ]) ?>
-                <div class="form-group">
-                    <label class="col-md-3 col-sm-3 col-xs-12 control-label" for="display_field">
-                        <?= __('Tiêu Chí') ?> </label>
-                    <div class="col-md-9 col-sm-9 col-xs-12">
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label>
-                                <input type="checkbox" name="nameCol" value checked>
-                                <?= __('Tên (Việt)') ?>
-                            </label>
-                        </div>
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label>
-                                <input type="checkbox" name="namekanjiCol" value>
-                                <?= __('Tên (Nhật)') ?>
-                            </label>
-                        </div>
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label>
-                                <input type="checkbox" name="addressCol" value checked>
-                                <?= __('Địa chỉ (Việt)') ?>
-                            </label>
-                        </div>
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label>
-                                <input type="checkbox" name="addresskanjiCol" value>
-                                <?= __('Địa chỉ (Nhật)') ?>
-                            </label>
-                        </div>
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label>
-                                <input type="checkbox" name="phonevnCol" value>
-                                <?= __('Điện thoại') ?>
-                            </label>
-                        </div>
-                        <div class="checkbox col-md-4 col-sm-6 col-xs-12">
-                            <label>
-                                <input type="checkbox" name="phonejpCol" value checked>
-                                <?= __('電番') ?>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <?= $this->Form->end() ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="setting-guild-submit-btn">Hoàn Tất</button>
-                <button type="button" class="btn btn-default" id="setting-guild-close-btn" data-dismiss="modal">Đóng</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script id="company-template" type="text/x-handlebars-template">
-    <tr class="row-company">
-        <td class="cell stt-col text-center">
-            {{inc counter}}
-        </td>
-        <td class="cell">
-            <?= $this->Form->control('companies.{{counter}}.id', [
-                'options' => $companies, 
-                'required' => true, 
-                'empty' => true, 
-                'label' => false,
-                'class' => 'companyId form-control col-md-7 col-xs-12',
-                'data-parsley-not-duplicate-company' => '', 
-                ]) ?>
-            <div class="hidden">
-                <?= $this->Form->control('companies.{{counter}}._joinData.created_by', [
-                    'label' => false, 
-                    'class' => 'createdBy form-control col-md-7 col-xs-12',
-                    'value' => $currentUser['id']
-                    ]) ?>
-                <?= $this->Form->control('companies.{{counter}}._joinData.del_flag', [
-                        'label' => false, 
-                        'class' => 'recordId form-control col-md-7 col-xs-12',
-                        'value' => 0
-                        ]) ?>
-            </div>
-        </td>
-        <td class="actions cell">
-            <?= $this->Html->link(
-                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
-                'javascript:;',
-                [
-                    'escape' => false, 
-                    'onClick' => "deleteCompany(this)"
-                ]
-            )?>
-        </td>
-    </tr>
-</script>
-
-<script id="edit-company-template" type="text/x-handlebars-template">
-    {{#each this}}
-        <tr class="row-company">
-            <td class="cell stt-col text-center {{#if _joinData.del_flag}}deletedRecord{{/if}}">
-                {{inc @index}}
-            </td>
-            <td class="cell companyName">
-                {{#if _joinData.del_flag}}
-                    {{name_romaji}}
-                    <div class="hidden">
-                        <div class="div-container">{{id}}</div>
-                    </div>
-                {{else}}
-                    <?= $this->Form->control('companies.{{@index}}.id', [
-                        'options' => $companies, 
-                        'required' => true, 
-                        'empty' => true, 
-                        'label' => false,
-                        'class' => 'companyId form-control col-md-7 col-xs-12',
-                        'data-parsley-not-duplicate-company' => '', 
-                        ]) ?>
-                    <div class="hidden">
-                        <?= $this->Form->control('companies.{{@index}}._joinData.modified_by', [
-                            'label' => false, 
-                            'class' => 'modifiedBy form-control col-md-7 col-xs-12',
-                            'value' => $currentUser['id']
-                            ]) ?>
-                        <?= $this->Form->control('companies.{{@index}}._joinData.id', [
-                            'label' => false, 
-                            'class' => 'recordId form-control col-md-7 col-xs-12',
-                            'value' => '{{_joinData.id}}'
-                            ]) ?>
-                    </div>
-                {{/if}}
-            </td>
-            <td class="actions cell">
-                {{#if _joinData.del_flag}}
-                    <?= $this->Html->link(
-                        '<i class="fa fa-2x fa-undo"></i>',
-                        'javascript:;',
-                        [
-                            'escape' => false, 
-                            'onClick' => "recoverCompany(this, '{{_joinData.id}}', '{{id}}')"
-                        ]
-                    )?>
-                {{else}}
-                    <?= $this->Html->link(
-                            '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
-                            'javascript:;',
-                            [
-                                'escape' => false, 
-                                'onClick' => "deleteCompany(this, true)"
-                            ]
-                        )?>
-                {{/if}}
-            </td>
-        </tr>companyId div-container
-    {{/each}}
-</script>
-
-<script id="deleted-company-template" type="text/x-handlebars-template">
-    <td class="cell stt-col text-center deletedRecord">
-        {{inc counter}}
-    </td>
-    <td class="cell companyName">
-        {{name_romaji}}
-    </td>
-    <td class="actions cell">
-        <?= $this->Html->link(
-            '<i class="fa fa-2x fa-undo"></i>',
-            'javascript:;',
-            [
-                'escape' => false, 
-                'onClick' => "recoverCompany(this, '{{recordId}}', '{{companyId}}')"
-            ]
-        )?>
-    </td>
-</script>
-
-<script id="recover-company-template" type="text/x-handlebars-template">
-    <?= $this->Form->control('companies.{{counter}}.id', [
-        'options' => $allCompanies, 
-        'required' => true, 
-        'empty' => true, 
-        'label' => false,
-        'class' => 'companyId form-control col-md-7 col-xs-12',
-        'data-parsley-not-duplicate-company' => '', 
-        ]) ?>
-    <div class="hidden">
-        <?= $this->Form->control('companies.{{counter}}._joinData.modified_by', [
-            'label' => false, 
-            'class' => 'modifiedBy form-control col-md-7 col-xs-12',
-            'value' => $currentUser['id']
-            ]) ?>
-        <?= $this->Form->control('companies.{{counter}}._joinData.id', [
-            'label' => false, 
-            'class' => 'recordId form-control col-md-7 col-xs-12',
-            'value' => '{{recordId}}'
-            ]) ?>
-    </div>
-</script>

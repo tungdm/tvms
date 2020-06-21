@@ -123,6 +123,7 @@ class PurposesController extends AppController
                     'ModifiedByUsers'
                 ]
             ]);
+            $this->checkDeleteFlag($purpose, $this->Auth->user());
             if (!$purpose->del_flag || $this->Auth->user('role_id') == 1) {
                 $resp = [
                     'status' => 'success',

@@ -55,10 +55,10 @@ function createFeeTemplate(counter) {
     var otherFeesVal = parseInt($('#add-other-fees').val());
 
     var totalJpVal = managementFeeVal + airTicketFeeVal + trainingFeeVal + otherFeesVal;
-    var totalJpTxt = `${numberWithCommas(totalJpVal.toString())} ¥`;
+    var totalJpTxt = numberWithCommas(totalJpVal.toString());
 
     var totalVnVal = $('#add-total-vn').val();
-    var totalVnTxt = (totalVnVal !== null && totalVnVal !== "") ? `${numberWithCommas(totalVnVal)} ₫` : '';
+    var totalVnTxt = (totalVnVal !== null && totalVnVal !== "") ? numberWithCommas(totalVnVal) : '';
 
     var feeHtml = feeTemplate({
         'counter': counter,
@@ -154,7 +154,7 @@ function editFees(rowNum) {
         var feeHtml = createFeeTemplate(rowNum);
         $(`#row-fee-${rowNum}`).replaceWith(feeHtml);
         // summary
-        calSum()
+        calSum();
         // hide modal
         $('#add-fees-modal').modal('toggle');
         resetAddFeesForm();
@@ -203,7 +203,7 @@ function deleteFeeRow(delEl, hiddenId) {
     // remove DOM
     $(delEl).closest('tr.row-fee').remove();
     if (hiddenId) {
-        // case: remove hidden id fiedl of record exists in database
+        // case: remove hidden id field of record exists in database
         $(`#installment-fee-id-${hiddenId}`).remove();
     }
     perData.feeCounter--;
@@ -223,6 +223,7 @@ function deleteFeeRow(delEl, hiddenId) {
     for (var i = 0; i < inputFields.length; i++) {
         inputFields[i].name = inputFields[i].name.replace(/(?<=\[)\d+(?=\])/g, Math.floor(i / 11));
     }
+    calSum();
 }
 
 function calSum() {
@@ -243,11 +244,11 @@ function calSum() {
         stf += (_tf !== null && _tf !== "") ? parseInt(_tf) : 0;
         sof += (_of !== null && _of !== "") ? parseInt(_of) : 0;
     }
-    $('#summary-total-jp').html(`${numberWithCommas(sumJp.toString())} ¥`);
-    $('#summary-total-vn').html(`${numberWithCommas(sumVn.toString())} ₫`);
+    $('#summary-total-jp').html(numberWithCommas(sumJp.toString()));
+    $('#summary-total-vn').html(numberWithCommas(sumVn.toString()));
 
-    $('#summary-management-fee').html(`- Phí quản lý: ${numberWithCommas(smf.toString())} ¥`);
-    $('#summary-air-ticket-fee').html(`- Vé máy bay: ${numberWithCommas(satf.toString())} ¥`);
-    $('#summary-training-fee').html(`- Phí đào tạo: ${numberWithCommas(stf.toString())} ¥`);
-    $('#summary-other-fees').html(`- Khoản khác: ${numberWithCommas(sof.toString())} ¥`);
+    $('#summary-management-fee').html(`- Phí quản lý: ${numberWithCommas(smf.toString())}`);
+    $('#summary-air-ticket-fee').html(`- Vé máy bay: ${numberWithCommas(satf.toString())}`);
+    $('#summary-training-fee').html(`- Phí đào tạo: ${numberWithCommas(stf.toString())}`);
+    $('#summary-other-fees').html(`- Khoản khác: ${numberWithCommas(sof.toString())}`);
 }
