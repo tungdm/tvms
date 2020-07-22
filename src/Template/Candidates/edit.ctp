@@ -119,9 +119,6 @@ $this->Html->script('candidate.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin cơ bản') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -243,9 +240,6 @@ $this->Html->script('candidate.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin bổ sung') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -329,9 +323,6 @@ $this->Html->script('candidate.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin tư vấn') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body table-responsive">
                     <button type="button" class="btn btn-primary btn-family" id="add-member-top" onclick="showAddConsultantModal();">

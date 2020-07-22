@@ -1,13 +1,15 @@
 <?php 
+use Cake\I18n\Time;
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('home.js', ['block' => 'scriptBottom']);
 $this->assign('title', 'TVMS - Trang Chủ');
+$currentMonth = Time::now()->i18nFormat('MM-yyyy');
 ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
 <?php $this->start('content-header'); ?>
-    <h1><?= __('BÁO CÁO TÌNH HÌNH HOẠT ĐỘNG') ?></h1>
+    <h1><?= __("BÁO CÁO TÌNH HÌNH HOẠT ĐỘNG THÁNG {$currentMonth}") ?></h1>
     <ol class="breadcrumb">
         <li class="active">
             <?= $this->Html->link(
@@ -85,7 +87,7 @@ $this->assign('title', 'TVMS - Trang Chủ');
             [
                 'controller' => 'Students', 
                 'action' => 'index',
-                '?' => ['return_from' => $data['firstDayOfMonth'], 'return_to' => $data['lastDayOfMonth']]
+                '?' => ['return_date' => $data['currentMonth']]
             ],
             [
                 'class' => 'small-box-footer',
@@ -100,9 +102,6 @@ $this->assign('title', 'TVMS - Trang Chủ');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title">PHÂN BỐ LAO ĐỘNG</h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <div class="row">
@@ -137,7 +136,6 @@ $this->assign('title', 'TVMS - Trang Chủ');
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('TÌNH HÌNH TỔNG QUAN') ?></h3>
                 <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                     <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadChart('line-chart')"><i class="fa fa-cloud-download"></i></a>
                 </div>
             </div>
@@ -186,8 +184,6 @@ $this->assign('title', 'TVMS - Trang Chủ');
         </div>
     </div>
 </div>
-
-
 
 <div id="newly-passed-modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">

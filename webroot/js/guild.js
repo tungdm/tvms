@@ -4,10 +4,12 @@ data.counter = 0;
 $(document).ready(function () {
     data.counter = $('#add-company-container > tr').length;
 
-    $('#guilds-tabs').tabCollapse();
-    var focusTab = window.location.hash;
-    if (focusTab) {
-        $('#guilds-tabs a[href="' + focusTab + '"]').tab('show');
+    if ($('#guilds-tabs')[0]) {
+        $('#guilds-tabs').tabCollapse();
+        var focusTab = window.location.hash;
+        if (focusTab) {
+            $('#guilds-tabs a[href="' + focusTab + '"]').tab('show');
+        }
     }
 
     $('.submit-guild-btn').click(function () {
@@ -40,6 +42,18 @@ $(document).ready(function () {
         messages: {
             vn: 'Thông tin bị trùng',
         }
+    });
+
+    // init switchery
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (html) {
+        size = 'small';
+        if (html.classList.contains('medium-size')) {
+            size = 'medium';
+        }
+        var switchery = new Switchery(html, {
+            size: size
+        });
     });
 });
 

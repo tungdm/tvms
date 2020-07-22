@@ -8,6 +8,7 @@ use Cake\Database\Expression\QueryExpression;
 use Cake\ORM\Query;
 use Cake\Log\Log;
 use Cake\Utility\Text;
+use Cake\I18n\Time;
 
 use PhpOffice\PhpSpreadsheet\Style;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -79,12 +80,53 @@ class InstallmentsController extends AppController
             'sortWhitelist' => ['name'],
             'limit' => $query['records'],
         ];
-
+        # get installments report
+        $now = Time::now();
+        $currentYear = $now->year;
+        $lastDayOfCurrentYear = "{$currentYear}-12-31";
+        $lastYear = $currentYear - 1;
+        $firstDayOfLastYear = "{$lastYear}-01-01";
+        $results = $this->Installments->find()
+            ->contain(['InstallmentFees'])
+            ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfLastYear, $lastDayOfCurrentYear) {
+                return $exp->between('created', $firstDayOfLastYear, $lastDayOfCurrentYear, 'date');
+            })
+            ->order(['Installments.created' => 'ASC'])
+            ->toArray();
+        $report = [];
+        foreach ($results as $key => $installment) {
+            $total_vn = $total_jp = $sum_management_fee = $sum_air_ticket_fee = $sum_training_fee = $sum_other_fees = 0;
+            foreach ($installment->installment_fees as $key => $value) {
+                if (isset($value->total_vn)) {
+                    $total_vn += $value->total_vn;
+                }
+                if (isset($value->total_jp)) {
+                    $total_jp += $value->total_jp;
+                }
+                $sum_management_fee += $value->management_fee;
+                $sum_air_ticket_fee += $value->air_ticket_fee;
+                $sum_training_fee += $value->training_fee;
+                $sum_other_fees += $value->other_fees;
+            }
+            $data = [
+                'name' => $installment->name,
+                'created' => $installment->created->i18nFormat('yyyy-MM-dd'),
+                'installmentFees' => [
+                    'sum_management_fee' => $sum_management_fee,
+                    'sum_air_ticket_fee' => $sum_air_ticket_fee,
+                    'sum_training_fee' => $sum_training_fee,
+                    'sum_other_fees' => $sum_other_fees,
+                    'total_vn' => $total_vn,
+                    'total_jp' => $total_jp
+                ]
+            ];
+            array_push($report, $data);
+        }
         $installments = $this->paginate($allInstallments);
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
         $usersTable = TableRegistry::get('Users');
         $allUsers = $usersTable->find('list')->where(['del_flag' => false]);
-        $this->set(compact('installments', 'allUsers', 'adminCompanies', 'query'));
+        $this->set(compact('report', 'installments', 'allUsers', 'adminCompanies', 'query'));
     }
 
     /**
@@ -177,7 +219,7 @@ class InstallmentsController extends AppController
             // init worksheet
             $spreadsheet = $this->ExportFile->setXlsxProperties();
             $spreadsheet->setActiveSheetIndex(0);
-            $spreadsheet->getActiveSheet()->getSheetView()->setZoomScale(80);
+            $spreadsheet->getActiveSheet()->getSheetView()->setZoomScale(130);
             $spreadsheet->getDefaultStyle()->getFont()->setName('Times New Roman');
             $spreadsheet->getDefaultStyle()->getFont()->setSize(11);
             $spreadsheet->getActiveSheet()->setShowGridLines(false);
@@ -237,8 +279,27 @@ class InstallmentsController extends AppController
             
             $installmentFees = [];
             $counter = 4;
+            $no = 0;
+            $total = count($installment->installment_fees);
+            $cacheGuildId = null;
+            $mergeRows = array();
+            $start = $end = $counter;
             $total_vn = $total_jp = $sum_management_fee = $sum_air_ticket_fee = $sum_training_fee = $sum_other_fees = 0;
             foreach ($installment->installment_fees as $key => $value) {
+                $currentGuildId = $value->guild->id;
+                if ($currentGuildId == $cacheGuildId) {
+                    $end = $counter + 1;
+                    if ($key == $total - 1) {
+                        array_push($mergeRows, [$start, $end]);
+                    }
+                } else {
+                    $no += 1;
+                    $cacheGuildId = $currentGuildId;
+                    if ($start != $end) {
+                        array_push($mergeRows, [$start, $end]);
+                    }
+                    $start = $end = $counter + 1;
+                }
                 if (isset($value->total_vn)) {
                     $total_vn += $value->total_vn;
                 }
@@ -250,7 +311,7 @@ class InstallmentsController extends AppController
                 $sum_training_fee += $value->training_fee;
                 $sum_other_fees += $value->other_fees;
                 $data = [
-                    $key+1,
+                    $no,
                     $value->guild->name_romaji,
                     number_format($value->management_fee),
                     number_format($value->air_ticket_fee),
@@ -268,6 +329,11 @@ class InstallmentsController extends AppController
             }
             // fill data to table
             $spreadsheet->getActiveSheet()->fromArray($installmentFees, NULL, 'A5');
+            foreach ($mergeRows as $key => $rows) {
+                $spreadsheet->getActiveSheet()
+                    ->mergeCells("B{$rows[0]}:B{$rows[1]}")
+                    ->mergeCells("A{$rows[0]}:A{$rows[1]}");
+            }
             $counter++;
             $spreadsheet->getActiveSheet()
                 ->mergeCells("A{$counter}:B{$counter}")->setCellValue("A{$counter}", 'Tổng kết')

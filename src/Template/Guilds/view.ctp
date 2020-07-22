@@ -76,6 +76,7 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
         </ul>
     </div>
 <?php $this->end(); ?>
+
 <div class="form-horizontal form-label-left">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -88,7 +89,7 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                 </li>
                 <?php if (in_array($role['name'], ['admin'])): ?>
                 <li role="presentation" class="">
-                    <a href="#tab_content3" role="tab" id="fees-tab" data-toggle="tab" aria-expanded="false"><?= __('Quản lý phí') ?></a>
+                    <a href="#tab_content3" role="tab" id="fees-tab" data-toggle="tab" aria-expanded="false"><?= __('Quản lý chi phí') ?></a>
                 </li>
                 <?php endif; ?>
             </ul>

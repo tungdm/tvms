@@ -1,13 +1,16 @@
 var perData = {};
 perData.feeCounter = 0;
-
+var chartColors = ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)'];
 // init handlebars
 if ($('#fee-template')[0]) {
     var feeTemplate = Handlebars.compile($('#fee-template').html());
 }
 $(document).ready(function () {
     perData.feeCounter = $('#installment-fees-container > tr').length;
-
+    // render chart
+    if ($('#installments-chart')[0]) {
+        renderInstallmentChart();
+    }
     $('.submit-installment-btn').click(function () {
         var validateResult = $('#add-installment-form').parsley().validate();
         if (validateResult) {
@@ -16,6 +19,141 @@ $(document).ready(function () {
     });
 })
 
+
+function renderInstallmentChart() {
+    var labels = [], totalVN = [], totalJP = [], managementFee = [], airTicketFee = [], trainingFee = [], otherFees = [];
+    report.forEach(item => {
+        labels.push(item.name);
+        totalVN.push(item.installmentFees.total_vn);
+        totalJP.push(item.installmentFees.total_jp);
+        managementFee.push(item.installmentFees.sum_management_fee);
+        airTicketFee.push(item.installmentFees.sum_air_ticket_fee);
+        trainingFee.push(item.installmentFees.sum_training_fee);
+        otherFees.push(item.installmentFees.sum_other_fees);
+    });
+    var chartData = {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Tổng tiền vào TK',
+                type: 'line',
+                borderColor: chartColors[4],
+                backgroundColor: chartColors[4],
+                borderWidth: 2,
+                fill: false,
+                data: totalVN,
+                yAxisID: 'y-axis-1',
+            },
+            {
+                label: 'Phí quản lý',
+                backgroundColor: chartColors[0],
+                data: managementFee,
+                yAxisID: 'y-axis-2'
+            },
+            {
+                label: 'Vé máy bay',
+                backgroundColor: chartColors[1],
+                data: airTicketFee,
+                yAxisID: 'y-axis-2'
+            },
+            {
+                label: 'Phí đào tạo',
+                backgroundColor: chartColors[2],
+                data: trainingFee,
+                yAxisID: 'y-axis-2'
+            },
+            {
+                label: 'Khoản khác',
+                backgroundColor: chartColors[3],
+                data: otherFees,
+                yAxisID: 'y-axis-2'
+            }
+        ]
+    };
+    var ctx = document.getElementById('installments-chart').getContext('2d');
+    // ctx.height = 300;
+    window.myBar = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+            title: {
+                display: true,
+                text: 'Biểu đồ quản lý phí 2 năm gần nhất'
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    label: (tooltipItem, data) => {
+                        let formatedNum = numberWithCommas(tooltipItem.yLabel.toString());
+                        formatedNum = tooltipItem.datasetIndex != 0 ? `${formatedNum}¥` : `${formatedNum}₫`;
+                        return `${data.datasets[tooltipItem.datasetIndex].label}: ${formatedNum}`;
+                    },
+                    footer: (tooltipItems, data) => {
+                        let total = tooltipItems.reduce((a, e) => e.datasetIndex != 0 ? a + parseInt(e.yLabel) : a, 0);
+                        return `Tổng cộng: ${numberWithCommas(total.toString())}¥`;
+                    }
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                xAxes: [
+                    {
+                        stacked: true,
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Đợt thu phí'
+                        }
+                    }
+                ],
+                yAxes: [
+                    {
+                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: 'left',
+                        id: 'y-axis-1',
+                        gridLines: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            min: 0,
+                            callback: function (value, index, values) {
+                                return `${numberWithCommas(value.toString())}₫`;
+                            }
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Việt Nam Đồng'
+                        }
+                    }, {
+                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: 'right',
+                        id: 'y-axis-2',
+                        stacked: true,
+                        // grid line settings
+                        gridLines: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function (value, index, values) {
+                                return `${numberWithCommas(value.toString())}¥`;
+                            }
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Yên Nhật'
+                        }
+                    }
+                ]
+            }
+        }
+    });
+}
 function resetAddFeesForm() {
     $('#add-fees-form')[0].reset();
     $('#modal-guild').val(null).trigger('change');

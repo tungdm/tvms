@@ -39,6 +39,11 @@ class PagesController extends AppController
     public function initialize()
     {
         parent::initialize();
+        $session = $this->request->session();
+        $curerentState = $session->read('sideBarState');
+        if (!isset($curerentState)) {
+            $session->write('sideBarState', true);
+        }
         $this->loadComponent('Util');
     }
 
@@ -89,18 +94,18 @@ class PagesController extends AppController
         $firstDayOfMonth = $currentMonth . '-01';
         $lastDayOfMonth = $this->Util->getLastDayOfMonth($firstDayOfMonth);
 
-        // first row data
+        // first row data: general report
         $newOrder = $orderTable->find()->where(['created >=' => $firstDayOfMonth])->count();
         $newStudent = $studentTable->find()->where(['enrolled_date >=' => $firstDayOfMonth])->count();
         $returnStudent = $studentTable->find()->where(['return_date' => $currentMonth])->count();
         $newPassedCount = $orderStudentsTable->find()->contain(['Orders'])->where(['result' => '1', 'Orders.interview_date >=' => $firstDayOfMonth])->count();
         
-        // second row data
+        // second row data: population
         $northPopulation = $this->getAreaPopulation(['from' => '01', 'to' => '37']);
         $middlePopulation = $this->getAreaPopulation(['from' => '38', 'to' => '69']);
         $southPopulation = $this->getAreaPopulation(['from' => '70', 'to' => '96']);
         
-        // third row data
+        // third row data: order info
         $totalStudent = $studentTable->find()->count();
 
         $totalPassed = $studentTable->find()->where(['status' => '3'])->count();
@@ -215,6 +220,20 @@ class PagesController extends AppController
             Log::write('debug', $e);
         }
         return $this->jsonResponse($resp);
+    }
+
+    public function toogleSideBar()
+    {
+        $this->request->allowMethod('ajax');
+        $session = $this->request->session();
+        $curerentState = $session->read('sideBarState');
+        $newState = !$curerentState;
+        Log::write('debug', "current state: {$curerentState}, new state: {$newState}");
+        $session->write('sideBarState', $newState);
+        return $this->jsonResponse([
+            'status' => 'success',
+            'newState' => $newState
+        ]);
     }
 
     protected function getAreaPopulation($range)

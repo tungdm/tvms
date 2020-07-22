@@ -1,3 +1,12 @@
+$(document).ready(function () {
+    $('.submit-admin-company-btn').click(function () {
+        var validateResult = $('#admin-company-form').parsley().validate();
+        if (validateResult) {
+            $('#admin-company-form')[0].submit();
+        }
+    });
+})
+
 function viewAdminCompany(adCompId) {
     if (ajaxing) {
         // still requesting
@@ -49,11 +58,11 @@ function viewAdminCompany(adCompId) {
 
                 var capital_vn = resp.data.capital_vn.toLocaleString();
                 var capital_jp = resp.data.capital_jp.toLocaleString();
-                $('#view-capital').html(`${capital_vn} VND (${capital_jp} 円)`);
+                $('#view-capital').html(`${capital_vn} VND (${capital_jp} ¥)`);
 
                 var revenue_vn = resp.data.latest_revenue_vn.toLocaleString();
                 var revenue_jp = resp.data.latest_revenue_jp.toLocaleString();
-                $('#view-revenue').html(`${revenue_vn} VND (${revenue_jp} 円)`);
+                $('#view-revenue').html(`${revenue_vn} VND (${revenue_jp} ¥)`);
 
                 $('#view-staffs-number').html(resp.data.staffs_number.toLocaleString());
 

@@ -104,10 +104,14 @@ class CompaniesController extends AppController
             $query['records'] = $this->defaultDisplay;
             $allCompanies = $this->Companies->find()->order(['Companies.created' => 'DESC']);
         }
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view delete record
-            $allCompanies->where(['Companies.del_flag' => FALSE]);
+
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allCompanies->where(['Companies.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
+
         $this->paginate = [
             'sortWhitelist' => ['name_romaji', 'address_romaji'],
             'contain' => ['Guilds'],

@@ -17,7 +17,8 @@ if (!empty($query['page'])) {
     $counter = ((int)$query['page'] -1) * $query['records'];
 }
 $this->Html->css('flag-icon.css', ['block' => 'styleTop']);
-
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('handlebars-v4.0.11.js', ['block' => 'scriptBottom']);
@@ -72,9 +73,6 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">  
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -118,7 +116,11 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         </thead>
                         <tbody>
                             <tr>
-                                <td>
+                                <td class="text-center">
+                                    <?= $this->Form->checkbox('deleted', [
+                                        'class' => 'js-switch medium-size',
+                                        'checked' => $query['deleted']
+                                        ]) ?>
                                     <div class="hidden">
                                         <?= $this->Form->control('type', [
                                             'label' => false,
@@ -237,7 +239,11 @@ $this->assign('title', 'Quản lý Công ty - Xí nghiệp');
                         </thead>
                         <tbody>
                             <tr>
-                                <td>
+                                <td class="text-center">
+                                    <?= $this->Form->checkbox('deleted', [
+                                        'class' => 'js-switch medium-size',
+                                        'checked' => $query['deleted']
+                                        ]) ?>
                                     <div class="hidden">
                                         <?= $this->Form->control('type', [
                                             'label' => false,

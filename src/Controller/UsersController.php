@@ -148,10 +148,12 @@ class UsersController extends AppController
             $allUsers = $this->Users->find()->order(['Users.created' => 'DESC']);
         }
 
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view deleted record
-            $allUsers->where(['Users.del_flag' => FALSE]);
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allUsers->where(['Users.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
 
         $this->paginate = [
             'contain' => ['Roles'],

@@ -120,10 +120,8 @@ class StudentsController extends AppController
                     return $q->where(['InterviewDeposits.status' => $query['interview_deposit']]);
                 });
             }
-            if (isset($query['return_from']) && !empty($query['return_from']) && isset($query['return_to']) && !empty($query['return_to'])) {
-                $allStudents->where(function (QueryExpression $exp, Query $q) use ($query) {
-                    return $exp->between('return_date', $query['return_from'], $query['return_to'], 'date');
-                });
+            if (isset($query['return_date']) && !empty($query['return_date'])) {
+                $allStudents->where(['Students.return_date' => $query['return_date']]);
             }
             if (!isset($query['sort'])) {
                 $allStudents->order(['Students.created' => 'DESC']);

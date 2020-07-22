@@ -175,9 +175,6 @@ $this->Html->script('jlpt.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin kì thi') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -271,9 +268,6 @@ $this->Html->script('jlpt.js', ['block' => 'scriptBottom']);
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Danh sách thí sinh') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body table-responsive">
                     <button type="button" class="btn btn-primary" id="add-student" onclick="showAddStudentModal();">

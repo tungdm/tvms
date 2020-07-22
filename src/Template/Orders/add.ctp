@@ -180,9 +180,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Thông tin cơ bản') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">
@@ -424,9 +421,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Yêu cầu tuyển chọn') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">
@@ -526,9 +520,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Thông tin bổ sung') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">
@@ -613,9 +604,6 @@ $this->Html->script('order.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('Danh sách ứng viên') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body table-responsive">
                 <div class="overlay hidden" id="list-candidate-overlay">

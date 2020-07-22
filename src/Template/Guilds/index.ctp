@@ -14,11 +14,12 @@ if (!empty($query['page'])) {
     $counter = ((int)$query['page'] -1) * $query['records'];
 }
 $this->Html->css('flag-icon.css', ['block' => 'styleTop']);
-
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
-// $this->Html->script('guild.js', ['block' => 'scriptBottom']);
+$this->Html->script('guild.js', ['block' => 'scriptBottom']);
 
 $this->Paginator->setTemplates([
     'sort' => '<a href="{{url}}">{{text}} <i class="fa fa-sort"></i></a>',
@@ -67,9 +68,6 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">  
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -112,7 +110,12 @@ $this->assign('title', 'Quản lý nghiệp đoàn');
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="col-md-1"></td>
+                            <td class="text-center">
+                                <?= $this->Form->checkbox('deleted', [
+                                    'class' => 'js-switch medium-size',
+                                    'checked' => $query['deleted']
+                                    ]) ?>
+                            </td>
                             <td class="col-md-3 nameCol">
                                 <?= $this->Form->control('name', [
                                     'label' => false,

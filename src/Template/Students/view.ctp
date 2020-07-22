@@ -148,9 +148,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Sơ yếu lý lịch') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -337,9 +334,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -401,7 +395,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="purpose"><?= __('Thu nhập hiện tại') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->salary) ? $student->salary . '万円/月' : 'N/A' ?>
+                                                <?= !empty($student->salary) ? $student->salary . '万¥/月' : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -409,7 +403,7 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="saving_expected"><?= __('Số tiền mong muốn') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <?= !empty($student->saving_expected) ? $student->saving_expected . '万円' : 'N/A' ?>
+                                                <?= !empty($student->saving_expected) ? $student->saving_expected . '万¥' : 'N/A' ?>
                                             </div>
                                         </div>
                                     </div>
@@ -494,9 +488,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Địa chỉ cư trú') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <ul id="address-tabs" class="nav nav-tabs">
@@ -578,9 +569,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Tình trạng sức khỏe') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -682,9 +670,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Thông tin lớp học') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -724,9 +709,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <div class="form-group">
@@ -773,9 +755,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Quan hệ gia đình') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <table class="table table-bordered custom-table family-table">
@@ -859,9 +838,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Chứng minh nhân dân') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -917,9 +893,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Thị thực (Visa)') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -961,9 +934,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Hộ chiếu (Passport)') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -1031,9 +1001,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Bằng tốt nghiệp') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -1076,9 +1043,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Quá trình đào tạo') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="col-md-12 col-xs-12">
@@ -1123,9 +1087,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Quá trình học tập') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body table-responsive">
                                         <table class="table table-bordered custom-table educations-table">
@@ -1177,9 +1138,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Năng lực ngôn ngữ') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body table-responsive">
                                         <table class="table table-bordered custom-table languages-table">
@@ -1223,9 +1181,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Kinh nghiệm làm việc') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body table-responsive">
                                         <table class="table table-bordered custom-table work-exp-table">
@@ -1283,9 +1238,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="box">
                                         <div class="box-header with-border">
                                             <h3 class="box-title"><?= __('Cọc phỏng vấn') ?></h3>
-                                            <div class="box-tools pull-right">
-                                                <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                            </div>
                                         </div>
                                         <div class="box-body">
                                             <div class="form-group">
@@ -1327,9 +1279,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="box">
                                         <div class="box-header with-border">
                                             <h3 class="box-title"><?= __('Chi phí lần 1') ?></h3>
-                                            <div class="box-tools pull-right">
-                                                <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                            </div>
                                         </div>
                                         <div class="box-body">
                                             <div class="form-group">
@@ -1361,9 +1310,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="box">
                                         <div class="box-header with-border">
                                             <h3 class="box-title"><?= __('Chi phí lần 2') ?></h3>
-                                            <div class="box-tools pull-right">
-                                                <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                            </div>
                                         </div>
                                         <div class="box-body">
                                             <?php if (!empty($student->general_costs)): ?>
@@ -1403,9 +1349,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Khám sức khỏe') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <table class="table table-bordered custom-table">
@@ -1450,9 +1393,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Danh sách phỏng vấn') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body table-responsive">
                                     <div class="overlay hidden" id="list-order-overlay">
@@ -1502,9 +1442,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Danh sách hồ sơ') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body table-responsive">
                                         <table class="table table-bordered custom-table document-table">
@@ -1574,9 +1511,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Tính toán cơ bản') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -1600,9 +1534,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Tính toán nâng cao') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -1628,9 +1559,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box">
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Tiếng Nhật') ?></h3>
-                                        <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                        </div>
                                     </div>
                                     <div class="box-body">
                                         <div class="form-group">
@@ -1659,7 +1587,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                     <div class="box-header with-border">
                                         <h3 class="box-title"><?= __('Kiểm tra IQ') ?></h3>
                                         <div class="box-tools pull-right">
-                                            <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                                             <a href="javascript:;" class="btn btn-box-tool" id="download-btn" onclick="downloadIqChart()"><i class="fa fa-cloud-download"></i></a>
                                         </div>
                                     </div>
@@ -1700,7 +1627,6 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Lịch sử hoạt động') ?></h3>
                                     <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                                         <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay', 'students')"><i class="fa fa-refresh"></i></a>
                                     </div>
                                 </div>

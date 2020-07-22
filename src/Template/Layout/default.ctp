@@ -1,5 +1,7 @@
 <?php
     use Cake\Core\Configure;
+
+    $sideBarState = $this->request->session()->read('sideBarState');
 ?>
 <!DOCTYPE html>
 <html>
@@ -36,7 +38,7 @@
     <?= $this->fetch('styleTop') ?>
     <?= $this->fetch('scriptTop') ?>
 </head>
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini <?php if(!$sideBarState):?>sidebar-collapse<?php endif;?>">
     <div class="wrapper">
         <header class="main-header">
             <!-- Logo -->
@@ -50,7 +52,7 @@
             ) ?>
             <nav class="navbar navbar-static-top">
                 <!-- Sidebar toggle button-->
-                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                <a href="javascript:;" onclick="toogleSideBar()" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>

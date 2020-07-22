@@ -59,9 +59,6 @@ $this->assign('title', 'Quản lý chuyên môn');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',

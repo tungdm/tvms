@@ -226,9 +226,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Sơ yếu lý lịch') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
@@ -529,9 +526,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Thông tin nộp hồ sơ') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
@@ -636,11 +630,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                                 'type' => 'text',
                                                 'data-parsley-type' => 'number',
                                                 'class' => 'form-control col-md-7 col-xs-12',
-                                                'placeholder' => '万円'
+                                                'placeholder' => '万¥'
                                                 ]) ?>
                                         </div>
                                         <div class="col-md-7">
-                                            <div class="form-control form-control-view">đơn vị: 万円/月</div>
+                                            <div class="form-control form-control-view">đơn vị: 万¥/月</div>
                                         </div>
                                     </div>
                                 </div>
@@ -651,11 +645,11 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                             <?= $this->Form->control('saving_expected', [
                                                 'label' => false,
                                                 'class' => 'form-control col-md-7 col-xs-12',
-                                                'placeholder' => '万円'
+                                                'placeholder' => '万¥'
                                                 ]) ?>
                                         </div>
                                         <div class="col-md-7">
-                                            <div class="form-control form-control-view">đơn vị: 万円</div>
+                                            <div class="form-control form-control-view">đơn vị: 万¥</div>
                                         </div>
                                     </div>
                                 </div>
@@ -733,9 +727,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Địa chỉ cư trú') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <ul id="address-tabs" class="nav nav-tabs">
@@ -916,9 +907,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Tình trạng sức khỏe') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <div class="form-group">
@@ -1098,9 +1086,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Quan hệ gia đình') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-family" id="add-member-top" onclick="showAddMemberModal();">
@@ -1247,9 +1232,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Chứng minh nhân dân') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards)): ?>
@@ -1333,9 +1315,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Thị thực (Visa)') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards)): ?>
@@ -1424,9 +1403,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Hộ chiếu (Passport)') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards)): ?>
@@ -1521,9 +1497,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Bằng tốt nghiệp') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->cards[3])): ?>
@@ -1575,9 +1548,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Quá trình học tập') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-educations" id="add-eduhis-top" onclick="showAddEduHisModal();">
@@ -1705,9 +1675,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Năng lực ngôn ngữ') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-languages" id="add-language-top" onclick="showAddLangModal();">
@@ -1802,9 +1769,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Kinh nghiệm làm việc') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <button type="button" class="btn btn-primary btn-work-exp" id="add-exp-top" onclick="showAddExpModal();">
@@ -1928,9 +1892,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Cọc phỏng vấn') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <?php if (!empty($student->interview_deposit)): ?>
@@ -1993,9 +1954,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Chi phí lần 1') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <?php if (!empty($student->general_costs)): ?>
@@ -2045,9 +2003,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Chi phí lần 2') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <?php if (!empty($student->general_costs)): ?>
@@ -2101,9 +2056,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                             <div class="box">
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Khám sức khỏe') ?></h3>
-                                    <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                    </div>
                                 </div>
                                 <div class="box-body">
                                     <button type="button" class="btn btn-primary" onclick="showAddHealthCalendarModal();">
@@ -2198,9 +2150,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Danh sách hồ sơ') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body table-responsive">
                                 <table class="table table-bordered custom-table document-table">
@@ -2306,9 +2255,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Tính toán cơ bản') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->input_tests)): ?>
@@ -2350,9 +2296,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Tính toán nâng cao') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->input_tests)): ?>
@@ -2394,9 +2337,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Tiếng Nhật') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->input_tests)): ?>
@@ -2441,9 +2381,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                         <div class="box">
                             <div class="box-header with-border">
                                 <h3 class="box-title"><?= __('Kiểm tra IQ') ?></h3>
-                                <div class="box-tools pull-right">
-                                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                                </div>
                             </div>
                             <div class="box-body">
                                 <?php if (!empty($student->iq_tests)): ?>
@@ -2492,7 +2429,6 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
                                 <div class="box-header with-border">
                                     <h3 class="box-title"><?= __('Lịch sử hoạt động') ?></h3>
                                     <div class="box-tools pull-right">
-                                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
                                         <a href="javascript:;" class="btn btn-box-tool" onclick="showAddHistoryModal(<?= $student->id ?>, 'main', 'students')"><i class="fa fa-plus"></i></a>
                                         <a href="javascript:;" class="btn btn-box-tool" onclick="getAllHistories(<?= $student->id ?>, 'main', 'list-history-overlay', 'students')"><i class="fa fa-refresh"></i></a>
                                     </div>

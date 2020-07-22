@@ -44,9 +44,6 @@ $this->assign('title', 'Thêm mới nhân viên');
                 <h3 class="box-title">
                     <?= __('Thông tin nhân viên') ?>
                 </h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <?= $this->Form->create($user, [

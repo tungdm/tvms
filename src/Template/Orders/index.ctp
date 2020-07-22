@@ -76,9 +76,6 @@ $this->assign('title', 'Quản lý đơn hàng');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -130,7 +127,12 @@ $this->assign('title', 'Quản lý đơn hàng');
                     </thead>
                     <tbody>
                         <tr>
-                            <td></td>
+                            <td class="text-center">
+                                <?= $this->Form->checkbox('deleted', [
+                                    'class' => 'js-switch medium-size',
+                                    'checked' => $query['deleted']
+                                    ]) ?>
+                            </td>
                             <td class="col-md-2 nameCol">
                                 <?= $this->Form->control('name', [
                                     'label' => false,

@@ -4,7 +4,6 @@ $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $recordsDisplay = Configure::read('recordsDisplay');
 $currentUser = $this->request->session()->read('Auth.User');
-
 $counter = 0;
 if (!empty($query['page'])) {
     $counter = ((int)$query['page'] -1) * $query['records'];
@@ -24,6 +23,7 @@ $this->Paginator->setTemplates([
 
 $this->assign('title', 'Phí quản lý nghiệp đoàn');
 ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 
 <?php $this->start('content-header'); ?>
     <h1><?= __('PHÍ QUẢN LÝ NGHIỆP ĐOÀN') ?></h1>
@@ -57,6 +57,26 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
         </ul>
     </div>
 <?php $this->end(); ?>
+
+<?php if (!empty($report)): ?>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">BIỂU ĐỒ CHI PHÍ 2 NĂM GẦN NHẤT</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <canvas id="installments-chart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+<?php endif; ?>
 
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
@@ -226,3 +246,8 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
         </div>
     </div>
 </div>
+
+
+<script type="text/javascript">
+    var report = <?= json_encode($report) ?>;
+</script>

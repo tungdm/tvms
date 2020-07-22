@@ -17,6 +17,8 @@ if (!empty($query['page'])) {
     $counter = ((int)$query['page'] -1) * $query['records'];
 }
 $this->Html->css('user.css', ['block' => 'styleTop']);
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('sweet-alert.js', ['block' => 'scriptBottom']);
@@ -69,9 +71,6 @@ $this->assign('title', 'Quản lý Nhân viên');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -123,7 +122,12 @@ $this->assign('title', 'Quản lý Nhân viên');
                     </thead>
                     <tbody>
                         <tr>
-                            <td></td>
+                            <td class="text-center">
+                                <?= $this->Form->checkbox('deleted', [
+                                    'class' => 'js-switch', 
+                                    'checked' => $query['deleted']
+                                    ]) ?>
+                            </td>
                             <td class="col-md-2 usernameCol">
                                 <?= $this->Form->control('username', [
                                     'label' => false,

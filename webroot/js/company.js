@@ -81,6 +81,17 @@ $(document).ready(function () {
             });
         }
     });
+    // init switchery
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (html) {
+        size = 'small';
+        if (html.classList.contains('medium-size')) {
+            size = 'medium';
+        }
+        var switchery = new Switchery(html, {
+            size: size
+        });
+    });
 });
 
 function viewGuild(guildId) {

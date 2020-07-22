@@ -126,10 +126,12 @@ class JlptTestsController extends AppController
             $allTests = $this->JlptTests->find()->order(['JlptTests.created' => 'DESC']);
         }
 
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view delete record
-            $allTests->where(['JlptTests.del_flag' => FALSE]);
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allTests->where(['JlptTests.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
 
         $this->paginate = [
             'sortWhitelist' => ['test_date'],

@@ -98,10 +98,13 @@ class GuildsController extends AppController
             $query['records'] = $this->defaultDisplay;
             $allGuilds = $this->Guilds->find()->order(['Guilds.created' => 'DESC']);
         }
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view delete record
-            $allGuilds->where(['Guilds.del_flag' => FALSE]);
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allGuilds->where(['Guilds.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
+
         $this->paginate = [
             'sortWhitelist' => ['name_romaji','name_kanji', 'address_romaji', 'address_kanji', 'phone_vn', 'phone_jp'],
             'limit' => $query['records']
@@ -145,7 +148,8 @@ class GuildsController extends AppController
                 'Companies' => ['sort' => ['Companies.name_romaji' => 'ASC']],
                 // 'InstallmentFees' => ['sort' => ['Installments.name' => 'ASC']],
                 'InstallmentFees' => ['sort' => [
-                    'Installments.created' => 'DESC',
+                    // 'Installments.created' => 'DESC',
+                    'InstallmentFees.invoice_date' => 'DESC',
                     'InstallmentFees.installment_id' => 'ASC'
                 ]],
                 'InstallmentFees.Installments'

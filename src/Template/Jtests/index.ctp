@@ -16,8 +16,11 @@ if (!empty($query['page'])) {
     $counter = ((int)$query['page'] -1) * $query['records'];
 }
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
+$this->Html->script('jtest.js', ['block' => 'scriptBottom']);
 
 $this->Paginator->setTemplates([
     'sort' => '<a href="{{url}}">{{text}} <i class="fa fa-sort"></i></a>',
@@ -66,9 +69,6 @@ $this->assign('title', 'Quản lý thi cử');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -111,7 +111,12 @@ $this->assign('title', 'Quản lý thi cử');
                     </thead>
                     <tbody>
                         <tr>
-                            <td></td>
+                            <td class="text-center">
+                                <?= $this->Form->checkbox('deleted', [
+                                    'class' => 'js-switch medium-size', 
+                                    'checked' => $query['deleted']
+                                    ]) ?>
+                            </td>
                             <td class="col-md-2 testDateCol">
                                 <div class="input-group date input-picker" id="test-date">
                                     <?= $this->Form->control('test_date', [

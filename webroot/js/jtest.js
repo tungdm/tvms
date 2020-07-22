@@ -7,6 +7,18 @@ if ($('#skill-template')[0]) {
 }
 
 $(document).ready(function () {
+    // init switchery
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (html) {
+        size = 'small';
+        if (html.classList.contains('medium-size')) {
+            size = 'medium';
+        }
+        var switchery = new Switchery(html, {
+            size: size
+        });
+    });
+
     // init selected skill
     $('.skill-id').each(function () {
         var rowIdArr = $(this).attr('id').split('-');

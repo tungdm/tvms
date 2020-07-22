@@ -151,9 +151,6 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin kì thi') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -195,9 +192,6 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -243,9 +237,6 @@ $this->assign('title', 'Kì thi ' . $jtest->test_date . ' - Thông tin chi tiế
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Điểm thi') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body table-responsive">
                     <table class="table table-bordered custom-table span-table">

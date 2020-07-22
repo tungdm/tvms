@@ -133,10 +133,12 @@ class OrdersController extends AppController
             $allOrders = $this->Orders->find()->order(['Orders.interview_date' => 'DESC']);
         }
 
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view delete record
-            $allOrders->where(['Orders.del_flag' => FALSE]);
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allOrders->where(['Orders.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
 
         $this->paginate = [
             'contain' => [
@@ -375,7 +377,7 @@ class OrdersController extends AppController
             foreach ($order->students as $key => $student) {
                 if ($student->status == '3') { // change status "dau phong van" => "chua dau phong van"
                     $student->status = '2';
-                    $student->return_date = '';
+                    $student->return_date = null;
                 }
             }
             if ($this->Orders->Students->saveMany($order->students) && $this->Orders->save($order)) {
@@ -403,6 +405,30 @@ class OrdersController extends AppController
             }
         }
         
+        return $this->redirect(['action' => 'index']);
+    }
+
+    public function fixReturnDate()
+    {
+        $workTime = Configure::read('workTime');
+        $orders = $this->Orders->find('all', ['contain' => ['Students']])->toArray();
+        foreach ($orders as $key => $order) {
+            if ($order->del_flag) {
+                continue;
+            }
+            Log::write('debug', "{$order->id}. Order: {$order->name}, working time: {$order->work_time}, departure date: {$order->departure}");
+            foreach ($order->students as $key => $student) {
+                if ($order->departure && !empty($student->return_date) && $student->_joinData->result == '1') {
+                    $currentReturnDate = $student->return_date;
+                    $newReturnDate = $order->departure->addYear((int)$workTime[$order->work_time])->i18nFormat('yyyy-MM');
+                    if ($currentReturnDate != $newReturnDate) {
+                        Log::write('debug', "\t\t {$student->id} - {$student->fullname} {$currentReturnDate} ->{$newReturnDate}");
+                        $student->return_date = $newReturnDate;
+                    }
+                }
+            }
+            $this->Orders->Students->saveMany($order->students);
+        }
         return $this->redirect(['action' => 'index']);
     }
 
@@ -1320,6 +1346,10 @@ class OrdersController extends AppController
             $this->tbs->VarRef['deputyNameEN'] = $this->Util->convertV2E($adminCompany->deputy_name);
             $this->tbs->VarRef['deputyNameVN'] = $adminCompany->deputy_name;
             $this->tbs->VarRef['deputyRoleVN'] = $adminCompany->deputy_role_vn;
+            $this->tbs->VarRef['dolabRoleJP'] = $adminCompany->dolab_role_jp;
+            $this->tbs->VarRef['dolabNameEN'] = $this->Util->convertV2E($adminCompany->dolab_name);
+            $this->tbs->VarRef['dolabRoleVN'] = $adminCompany->dolab_role_vn;
+            $this->tbs->VarRef['dolabNameVN'] = $adminCompany->dolab_name;
 
             $this->tbs->VarRef['addressEN'] = $adminCompany->address_en;
             $this->tbs->VarRef['addressVN'] = $adminCompany->address_vn;
@@ -2535,6 +2565,44 @@ class OrdersController extends AppController
             $this->tbs->VarRef['adCompNameEN'] = $adminCompanies->name_en;
             $this->tbs->VarRef['adCompNameVN'] = $adminCompanies->name_vn;
             $this->tbs->VarRef['adCompShortName'] = $adminCompanies->short_name;
+
+            $this->tbs->VarRef['f1VN'] = number_format($adminCompanies->basic_training_fee_vn);
+            $this->tbs->VarRef['f1JP'] = number_format($adminCompanies->basic_training_fee_jp);
+
+            $this->tbs->VarRef['f2VN'] = number_format($adminCompanies->training_fee_vn);
+            $this->tbs->VarRef['f2JP'] = number_format($adminCompanies->training_fee_jp);
+
+            $this->tbs->VarRef['f3VN'] = number_format($adminCompanies->oriented_fee_vn);
+            $this->tbs->VarRef['f3JP'] = number_format($adminCompanies->oriented_fee_jp);
+
+            $this->tbs->VarRef['f4VN'] = number_format($adminCompanies->documents_fee_vn);
+            $this->tbs->VarRef['f4JP'] = number_format($adminCompanies->documents_fee_jp);
+
+            $this->tbs->VarRef['f5p1VN'] = number_format($adminCompanies->health_test_fee_1_vn);
+            $this->tbs->VarRef['f5p1JP'] = number_format($adminCompanies->health_test_fee_1_jp);
+            $this->tbs->VarRef['f5p2VN'] = number_format($adminCompanies->health_test_fee_2_vn);
+            $this->tbs->VarRef['f5p2JP'] = number_format($adminCompanies->health_test_fee_2_jp);
+            
+            $this->tbs->VarRef['f6VN'] = number_format($adminCompanies->dispatch_fee_vn);
+            $this->tbs->VarRef['f6JP'] = number_format($adminCompanies->dispatch_fee_jp);
+
+            $this->tbs->VarRef['f7VN'] = number_format($adminCompanies->accommodation_fee_vn);
+            $this->tbs->VarRef['f7JP'] = number_format($adminCompanies->accommodation_fee_jp);
+
+            $this->tbs->VarRef['f8p1VN'] = number_format($adminCompanies->visa_fee_1_vn);
+            $this->tbs->VarRef['f8p1JP'] = number_format($adminCompanies->visa_fee_1_jp);
+            $this->tbs->VarRef['f8p2VN'] = number_format($adminCompanies->visa_fee_2_vn);
+            $this->tbs->VarRef['f8p2JP'] = number_format($adminCompanies->visa_fee_2_jp);
+
+            $this->tbs->VarRef['f9VN'] = number_format($adminCompanies->foes_fee_vn);
+            $this->tbs->VarRef['f9JP'] = number_format($adminCompanies->foes_fee_jp);
+
+            $this->tbs->VarRef['f10VN'] = number_format($adminCompanies->other_fees_vn);
+            $this->tbs->VarRef['f10JP'] = number_format($adminCompanies->other_fees_jp);
+
+            $this->tbs->VarRef['f11VN'] = number_format($adminCompanies->total_fees_vn);
+            $this->tbs->VarRef['f11JP'] = number_format($adminCompanies->total_fees_jp);
+
             $this->tbs->VarRef['signRoleJP'] = $adminCompanies->signer_role_jp;
             $this->tbs->VarRef['signRoleVN'] = $adminCompanies->signer_role_vn;
             $this->tbs->VarRef['signNameEN'] = $this->Util->convertV2E($adminCompanies->signer_name);

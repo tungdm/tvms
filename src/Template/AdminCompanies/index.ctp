@@ -42,16 +42,15 @@ $this->assign('title', 'Quản lý công ty');
         <div class="zoom" id="draggable-button">
             <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
             <ul class="zoom-menu">
-                
                 <li>
-                    <a href="javascript:;" 
-                        onclick="showAddCompanyModal()"
-                        class="zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out" 
-                        data-toggle="tooltip" 
-                        title="" 
-                        data-original-title="Thêm mới">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                    </a>
+                    <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
+                        ['action' => 'add'],
+                        [
+                            'class' => 'zoom-fab zoom-btn-sm zoom-btn-edit scale-transition scale-out',
+                            'data-toggle' => 'tooltip',
+                            'title' => 'Thêm mới',
+                            'escape' => false
+                        ]) ?>
                 </li>
             </ul>
         </div>
@@ -63,9 +62,6 @@ $this->assign('title', 'Quản lý công ty');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -160,7 +156,9 @@ $this->assign('title', 'Quản lý công ty');
                                 <tr>
                                     <td class="cell text-center <?= $company->deleted ? 'deletedRecord' : '' ?>"><?= $counter ?></td>
                                     <td class="cell aliasCol">
-                                        <a href="javascript:;" onclick="viewAdminCompany(<?= $company->id ?>)"><?= h($company->alias) ?></a>
+                                        <?= $this->Html->link(h($company->alias), 
+                                            ['action' => 'view', $company->id],
+                                            ['escape' => false]) ?>
                                     </td>
                                     <td class="cell deputyCol"><?= h($company->deputy_name) ?></td>
                                     <td class="cell phoneNumberCol"><?= h($company->phone_number) ?></td>
@@ -171,9 +169,9 @@ $this->assign('title', 'Quản lý công ty');
                                             </button>
                                             <ul role="menu" class="dropdown-menu">
                                                 <li>
-                                                    <a href="javascript:;" onClick="viewAdminCompany(<?= $company->id ?>)">
-                                                        <i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết
-                                                    </a>
+                                                    <?= $this->Html->link('<i class="fa fa-info-circle" aria-hidden="true"></i> Chi tiết', 
+                                                        ['action' => 'view', $company->id],
+                                                        ['escape' => false]) ?>
                                                 </li>
                                                 <?php if ($permission == 0): ?>
                                                     <?php if ($company->deleted): ?>
@@ -187,8 +185,9 @@ $this->assign('title', 'Quản lý công ty');
                                                         </li>
                                                     <?php else: ?>
                                                         <li>
-                                                            <a href="javascript:;" onClick="showEditAdminCompanyModal('<?= $company->id ?>')">
-                                                            <i class="fa fa-edit"></i> Sửa</a>
+                                                            <?= $this->Html->link('<i class="fa fa-edit" aria-hidden="true"></i> Sửa', 
+                                                                ['action' => 'edit', $company->id],
+                                                                ['escape' => false]) ?>
                                                         </li>
                                                         <li>
                                                             <?= $this->Form->postLink('<i class="fa fa-trash" aria-hidden="true"></i> Xóa', 
@@ -510,7 +509,7 @@ $this->assign('title', 'Quản lý công ty');
                                 'required' => true, 
                                 'min' => '0',
                                 'class' => 'form-control col-md-7 col-xs-12',
-                                'placeholder' => '円'
+                                'placeholder' => '¥'
                                 ]) ?>
                         </div>
                     </div>
@@ -537,7 +536,7 @@ $this->assign('title', 'Quản lý công ty');
                                 'required' => true, 
                                 'min' => '0',
                                 'class' => 'form-control col-md-7 col-xs-12',
-                                'placeholder' => '円'
+                                'placeholder' => '¥'
                                 ]) ?>
                         </div>
                     </div>
@@ -928,7 +927,7 @@ $this->assign('title', 'Quản lý công ty');
                                 'required' => true, 
                                 'class' => 'form-control col-md-7 col-xs-12 textToNumber',
                                 'alias' => 'edit-capital-jp', 
-                                'placeholder' => '円'
+                                'placeholder' => '¥'
                                 ]) ?>
                             <?= $this->Form->control('capital_jp', [
                                 'label' => false,
@@ -964,7 +963,7 @@ $this->assign('title', 'Quản lý công ty');
                                 'required' => true, 
                                 'min' => '0',
                                 'class' => 'form-control col-md-7 col-xs-12',
-                                'placeholder' => '円'
+                                'placeholder' => '¥'
                                 ]) ?>
                         </div>
                     </div>

@@ -12,6 +12,8 @@ $permission = $this->request->session()->read($controller) ?? 0;
 $currentUser = $this->request->session()->read('Auth.User');
 
 $this->Html->css('bootstrap-datetimepicker.min.css', ['block' => 'styleTop']);
+$this->Html->css('switchery.min.css', ['block' => 'styleTop']);
+$this->Html->script('switchery.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('moment-with-locales.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('bootstrap-datetimepicker.min.js', ['block' => 'scriptBottom']);
 $this->Html->script('jlpt.js', ['block' => 'scriptBottom']);
@@ -77,9 +79,6 @@ $this->assign('title', 'Quản lý JLPT');
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Báo cáo tổng quan') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -124,9 +123,6 @@ $this->assign('title', 'Quản lý JLPT');
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('DANH SÁCH') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <?= $this->Form->create(null, [
                 'class' => 'form-horizontal',
@@ -169,7 +165,12 @@ $this->assign('title', 'Quản lý JLPT');
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="stt-col"></td>
+                            <td class="stt-col text-center">
+                                <?= $this->Form->checkbox('deleted', [
+                                    'class' => 'js-switch medium-size',
+                                    'checked' => $query['deleted']
+                                    ]) ?>
+                            </td>
                             <td class="testDateCol">
                                 <div class="input-group date input-picker" id="test-date">
                                     <?= $this->Form->control('test_date', [
@@ -338,6 +339,16 @@ $this->assign('title', 'Quản lý JLPT');
                         <?php endif; ?>
                     </tbody>
                 </table>
+                <div class="paginator">
+                    <ul class="pagination">
+                        <?= $this->Paginator->first('<< ' . __('Trang đầu')) ?>
+                        <?= $this->Paginator->prev('< ' . __('Trang trước')) ?>
+                        <?= $this->Paginator->numbers() ?>
+                        <?= $this->Paginator->next(__('Trang sau') . ' >') ?>
+                        <?= $this->Paginator->last(__('Trang cuối') . ' >>') ?>
+                    </ul>
+                    <p><?= $this->Paginator->counter(['format' => __('Trang thứ {{page}} trên tổng {{pages}} trang, {{current}} trên tổng số {{count}} bản ghi')]) ?></p>
+                </div>
             </div>
         </div>
     </div>

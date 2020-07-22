@@ -66,6 +66,13 @@ function removePermission(delEl, sendAjax) {
 }
 
 $(document).ready(function () {
+    // init switchery
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html, {
+            size: 'medium'
+        });
+    });
     // init datetime picker
     var birthday = $('#birthday').val();
     $('#user-birthday').datetimepicker({

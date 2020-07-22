@@ -383,13 +383,6 @@ if (typeof jQuery === 'undefined') {
 
             if ($(window).width() <= this.options.collapseScreenSize) {
                 this.close();
-            } else {
-                var activeSidebar = localStorage.getItem('sidebar');
-                if (activeSidebar === 'true') {
-                    this.open();
-                } else {
-                    this.close();
-                }
             }
 
 
@@ -842,13 +835,9 @@ var DOMAIN_NAME = '';
 var ajaxing = false;
 var historyCounter = 0;
 var isChartRendered = false;
-var activeSidebar = localStorage.getItem('sidebar');
-if (activeSidebar === null) {
-    localStorage.setItem('sidebar', true);
-}
 // var formChanged = false;
 
-function init_sidebar() {
+function initSidebar() {
     // check active menu
     var urlArr = CURRENT_URL.split('/');
     var fixedURL;
@@ -2124,7 +2113,7 @@ function initTextToNumberHelper() {
 
 
 $(document).ready(function () {
-    init_sidebar();
+    initSidebar();
     tableHover();
     initSelect2();
     initDatetimePicker();
@@ -2132,14 +2121,14 @@ $(document).ready(function () {
     initTextToNumberHelper();
 
     // set state for sidebar
-    $('.sidebar-toggle').click(function () {
-        var oldState = localStorage.getItem('sidebar');
-        var newState = true;
-        if (oldState === 'true') {
-            newState = false;
-        }
-        localStorage.setItem('sidebar', newState);
-    });
+    // $('.sidebar-toggle').click(function () {
+    //     var oldState = localStorage.getItem('sidebar');
+    //     var newState = true;
+    //     if (oldState === 'true') {
+    //         newState = false;
+    //     }
+    //     localStorage.setItem('sidebar', newState);
+    // });
 
     // init tooltip
     $('[data-toggle="tooltip"]').tooltip();
@@ -2312,4 +2301,16 @@ function convertDate(value) {
         return 'N/A';
     }
     return moment(value).format('DD-MM-YYYY');
+}
+
+
+function toogleSideBar() {
+    $.ajax({
+        type: 'POST',
+        url: DOMAIN_NAME + '/pages/toogle-side-bar',
+        data: {},
+        success: function (resp) {
+            console.log(resp);
+        }
+    });
 }

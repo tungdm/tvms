@@ -125,11 +125,12 @@ class JtestsController extends AppController
             $query['records'] = $this->defaultDisplay;
             $allTest = $this->Jtests->find()->order(['Jtests.created' => 'DESC']);
         }
-
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view delete record
-            $allTest->where(['Jtests.del_flag' => FALSE]);
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allTest->where(['Jtests.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
 
         $this->paginate = [
             'contain' => ['Jclasses', 'JtestContents', 'JtestContents.Users'],

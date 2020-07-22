@@ -107,38 +107,8 @@ class AdminCompaniesController extends AppController
      */
     public function view($id = null)
     {
-        $this->request->allowMethod('ajax');
-        $resp = [
-            'status' => 'error',
-            'flash' => [
-                'title' => 'Lỗi',
-                'type' => 'error',
-                'icon' => 'fa fa-warning',
-                'message' => $this->errorMessage['error']
-            ]
-        ];
-        try {
-            $adminCompany = $this->AdminCompanies->get($id, [
-                'contain' => [
-                    'CreatedByUsers',
-                    'ModifiedByUsers'
-                ]
-            ]);
-            if (!$adminCompany->deleted || $this->Auth->user('role')['name'] == 'admin') {
-                $resp = [
-                    'status' => 'success',
-                    'data' => $adminCompany,
-                    'created' => $adminCompany->created ? $adminCompany->created ->i18nFormat('dd-MM-yyyy HH:mm:ss') : '',
-                    'modified' => $adminCompany->modified ? $adminCompany->modified->i18nFormat('dd-MM-yyyy HH:mm:ss') : ''
-                ];
-            }
-        }
-        catch (Exception $e) {
-            //TODO: blacklist user
-            Log::write('debug', $e);
-        }
-
-        return $this->jsonResponse($resp);
+        $adminCompany = $this->AdminCompanies->get($id);
+        $this->set(compact('adminCompany'));
     }
 
     /**
@@ -157,13 +127,13 @@ class AdminCompaniesController extends AppController
                     'entity' => $this->entity,
                     'name' => $adminCompany->alias
                 ]));
-
+                return $this->redirect(['action' => 'edit', $adminCompany->id]);
             } else {
                 Log::write('debug', $adminCompany->errors());
                 $this->Flash->error($this->errorMessage['add']);
             }
         }
-        return $this->redirect(['action' => 'index']);
+        $this->set(compact('adminCompany'));
     }
 
     /**
@@ -173,11 +143,11 @@ class AdminCompaniesController extends AppController
      * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Network\Exception\NotFoundException When record not found.
      */
-    public function edit()
+    public function edit($id = null)
     {   
+        $adminCompany = $this->AdminCompanies->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
-            $adminCompany = $this->AdminCompanies->get($data['id']);
             $adminCompany = $this->AdminCompanies->patchEntity($adminCompany, $data);
             $adminCompany = $this->AdminCompanies->setAuthor($adminCompany, $this->Auth->user('id'), 'edit');
             if ($this->AdminCompanies->save($adminCompany)) {
@@ -186,11 +156,12 @@ class AdminCompaniesController extends AppController
                     'name' => $adminCompany->alias
                     ]));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'edit', $adminCompany->id]);
             }
             $this->Flash->error($this->errorMessage['error']);
         }
-        return $this->redirect(['action' => 'index']);
+        $this->set(compact('adminCompany'));
+        $this->render('/AdminCompanies/add');
     }
 
     /**

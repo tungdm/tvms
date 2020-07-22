@@ -84,8 +84,12 @@ $(document).ready(function () {
     // init switchery
     var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
     elems.forEach(function (html) {
+        size = 'small';
+        if (html.classList.contains('medium-size')) {
+            size = 'medium';
+        }
         var switchery = new Switchery(html, {
-            size: 'small'
+            size: size
         });
     });
 
@@ -322,7 +326,13 @@ function calReturnDate(workTime, departureDate) {
         return '';
     }
     var duration = moment.duration(parseInt(workTime), 'years');
-    return moment(departureDate, 'DD-MM-YYYY').add(duration).format('YYYY-MM');
+    if (!moment(departureDate).isValid()) {
+        departureDate = moment(departureDate, 'DD-MM-YYYY');
+    } else {
+        departureDate = moment(departureDate);
+    }
+    var returnDate = moment(departureDate, 'DD-MM-YYYY').add(duration).format('YYYY-MM');
+    return returnDate;
 }
 
 function setReturnDate(returnDate) {

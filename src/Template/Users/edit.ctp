@@ -58,9 +58,6 @@ $this->assign('title', 'Cập nhật hồ sơ cá nhân');
                 <h3 class="box-title">
                     <?= __('Thông tin cá nhân') ?>
                 </h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <div class="form-group">

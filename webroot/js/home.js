@@ -30,18 +30,16 @@ var lineChartOptions = {
         }]
     },
     animation: {
-        onComplete: function() {
+        onComplete: function () {
             isChartRendered = true
         }
     }
 }
-
-// var pieColor = ['#f45e5eba', '#00a65a8c', '#f3b312c9', '#00c0ef', '#3c8dbc', '#d2d6de'];
-var pieColor = ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)'];
+var chartColors = ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)', 'rgb(153, 102, 255)'];
 var isChartRendered = false;
 
-$(document).ready(function() {
-    renderLineChart();
+$(document).ready(function () {
+    renderOrderChart();
     renderPiechart(northPopulation, 'northPopulation', 4, '#north-total');
     renderPiechart(middlePopulation, 'middlePopulation', 4, '#middle-total');
     renderPiechart(southPopulation, 'southPopulation', 4, '#south-total');
@@ -58,7 +56,7 @@ function showPassedStudent() {
         type: 'GET',
         url: DOMAIN_NAME + '/pages/get-passed-students',
         data: {},
-        success: function(resp) {
+        success: function (resp) {
             if (resp.status == 'success') {
                 // fill data
                 var source = $("#newly-passed-template").html();
@@ -80,18 +78,18 @@ function showPassedStudent() {
                         sticker: false
                     }
                 });
-                notice.get().click(function() {
+                notice.get().click(function () {
                     notice.remove();
                 });
             }
         },
-        complete: function() {
+        complete: function () {
             ajaxing = false;
         }
     });
 }
 
-function renderLineChart() {
+function renderOrderChart() {
     var labels = [];
     var studentData = [];
     var orderData = [];
@@ -104,19 +102,19 @@ function renderLineChart() {
     var config = {
         type: 'line',
         data: {
-            labels  : labels,
+            labels: labels,
             datasets: [
                 {
                     label: 'Lao động',
-                    backgroundColor: 'rgb(255, 99, 132)',
-					borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: chartColors[0],
+                    borderColor: chartColors[0],
                     data: studentData,
                     fill: false,
                 },
                 {
                     label: 'Đơn hàng',
-                    backgroundColor: 'rgb(54, 162, 235)',
-					borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: chartColors[4],
+                    borderColor: chartColors[4],
                     data: orderData,
                     fill: false,
                 }
@@ -144,7 +142,7 @@ function renderPiechart(population, pieChartEleId, max, totalId) {
         var backgroundColors = [];
         var labels = [];
         var total = 0;
-        population.forEach(function(ele, index) {
+        population.forEach(function (ele, index) {
             if (index <= max) {
                 var label = ele._matchingData.Cities.name
                 if (index == max) {
@@ -152,12 +150,12 @@ function renderPiechart(population, pieChartEleId, max, totalId) {
                 }
                 data = {
                     value: ele.count,
-                    color: pieColor[index],
-                    highlight: pieColor[index],
+                    color: chartColors[index],
+                    highlight: chartColors[index],
                     label: label
                 };
                 datas.push(ele.count);
-                backgroundColors.push(pieColor[index]);
+                backgroundColors.push(chartColors[index]);
                 labels.push(label);
             } else {
                 datas[max] = datas[max] + ele.count;
@@ -181,22 +179,21 @@ function renderPiechart(population, pieChartEleId, max, totalId) {
                 },
                 tooltips: {
                     callbacks: {
-                        title: function(tooltipItem, data) {
+                        title: function (tooltipItem, data) {
                             return data['labels'][tooltipItem[0]['index']];
                         },
-                        label: function(tooltipItem, data) {
+                        label: function (tooltipItem, data) {
                             return data['datasets'][0]['data'][tooltipItem['index']] + ' lao động';
                         },
-                        
+
                     }
                 },
-				responsive: true
-			}
+                responsive: true
+            }
         };
         window.myPie = new Chart(ctx, config);
 
-        var totalStr = '(' + total + ' lao động)'; 
+        var totalStr = '(' + total + ' lao động)';
         $(totalId).html(totalStr);
     }
 }
-

@@ -45,9 +45,6 @@ $this->Html->script('report.js', ['block' => 'scriptBottom']);
         <div class="box">
             <div class="box-header with-border">
                 <h3 class="box-title"><?= __('CHỌN NỘI DUNG') ?></h3>
-                <div class="box-tools pull-right">
-                    <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                </div>
             </div>
             <div class="box-body">
                 <div class="col-md-12 col-xs-12 table-responsive">

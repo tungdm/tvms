@@ -97,10 +97,13 @@ class CandidatesController extends AppController
             $query['records'] = $this->defaultDisplay;
             $allCandidates = $this->Candidates->find()->order(['Candidates.created' => 'DESC']);
         }
-        if ($this->Auth->user('role_id') != 1) {
-            // other user (not admin) can not view delete record
-            $allCandidates->where(['Candidates.del_flag' => FALSE]);
+        $deleted = false;
+        if (isset($query['deleted']) && $this->Auth->user('role_id') == 1) {
+            $deleted = $query['deleted'];
         }
+        $allCandidates->where(['Candidates.del_flag' => $deleted]);
+        $query['deleted'] = $deleted;
+
         $this->paginate = [
             'contain' => ['Cities'],
             'limit' => $query['records']

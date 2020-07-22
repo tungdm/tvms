@@ -137,9 +137,6 @@ if ($order->status == "4" || $order->status == "5") {
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin cơ bản') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -275,9 +272,6 @@ if ($order->status == "4" || $order->status == "5") {
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Yêu cầu tuyển chọn') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -337,9 +331,6 @@ if ($order->status == "4" || $order->status == "5") {
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin bổ sung') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -379,9 +370,6 @@ if ($order->status == "4" || $order->status == "5") {
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Thông tin hệ thống') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
@@ -428,9 +416,6 @@ if ($order->status == "4" || $order->status == "5") {
             <div class="box">
                 <div class="box-header with-border">
                     <h3 class="box-title"><?= __('Danh sách ứng viên') ?></h3>
-                    <div class="box-tools pull-right">
-                        <a href="javascript:;" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-chevron-up"></i></a>
-                    </div>
                 </div>
                 <div class="box-body table-responsive">
                     <table class="table table-bordered custom-table candidate-table">
