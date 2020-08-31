@@ -29,6 +29,8 @@ class Installment extends Entity
      */
     protected $_accessible = [
         'name' => true,
+        'quarter' => true,
+        'quarter_year' => true,
         'admin_company_id' => true,
         'created' => true,
         'created_by' => true,

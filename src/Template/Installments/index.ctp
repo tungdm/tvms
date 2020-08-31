@@ -3,6 +3,7 @@ use Cake\Core\Configure;
 $controller = $this->request->getParam('controller');
 $permission = $this->request->session()->read($controller) ?? 0;
 $recordsDisplay = Configure::read('recordsDisplay');
+$quarters = Configure::read('quarters');
 $currentUser = $this->request->session()->read('Auth.User');
 $counter = 0;
 if (!empty($query['page'])) {
@@ -67,6 +68,16 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
             </div>
             <div class="box-body">
                 <div class="row">
+                    <div class="form-group col-md-4 col-sm-6 col-xs-12 records-per-page">
+                        <div class="col-md-6 col-sm-6 col-xs-6">
+                            <?= $this->Form->control('adminCompanyChart', [
+                                'options' => $adminCompanies, 
+                                'label' => false, 
+                                'class' => 'form-control col-md-7 col-xs-12 select2-theme admin-company-chart', 
+                                ])
+                            ?>
+                        </div>
+                    </div>
                     <div class="col-md-12 col-xs-12">
                         <canvas id="installments-chart" height="300"></canvas>
                     </div>
@@ -114,6 +125,12 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                             <th scope="col" class="nameCol">
                                 <?= $this->Paginator->sort('name', 'Đợt thu')?>
                             </th>
+                            <th scope="col" class="quarterCol">
+                                <?= $this->Paginator->sort('quarter', 'Quý')?>
+                            </th>
+                            <th scope="col" class="quarterYearCol">
+                                <?= $this->Paginator->sort('quarter_year', 'Năm')?>
+                            </th>
                             <th scope="col" class="adminCompanyCol">
                                 <?= __('Phân nhánh') ?>
                             </th>
@@ -137,6 +154,22 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                                     ]) 
                                 ?>
                             </td>
+                            <td class="col-md-1 quarterCol">
+                                <?= $this->Form->control('f_quarter', [
+                                    'label' => false,
+                                    'class' => 'form-control col-md-7 col-xs-12',
+                                    'value' => $query['f_quarter'] ?? ''
+                                    ]) 
+                                ?>
+                            </td>
+                            <td class="col-md-1 quarterYearCol">
+                                <?= $this->Form->control('f_quarter_year', [
+                                    'label' => false,
+                                    'class' => 'form-control col-md-7 col-xs-12',
+                                    'value' => $query['f_quarter_year'] ?? ''
+                                    ]) 
+                                ?>
+                            </td>
                             <td class="col-md-2 adminCompanyCol">
                                 <?= $this->Form->control('f_admin_company', [
                                     'options' => $adminCompanies, 
@@ -147,7 +180,7 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                                     ])
                                 ?>
                             </td>
-                            <td class="col-md-3 createdByCol">
+                            <td class="col-md-2 createdByCol">
                                 <?= $this->Form->control('f_created_by', [
                                     'options' => $allUsers, 
                                     'empty' => true,
@@ -157,7 +190,7 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                                     ])
                                 ?>
                             </td>
-                            <td class="col-md-3 modifiedByCol">
+                            <td class="col-md-2 modifiedByCol">
                                 <?= $this->Form->control('f_modified_by', [
                                     'options' => $allUsers, 
                                     'empty' => true,
@@ -186,6 +219,12 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                                 <?= $this->Html->link(h($installment->name), 
                                     ['action' => 'view', $installment->id],
                                     ['escape' => false]) ?>
+                            </td>
+                            <td class="cell quarterCol">
+                                <?= $installment->quarter ?? 'N/A' ?>
+                            </td>
+                            <td class="cell quarterYearCol">
+                                <?= $installment->quarter_year ?? 'N/A' ?>
                             </td>
                             <td class="cell adminCompanyCol">
                                 <?= !empty($installment->admin_company) ? h($installment->admin_company->alias) : '' ?>

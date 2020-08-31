@@ -54,6 +54,12 @@ class InstallmentsController extends AppController
                     return $exp->like('name', '%'.$query['name'].'%');
                 });
             }
+            if (isset($query['f_quarter']) && !empty($query['f_quarter'])) {
+                $allInstallments->where(['Installments.quarter' => $query['f_quarter']]);
+            }
+            if (isset($query['f_quarter_year']) && !empty($query['f_quarter_year'])) {
+                $allInstallments->where(['Installments.quarter_year' => $query['f_quarter_year']]);
+            }
             if (isset($query['f_admin_company']) && !empty($query['f_admin_company'])) {
                 $allInstallments->where(['Installments.admin_company_id' => $query['f_admin_company']]);
             }
@@ -77,56 +83,98 @@ class InstallmentsController extends AppController
                 'CreatedByUsers',
                 'ModifiedByUsers'
             ],
-            'sortWhitelist' => ['name'],
+            'sortWhitelist' => ['name', 'quarter', 'quarter_year'],
             'limit' => $query['records'],
         ];
         # get installments report
-        $now = Time::now();
-        $currentYear = $now->year;
-        $lastDayOfCurrentYear = "{$currentYear}-12-31";
-        $lastYear = $currentYear - 1;
-        $firstDayOfLastYear = "{$lastYear}-01-01";
-        $results = $this->Installments->find()
-            ->contain(['InstallmentFees'])
-            ->where(function (QueryExpression $exp, Query $q) use ($firstDayOfLastYear, $lastDayOfCurrentYear) {
-                return $exp->between('created', $firstDayOfLastYear, $lastDayOfCurrentYear, 'date');
-            })
-            ->order(['Installments.created' => 'ASC'])
-            ->toArray();
         $report = [];
-        foreach ($results as $key => $installment) {
-            $total_vn = $total_jp = $sum_management_fee = $sum_air_ticket_fee = $sum_training_fee = $sum_other_fees = 0;
-            foreach ($installment->installment_fees as $key => $value) {
-                if (isset($value->total_vn)) {
-                    $total_vn += $value->total_vn;
-                }
-                if (isset($value->total_jp)) {
-                    $total_jp += $value->total_jp;
-                }
-                $sum_management_fee += $value->management_fee;
-                $sum_air_ticket_fee += $value->air_ticket_fee;
-                $sum_training_fee += $value->training_fee;
-                $sum_other_fees += $value->other_fees;
-            }
-            $data = [
-                'name' => $installment->name,
-                'created' => $installment->created->i18nFormat('yyyy-MM-dd'),
-                'installmentFees' => [
-                    'sum_management_fee' => $sum_management_fee,
-                    'sum_air_ticket_fee' => $sum_air_ticket_fee,
-                    'sum_training_fee' => $sum_training_fee,
-                    'sum_other_fees' => $sum_other_fees,
-                    'total_vn' => $total_vn,
-                    'total_jp' => $total_jp
-                ]
-            ];
-            array_push($report, $data);
+        $defaultAdminCompany = TableRegistry::get('AdminCompanies')->find()->where(['deleted' => FALSE])->first();
+        if (!empty($defaultAdminCompany)) {
+            $report = $this->generateReport($defaultAdminCompany->id);
         }
+
         $installments = $this->paginate($allInstallments);
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
         $usersTable = TableRegistry::get('Users');
         $allUsers = $usersTable->find('list')->where(['del_flag' => false]);
         $this->set(compact('report', 'installments', 'allUsers', 'adminCompanies', 'query'));
+    }
+
+    public function generateReport($adminCompanyId)
+    {
+        $now = Time::now();
+        $currentYear = $now->year;
+        $prevYear = $currentYear - 1;
+        $results = $this->Installments->find()
+            ->contain(['InstallmentFees'])
+            ->where([
+                'Installments.admin_company_id' => $adminCompanyId,
+                'OR' => [['Installments.quarter_year' => $prevYear], ['Installments.quarter_year' => $currentYear]]
+                ])
+            ->toArray();
+        $report = [
+            $prevYear => [],
+            $currentYear => []
+        ];
+        foreach ($results as $key => $installment) {
+            $totalVN = $totalJP = $managementFee = $airTicketFee = $trainingFee = $otherFees = 0;
+            foreach ($installment->installment_fees as $key => $value) {
+                if (isset($value->total_vn)) {
+                    $totalVN += $value->total_vn;
+                }
+                if (isset($value->total_jp)) {
+                    $totalJP += $value->total_jp;
+                }
+                $managementFee += $value->management_fee;
+                $airTicketFee += $value->air_ticket_fee;
+                $trainingFee += $value->training_fee;
+                $otherFees += $value->other_fees;
+            }
+            if (array_key_exists($installment->quarter, $report[$installment->quarter_year])) {
+                $report[$installment->quarter_year][$installment->quarter] = [
+                    'managementFee' => $managementFee + $report[$installment->quarter_year][$installment->quarter]['managementFee'],
+                    'airTicketFee' => $airTicketFee + $report[$installment->quarter_year][$installment->quarter]['airTicketFee'],
+                    'trainingFee' => $trainingFee + $report[$installment->quarter_year][$installment->quarter]['trainingFee'],
+                    'otherFees' => $otherFees + $report[$installment->quarter_year][$installment->quarter]['otherFees'],
+                    'totalVN' => $totalVN + $report[$installment->quarter_year][$installment->quarter]['totalVN'],
+                    'totalJP' => $totalJP + $report[$installment->quarter_year][$installment->quarter]['totalJP']
+                ];
+            } else {
+                $report[$installment->quarter_year][$installment->quarter] = [
+                    'managementFee' => $managementFee,
+                    'airTicketFee' => $airTicketFee,
+                    'trainingFee' => $trainingFee,
+                    'otherFees' => $otherFees,
+                    'totalVN' => $totalVN,
+                    'totalJP' => $totalJP
+                ];
+            }
+        }
+        return $report;
+    }
+
+    public function report($adminCompanyId = null)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $report = $this->generateReport($adminCompanyId);
+            $resp = [
+                'status' => 'success',
+                'report' => $report 
+            ];
+        } catch (Exception $e) {
+            //TODO: blacklist user
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
     }
 
     /**

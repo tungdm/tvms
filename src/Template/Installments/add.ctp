@@ -10,6 +10,7 @@ $this->Html->script('installments.js', ['block' => 'scriptBottom']);
 $action = $this->request->getParam('action');
 
 $installmentStatus = Configure::read('installmentStatus');
+$quarters = Configure::read('quarters');
 ?>
 
 <?php if ($action === 'add'): ?>
@@ -141,14 +142,49 @@ $installmentStatus = Configure::read('installmentStatus');
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="quarter"><?= __('Quý') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <?= $this->Form->control('quarter', [
+                            'options' => $quarters, 
+                            'required' => true,
+                            'empty' => true,
+                            'label' => false, 
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
+                            'data-parsley-errors-container' => '#error-quarter',
+                            'data-parsley-class-handler' => '#select2-quarter'
+                            ]) ?>
+                        <span id="error-quarter"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="quarter-year"><?= __('Năm') ?></label>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="input-group date input-picker year-mode" id="quarter-year-div">
+                            <?= $this->Form->control('quarter_year', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'yyyy',
+                                'data-parsley-errors-container' => '#error-quarter-year'
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                        <span id="error-quarter-year"></span>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="admin-company"><?= __('Phân nhánh') ?></label>
                     <div class="col-md-6 col-sm-6 col-xs-12">
                         <?= $this->Form->control('admin_company_id', [
                             'options' => $adminCompanies, 
                             'required' => true, 
+                            'empty' => true,
                             'label' => false, 
-                            'class' => 'form-control col-md-7 col-xs-12 select-job',
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme',
                             'data-parsley-errors-container' => '#error-admin-company',
+                            'data-parsley-class-handler' => '#select2-admin-company-id'
                             ]) ?>
                         <span id="error-admin-company"></span>
                     </div>

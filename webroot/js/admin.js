@@ -1117,6 +1117,14 @@ function initDatetimePicker() {
                 // format: 'MM-YYYY',
                 locale: 'vi'
             });
+        } else if ($(ele).hasClass('year-mode')) {
+            $('#' + ele.id).datetimepicker({
+                useCurrent: false,
+                viewMode: 'years',
+                date: moment(inputDate, 'YYYY'),
+                format: 'YYYY',
+                locale: 'vi'
+            });
         } else {
             $('#' + ele.id).datetimepicker({
                 useCurrent: false,

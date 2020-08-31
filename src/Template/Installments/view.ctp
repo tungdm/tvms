@@ -77,6 +77,18 @@ $installmentStatus = Configure::read('installmentStatus');
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="quarter"><?= __('Quý') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $installment->quarter ?? 'N/A' ?></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="quarterYear"><?= __('Năm') ?>: </label>
+                        <div class="col-md-7 col-sm-7 col-xs-12">
+                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $installment->quarter_year ?? 'N/A' ?></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="adminCompany"><?= __('Phân nhánh') ?>: </label>
                         <div class="col-md-7 col-sm-7 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $installment->admin_company->alias ?></div>

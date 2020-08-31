@@ -11,6 +11,21 @@ $(document).ready(function () {
     if ($('#installments-chart')[0]) {
         renderInstallmentChart();
     }
+
+    $('.admin-company-chart').change(function (e) {
+        $.ajax({
+            type: 'GET',
+            url: DOMAIN_NAME + `/installments/report/${this.value}`,
+            data: {
+                adminCompanyId: this.value
+            },
+            success: function (resp) {
+                report = resp.report;
+                renderInstallmentChart();
+            }
+        });
+    })
+
     $('.submit-installment-btn').click(function () {
         var validateResult = $('#add-installment-form').parsley().validate();
         if (validateResult) {
@@ -20,19 +35,41 @@ $(document).ready(function () {
 })
 
 
-function renderInstallmentChart() {
-    var labels = [], totalVN = [], totalJP = [], managementFee = [], airTicketFee = [], trainingFee = [], otherFees = [];
-    report.forEach(item => {
-        labels.push(item.name);
-        totalVN.push(item.installmentFees.total_vn);
-        totalJP.push(item.installmentFees.total_jp);
-        managementFee.push(item.installmentFees.sum_management_fee);
-        airTicketFee.push(item.installmentFees.sum_air_ticket_fee);
-        trainingFee.push(item.installmentFees.sum_training_fee);
-        otherFees.push(item.installmentFees.sum_other_fees);
+function extractYear(year) {
+    data = {};
+    data.managementFee = [];
+    data.airTicketFee = [];
+    data.trainingFee = [];
+    data.otherFees = [];
+    data.totalVN = [];
+    data.totalJP = [];
+    [1, 2, 3, 4].forEach(quarter => {
+        let mf = 0, atf = 0, tf = 0, ofs = 0, tvn = 0, tjp = 0;
+        if (quarter in report[year]) {
+            mf = report[year][quarter]['managementFee'];
+            atf = report[year][quarter]['airTicketFee'];
+            tf = report[year][quarter]['trainingFee'];
+            ofs = report[year][quarter]['otherFees'];
+            tvn = report[year][quarter]['totalVN'];
+            tjp = report[year][quarter]['totalJP'];
+        }
+        data.managementFee.push(mf);
+        data.airTicketFee.push(atf);
+        data.trainingFee.push(tf);
+        data.otherFees.push(ofs);
+        data.totalVN.push(tvn);
+        data.totalJP.push(tjp);
     });
+    return data
+}
+
+function renderInstallmentChart() {
+    var currentTime = new Date();
+    var currYear = currentTime.getFullYear();
+    var prevYear = currYear - 1;
+    var currYearData = extractYear(currYear), prevYearData = extractYear(prevYear);
     var chartData = {
-        labels: labels,
+        labels: ['Quý 1', 'Quý 2', 'Quý 3', 'Quý 4'],
         datasets: [
             {
                 label: 'Tổng tiền vào TK',
@@ -41,119 +78,205 @@ function renderInstallmentChart() {
                 backgroundColor: chartColors[4],
                 borderWidth: 2,
                 fill: false,
-                data: totalVN,
+                data: prevYearData.totalVN,
                 yAxisID: 'y-axis-1',
+                stack: prevYear
             },
             {
                 label: 'Phí quản lý',
                 backgroundColor: chartColors[0],
-                data: managementFee,
-                yAxisID: 'y-axis-2'
+                data: prevYearData.managementFee,
+                yAxisID: 'y-axis-2',
+                stack: prevYear
             },
             {
                 label: 'Vé máy bay',
                 backgroundColor: chartColors[1],
-                data: airTicketFee,
-                yAxisID: 'y-axis-2'
+                data: prevYearData.airTicketFee,
+                yAxisID: 'y-axis-2',
+                stack: prevYear
             },
             {
                 label: 'Phí đào tạo',
                 backgroundColor: chartColors[2],
-                data: trainingFee,
-                yAxisID: 'y-axis-2'
+                data: prevYearData.trainingFee,
+                yAxisID: 'y-axis-2',
+                stack: prevYear
             },
             {
                 label: 'Khoản khác',
                 backgroundColor: chartColors[3],
-                data: otherFees,
-                yAxisID: 'y-axis-2'
-            }
+                data: prevYearData.otherFees,
+                yAxisID: 'y-axis-2',
+                stack: prevYear
+            },
+            {
+                label: 'Tổng tiền vào TK',
+                type: 'line',
+                borderColor: chartColors[4],
+                backgroundColor: chartColors[4],
+                borderWidth: 2,
+                fill: false,
+                data: currYearData.totalVN,
+                yAxisID: 'y-axis-1',
+                stack: currYear
+            },
+            {
+                label: 'Phí quản lý',
+                backgroundColor: chartColors[0],
+                data: currYearData.managementFee,
+                yAxisID: 'y-axis-2',
+                stack: currYear
+            },
+            {
+                label: 'Vé máy bay',
+                backgroundColor: chartColors[1],
+                data: currYearData.airTicketFee,
+                yAxisID: 'y-axis-2',
+                stack: currYear
+            },
+            {
+                label: 'Phí đào tạo',
+                backgroundColor: chartColors[2],
+                data: currYearData.trainingFee,
+                yAxisID: 'y-axis-2',
+                stack: currYear
+            },
+            {
+                label: 'Khoản khác',
+                backgroundColor: chartColors[3],
+                data: currYearData.otherFees,
+                yAxisID: 'y-axis-2',
+                stack: currYear
+            },
         ]
     };
     var ctx = document.getElementById('installments-chart').getContext('2d');
     // ctx.height = 300;
-    window.myBar = new Chart(ctx, {
-        type: 'bar',
-        data: chartData,
-        options: {
-            title: {
-                display: true,
-                text: 'Biểu đồ quản lý phí 2 năm gần nhất'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-                callbacks: {
-                    label: (tooltipItem, data) => {
-                        let formatedNum = numberWithCommas(tooltipItem.yLabel.toString());
-                        formatedNum = tooltipItem.datasetIndex != 0 ? `${formatedNum}¥` : `${formatedNum}₫`;
-                        return `${data.datasets[tooltipItem.datasetIndex].label}: ${formatedNum}`;
+    if (!window.myBar) {
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                title: {
+                    display: true,
+                    text: `Biểu đồ quản lý phí ${prevYear}-${currYear}`
+                },
+                legend: {
+                    labels: {
+                        filter: function (item, chart) {
+                            return item.datasetIndex >= 5;
+                        }
                     },
-                    footer: (tooltipItems, data) => {
-                        let total = tooltipItems.reduce((a, e) => e.datasetIndex != 0 ? a + parseInt(e.yLabel) : a, 0);
-                        return `Tổng cộng: ${numberWithCommas(total.toString())}¥`;
+                    onClick: newLegendClickHandler
+                },
+                tooltips: {
+                    // mode: 'index',
+                    mode: 'x',
+                    // position: 'average',
+                    intersect: false,
+                    // intersect: true,
+                    callbacks: {
+                        title: (tooltipItems, data) => {
+                            let firstItem = tooltipItems[0];
+                            if (tooltipItems.length == 4) {
+                                return `${firstItem.xLabel} ${data.datasets[firstItem.datasetIndex].stack}`;
+                            }
+                            return firstItem.xLabel;
+                        },
+                        label: (tooltipItem, data) => {
+                            let formatedNum = numberWithCommas(tooltipItem.yLabel.toString());
+                            formatedNum = tooltipItem.datasetIndex != 0 ? `${formatedNum}¥` : `${formatedNum}₫`;
+                            if (tooltipItem.datasetIndex == 0 || tooltipItem.datasetIndex == 5) {
+                                return `${data.datasets[tooltipItem.datasetIndex].label} (${data.datasets[tooltipItem.datasetIndex].stack}): ${formatedNum}`;
+                            }
+                            return `${data.datasets[tooltipItem.datasetIndex].label}: ${formatedNum}`;
+                        },
+                        footer: (tooltipItems, data) => {
+                            if (tooltipItems.length == 4) {
+                                let total = tooltipItems.reduce((a, e) => e.datasetIndex != 0 ? a + parseInt(e.yLabel) : a, 0);
+                                return `Tổng cộng: ${numberWithCommas(total.toString())}¥`;
+                            }
+                        }
                     }
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    xAxes: [
+                        {
+                            stacked: true,
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Đợt thu phí'
+                            }
+                        }
+                    ],
+                    yAxes: [
+                        {
+                            type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                            display: true,
+                            position: 'left',
+                            id: 'y-axis-1',
+                            gridLines: {
+                                drawOnChartArea: false
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                                min: 0,
+                                callback: function (value, index, values) {
+                                    return `${numberWithCommas(value.toString())}₫`;
+                                }
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Việt Nam Đồng'
+                            }
+                        }, {
+                            type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                            display: true,
+                            position: 'right',
+                            id: 'y-axis-2',
+                            stacked: true,
+                            // grid line settings
+                            gridLines: {
+                                drawOnChartArea: false
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                                callback: function (value, index, values) {
+                                    return `${numberWithCommas(value.toString())}¥`;
+                                }
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Yên Nhật'
+                            }
+                        }
+                    ]
                 }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                xAxes: [
-                    {
-                        stacked: true,
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Đợt thu phí'
-                        }
-                    }
-                ],
-                yAxes: [
-                    {
-                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-                        display: true,
-                        position: 'left',
-                        id: 'y-axis-1',
-                        gridLines: {
-                            drawOnChartArea: false
-                        },
-                        ticks: {
-                            beginAtZero: true,
-                            min: 0,
-                            callback: function (value, index, values) {
-                                return `${numberWithCommas(value.toString())}₫`;
-                            }
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Việt Nam Đồng'
-                        }
-                    }, {
-                        type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-                        display: true,
-                        position: 'right',
-                        id: 'y-axis-2',
-                        stacked: true,
-                        // grid line settings
-                        gridLines: {
-                            drawOnChartArea: false
-                        },
-                        ticks: {
-                            beginAtZero: true,
-                            callback: function (value, index, values) {
-                                return `${numberWithCommas(value.toString())}¥`;
-                            }
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Yên Nhật'
-                        }
-                    }
-                ]
             }
-        }
-    });
+        });
+    } else {
+        window.myBar.data = chartData;
+        window.myBar.update();
+    }
 }
+
+var defaultLegendClickHandler = Chart.defaults.global.legend.onClick;
+var newLegendClickHandler = function (e, legendItem) {
+    var index = legendItem.datasetIndex;
+    let ci = this.chart;
+    [
+        ci.getDatasetMeta(index),
+        ci.getDatasetMeta(index - 5)
+    ].forEach(function (meta) {
+        meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+    });
+    ci.update();
+};
+
 function resetAddFeesForm() {
     $('#add-fees-form')[0].reset();
     $('#modal-guild').val(null).trigger('change');
