@@ -87,7 +87,7 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                 <li role="presentation" class="">
                     <a href="#tab_content2" role="tab" id="companies-tab" data-toggle="tab" aria-expanded="false"><?= __('Công ty tiếp nhận') ?></a>
                 </li>
-                <?php if (in_array($role['name'], ['admin'])): ?>
+                <?php if (in_array($role['name'], ['admin', 'accountant'])): ?>
                 <li role="presentation" class="">
                     <a href="#tab_content3" role="tab" id="fees-tab" data-toggle="tab" aria-expanded="false"><?= __('Quản lý chi phí') ?></a>
                 </li>
@@ -280,7 +280,7 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                         </div>
                     </div>
                 </div>
-                <?php if (in_array($role['name'], ['admin'])): ?>
+                <?php if (in_array($role['name'], ['admin', 'accountant'])): ?>
                 <div role="tabpanel" class="tab-pane root-tab-pane fade" id="tab_content3">
                     <div class="rows">
                         <div class="col-md-12 col-xs-12 no-padding">

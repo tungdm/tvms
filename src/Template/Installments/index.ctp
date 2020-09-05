@@ -39,11 +39,11 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
     </ol>
 <?php $this->end(); ?>
 
+<?php if ($permission == 0): ?>
 <?php $this->start('floating-button'); ?>
     <div class="zoom" id="draggable-button">
         <a class="zoom-fab zoom-btn-large" id="zoomBtn"><i class="fa fa-bars"></i></a>
         <ul class="zoom-menu">
-            <?php if ($permission == 0): ?>
             <li>
                 <?= $this->Html->link(__('<i class="fa fa-plus" aria-hidden="true"></i>'), 
                     ['action' => 'add'],
@@ -54,10 +54,10 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                         'escape' => false
                     ]) ?>
             </li>
-            <?php endif; ?>
         </ul>
     </div>
 <?php $this->end(); ?>
+<?php endif; ?>
 
 <?php if (!empty($report)): ?>
 <div class="row">
@@ -250,6 +250,7 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                                                 ['action' => 'view', $installment->id],
                                                 ['escape' => false]) ?>
                                         </li>
+                                        <?php if ($permission == 0): ?>
                                         <li>
                                             <?= $this->Html->link(__('<i class="fa fa-edit" aria-hidden="true"></i> Sửa'), 
                                                 ['action' => 'edit', $installment->id],
@@ -263,6 +264,7 @@ $this->assign('title', 'Phí quản lý nghiệp đoàn');
                                                 'confirm' => __('Bạn có chắc chắn muốn xóa {0}?', $installment->name)
                                             ]) ?>
                                         </li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>                                      
                             </td>

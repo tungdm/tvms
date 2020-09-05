@@ -30,8 +30,16 @@ class InstallmentsController extends AppController
 
     public function isAuthorized($user)
     {
-        if ($this->Auth->user('role')['name'] != 'admin') {
-            return false;
+        $controller = $this->request->getParam('controller');
+        $action = $this->request->getParam('action');
+        $session = $this->request->session();
+        $permissionsTable = TableRegistry::get('Permissions');
+        $userPermission = $permissionsTable->find()->where(['user_id' => $user['id'], 'scope' => $controller])->first();
+        if (!empty($userPermission)) {
+            if ($userPermission->action == 0 || ($userPermission->action == 1 && in_array($action, ['index', 'view', 'report', 'export']))) {
+                $session->write($controller, $userPermission->action);
+                return true;
+            }
         }
         return parent::isAuthorized($user);
     }

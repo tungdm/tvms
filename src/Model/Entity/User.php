@@ -51,6 +51,7 @@ class User extends Entity
         'phone' => true,
         'fullname' => true,
         'status' => true,
+        'login_again' => true,
         'del_flag' => true,
         'created' => true,
         'created_by' => true,

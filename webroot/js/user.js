@@ -37,12 +37,13 @@ function removePermission(delEl, sendAjax) {
             confirmButtonText: 'Vâng, tôi muốn xóa!'
         }).then((result) => {
             if (result.value) {
+                var targetUserId = $('#edit-permission-form input[name="id"]').val();
                 // send ajax delete request to server
                 $.ajax({
                     type: 'POST',
-                    url: DOMAIN_NAME + '/users/deletePermission',
+                    url: DOMAIN_NAME + `/users/deletePermission/${targetUserId}`,
                     data: {
-                        'id': $(delEl).closest('tr.row-permission').find('input').val()
+                        'permissionId': $(delEl).closest('tr.row-permission').find('input').val()
                     },
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader('X-CSRF-Token', getCsrfToken());
@@ -238,10 +239,11 @@ $(document).ready(function () {
 
     $('#edit-permission-btn').click(function () {
         var validateResult = $('#edit-permission-form').parsley().validate();
+        var targetUserId = $('#edit-permission-form input[name="id"]').val();
         if (validateResult) {
             $.ajax({
                 type: "POST",
-                url: $('#edit-permission-form').attr('action'),
+                url: DOMAIN_NAME + `users/editPermission/${targetUserId}`,
                 data: $('#edit-permission-form').serialize(),
                 success: function (resp) {
                     if (resp.status == 'success') {
@@ -299,10 +301,7 @@ function showEditPerModal(userId, userRole) {
 
         $.ajax({
             type: "GET",
-            url: $('#edit-permission-form').attr('action'),
-            data: {
-                id: userId
-            },
+            url: DOMAIN_NAME + `users/editPermission/${userId}`,
             success: function (resp) {
                 var allPermissions = resp.permissions;
 

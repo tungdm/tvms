@@ -328,8 +328,8 @@ $this->assign('title', 'Quản lý Nhân viên');
                 <?= $this->Form->hidden('id') ?>
                 
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="role"><?= __('Chức vụ ') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
+                    <label class="control-label col-md-2 col-sm-2 col-xs-12" for="role"><?= __('Chức vụ ') ?></label>
+                    <div class="col-md-9 col-sm-9 col-xs-12">
                         <?= $this->Form->control('role_id', [
                             'options' => $roles4Edit, 
                             'empty' => true, 
@@ -343,14 +343,14 @@ $this->assign('title', 'Quản lý Nhân viên');
                     </div>
                 </div>
                 <div class="form-group permission-group">
-                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="permission"><?= __('Phân quyền') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12 table-responsive">
+                    <label class="control-label col-md-2 col-sm-2 col-xs-12" for="permission"><?= __('Phân quyền') ?></label>
+                    <div class="col-md-9 col-sm-9 col-xs-12 table-responsive">
                         <button type="button" class="btn btn-primary btn-permission" id="add-permission-top"><?= __('Thêm mới') ?></button>
                         <table class="table table-bordered custom-table permission-table">
                             <thead>
                                 <tr>
-                                    <th scope="col" class="col-md-5"><?= __('Phạm vi quản lý') ?></th>
-                                    <th scope="col" class="col-md-5"><?= __('Quyền hạn') ?></th>
+                                    <th scope="col" class="col-md-6"><?= __('Phạm vi quản lý') ?></th>
+                                    <th scope="col" class="col-md-4"><?= __('Quyền hạn') ?></th>
                                     <th scope="col" class="actions"><?= __('Thao tác') ?></th>
                                 </tr>
                             </thead>

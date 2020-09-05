@@ -285,7 +285,7 @@ class UsersTable extends Table
     public function findAuth(Query $query, array $options)
     {
         $query
-            ->select(['id', 'username', 'fullname', 'password', 'image', 'role_id', 'Roles.name', 'email', 'del_flag'])
+            ->select(['id', 'username', 'fullname', 'password', 'image', 'role_id', 'Roles.name', 'email', 'del_flag', 'login_again'])
             ->contain(['Roles', 'Permissions']);
 
         return $query;

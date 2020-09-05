@@ -1,7 +1,12 @@
 <?php
-    use Cake\Core\Configure;
-
-    $sideBarState = $this->request->session()->read('sideBarState');
+use Cake\Core\Configure;
+$session = $this->request->session();
+$sideBarState = $session->read('sideBarState');
+$permissions = $session->read('Auth.User.permissions');
+$userPermissions = [];
+foreach ($permissions as $permission) {
+    $userPermissions[$permission['scope']] = intval($permission['action']);
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -78,19 +83,19 @@
                         </li>
                         <li class="user user-menu user-profile">
                             <a href="javascript:;">
-                                <?php if (empty($this->request->session()->read('Auth.User.image'))): ?>
+                                <?php if (empty($session->read('Auth.User.image'))): ?>
                                     <?= $this->Html->image(Configure::read('noAvatar'), ['class' => 'user-image']) ?>
                                 <?php else: ?>
-                                    <?= $this->Html->image($this->request->session()->read('Auth.User.image'), ['class' => 'user-image']) ?>
+                                    <?= $this->Html->image($session->read('Auth.User.image'), ['class' => 'user-image']) ?>
                                 <?php endif; ?>
-                                <?= $this->request->session()->read('Auth.User.fullname') ?>
+                                <?= $session->read('Auth.User.fullname') ?>
                                 <span class="fa fa-angle-down"></span>
                             </a>
                             <ul class="show-notification">
                                 <li>
                                     <?= $this->Html->link(
                                         '<i class="fa fa-user"></i> Thông tin cá nhân', 
-                                        ['controller' => 'Users', 'action' => 'edit', $this->request->session()->read('Auth.User.id')],
+                                        ['controller' => 'Users', 'action' => 'edit', $session->read('Auth.User.id')],
                                         ['escape' => false]) ?>
                                 </li>
                                 <li>
@@ -116,6 +121,10 @@
                             '/',
                             ['escape' => false]) ?>
                     </li>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' 
+                        || array_key_exists('Students', $userPermissions) 
+                        || array_key_exists('Users', $userPermissions) 
+                        || array_key_exists('Candidates', $userPermissions)): ?>
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-users"></i>
@@ -125,23 +134,35 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
+                            <!-- Candidates -->
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Candidates', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Tuyển Dụng Online', 
                                     ['controller' => 'Candidates', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            
+                            <!-- Students -->
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Students', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản Lý Lao Động', 
                                     ['controller' => 'Students', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+
+                            <!-- Users -->
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Users', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản Lý Nhân Viên', 
                                     ['controller' => 'Users', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
+                    <?php endif; ?>
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-file"></i>
@@ -164,23 +185,31 @@
                         </ul>
                         
                     </li>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Events', $userPermissions)): ?>
                     <li>
                         <?= $this->Html->link('<i class="fa fa-calendar"></i> <span>LỊCH CÔNG TÁC</span>', 
                             ['controller' => 'Events', 'action' => 'index'],
                             ['escape' => false]) ?>
                     </li>
+                    <?php endif; ?>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Orders', $userPermissions)): ?>
                     <li>
                         <?= $this->Html->link('<i class="fa fa-table"></i> <span>ĐƠN HÀNG</span>',
                             ['controller' => 'Orders', 'action' => 'index'],
                             ['escape' => false]) ?>
                     </li>
-                    <?php if ($this->request->session()->read('Auth.User.role.name') == 'admin'): ?>
+                    <?php endif; ?>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Installments', $userPermissions)): ?>
                     <li>
                         <?= $this->Html->link('<i class="fa fa-folder-open-o"></i> <span>PHÍ QUẢN LÝ</span>',
                             ['controller' => 'Installments', 'action' => 'index'],
                             ['escape' => false]) ?>
                     </li>
                     <?php endif; ?>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' 
+                        || array_key_exists('Jclasses', $userPermissions) 
+                        || array_key_exists('Jtests', $userPermissions) 
+                        || array_key_exists('JlptTests', $userPermissions)): ?>
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-graduation-cap"></i>
@@ -190,23 +219,34 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Jclasses', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản lý lớp học', 
                                     ['controller' => 'Jclasses', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Jtests', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Quản lý kì thi', 
                                     ['controller' => 'Jtests', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('JlptTests', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> JLPT', 
                                     ['controller' => 'JlptTests', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
+                    <?php endif; ?>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' 
+                        || array_key_exists('Guilds', $userPermissions) 
+                        || array_key_exists('Companies', $userPermissions) 
+                        || array_key_exists('Presenters', $userPermissions)): ?>
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-folder"></i>
@@ -216,11 +256,14 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Guilds', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghiệp đoàn quản lý', 
                                     ['controller' => 'Guilds', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Companies', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty phái cử', 
                                     ['controller' => 'Companies', 'action' => 'index', '?' => ['type' => '1']],
@@ -231,13 +274,23 @@
                                     ['controller' => 'Companies', 'action' => 'index', '?' => ['type' => '2']],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Presenters', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Người giới thiệu', 
                                     ['controller' => 'Presenters', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
+                    <?php endif; ?>
+                    <?php if ($session->read('Auth.User.role.name') == 'admin' 
+                        || array_key_exists('Jobs', $userPermissions) 
+                        || array_key_exists('Characteristics', $userPermissions)
+                        || array_key_exists('Strengths', $userPermissions)
+                        || array_key_exists('Purposes', $userPermissions)
+                        || array_key_exists('AfterPlans', $userPermissions)): ?>
                     <li class="treeview">
                         <a href="#">
                             <i class="fa fa-gear"></i>
@@ -247,45 +300,58 @@
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <?php if ($this->request->session()->read('Auth.User.role.name') == 'admin'): ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin'): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Công ty', 
                                     ['controller' => 'AdminCompanies', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
                             <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Jobs', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Nghề nghiệp', 
                                     ['controller' => 'Jobs', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Characteristics', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Tính cách', 
                                     ['controller' => 'Characteristics', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Strengths', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Chuyên môn', 
                                     ['controller' => 'Strengths', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('Purposes', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Mục đích XKLĐ', 
                                     ['controller' => 'Purposes', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin' || array_key_exists('AfterPlans', $userPermissions)): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Dự định khi về nước', 
                                     ['controller' => 'AfterPlans', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
+                            <?php if ($session->read('Auth.User.role.name') == 'admin'): ?>
                             <li>
                                 <?= $this->Html->link('<i class="fa fa-circle-o"></i> Thiết lập thông báo', 
                                     ['controller' => 'NotificationSettings', 'action' => 'index'],
                                     ['escape' => false]) ?>
                             </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
+                    <?php endif; ?>
                 </ul>
             </section>
         </aside>

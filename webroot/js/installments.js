@@ -72,7 +72,7 @@ function renderInstallmentChart() {
         labels: ['Quý 1', 'Quý 2', 'Quý 3', 'Quý 4'],
         datasets: [
             {
-                label: 'Tổng tiền vào TK',
+                label: `Tổng tiền vào TK ${prevYear}`,
                 type: 'line',
                 borderColor: chartColors[4],
                 backgroundColor: chartColors[4],
@@ -111,10 +111,10 @@ function renderInstallmentChart() {
                 stack: prevYear
             },
             {
-                label: 'Tổng tiền vào TK',
+                label: `Tổng tiền vào TK ${currYear}`,
                 type: 'line',
-                borderColor: chartColors[4],
-                backgroundColor: chartColors[4],
+                borderColor: chartColors[5],
+                backgroundColor: chartColors[5],
                 borderWidth: 2,
                 fill: false,
                 data: currYearData.totalVN,
@@ -165,7 +165,7 @@ function renderInstallmentChart() {
                 legend: {
                     labels: {
                         filter: function (item, chart) {
-                            return item.datasetIndex >= 5;
+                            return item.datasetIndex >= 5 || item.datasetIndex == 0;
                         }
                     },
                     onClick: newLegendClickHandler
@@ -186,11 +186,10 @@ function renderInstallmentChart() {
                         },
                         label: (tooltipItem, data) => {
                             let formatedNum = numberWithCommas(tooltipItem.yLabel.toString());
-                            formatedNum = tooltipItem.datasetIndex != 0 ? `${formatedNum}¥` : `${formatedNum}₫`;
                             if (tooltipItem.datasetIndex == 0 || tooltipItem.datasetIndex == 5) {
-                                return `${data.datasets[tooltipItem.datasetIndex].label} (${data.datasets[tooltipItem.datasetIndex].stack}): ${formatedNum}`;
+                                return `${data.datasets[tooltipItem.datasetIndex].label}: ${formatedNum}₫`;
                             }
-                            return `${data.datasets[tooltipItem.datasetIndex].label}: ${formatedNum}`;
+                            return `${data.datasets[tooltipItem.datasetIndex].label}: ${formatedNum}¥`;
                         },
                         footer: (tooltipItems, data) => {
                             if (tooltipItems.length == 4) {
@@ -268,12 +267,17 @@ var defaultLegendClickHandler = Chart.defaults.global.legend.onClick;
 var newLegendClickHandler = function (e, legendItem) {
     var index = legendItem.datasetIndex;
     let ci = this.chart;
-    [
-        ci.getDatasetMeta(index),
-        ci.getDatasetMeta(index - 5)
-    ].forEach(function (meta) {
+    if (index == 0 || index == 5) {
+        var meta = ci.getDatasetMeta(index);
         meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-    });
+    } else {
+        [
+            ci.getDatasetMeta(index),
+            ci.getDatasetMeta(index - 5)
+        ].forEach(function (meta) {
+            meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+        });
+    }
     ci.update();
 };
 

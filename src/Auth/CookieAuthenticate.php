@@ -232,7 +232,7 @@ class CookieAuthenticate extends BaseAuthenticate {
     protected function saveToken(array $user, $token)
     {
         $userModel = $this->getConfig('userModel');
-        $userTable =TableRegistry::get($this->getConfig('userModel'));
+        $userTable = TableRegistry::get($this->getConfig('userModel'));
         $tokenTable = TableRegistry::get($this->getConfig('tokenStorageModel'));
 
         $entity = null;

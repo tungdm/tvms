@@ -94,6 +94,15 @@ class AppController extends Controller
         include_once ROOT . DS . 'vendor' . DS . 'tbs' . DS . 'tbs_plugin_opentbs.php';
         $this->tbs = new clsTinyButStrong;
         $this->tbs->Plugin(TBS_INSTALL, OPENTBS_PLUGIN);
+        $currentUserId = $this->Auth->user('id');
+        if ($currentUserId) {
+            $this->currentUser = TableRegistry::get('Users')->get($this->Auth->user('id'));
+            if ($this->currentUser->login_again) {
+                Log::write('debug', 'Need to log in again');
+                return $this->redirect($this->Auth->logout());
+            }
+        }
+        
     }
 
     public function isAuthorized($user)

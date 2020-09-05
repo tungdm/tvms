@@ -1,6 +1,7 @@
 <?php
 use Cake\Core\Configure;
-
+$controller = $this->request->getParam('controller');
+$permission = $this->request->session()->read($controller) ?? 0;
 $this->assign('title', $installment->name . ' - Thông tin chi tiết');
 $installmentStatus = Configure::read('installmentStatus');
 ?>
@@ -37,6 +38,7 @@ $installmentStatus = Configure::read('installmentStatus');
                         'escape' => false
                     ]) ?>
             </li>
+            <?php if ($permission == 0): ?>
             <li>
                 <?= $this->Form->postLink(__('<i class="fa fa-trash" aria-hidden="true"></i>'), 
                     ['action' => 'delete', $installment->id], 
@@ -58,6 +60,7 @@ $installmentStatus = Configure::read('installmentStatus');
                         'escape' => false
                     ]) ?>
             </li>
+            <?php endif; ?>
         </ul>
     </div>
 <?php $this->end(); ?>

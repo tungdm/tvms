@@ -37,11 +37,11 @@ class UsersController extends AppController
         $session = $this->request->session();
         
         // case: allow user update their profile
-        $target_id = $this->request->getParam('pass');
-        if (!empty($target_id)) {
-            $target_id = $target_id[0];
+        $targetId = $this->request->getParam('pass');
+        if (!empty($targetId)) {
+            $targetId = $targetId[0];
         }
-        if (in_array($action, ['edit', 'changePassword']) && ($target_id == $this->Auth->user('id'))) {
+        if (in_array($action, ['edit', 'changePassword']) && ($targetId == $this->Auth->user('id'))) {
             return true;
         }
         
@@ -56,11 +56,10 @@ class UsersController extends AppController
             }
 
             // Check if user try to edit admin info
-            if (in_array($action, ['edit', 'delete'])) {
-                $target_user = $this->Users->get($target_id, ['contain' => 'Roles']);
-                if ($target_user->role->name == 'admin') {
-                    // TODO: Blacklist user
-                    Log::write('warning', 'User "' . $user['username'] . '" try to modify user "' . $target_user->username . '" with admin role');
+            if (in_array($action, ['edit', 'delete', 'editPermission', 'deletePermission'])) {
+                $targetUser = $this->Users->get($targetId, ['contain' => 'Roles']);
+                if ($targetUser->role->name == 'admin') {
+                    // Normal user try to edit admin
                     return false;
                 }
             }
@@ -82,6 +81,12 @@ class UsersController extends AppController
             $user = $this->Auth->identify();
             if ($user) {
                 $this->Auth->setUser($user);
+                $userDB = $this->Users->get($user['id']);
+                if ($userDB->login_again) {
+                    Log::write('debug', 'Turn off login again flag');
+                    $userDB->login_again = false;
+                    $this->Users->save($userDB);
+                }
                 return $this->redirect($this->Auth->redirectUrl());
             }
             $this->Flash->error($this->errorMessage['loginError']);
@@ -237,13 +242,12 @@ class UsersController extends AppController
         $this->set(compact('user', 'roles'));
     }
 
-    public function editPermission()
+    public function editPermission($id = null)
     {
         $this->request->allowMethod('ajax');
         $resp = [];
         
         if ($this->request->is('get')) {
-            $id = $this->request->getQuery('id');
             $permissionsTable = TableRegistry::get('Permissions');
             $permissions = $permissionsTable->find()->where(['user_id' => $id])->toArray();
 
@@ -278,12 +282,10 @@ class UsersController extends AppController
             }
 
             if (isset($data['id']) && !empty($data['id'])) {
-                $targetId = $data['id'];
 
                 try {
-                    $user = $this->Users->get($targetId);
-                
-                    // case: manager update user permission
+                    // manager update user permission
+                    $user = $this->Users->get($id);
                     $user = $this->Users->patchEntity($user, $data, [
                         'fieldList' => ['role_id', 'permissions'],
                         'associated' => [
@@ -292,7 +294,8 @@ class UsersController extends AppController
                             ]
                         ]
                     ]);
-                    
+                    # force login again
+                    $user->login_again = true;
                     $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
                     
                     if ($this->Users->save($user)) {
@@ -314,12 +317,10 @@ class UsersController extends AppController
         return $this->jsonResponse($resp);
     }
 
-    public function deletePermission()
+    public function deletePermission($id = null)
     {
         $this->request->allowMethod('ajax');
-        $id = $this->request->getData('id');
-        $permissions = TableRegistry::get('Permissions');
-        $user = $this->Users->get($this->Auth->user('id'));
+        $permissionsTable = TableRegistry::get('Permissions');
         $resp = [
             'status' => 'error',
             'alert' => [
@@ -328,25 +329,35 @@ class UsersController extends AppController
                 'message' => $this->errorMessage['error']
             ]
         ];
-        try {
-            $permission = $permissions->get($id);
-            if ($permissions->delete($permission)) {
-                $resp = [
-                    'status' => 'success',
-                    'alert' => [
-                        'title' => 'Thành Công',
-                        'type' => 'success',
-                        'message' => Text::insert($this->successMessage['edit'], [
-                            'entity' => $this->entity, 
-                            'name' => $user->fullname
-                            ])
-                    ]
-                ];
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            $user = $this->Users->get($id);
+            try {
+                // $permission = $permissionsTable->get($data['permissionId']);
+                $permission = $permissionsTable->find()->where(['user_id' => $id, 'id' => $data['permissionId']])->first();
+                # force login again
+                $user->login_again = true;
+                $user = $this->Users->setAuthor($user, $this->Auth->user('id'), 'edit');
+
+                if ($permissionsTable->delete($permission) && $this->Users->save($user)) {
+                    $resp = [
+                        'status' => 'success',
+                        'alert' => [
+                            'title' => 'Thành Công',
+                            'type' => 'success',
+                            'message' => Text::insert($this->successMessage['edit'], [
+                                'entity' => $this->entity, 
+                                'name' => $user->fullname
+                                ])
+                        ]
+                    ];
+                }
+            } catch (Exception $e) {
+                //TODO: blacklist user
+                Log::write('debug', $e);
             }
-        } catch (Exception $e) {
-            //TODO: blacklist user
-            Log::write('debug', $e);
         }
+        
         return $this->jsonResponse($resp);
     }
     /**
