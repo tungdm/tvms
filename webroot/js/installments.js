@@ -477,11 +477,13 @@ function deleteFeeRow(delEl, hiddenId) {
     var rows = $('#installment-fees-container > tr');
     var inputFields = $container.find('.form-control');
 
-    for (var i = 0; i < rows.length; i++) {
-        rows[i].id = `row-fee-${i}`;
-        if (hiddenId) {
-            $('.installment-fee-id')[i].id = `#installment-fee-id-${i}`;
-            idFields[i].name = `installment_fees[${i}][id]`;
+    if (rows.length > 1) {
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].id = `row-fee-${i}`;
+            if (hiddenId) {
+                $('.installment-fee-id')[i].id = `installment-fee-id-${i}`;
+                idFields[i].name = `installment_fees[${i}][id]`;
+            }
         }
     }
 
