@@ -694,5 +694,13 @@ if ($order->status == "4" || $order->status == "5") {
             <a href="/orders/export-fees/{{orderId}}?studentId={{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
         </td>
     </tr>
+    <tr>
+        <td class="cell text-center"><?= __('7') ?></td>
+        <td class="cell"><?= __('Visa Application Form') ?></td>
+        <td class="cell text-center"><i class="fa fa-file-word-o" aria-hidden="true"></i> MS Word</td>
+        <td class="actions cell">
+            <a href="/orders/export-vaf/{{orderId}}?studentId={{studentId}}"><i class="fa fa-cloud-download" aria-hidden="true"></i> Tải về</a>
+        </td>
+    </tr>
     {{/if}}
 </script>

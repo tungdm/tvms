@@ -602,6 +602,10 @@ return [
             'en' => 'Town',
             'jp' => '町'
         ],
+        'Đường' => [
+            'en' => 'Steet',
+            'jp' => ''
+        ]
     ],
 
     'addressJPLevel' => [
@@ -995,6 +999,10 @@ return [
     'orderFees' => [
         'filename' => '1.21.docx',
         'template' => 'fees.docx',
+    ],
+    'orderVaf' => [
+        'filename' => ':firstName-VAF.docx',
+        'template' => 'vaf.docx',
     ],
     'orderSummary' => [
         'filename' => '実習生の日本出国.docx',

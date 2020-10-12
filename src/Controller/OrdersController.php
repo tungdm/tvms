@@ -2523,6 +2523,7 @@ class OrdersController extends AppController
             return $this->redirect(['action' => 'index']);
         }
     }
+
     public function exportFees($id = null)
     {
         $config = Configure::read('orderFees');
@@ -2649,6 +2650,138 @@ class OrdersController extends AppController
                 return $this->redirect(['action' => 'index']);
             }
 
+            $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
+            exit;
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+            $this->Flash->error($this->errorMessage['error']);
+            return $this->redirect(['action' => 'index']);
+        }
+    }
+
+    public function exportVaf($id = null)
+    {
+        $config = Configure::read('orderVaf');
+        $folderImgTemplate = Configure::read('folderImgTemplate');
+        $outputFileName = $config['filename'];
+        $query = $this->request->getQuery();
+        try {
+            $order = $this->Orders->get($id, ['contain' => [
+                'Companies',
+                'DisCompanies',
+                'AdminCompanies',
+                'Guilds',
+            ]]);
+            $student = $this->Orders->Students->get($query['studentId'], [
+                'contain' => [
+                    'Addresses',
+                    'Addresses.Cities',
+                    'Addresses.Districts',
+                    'Addresses.Wards',
+                    'Cards'
+                ]
+            ]);
+            $studentNameVN = mb_strtoupper($student->fullname);
+            $studentNameEN = $this->Util->convertV2E($studentNameVN);
+            $studentName = explode(' ', $studentNameEN);
+            $studentFirstName = array_pop($studentName);
+            $studentGivenMiddleNames = trim(str_replace($studentFirstName, '', $studentNameEN));
+            $outputFileName = Text::insert($config['filename'], [
+                'firstName' => $studentFirstName, 
+            ]);
+
+            $male = $female = $folderImgTemplate . DS . 'no_check.png';
+            if ($student->gender == 'M') {
+                $male = $folderImgTemplate . DS . 'check.png';
+            } else {
+                $female = $folderImgTemplate . DS . 'check.png';
+            }
+
+            $single = $married = $widowed = $divorced = $folderImgTemplate . DS . 'no_check.png';
+            switch ($student->marital_status) {
+                case 1:
+                    $single = $folderImgTemplate . DS . 'check.png';
+                    break;
+                case 2:
+                    $married = $folderImgTemplate . DS . 'check.png';
+                    break;
+                case 3:
+                    $divorced = $folderImgTemplate . DS . 'check.png';
+                    break;
+            }
+
+            $householdAddress = $currentAddress = NULL;
+            foreach ($student->addresses as $key => $address) {
+                if ($address->type == 1) {
+                    $householdAddress = $address;
+                } else {
+                    $currentAddress = $address;
+                }
+            }
+            
+            $this->checkData($currentAddress->street, 'TBD');
+            $this->checkData($currentAddress->ward_id, 'TBD');
+            $this->checkData($currentAddress->district_id, 'TBD');
+            $this->checkData($currentAddress->city_id, 'TBD');
+
+            $cmnd = $passport = NULL;
+            foreach ($student->cards as $key => $card) {
+                if ($card->type == 1) {
+                    $cmnd = $card;
+                } elseif ($card->type == 2) {
+                    $passport = $card;
+                } 
+            }
+            $this->checkData($cmnd->code, 'Chứng minh nhân dân');
+            $this->checkData($passport->code, 'Passport');
+            $template = WWW_ROOT . 'document' . DS . $config['template'];
+            $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
+
+            $this->tbs->VarRef['firstName'] = $studentFirstName;
+            $this->tbs->VarRef['givenMiddleNames'] = $studentGivenMiddleNames;
+            $this->tbs->VarRef['bd'] = $student->birthday->i18nFormat('dd/MM/yyyy');
+            $this->tbs->VarRef['householdAddress'] = $this->convertAddressToEng($householdAddress->city, 'city') . ', VIETNAM';
+            $this->tbs->VarRef['currentAddress'] = trim(Text::insert(':street, :ward, :district, :city', [
+                'street' => $this->convertAddressToEng($currentAddress->street, 'street'),
+                'ward' => $this->convertAddressToEng($currentAddress->ward, 'ward'),
+                'district' => $this->convertAddressToEng($currentAddress->district, 'district'),
+                'city' => $this->convertAddressToEng($currentAddress->city, 'city')
+            ]));
+            $this->tbs->VarRef['cmndNo'] = $cmnd->code;
+            $this->tbs->VarRef['ppNo'] = $passport->code;
+            $this->tbs->VarRef['doi'] = $passport->from_date->i18nFormat('dd/MM/yyyy');
+            $this->tbs->VarRef['doe'] = $passport->to_date->i18nFormat('dd/MM/yyyy');
+            $this->tbs->VarRef['male'] = $male;
+            $this->tbs->VarRef['female'] = $female;
+            $this->tbs->VarRef['phone'] = $student->phone;
+
+            $this->tbs->VarRef['single'] = $single;
+            $this->tbs->VarRef['married'] = $married;
+            $this->tbs->VarRef['widowed'] = $widowed;
+            $this->tbs->VarRef['divorced'] = $divorced;
+
+            $this->tbs->VarRef['cpName'] = $order->company->name_romaji;
+            $this->tbs->VarRef['cpTel'] = $order->company->phone_jp;
+            $this->tbs->VarRef['cpAddress'] = $order->company->address_romaji;
+
+            $this->tbs->VarRef['disCpName'] = $order->dis_company->name_kanji;
+            $this->tbs->VarRef['disCpTel'] = $order->dis_company->phone_vn;
+            $this->tbs->VarRef['disCpAddress'] = $order->dis_company->address_romaji;
+
+            $this->tbs->VarRef['guildName'] = $order->guild->name_romaji;
+            $this->tbs->VarRef['guildTel'] = $order->guild->phone_jp;
+            $this->tbs->VarRef['guildAddress'] = $order->guild->address_romaji;
+
+            if (!empty($this->missingFields)) {
+                $this->Flash->error(Text::insert($this->errorMessage['export'], [
+                    'fields' => $this->missingFields,
+                    ]), 
+                    [
+                        'escape' => false,
+                        'params' => ['showButtons' => true]
+                    ]);
+                return $this->redirect($this->referer());
+            }
             $this->tbs->Show(OPENTBS_DOWNLOAD, $outputFileName);
             exit;
         } catch (Exception $e) {
@@ -2786,5 +2919,49 @@ class OrdersController extends AppController
             }
         }
         return '';
+    }
+
+    public function convertAddressToEng($value, $type)
+    {
+        $addressLevel = Configure::read('addressLevel');
+        $result = $value;
+        switch ($type) {
+            case 'city':
+                $result = $value->name;
+                $cityType = $value->type;
+                if ($cityType == 'Thành phố Trung ương') {
+                    $result = $this->Util->convertV2E(str_replace("Thành phố", "", $result) . " " . $addressLevel['Thành phố']['en']);
+                } else {
+                    $result = $this->Util->convertV2E(str_replace($cityType, "", $result) . " " . $addressLevel[$cityType]['en']);
+                }
+                break;
+            case 'district':
+                $result = $value->name;
+                $districtType = $value->type;
+                $district = trim(str_replace($districtType, "", $result));
+                if (is_numeric($district)) {
+                    $result = $this->Util->convertV2E($addressLevel[$districtType]['en'] . " " . $district);
+                } else {
+                    $result = $this->Util->convertV2E($district . " " . $addressLevel[$districtType]['en']);
+                }
+                break;
+            case 'ward':
+                $result = $value->name;
+                $wardType = $value->type;
+                $ward = trim(str_replace($wardType, '', $result));
+
+                if (is_numeric($ward)) {
+                    $result = $this->Util->convertV2E($addressLevel[$wardType]['en'] . " " . $ward);
+                } else {
+                    $result = $this->Util->convertV2E($ward . " " . $addressLevel[$wardType]['en']);
+                }
+                break;
+            case 'street':
+                $result = $this->Util->convertV2E($result);
+                str_replace('DUONG', '', $result);
+                str_replace('SO', '', $result);
+                break;
+        }
+        return $result;
     }
 }
