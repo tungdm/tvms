@@ -2719,10 +2719,10 @@ class OrdersController extends AppController
                 }
             }
             
-            $this->checkData($currentAddress->street, 'TBD');
-            $this->checkData($currentAddress->ward_id, 'TBD');
-            $this->checkData($currentAddress->district_id, 'TBD');
-            $this->checkData($currentAddress->city_id, 'TBD');
+            $this->checkData($currentAddress->street, 'Đường');
+            $this->checkData($currentAddress->ward_id, 'Phường');
+            $this->checkData($currentAddress->district_id, 'Quận');
+            $this->checkData($currentAddress->city_id, 'Tỉnh/Thành phố');
 
             $cmnd = $passport = NULL;
             foreach ($student->cards as $key => $card) {
@@ -2749,8 +2749,8 @@ class OrdersController extends AppController
             ]));
             $this->tbs->VarRef['cmndNo'] = $cmnd->code;
             $this->tbs->VarRef['ppNo'] = $passport->code;
-            $this->tbs->VarRef['doi'] = $passport->from_date->i18nFormat('dd/MM/yyyy');
-            $this->tbs->VarRef['doe'] = $passport->to_date->i18nFormat('dd/MM/yyyy');
+            $this->tbs->VarRef['doi'] = $passport->from_date ? $passport->from_date->i18nFormat('dd/MM/yyyy') : '';
+            $this->tbs->VarRef['doe'] = $passport->to_date ? $passport->to_date->i18nFormat('dd/MM/yyyy') : '';
             $this->tbs->VarRef['male'] = $male;
             $this->tbs->VarRef['female'] = $female;
             $this->tbs->VarRef['phone'] = $student->phone;
@@ -2923,44 +2923,51 @@ class OrdersController extends AppController
 
     public function convertAddressToEng($value, $type)
     {
-        $addressLevel = Configure::read('addressLevel');
-        $result = $value;
-        switch ($type) {
-            case 'city':
-                $result = $value->name;
-                $cityType = $value->type;
-                if ($cityType == 'Thành phố Trung ương') {
-                    $result = $this->Util->convertV2E(str_replace("Thành phố", "", $result) . " " . $addressLevel['Thành phố']['en']);
-                } else {
-                    $result = $this->Util->convertV2E(str_replace($cityType, "", $result) . " " . $addressLevel[$cityType]['en']);
+        $result = '';
+        if (!empty($value)) {
+            try {
+                $addressLevel = Configure::read('addressLevel');
+                $result = $value;
+                switch ($type) {
+                    case 'city':
+                        $result = $value->name;
+                        $cityType = $value->type;
+                        if ($cityType == 'Thành phố Trung ương') {
+                            $result = $this->Util->convertV2E(str_replace("Thành phố", "", $result) . " " . $addressLevel['Thành phố']['en']);
+                        } else {
+                            $result = $this->Util->convertV2E(str_replace($cityType, "", $result) . " " . $addressLevel[$cityType]['en']);
+                        }
+                        break;
+                    case 'district':
+                        $result = $value->name;
+                        $districtType = $value->type;
+                        $district = trim(str_replace($districtType, "", $result));
+                        if (is_numeric($district)) {
+                            $result = $this->Util->convertV2E($addressLevel[$districtType]['en'] . " " . $district);
+                        } else {
+                            $result = $this->Util->convertV2E($district . " " . $addressLevel[$districtType]['en']);
+                        }
+                        break;
+                    case 'ward':
+                        $result = $value->name;
+                        $wardType = $value->type;
+                        $ward = trim(str_replace($wardType, '', $result));
+    
+                        if (is_numeric($ward)) {
+                            $result = $this->Util->convertV2E($addressLevel[$wardType]['en'] . " " . $ward);
+                        } else {
+                            $result = $this->Util->convertV2E($ward . " " . $addressLevel[$wardType]['en']);
+                        }
+                        break;
+                    case 'street':
+                        $result = $this->Util->convertV2E($result);
+                        str_replace('DUONG', '', $result);
+                        str_replace('SO', '', $result);
+                        break;
                 }
-                break;
-            case 'district':
-                $result = $value->name;
-                $districtType = $value->type;
-                $district = trim(str_replace($districtType, "", $result));
-                if (is_numeric($district)) {
-                    $result = $this->Util->convertV2E($addressLevel[$districtType]['en'] . " " . $district);
-                } else {
-                    $result = $this->Util->convertV2E($district . " " . $addressLevel[$districtType]['en']);
-                }
-                break;
-            case 'ward':
-                $result = $value->name;
-                $wardType = $value->type;
-                $ward = trim(str_replace($wardType, '', $result));
-
-                if (is_numeric($ward)) {
-                    $result = $this->Util->convertV2E($addressLevel[$wardType]['en'] . " " . $ward);
-                } else {
-                    $result = $this->Util->convertV2E($ward . " " . $addressLevel[$wardType]['en']);
-                }
-                break;
-            case 'street':
-                $result = $this->Util->convertV2E($result);
-                str_replace('DUONG', '', $result);
-                str_replace('SO', '', $result);
-                break;
+            } catch (Exception $e) {
+                Log::write('debug', $e);
+            }
         }
         return $result;
     }
