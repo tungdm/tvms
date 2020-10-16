@@ -405,22 +405,6 @@ foreach ($permissions as $permission) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="signing_date"><?= __('Ngày ký kết') ?>: </label>
-                            <div class="col-md-8 col-sm-8 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <span id="view-siging-date"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="subsidy"><?= __('Tiền trợ cấp TTS') ?>: </label>
-                            <div class="col-md-8 col-sm-8 col-xs-12">
-                                <div class="form-control form-control-view col-md-7 col-xs-12">
-                                    <span id="view-subsidy"></span> ¥/tháng
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
                             <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
@@ -1060,6 +1044,7 @@ foreach ($permissions as $permission) {
                 </td>
                 <td>
                     <ul>
+                        <li>Ngày ký kết: {{#if _joinData.signing_date}} {{dateTimeFormat _joinData.signing_date}} {{else}} - {{/if}}</li>
                         <li>Tiền trợ cấp TTS: {{#if _joinData.subsidy}} {{numberFormat _joinData.subsidy}}¥/tháng {{else}} - {{/if}}</li>
                         <li>Phí quản lý 3 năm đầu: {{#if _joinData.first_three_years_fee}} {{numberFormat _joinData.first_three_years_fee}}¥ {{else}} - {{/if}}</li>
                         <li>Phí quản lý 2 năm sau: {{#if _joinData.two_years_later_fee}} {{numberFormat _joinData.two_years_later_fee}}¥ {{else}} - {{/if}}</li>

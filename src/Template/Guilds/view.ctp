@@ -120,14 +120,6 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="signing_date"><?= __('Ngày ký kết') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <span id="view-siging-date"><?= $guild->signing_date ?></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
@@ -211,7 +203,8 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                                         <thead>
                                             <tr>
                                                 <th scope="col" class="col-md-1"><?= __('STT') ?></th>
-                                                <th scope="col" class="col-md-3"><?= __('Công ty') ?></th>
+                                                <th scope="col" class="col-md-1"><?= __('Công ty') ?></th>
+                                                <th scope="col" class="col-md-2"><?= __('Ngày ký kết') ?></th>
                                                 <th scope="col" class="col-md-2"><?= __('Tiền trợ cấp TTS') ?></th>
                                                 <th scope="col" class="col-md-2"><?= __('Phí quản lý 3 năm đầu') ?></th>
                                                 <th scope="col" class="col-md-2"><?= __('Phí quản lý 2 năm sau') ?></th>
@@ -221,7 +214,7 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                                         <tbody class="admin-company-container">
                                             <?php if (empty($guild->admin_companies)): ?>
                                             <tr>
-                                                <td colspan="6" class="table-empty"><?= __('Không có dữ liệu') ?></td>
+                                                <td colspan="7" class="table-empty"><?= __('Không có dữ liệu') ?></td>
                                             </tr>
                                             <?php else: ?>
                                             <?php $counter = 0; ?>
@@ -238,6 +231,8 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                                                 <td class="cell">
                                                     <div class="admin-company-txt"><?= $value->alias ?></div>
                                                 </td>
+                                                <td class="cell">
+                                                    <div class="signing-date-txt"><?= $value->_joinData->signing_date ?></div>
                                                 <td class="cell">
                                                     <div class="subsidy-txt">
                                                         <?= isset($subsidy) ? number_format($subsidy) . '¥/tháng' : '-' ?>

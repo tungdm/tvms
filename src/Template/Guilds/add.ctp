@@ -168,22 +168,6 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-5 col-xs-12 optional" for="signing_date"><?= __('Ngày ký kết') ?></label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <div class="input-group date input-picker" id="signing-date">
-                            <?= $this->Form->control('signing_date', [
-                                'type' => 'text',
-                                'label' => false, 
-                                'class' => 'form-control',
-                                'placeholder' => 'dd-mm-yyyy',
-                                ])?>
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label class="control-label col-md-3 col-sm-5 col-xs-12" for="deputy_name">
                         <?= __('Người đại diện') ?> </label>
                     <div class="col-md-7 col-sm-5 col-xs-12">
@@ -299,7 +283,8 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                         <table class="table table-bordered custom-table">
                             <thead>
                                 <tr>
-                                    <th scope="col" class="col-md-3"><?= __('Công ty') ?></th>
+                                    <th scope="col" class="col-md-1"><?= __('Công ty') ?></th>
+                                    <th scope="col" class="col-md-2"><?= __('Ngày ký kết') ?></th>
                                     <th scope="col" class="col-md-2"><?= __('Tiền trợ cấp TTS') ?></th>
                                     <th scope="col" class="col-md-2"><?= __('Phí quản lý 3 năm đầu') ?></th>
                                     <th scope="col" class="col-md-2"><?= __('Phí quản lý 2 năm sau') ?></th>
@@ -316,6 +301,7 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                                         $firstThree = $value->_joinData->first_three_years_fee;
                                         $twoLater = $value->_joinData->two_years_later_fee;
                                         $preTraining = $value->_joinData->pre_training_fee;
+                                        $signingDate = $value->_joinData->signing_date;
                                     ?>
                                     <div class="hidden guild-admin-company-id" id="guild-admin-company-id-<?=$counter?>">
                                         <?= $this->Form->hidden("admin_companies.{$key}._joinData.id") ?>
@@ -330,6 +316,18 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                                                     'required' => true,
                                                     'class' => 'form-control admin-company',
                                                     ]) ?>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <div class="signing-date-txt">
+                                                <?= isset($signingDate) ? $signingDate : '-' ?>
+                                            </div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control("admin_companies.{$key}._joinData.signing_date", [
+                                                    'type' => 'text',
+                                                    'label' => false,
+                                                    'class' => 'form-control signing-date',
+                                                    ])?>
                                             </div>
                                         </td>
                                         <td class="cell">
@@ -448,7 +446,22 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                         <span id="error-admin-company"></span>
                     </div>
                 </div>
-                
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="signing-date"><?= __('Ngày ký kết') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="input-group date input-picker" id="signing-date-div">
+                            <?= $this->Form->control('modal.signing_date', [
+                                'type' => 'text',
+                                'label' => false, 
+                                'class' => 'form-control',
+                                'placeholder' => 'dd-mm-yyyy',
+                                ])?>
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="subsidy"><?= __('Tiền trợ cấp TTS') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
@@ -601,6 +614,17 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                     'class' => 'form-control admin-company',
                     'value' => '{{adminCompanyId}}'
                     ]) ?>
+            </div>
+        </td>
+        <td class="cell">
+            <div class="signing-date-txt">{{signingDateTxt}}</div>
+            <div class="hidden">
+                <?= $this->Form->control('{{signingDate}}', [
+                    'type' => 'text',
+                    'label' => false,
+                    'class' => 'form-control signing-date',
+                    'value' => '{{signingDateVal}}'
+                    ])?>
             </div>
         </td>
         <td class="cell">

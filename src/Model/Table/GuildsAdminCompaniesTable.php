@@ -58,7 +58,6 @@ class GuildsAdminCompaniesTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->date('signing_date')
             ->allowEmpty('signing_date');
 
         $validator

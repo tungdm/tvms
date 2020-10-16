@@ -305,6 +305,10 @@ function createAdminCompanyTemplate(counter) {
         'adminCompany': `admin_companies[${counter}][id]`,
         'adminCompanyId': $('#modal-admin-company').val(),
 
+        'signingDateTxt': $('#modal-signing-date').val(),
+        'signingDate': `admin_companies[${counter}][_joinData][signing_date]`,
+        'signingDateVal': $('#modal-signing-date').val(),
+
         'subsidyTxt': subsidyTxt ? `${subsidyTxt}¥/tháng` : '-',
         'subsidy': `admin_companies[${counter}][_joinData][subsidy]`,
         'subsidyVal': $('#modal-subsidy').val(),
@@ -332,6 +336,8 @@ function showEditAdminCompanyModal(ele) {
     $('#modal-flag').val(adminCompanyId);
 
     $('#modal-admin-company').val(adminCompanyId).trigger('change');
+
+    $('#modal-signing-date').val($row.find('.signing-date').val()).trigger('change');
 
     $('#modal-subsidy-txt').val(numberWithCommas($row.find('.subsidy').val()));
     $('#modal-subsidy').val($row.find('.subsidy').val());

@@ -1364,10 +1364,12 @@ class StudentsController extends AppController
 
             $company = $order->company;
             
-            $subsidy = null;
+            $subsidy = '';
+            $signingDate = '';
             if (!empty($guild->admin_companies)) {
                 foreach ($guild->admin_companies as $value) {
                     $subsidy = $value->_joinData->subsidy;
+                    $signingDate = $value->_joinData->signing_date;
                 }
             }
             $subsidy = $subsidy ? Number::format($order->guild->subsidy, ['locale' => 'ja_JP']) : '';
@@ -1382,7 +1384,6 @@ class StudentsController extends AppController
             $this->checkData($order->application_date, 'Ngày làm hồ sơ');
 
             $cmnd_from_date = '';
-            $signingDate = '';
             $licenseAt = $adminCompany->license_at;
             if ($lang == 'jp') {
                 $adminCompanySignerName = $this->Util->convertV2E($adminCompany->signer_name);
@@ -1401,7 +1402,7 @@ class StudentsController extends AppController
                 $this->checkData($job, 'Tên phiên âm nghề nghiệp phỏng vấn');
 
                 if (!empty($guild)) {
-                    $signingDate = $this->checkData($guild->signing_date, 'Ngày ký kết hiệp định');
+                    $signingDate = $this->checkData($signingDate, 'Ngày ký kết hiệp định');
                     if (!empty($signingDate)) {
                         $signingDate = $signingDate->i18nFormat('yyyy年M月d日');
                     }
@@ -1443,7 +1444,7 @@ class StudentsController extends AppController
                 $this->checkData($job, 'Tên nghề nghiệp phỏng vấn');
 
                 if (!empty($guild)) {
-                    $signingDate = $this->checkData($guild->signing_date, 'Ngày ký kết hiệp định');
+                    $signingDate = $this->checkData($signingDate, 'Ngày ký kết hiệp định');
                     if (!empty($signingDate)) {
                         $signingDate = Text::insert($vnDateFormatFull, [
                             'day' => $signingDate->day, 

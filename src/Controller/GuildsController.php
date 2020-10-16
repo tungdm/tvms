@@ -456,7 +456,8 @@ class GuildsController extends AppController
                             'subsidy' => $guild->subsidy,
                             'first_three_years_fee' => $guild->first_three_years_fee,
                             'two_years_later_fee' => $guild->two_years_later_fee,
-                            'pre_training_fee' => $guild->pre_training_fee
+                            'pre_training_fee' => $guild->pre_training_fee,
+                            'signing_date' => $guild->signing_date
                         ]
                     ]
                 ]
