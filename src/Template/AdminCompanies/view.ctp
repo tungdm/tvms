@@ -95,28 +95,24 @@ $this->assign('title', $adminCompany->alias . ' - Thông tin chi tiết');
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->short_name ?></div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="company-name">
                             <?= __('Tên công ty (đầy đủ)') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->name_vn ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->name_vn ?> <br/>
+                                (<?= $adminCompany->name_en ?>)
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->name_en ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="address">
                             <?= __('Địa chỉ công ty') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->address_vn ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->address_en ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->address_vn ?> <br/>
+                                (<?= $adminCompany->address_en ?>)
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -157,7 +153,7 @@ $this->assign('title', $adminCompany->alias . ' - Thông tin chi tiết');
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="incorporate-date"><?= __('Ngày thành lập') ?></label>
-                        <div class="col-md-7 col-sm-12 col-xs-12">
+                        <div class="col-md-7 col-sm-5 col-xs-12">
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->incorporation_date ?></div>
                         </div>
                     </div>
@@ -216,16 +212,14 @@ $this->assign('title', $adminCompany->alias . ' - Thông tin chi tiết');
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->signer_name ?></div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="signer-role">
                             <?= __('Chức vụ') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->signer_role_vn ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->signer_role_jp ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->signer_role_vn ?> <br/>
+                                <?= $adminCompany->signer_role_jp ?>
+                            </div>
                         </div>
                     </div>
                     <div class="ln_solid"></div>
@@ -236,16 +230,14 @@ $this->assign('title', $adminCompany->alias . ' - Thông tin chi tiết');
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->deputy_name ?></div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="deputy-role">
                             <?= __('Chức vụ') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->deputy_role_vn ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->deputy_role_jp ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->deputy_role_vn ?><br/>
+                                <?= $adminCompany->deputy_role_jp ?>
+                            </div>
                         </div>
                     </div>
                     <div class="ln_solid"></div>
@@ -256,16 +248,14 @@ $this->assign('title', $adminCompany->alias . ' - Thông tin chi tiết');
                             <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->dolab_name ?></div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="dolab-role">
                             <?= __('Chức vụ') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->dolab_role_vn ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->dolab_role_jp ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->dolab_role_vn ?><br/>
+                                <?= $adminCompany->dolab_role_jp ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,28 +265,24 @@ $this->assign('title', $adminCompany->alias . ' - Thông tin chi tiết');
                     <h3 class="box-title"><?= __('Trung tâm đào tạo') ?></h3>
                 </div>
                 <div class="box-body">
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="edu-center-name">
                             <?= __('Trung tâm đào tạo (TTĐT)') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->edu_center_name_vn ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->edu_center_name_vn ?><br/>
+                                <?= $adminCompany->edu_center_name_jp ?>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->edu_center_name_jp ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
+                    <div class="form-group fit-form-group">
                         <label class="control-label col-md-4 col-sm-5 col-xs-12" for="edu-center-address">
                             <?= __('Địa chỉ TTĐT') ?> </label>
                         <div class="col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->edu_center_address_vn ?></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 cold-sm-offset-5 col-md-7 col-sm-5 col-xs-12">
-                            <div class="form-control form-control-view col-md-7 col-xs-12"><?= $adminCompany->edu_center_address_en ?></div>
+                            <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
+                                <?= $adminCompany->edu_center_address_vn ?><br/>
+                                <?= $adminCompany->edu_center_address_en ?>
+                            </div>
                         </div>
                     </div>
                 </div>

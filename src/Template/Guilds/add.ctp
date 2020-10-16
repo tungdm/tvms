@@ -124,6 +124,7 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
         ]
     ]) ?>
 <?= $this->Form->unlockField('companies') ?>
+<?= $this->Form->unlockField('admin_companies') ?>
 <div class="row">
     <div class="col-md-12 col-sm-12 col-xs-12">
         <div class="box">
@@ -179,106 +180,6 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-calendar"></span>
                             </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-5 col-xs-12 optional" for="subsidy"><?= __('Tiền trợ cấp TTS') ?> </label>
-                    <div class="col-md-7 col-sm-5 col-xs-12">
-                        <div class="col-md-5" style="padding-left: 0px">
-                            <?= $this->Form->control('subsidy_txt', [
-                                'label' => false,
-                                'type' => 'text',
-                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
-                                'alias' => 'subsidy', 
-                                'placeholder' => 'Nhập tiền trợ cấp thực tập sinh',
-                                'value' => $guild->subsidy ? number_format($guild->subsidy): ''
-                                ]) ?>
-                            <?= $this->Form->control('subsidy', [
-                                'label' => false,
-                                'type' => 'number',
-                                'id' => 'subsidy',
-                                'min' => '0',
-                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
-                                ]) ?>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-control form-control-view">đơn vị: ¥/tháng</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-5 col-xs-12 optional" for="first-three-years-fee"><?= __('Phí quản lý 3 năm đầu') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-5" style="padding-left: 0px">
-                            <?= $this->Form->control('first_three_years_fee_txt', [
-                                'label' => false,
-                                'type' => 'text',
-                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
-                                'alias' => 'first-three-years-fee', 
-                                'placeholder' => 'Nhập tiền phí quản lý 3 năm đầu',
-                                'value' => $guild->first_three_years_fee ? number_format($guild->first_three_years_fee): ''
-                                ]) ?>
-                            <?= $this->Form->control('first_three_years_fee', [
-                                'label' => false,
-                                'type' => 'number',
-                                'id' => 'first-three-years-fee',
-                                'min' => '0',
-                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
-                                ]) ?>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-control form-control-view">đơn vị: ¥</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-5 col-xs-12 optional" for="two-years-later-fee"><?= __('Phí quản lý 2 năm sau') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-5" style="padding-left: 0px">
-                            <?= $this->Form->control('two_years_later_fee_txt', [
-                                'label' => false,
-                                'type' => 'text',
-                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
-                                'alias' => 'two-years-later-fee', 
-                                'placeholder' => 'Nhập tiền phí quản lý 2 năm sau',
-                                'value' => $guild->two_years_later_fee ? number_format($guild->two_years_later_fee) : ''
-                                ]) ?>
-                            <?= $this->Form->control('two_years_later_fee', [
-                                'label' => false,
-                                'type' => 'number',
-                                'id' => 'two-years-later-fee',
-                                'min' => '0',
-                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
-                                ]) ?>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-control form-control-view">đơn vị: ¥</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-md-3 col-sm-5 col-xs-12 optional" for="pre-training-fee"><?= __('Phí đào tạo trước') ?></label>
-                    <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-5" style="padding-left: 0px">
-                            <?= $this->Form->control('pre_training_fee_txt', [
-                                'label' => false,
-                                'type' => 'text',
-                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
-                                'alias' => 'pre-training-fee', 
-                                'placeholder' => 'Nhập tiền phí đào tạo trước',
-                                'value' => $guild->pre_training_fee ? number_format($guild->pre_training_fee) : ''
-                                ]) ?>
-                            <?= $this->Form->control('pre_training_fee', [
-                                'label' => false,
-                                'type' => 'number',
-                                'id' => 'pre-training-fee',
-                                'min' => '0',
-                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
-                                ]) ?>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="form-control form-control-view">đơn vị: ¥</div>
                         </div>
                     </div>
                 </div>
@@ -387,11 +288,279 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                         </table>
                     </div>
                 </div>
+
+                <div class="ln_solid"></div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-5 col-xs-12" for="admin-company"><?= __('Công ty quản lý') ?></label>
+                    <div class="col-md-9 col-sm-7 col-xs-12 table-responsive">
+                        <button type="button" class="btn btn-primary" onclick="showAddAdminCompany();">
+                            <?= __('Thêm công ty quản lý') ?>
+                        </button>
+                        <table class="table table-bordered custom-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="col-md-3"><?= __('Công ty') ?></th>
+                                    <th scope="col" class="col-md-2"><?= __('Tiền trợ cấp TTS') ?></th>
+                                    <th scope="col" class="col-md-2"><?= __('Phí quản lý 3 năm đầu') ?></th>
+                                    <th scope="col" class="col-md-2"><?= __('Phí quản lý 2 năm sau') ?></th>
+                                    <th scope="col" class="col-md-2"><?= __('Phí đào tạo trước') ?></th>
+                                    <th scope="col" class="col-md-1"><?= __('Thao tác') ?></th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-company-container">
+                                <?php $counter = 0; ?>
+                                <?php if (!empty($guild->admin_companies)): ?>
+                                <?php foreach($guild->admin_companies as $key => $value): ?>
+                                    <?php 
+                                        $subsidy = $value->_joinData->subsidy;
+                                        $firstThree = $value->_joinData->first_three_years_fee;
+                                        $twoLater = $value->_joinData->two_years_later_fee;
+                                        $preTraining = $value->_joinData->pre_training_fee;
+                                    ?>
+                                    <div class="hidden guild-admin-company-id" id="guild-admin-company-id-<?=$counter?>">
+                                        <?= $this->Form->hidden("admin_companies.{$key}._joinData.id") ?>
+                                    <div>
+                                    <tr class="row-admin-company" id="row-admin-company-<?= $counter ?>">
+                                        <td class="cell">
+                                            <div class="admin-company-txt"><?= $value->alias ?></div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control("admin_companies.{$key}.id", [
+                                                    'type' => 'number',
+                                                    'label' => false, 
+                                                    'required' => true,
+                                                    'class' => 'form-control admin-company',
+                                                    ]) ?>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <div class="subsidy-txt">
+                                                <?= isset($subsidy) ? number_format($subsidy) . '¥/tháng' : '-' ?>
+                                            </div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control("admin_companies.{$key}._joinData.subsidy", [
+                                                    'type' => 'number',
+                                                    'label' => false,
+                                                    'class' => 'form-control subsidy',
+                                                    ])?>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <div class="first-three-txt">
+                                                <?= isset($firstThree) ? number_format($firstThree) . '¥' : '-' ?>
+                                            </div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control("admin_companies.{$key}._joinData.first_three_years_fee", [
+                                                    'type' => 'number',
+                                                    'label' => false,
+                                                    'class' => 'form-control first-three',
+                                                    ])?>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <div class="two-later-txt">
+                                                <?= isset($twoLater) ? number_format($twoLater) . '¥' : '-' ?>
+                                            </div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control("admin_companies.{$key}._joinData.two_years_later_fee", [
+                                                    'type' => 'number',
+                                                    'label' => false,
+                                                    'class' => 'form-control two-later',
+                                                    ])?>
+                                            </div>
+                                        </td>
+                                        <td class="cell">
+                                            <div class="pre-training-txt">
+                                                <?= isset($preTraining) ? number_format($preTraining) . '¥' : '-' ?>
+                                            </div>
+                                            <div class="hidden">
+                                                <?= $this->Form->control("admin_companies.{$key}._joinData.pre_training_fee", [
+                                                    'type' => 'number',
+                                                    'label' => false,
+                                                    'class' => 'form-control pre-training',
+                                                    ])?>
+                                            </div>
+                                        </td>
+                                        <td class="cell action-btn actions">
+                                            <?= $this->Html->link(
+                                                '<i class="fa fa-2x fa-pencil"></i>', 
+                                                'javascript:;',
+                                                [
+                                                    'escape' => false,
+                                                    'onClick' => "showEditAdminCompanyModal(this)"
+                                                ]) 
+                                            ?>
+                                            
+                                            <?= $this->Html->link(
+                                                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                                                'javascript:;',
+                                                [
+                                                    'escape' => false, 
+                                                    'onClick' => 'removeAdminCompany(this, true)'
+                                                ]
+                                            )?>
+                                        </td>
+                                    </tr>
+                                <?php $counter++; ?>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>      
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <?= $this->Form->end() ?>
+
+
+<div id="admin-company-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">THÊM CÔNG TY QUẢN LÝ</h4>
+            </div>
+            <div class="modal-body">
+                <?= $this->Form->create(null, [
+                    'type' => 'post',
+                    'class' => 'form-horizontal form-label-left',
+                    'id' => 'admin-company-form',
+                    'data-parsley-validate' => '',
+                    'templates' => [
+                        'inputContainer' => '{{content}}'
+                        ]
+                    ]) ?>
+                <?= $this->Form->hidden('modal.flag', ['id' => 'modal-flag']) ?>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="adminCompany"><?= __('Công ty') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <?= $this->Form->control('modal.admin_company', [
+                            'options' => $adminCompanies, 
+                            'required' => true, 
+                            'empty' => true,
+                            'label' => false, 
+                            'data-parsley-errors-container' => '#error-admin-company',
+                            'data-parsley-class-handler' => '#select2-modal-admin-company',
+                            'data-parsley-not-duplicate-admin-company' => '',
+                            'class' => 'form-control col-md-7 col-xs-12 select2-theme'
+                            ]) ?>
+                        <span id="error-admin-company"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="subsidy"><?= __('Tiền trợ cấp TTS') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="col-md-8" style="padding-left: 0px">
+                            <?= $this->Form->control('modal.subsidy_txt', [
+                                'label' => false,
+                                'type' => 'text',
+                                'id' => 'modal-subsidy-txt',
+                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
+                                'alias' => 'modal-subsidy', 
+                                'placeholder' => 'Nhập tiền trợ cấp thục tập sinh'
+                                ]) ?>
+                            <?= $this->Form->control('modal.subsidy', [
+                                'label' => false,
+                                'type' => 'number',
+                                'id' => 'modal-subsidy',
+                                'min' => '0',
+                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
+                                ]) ?>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-control form-control-view">đơn vị: ¥/tháng</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="first-three-years-fee"><?= __('Phí quản lý 3 năm đầu') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="col-md-8" style="padding-left: 0px">
+                            <?= $this->Form->control('modal.first_three_years_fee_txt', [
+                                'label' => false,
+                                'type' => 'text',
+                                'id' => 'modal-first-three-years-fee-txt',
+                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
+                                'alias' => 'modal-first-three-years-fee', 
+                                'placeholder' => 'Nhập phí quản lý 3 năm đầu'
+                                ]) ?>
+                            <?= $this->Form->control('modal.first_three_years_fee', [
+                                'label' => false,
+                                'type' => 'number',
+                                'id' => 'modal-first-three-years-fee',
+                                'min' => '0',
+                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
+                                ]) ?>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-control form-control-view">đơn vị: ¥</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="two-years-later-fee"><?= __('Phí quản lý 2 năm sau') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="col-md-8" style="padding-left: 0px">
+                            <?= $this->Form->control('modal.two_years_later_fee_txt', [
+                                'label' => false,
+                                'type' => 'text',
+                                'id' => 'modal-two-years-later-fee-txt',
+                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
+                                'alias' => 'modal-two-years-later-fee', 
+                                'placeholder' => 'Nhập phí quản lý 2 năm sau'
+                                ]) ?>
+                            <?= $this->Form->control('modal.two_years_later_fee', [
+                                'label' => false,
+                                'type' => 'number',
+                                'id' => 'modal-two-years-later-fee',
+                                'min' => '0',
+                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
+                                ]) ?>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-control form-control-view">đơn vị: ¥</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="pre-training-fee"><?= __('Phí đào tạo trước') ?></label>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="col-md-8" style="padding-left: 0px">
+                            <?= $this->Form->control('modal.pre_training_fee_txt', [
+                                'label' => false,
+                                'type' => 'text',
+                                'id' => 'modal-pre-training-fee-txt',
+                                'class' => 'form-control col-md-7 col-xs-12 textToNumber',
+                                'alias' => 'modal-pre-training-fee', 
+                                'placeholder' => 'Nhập phí đào tạo trước'
+                                ]) ?>
+                            <?= $this->Form->control('modal.pre_training_fee', [
+                                'label' => false,
+                                'type' => 'number',
+                                'id' => 'modal-pre-training-fee',
+                                'min' => '0',
+                                'class' => 'form-control col-md-7 col-xs-12 hidden', 
+                                ]) ?>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-control form-control-view">đơn vị: ¥</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xs-12">
+                    <p class="footer-note"><strong>Lưu ý:</strong> Sau khi hoàn tất, vui lòng nhấn nút "Lưu lại" trên đầu trang để lưu thông tin.</p>
+                </div>
+            <?= $this->Form->end() ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="submit-admin-company-btn">Hoàn tất</button>
+                <button type="button" class="btn btn-default" id="close-modal-btn" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script id="company-template" type="text/x-handlebars-template">
@@ -413,6 +582,87 @@ $this->Html->script('guild.js', ['block' => 'scriptBottom']);
                 [
                     'escape' => false, 
                     'onClick' => "deleteCompany(this, false)"
+                ]
+            )?>
+        </td>
+    </tr>
+</script>
+
+
+<script id="admin-company-template" type="text/x-handlebars-template">
+    <tr class="row-admin-company" id="row-admin-company-{{counter}}">
+        <td class="cell">
+            <div class="admin-company-txt">{{adminCompanyAlias}}</div>
+            <div class="hidden">
+                <?= $this->Form->control('{{adminCompany}}', [
+                    'type' => 'number',
+                    'label' => false, 
+                    'required' => true,
+                    'class' => 'form-control admin-company',
+                    'value' => '{{adminCompanyId}}'
+                    ]) ?>
+            </div>
+        </td>
+        <td class="cell">
+            <div class="subsidy-txt">{{subsidyTxt}}</div>
+            <div class="hidden">
+                <?= $this->Form->control('{{subsidy}}', [
+                    'type' => 'number',
+                    'label' => false,
+                    'class' => 'form-control subsidy',
+                    'value' => '{{subsidyVal}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell">
+            <div class="first-three-txt">{{firstThreeTxt}}</div>
+            <div class="hidden">
+                <?= $this->Form->control('{{firstThree}}', [
+                    'type' => 'number',
+                    'label' => false,
+                    'class' => 'form-control first-three',
+                    'value' => '{{firstThreeVal}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell">
+            <div class="two-later-txt">{{twoLaterTxt}}</div>
+            <div class="hidden">
+                <?= $this->Form->control('{{twoLater}}', [
+                    'type' => 'number',
+                    'label' => false,
+                    'class' => 'form-control two-later',
+                    'value' => '{{twoLaterVal}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell">
+            <div class="pre-training-txt">{{preTrainingTxt}}</div>
+            <div class="hidden">
+                <?= $this->Form->control('{{preTraining}}', [
+                    'type' => 'number',
+                    'label' => false,
+                    'class' => 'form-control pre-training',
+                    'value' => '{{preTrainingVal}}'
+                    ])?>
+            </div>
+        </td>
+        <td class="cell action-btn actions">
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-pencil"></i>', 
+                'javascript:;',
+                [
+                    'escape' => false,
+                    'onClick' => "showEditAdminCompanyModal(this)"
+                ]) 
+            ?>
+            
+            <?= $this->Html->link(
+                '<i class="fa fa-2x fa-remove" style="font-size: 2.3em;"></i>',
+                'javascript:;',
+                [
+                    'escape' => false, 
+                    'onClick' => 'removeAdminCompany(this, false)'
                 ]
             )?>
         </td>

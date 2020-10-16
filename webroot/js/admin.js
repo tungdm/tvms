@@ -1268,10 +1268,8 @@ function globalViewGuild(guildId, overlayId) {
                 $('#view-deputy-romaji').html(resp.data.deputy_name_romaji);
                 $('#view-deputy-kanji').html(resp.data.deputy_name_kanji);
 
-                var source = $("#guild-company-template").html();
-                var template = Handlebars.compile(source);
-                var html = template(resp.data.companies);
-                $('#view-company-container').html(html);
+                $('#view-company-container').html(generateTemplate(resp.data.companies, 'guild-company-template'));
+                $('#view-admin-company-container').html(generateTemplate(resp.data.admin_companies, 'guild-admin-company-template'));
 
                 if (resp.data.created_by_user) {
                     $('#view-guild-created-by').html(resp.data.created_by_user.fullname);
@@ -1317,6 +1315,12 @@ function globalViewGuild(guildId, overlayId) {
             $(overlayId).addClass('hidden');
         }
     });
+}
+
+function generateTemplate(data, templateId) {
+    var source = $(`#${templateId}`).html();
+    var template = Handlebars.compile(source);
+    return template(data);
 }
 
 function globalViewCompany(companyId, overlayId) {
@@ -2302,6 +2306,10 @@ Handlebars.registerHelper("calAge", function (value, options) {
 
 Handlebars.registerHelper("nl2br", function (value, options) {
     return value.replace(/\r?\n/g, '<br/>');
+});
+
+Handlebars.registerHelper("numberFormat", function (value, options) {
+    return numberWithCommas(value.toString());
 });
 
 function convertDate(value) {

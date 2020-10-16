@@ -1347,6 +1347,7 @@ class StudentsController extends AppController
                     'Jobs',
                     'Companies',
                     'Guilds',
+                    'Guilds.AdminCompanies',
                     'AdminCompanies'
                 ]
             ]);
@@ -1362,9 +1363,14 @@ class StudentsController extends AppController
             $guild = $order->guild;
 
             $company = $order->company;
-
-            $subsidy = $order->guild->subsidy ? Number::format($order->guild->subsidy, ['locale' => 'ja_JP']) : '';
-
+            
+            $subsidy = null;
+            if (!empty($guild->admin_companies)) {
+                foreach ($guild->admin_companies as $value) {
+                    $subsidy = $value->_joinData->subsidy;
+                }
+            }
+            $subsidy = $subsidy ? Number::format($order->guild->subsidy, ['locale' => 'ja_JP']) : '';
             $studentName_VN = mb_strtoupper($student->fullname);
             $studentName_EN = $this->Util->convertV2E($studentName_VN);
             $studentNameArr = explode(' ', $studentName_EN);

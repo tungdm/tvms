@@ -128,38 +128,6 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="subsidy"><?= __('Tiền trợ cấp TTS') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <span id="view-subsidy"><?= number_format($guild->subsidy) ?></span> ¥/tháng
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="first-three-years-fee"><?= __('Phí quản lý 3 năm đầu') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <span id="view-subsidy"><?= number_format($guild->first_three_years_fee) ?></span> ¥
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="two-years-later-fee"><?= __('Phí quản lý 2 năm sau') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <span id="view-subsidy"><?= number_format($guild->two_years_later_fee) ?></span> ¥
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="control-label col-md-5 col-sm-5 col-xs-12" for="pre-training-fee"><?= __('Phí đào tạo trước') ?>: </label>
-                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                            <div class="form-control form-control-view col-md-7 col-xs-12">
-                                                <span id="view-subsidy"><?= number_format($guild->pre_training_fee) ?></span> ¥
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
                                         <div class="col-md-6 col-sm-6 col-xs-12">
                                             <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
@@ -230,6 +198,71 @@ $this->assign('title', $guild->name_romaji . ' - Thông tin chi tiết');
                                         </div>
                                     </div>
                                     <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-xs-12 no-padding">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title"><?= __('Danh sách công ty quản lý') ?></h3>
+                                </div>
+                                <div class="box-body table-responsive">
+                                    <table class="table table-bordered custom-table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                                <th scope="col" class="col-md-3"><?= __('Công ty') ?></th>
+                                                <th scope="col" class="col-md-2"><?= __('Tiền trợ cấp TTS') ?></th>
+                                                <th scope="col" class="col-md-2"><?= __('Phí quản lý 3 năm đầu') ?></th>
+                                                <th scope="col" class="col-md-2"><?= __('Phí quản lý 2 năm sau') ?></th>
+                                                <th scope="col" class="col-md-2"><?= __('Phí đào tạo trước') ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="admin-company-container">
+                                            <?php if (empty($guild->admin_companies)): ?>
+                                            <tr>
+                                                <td colspan="6" class="table-empty"><?= __('Không có dữ liệu') ?></td>
+                                            </tr>
+                                            <?php else: ?>
+                                            <?php $counter = 0; ?>
+                                            <?php foreach ($guild->admin_companies as $value): ?>
+                                            <?php 
+                                                $counter++;
+                                                $subsidy = $value->_joinData->subsidy;
+                                                $firstThree = $value->_joinData->first_three_years_fee;
+                                                $twoLater = $value->_joinData->two_years_later_fee;
+                                                $preTraining = $value->_joinData->pre_training_fee;
+                                            ?>
+                                            <tr class="row-admin-company">
+                                                <td class="cell text-center"><?= h($counter) ?></td>
+                                                <td class="cell">
+                                                    <div class="admin-company-txt"><?= $value->alias ?></div>
+                                                </td>
+                                                <td class="cell">
+                                                    <div class="subsidy-txt">
+                                                        <?= isset($subsidy) ? number_format($subsidy) . '¥/tháng' : '-' ?>
+                                                    </div>
+                                                </td>
+                                                <td class="cell">
+                                                    <div class="first-three-txt">
+                                                        <?= isset($firstThree) ? number_format($firstThree) . '¥' : '-' ?>
+                                                    </div>
+                                                </td>
+                                                <td class="cell">
+                                                    <div class="two-later-txt">
+                                                        <?= isset($twoLater) ? number_format($twoLater) . '¥' : '-' ?>
+                                                    </div>
+                                                </td>
+                                                <td class="cell">
+                                                    <div class="pre-training-txt">
+                                                        <?= isset($preTraining) ? number_format($preTraining) . '¥' : '-' ?>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

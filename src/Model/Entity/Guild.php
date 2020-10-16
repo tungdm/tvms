@@ -38,15 +38,12 @@ class Guild extends Entity
         'license_number' => true,
         'signing_date' => true,
         'address_kanji' => true,
-        'first_three_years_fee' => true,
-        'two_years_later_fee' => true,
-        'pre_training_fee' => true,
-        'subsidy' => true,
         'del_flag' => true,
         'created' => true,
         'created_by' => true,
         'modified' => true,
         'modified_by' => true,
-        'companies' => true
+        'companies' => true,
+        'admin_companies' => true
     ];
 }

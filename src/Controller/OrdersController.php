@@ -2571,7 +2571,9 @@ class OrdersController extends AppController
             $this->tbs->VarRef['f1JP'] = number_format($adminCompanies->basic_training_fee_jp);
 
             $this->tbs->VarRef['f2VN'] = number_format($adminCompanies->training_fee_vn);
+            $this->tbs->VarRef['f21VN'] = number_format(round($adminCompanies->training_fee_vn/3));
             $this->tbs->VarRef['f2JP'] = number_format($adminCompanies->training_fee_jp);
+            $this->tbs->VarRef['f21JP'] = number_format(round($adminCompanies->training_fee_jp/3));
 
             $this->tbs->VarRef['f3VN'] = number_format($adminCompanies->oriented_fee_vn);
             $this->tbs->VarRef['f3JP'] = number_format($adminCompanies->oriented_fee_jp);
@@ -2672,6 +2674,7 @@ class OrdersController extends AppController
                 'AdminCompanies',
                 'Guilds',
             ]]);
+            $this->checkData($order->dis_company, 'Công ty phái cử');
             $student = $this->Orders->Students->get($query['studentId'], [
                 'contain' => [
                     'Addresses',
@@ -2719,10 +2722,11 @@ class OrdersController extends AppController
                 }
             }
             
-            $this->checkData($currentAddress->street, 'Đường');
-            $this->checkData($currentAddress->ward_id, 'Phường');
-            $this->checkData($currentAddress->district_id, 'Quận');
-            $this->checkData($currentAddress->city_id, 'Tỉnh/Thành phố');
+            $this->checkData($householdAddress->street, 'Hộ khẩu thường trú: Số nhà - Đường');
+            $this->checkData($currentAddress->street, 'Nơi ở hiện tại: Số nhà - Đường');
+            $this->checkData($currentAddress->ward_id, 'Nơi ở hiện tại: Phường/Xã');
+            $this->checkData($currentAddress->district_id, 'Nơi ở hiện tại: Quận/Huyện');
+            $this->checkData($currentAddress->city_id, 'Nơi ở hiện tại: Tỉnh/Thành phố');
 
             $cmnd = $passport = NULL;
             foreach ($student->cards as $key => $card) {
@@ -2764,9 +2768,9 @@ class OrdersController extends AppController
             $this->tbs->VarRef['cpTel'] = $order->company->phone_jp;
             $this->tbs->VarRef['cpAddress'] = $order->company->address_romaji;
 
-            $this->tbs->VarRef['disCpName'] = $order->dis_company->name_kanji;
-            $this->tbs->VarRef['disCpTel'] = $order->dis_company->phone_vn;
-            $this->tbs->VarRef['disCpAddress'] = $order->dis_company->address_romaji;
+            $this->tbs->VarRef['disCpName'] = $order->dis_company ? $order->dis_company->name_kanji : '';
+            $this->tbs->VarRef['disCpTel'] = $order->dis_company ? $order->dis_company->phone_vn : '';
+            $this->tbs->VarRef['disCpAddress'] = $order->dis_company ? $order->dis_company->address_romaji : '';
 
             $this->tbs->VarRef['guildName'] = $order->guild->name_romaji;
             $this->tbs->VarRef['guildTel'] = $order->guild->phone_jp;

@@ -37,6 +37,12 @@ class AdminCompaniesTable extends Table
         $this->addBehavior('Timestamp');
         $this->addBehavior('Author');
 
+        $this->belongsToMany('Guilds', [
+            'foreignKey' => 'admin_company_id',
+            'targetForeignKey' => 'guild_id',
+            'joinTable' => 'guilds_admin_companies'
+        ]);
+
         $this->belongsTo('CreatedByUsers', [
             'foreignKey' => 'created_by',
             'className' => 'Users'

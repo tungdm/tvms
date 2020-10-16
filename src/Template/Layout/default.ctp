@@ -388,8 +388,8 @@ foreach ($permissions as $permission) {
                 <div class="modal-body">
                     <div class="form-horizontal form-label-left">
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="name"><?= __('Tên nghiệp đoàn') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name"><?= __('Tên nghiệp đoàn') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-name-romaji"></span><br/>
                                     <span id="view-name-kanji"></span>
@@ -397,32 +397,32 @@ foreach ($permissions as $permission) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="license_num"><?= __('Số giấy phép') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="license_num"><?= __('Số giấy phép') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-license-number"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="signing_date"><?= __('Ngày ký kết') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="signing_date"><?= __('Ngày ký kết') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-siging-date"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="subsidy"><?= __('Tiền trợ cấp TTS') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="subsidy"><?= __('Tiền trợ cấp TTS') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-subsidy"></span> ¥/tháng
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="deputy"><?= __('Người đại diện') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-deputy-romaji"></span><br/>
                                     <span id="view-deputy-kanji">
@@ -430,8 +430,8 @@ foreach ($permissions as $permission) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="address"><?= __('Địa chỉ') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span id="view-address-romaji"></span><br/>
                                     <span id="view-address-kanji"></span>
@@ -439,8 +439,8 @@ foreach ($permissions as $permission) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="phone"><?= __('Số điện thoại') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12 fit-div">
                                     <span>(Việt Nam) <span id="view-phone-vn"></span></span><br/>
                                     <span>(Nhật Bản) <span id="view-phone-jp"></span></span>
@@ -448,12 +448,12 @@ foreach ($permissions as $permission) {
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="company"><?= __('Công ty tiếp nhận') ?></label>
-                            <div class="col-md-6 col-sm-6 col-xs-12 table-responsive">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="company"><?= __('Công ty tiếp nhận') ?></label>
+                            <div class="col-md-8 col-sm-8 col-xs-12 table-responsive">
                                 <table class="table table-bordered custom-table">
                                     <thead>
                                         <tr>
-                                            <th scope="col" class="col-md-2"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
                                             <th scope="col" class="col-md-10"><?= __('Công ty') ?></th>
                                         </tr>
                                     </thead>
@@ -464,32 +464,50 @@ foreach ($permissions as $permission) {
                         <div class="ln_solid"></div>
 
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="admin-company"><?= __('Công ty quản lý') ?></label>
+                            <div class="col-md-8 col-sm-8 col-xs-12 table-responsive">
+                                <table class="table table-bordered custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="col-md-1"><?= __('STT') ?></th>
+                                            <th scope="col" class="col-md-3"><?= __('Công ty') ?></th>
+                                            <th scope="col" class="col-md-8"><?= __('Thông tin khác') ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="view-admin-company-container" class="admin-company-container"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="created_by"><?= __('Người tạo') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-guild-created-by"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="created"><?= __('Thời gian khởi tạo') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-guild-created"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group modified">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12 " for="modified_by"><?= __('Người sửa cuối') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12 " for="modified_by"><?= __('Người sửa cuối') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-guild-modified-by"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group modified">
-                            <label class="control-label col-md-5 col-sm-5 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
-                            <div class="col-md-6 col-sm-6 col-xs-12">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="modified"><?= __('Thời gian sửa cuối') ?>: </label>
+                            <div class="col-md-8 col-sm-8 col-xs-12">
                                 <div class="form-control form-control-view col-md-7 col-xs-12">
                                     <span id="view-guild-modified"></span>
                                 </div>
@@ -1012,7 +1030,7 @@ foreach ($permissions as $permission) {
         {{/each}}
     </script>
 
-    <!-- global guild template -->
+    <!-- global guild comnpany template -->
     <script id="guild-company-template" type="text/x-handlebars-template">
         {{#each this}}
             <tr class="row-company">
@@ -1026,6 +1044,32 @@ foreach ($permissions as $permission) {
         {{else}}
             <tr>
                 <td colspan="3" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
+            </tr>
+        {{/each}}
+    </script>
+
+    <!-- global guild admin comnpany template -->
+    <script id="guild-admin-company-template" type="text/x-handlebars-template">
+        {{#each this}}
+            <tr class="row-admin-company">
+                <td class="cell stt-col text-center">
+                    {{inc @index}}
+                </td>
+                <td class="cell">
+                    {{alias}}
+                </td>
+                <td>
+                    <ul>
+                        <li>Tiền trợ cấp TTS: {{#if _joinData.subsidy}} {{numberFormat _joinData.subsidy}}¥/tháng {{else}} - {{/if}}</li>
+                        <li>Phí quản lý 3 năm đầu: {{#if _joinData.first_three_years_fee}} {{numberFormat _joinData.first_three_years_fee}}¥ {{else}} - {{/if}}</li>
+                        <li>Phí quản lý 2 năm sau: {{#if _joinData.two_years_later_fee}} {{numberFormat _joinData.two_years_later_fee}}¥ {{else}} - {{/if}}</li>
+                        <li>Phí đào tạo trước: {{#if _joinData.pre_training_fee}} {{numberFormat _joinData.pre_training_fee}}¥ {{else}} - {{/if}}</li>
+                    </ul>
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                <td colspan="6" class="table-empty"><?= __('Hiện tại không có dữ liệu') ?></td>
             </tr>
         {{/each}}
     </script>

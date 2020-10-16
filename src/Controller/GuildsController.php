@@ -146,6 +146,9 @@ class GuildsController extends AppController
                 'CreatedByUsers',
                 'ModifiedByUsers',
                 'Companies' => ['sort' => ['Companies.name_romaji' => 'ASC']],
+                'AdminCompanies' => function($q) {
+                    return $q->where(['AdminCompanies.deleted' => FALSE])->order(['AdminCompanies.alias' => 'ASC']);
+                },
                 // 'InstallmentFees' => ['sort' => ['Installments.name' => 'ASC']],
                 'InstallmentFees' => ['sort' => [
                     // 'Installments.created' => 'DESC',
@@ -182,26 +185,18 @@ class GuildsController extends AppController
         ];
 
         try {
-            if ($this->Auth->user('role_id') == 1) {
-                $guild = $this->Guilds->get($guildId, [
-                    'contain' => [
-                        'CreatedByUsers',
-                        'ModifiedByUsers',
-                        'Companies'
-                    ]
-                ]);
-            } else {
-                $guild = $this->Guilds->get($guildId, [
-                    'contain' => [
-                        'CreatedByUsers',
-                        'ModifiedByUsers',
-                        'Companies' => function($q) {
-                            return $q->where(['Companies.del_flag' => FALSE]);
-                        }
-                    ]
-                ]);
-            }
-            
+            $guild = $this->Guilds->get($guildId, [
+                'contain' => [
+                    'CreatedByUsers',
+                    'ModifiedByUsers',
+                    'Companies' => function($q) {
+                        return $q->where(['Companies.del_flag' => FALSE]);
+                    },
+                    'AdminCompanies' => function($q) {
+                        return $q->where(['AdminCompanies.deleted' => FALSE])->order(['AdminCompanies.alias' => 'ASC']);
+                    },
+                ]
+            ]);
             $resp = [
                 'status' => 'success',
                 'data' => $guild,
@@ -229,9 +224,12 @@ class GuildsController extends AppController
                         'del_flag' => FALSE
                         ])
                     ->order(['name_romaji' => 'ASC']); // cty tiep nhan
+        $adminCompanies = $this->Guilds->AdminCompanies->find('list')
+                    ->where(['deleted' => FALSE])
+                    ->order(['alias' => 'ASC']);
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
+            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies', 'AdminCompanies']]);
             $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'add');
             if ($this->Guilds->save($guild)) {
                 $this->Flash->success(Text::insert($this->successMessage['add'], [
@@ -243,7 +241,7 @@ class GuildsController extends AppController
             }
             return $this->redirect(['action' => 'index']);
         }
-        $this->set(compact('guild', 'companies'));
+        $this->set(compact('guild', 'companies', 'adminCompanies'));
     }
 
     /**
@@ -261,26 +259,23 @@ class GuildsController extends AppController
                         'del_flag' => FALSE
                         ])
                     ->order(['name_romaji' => 'ASC']); 
+        $adminCompanies = $this->Guilds->AdminCompanies->find('list')
+                    ->where(['deleted' => FALSE])
+                    ->order(['alias' => 'ASC']);
         // get guild data
-        if ($this->Auth->user('role_id') == 1) {
-            $guild = $this->Guilds->get($id, [
-                'contain' => [
-                    'Companies' => ['sort' => ['Companies.name_romaji' => 'ASC']]
-                ]
-            ]);
-        } else {
-            $guild = $this->Guilds->get($id, [
-                'contain' => [
-                    'Companies' => function($q) {
-                        return $q->where(['Companies.del_flag' => FALSE])->order(['Companies.name_romaji' => 'ASC']);
-                    }
-                ]
-            ]);
-        }
+        $guild = $this->Guilds->get($id, [
+            'contain' => [
+                'Companies' => function($q) {
+                    return $q->where(['Companies.del_flag' => FALSE])->order(['Companies.name_romaji' => 'ASC']);
+                },
+                'AdminCompanies' => function($q) {
+                    return $q->where(['AdminCompanies.deleted' => FALSE])->order(['AdminCompanies.alias' => 'ASC']);
+                }
+            ]
+        ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
             $delCompanies = [];
-            // $guild = $this->Guilds->get($data['id'], ['contain' => ['Companies']]);
             if (!empty($guild->companies)) {
                 foreach ($guild->companies as $key => $company) {
                     if ($company->_joinData->del_flag) {
@@ -296,7 +291,7 @@ class GuildsController extends AppController
                     }
                 }
             }
-            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies']]);
+            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['Companies', 'AdminCompanies']]);
             $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
             if ($this->Guilds->save($guild)) {
                 $this->Flash->success(Text::insert($this->successMessage['edit'], [
@@ -307,7 +302,7 @@ class GuildsController extends AppController
             }
             $this->Flash->error($this->errorMessage['error']);
         }
-        $this->set(compact('guild', 'companies'));
+        $this->set(compact('guild', 'companies', 'adminCompanies'));
         $this->render('/Guilds/add');
     }
 
@@ -413,6 +408,63 @@ class GuildsController extends AppController
         }
 
         return $this->jsonResponse($resp);
+    }
+
+    public function deleteGuildAdminCompany($id = null)
+    {
+        $this->request->allowMethod('ajax');
+        $resp = [
+            'status' => 'error',
+            'alert' => [
+                'title' => 'Lỗi',
+                'type' => 'error',
+                'message' => $this->errorMessage['error']
+            ]
+        ];
+        try {
+            $table = TableRegistry::get('GuildsAdminCompanies');
+            $record = $table->get($id);
+            $guildId = $record->guild_id;
+            $guild = $this->Guilds->get($guildId);
+            $guild = $this->Guilds->setAuthor($guild, $this->Auth->user('id'), 'edit');
+            if ($table->delete($record) && $this->Guilds->save($guild)) {
+                $resp = [
+                    'status' => 'success',
+                    'alert' => [
+                        'title' => 'Thành Công',
+                        'type' => 'success',
+                        'message' => 'Đã xóa thành công dữ liệu'
+                    ]
+                ];
+            }
+    
+        } catch (Exception $e) {
+            Log::write('debug', $e);
+        }
+        return $this->jsonResponse($resp);
+    }
+
+    public function migrate()
+    {
+        $guilds = $this->Guilds->find('all')->where(['del_flag' => false]);
+        foreach ($guilds as $key => $guild) {
+            $data = [
+                'admin_companies' => [
+                    (int) 1 => [
+                        'id' => '1',
+                        '_joinData' => [
+                            'subsidy' => $guild->subsidy,
+                            'first_three_years_fee' => $guild->first_three_years_fee,
+                            'two_years_later_fee' => $guild->two_years_later_fee,
+                            'pre_training_fee' => $guild->pre_training_fee
+                        ]
+                    ]
+                ]
+            ];
+            $guild = $this->Guilds->patchEntity($guild, $data, ['associated' => ['AdminCompanies']]);
+            $this->Guilds->save($guild);
+        }
+        return $this->redirect(['action' => 'index']);
     }
 
     public function recoverCompany()

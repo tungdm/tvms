@@ -468,7 +468,6 @@ class InstallmentsController extends AppController
         ];
         try {
             $fees = $this->Installments->InstallmentFees->get($id);
-            Log::write('debug', $fees);
             if ($this->Installments->InstallmentFees->delete($fees)) {
                 $resp = [
                     'status' => 'success',

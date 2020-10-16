@@ -1,8 +1,10 @@
 var data = {};
 data.counter = 0;
+data.adminCompanyCounter = 0;
 
 $(document).ready(function () {
     data.counter = $('#add-company-container > tr').length;
+    data.adminCompanyCounter = $('#admin-company-container > tr').length;
 
     if ($('#guilds-tabs')[0]) {
         $('#guilds-tabs').tabCollapse();
@@ -19,6 +21,12 @@ $(document).ready(function () {
         }
     });
 
+    $('.submit-installment-btn').click(function () {
+        var validateResult = $('#add-installment-form').parsley().validate();
+        if (validateResult) {
+            $('#add-installment-form')[0].submit();
+        }
+    });
 
     // custom validator for select2
     window.Parsley.addValidator('notDuplicateCompany', {
@@ -36,6 +44,21 @@ $(document).ready(function () {
                 }
                 selectedValues.push(selected);
 
+            });
+            return selectedValues.indexOf(value) < 0;
+        },
+        messages: {
+            vn: 'Thông tin bị trùng',
+        }
+    });
+
+    window.Parsley.addValidator('notDuplicateAdminCompany', {
+        validateString: function (value, requirement, parsleyField) {
+            var selectedValues = [];
+            $('.admin-company').each(function (index) {
+                if ($(this).val() != $('#modal-flag').val()) {
+                    selectedValues.push($(this).val());
+                }
             });
             return selectedValues.indexOf(value) < 0;
         },
@@ -238,4 +261,175 @@ function recoverCompany(ele, recordId, deletedCompanyId) {
             });
         }
     });
+}
+
+
+function showAddAdminCompany() {
+    resetAdminCompanyForm();
+    // replace submit btn
+    $('#submit-admin-company-btn').remove();
+    $('<button type="button" class="btn btn-success" id="submit-admin-company-btn" onclick="addAdminCompany()">Hoàn tất</button>').insertBefore('#close-modal-btn');
+    // show modal
+    toggleModal('admin-company-modal');
+}
+
+
+function resetAdminCompanyForm() {
+    $('#admin-company-form')[0].reset();
+    $('#modal-flag').val(null);
+    $('#modal-admin-company').val(null).trigger('change');
+    $('#admin-company-form').parsley().reset();
+}
+
+function addAdminCompany() {
+    var validateResult = $('#admin-company-form').parsley().validate();
+    if (validateResult) {
+        var adminCompanyHtml = createAdminCompanyTemplate(data.adminCompanyCounter);
+        $('#admin-company-container').prepend(adminCompanyHtml);
+        // close modal
+        toggleModal('admin-company-modal');
+        resetAdminCompanyForm();
+        data.adminCompanyCounter++;
+    }
+}
+
+function createAdminCompanyTemplate(counter) {
+    var template = Handlebars.compile($('#admin-company-template').html());
+    var subsidyTxt = $('#modal-subsidy-txt').val();
+    var firstThreeTxt = $('#modal-first-three-years-fee-txt').val();
+    var twoLaterTxt = $('#modal-two-years-later-fee-txt').val();
+    var preTrainingTxt = $('#modal-pre-training-fee-txt').val();
+    return template({
+        'counter': counter,
+        'adminCompanyAlias': $('#modal-admin-company option:selected').html(),
+        'adminCompany': `admin_companies[${counter}][id]`,
+        'adminCompanyId': $('#modal-admin-company').val(),
+
+        'subsidyTxt': subsidyTxt ? `${subsidyTxt}¥/tháng` : '-',
+        'subsidy': `admin_companies[${counter}][_joinData][subsidy]`,
+        'subsidyVal': $('#modal-subsidy').val(),
+
+        'firstThreeTxt': firstThreeTxt ? `${firstThreeTxt}¥` : '-',
+        'firstThree': `admin_companies[${counter}][_joinData][first_three_years_fee]`,
+        'firstThreeVal': $('#modal-first-three-years-fee').val(),
+
+        'twoLaterTxt': twoLaterTxt ? `${twoLaterTxt}¥` : '-',
+        'twoLater': `admin_companies[${counter}][_joinData][two_years_later_fee]`,
+        'twoLaterVal': $('#modal-two-years-later-fee').val(),
+
+        'preTrainingTxt': preTrainingTxt ? `${preTrainingTxt}¥` : '-',
+        'preTraining': `admin_companies[${counter}][_joinData][pre_training_fee]`,
+        'preTrainingVal': $('#modal-pre-training-fee').val(),
+    });
+}
+
+function showEditAdminCompanyModal(ele) {
+    resetAdminCompanyForm();
+    var $row = $(ele).closest('.row-admin-company');
+    var rowIdArr = $row.attr('id').split('-');
+    var adminCompanyId = $row.find('.admin-company').val();
+
+    $('#modal-flag').val(adminCompanyId);
+
+    $('#modal-admin-company').val(adminCompanyId).trigger('change');
+
+    $('#modal-subsidy-txt').val(numberWithCommas($row.find('.subsidy').val()));
+    $('#modal-subsidy').val($row.find('.subsidy').val());
+
+    $('#modal-first-three-years-fee-txt').val(numberWithCommas($row.find('.first-three').val()));
+    $('#modal-first-three-years-fee').val($row.find('.first-three').val());
+
+    $('#modal-two-years-later-fee-txt').val(numberWithCommas($row.find('.two-later').val()));
+    $('#modal-two-years-later-fee').val($row.find('.two-later').val());
+
+    $('#modal-pre-training-fee-txt').val(numberWithCommas($row.find('.pre-training').val()));
+    $('#modal-pre-training-fee').val($row.find('.pre-training').val());
+
+    // replace submit btn
+    $('#submit-admin-company-btn').remove();
+    $(`<button type="button" class="btn btn-success" id="submit-admin-company-btn" onclick="editAdminCompany(${rowIdArr[rowIdArr.length - 1]})">Hoàn tất</button>`).insertBefore('#close-modal-btn');
+
+    // show modal
+    toggleModal('admin-company-modal');
+}
+
+function editAdminCompany(rowNum) {
+    var validateResult = $('#admin-company-form').parsley().validate();
+    if (validateResult) {
+        var adminCompanyHtml = createAdminCompanyTemplate(rowNum);
+        $(`#row-admin-company-${rowNum}`).replaceWith(adminCompanyHtml);
+        // close modal
+        toggleModal('admin-company-modal');
+        resetAdminCompanyForm();
+    }
+}
+
+function removeAdminCompany(ele, sendAjax) {
+    if (sendAjax) {
+        swal({
+            title: 'Xóa công ty quản lý',
+            text: "Bạn không thể hồi phục được thông tin nếu đã xóa!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#222d32',
+            cancelButtonText: 'Đóng',
+            confirmButtonText: 'Vâng, tôi muốn xóa!'
+        }).then((result) => {
+            if (result.value) {
+                // send ajax delete request to server
+                var rowIdArr = $(ele).closest('.row-admin-company').attr('id').split('-');
+                var rowId = rowIdArr[rowIdArr.length - 1];
+                var id = $(`#guild-admin-company-id-${rowId}`).find('input').val();
+                $.ajax({
+                    type: 'POST',
+                    url: DOMAIN_NAME + `/guilds/deleteGuildAdminCompany/${id}`,
+                    success: function (resp) {
+                        swal({
+                            title: resp.alert.title,
+                            text: resp.alert.message,
+                            type: resp.alert.type
+                        })
+                        if (resp.status == 'success') {
+                            deleteAdminCompanyRow(ele, rowId);
+                        }
+                    }
+                });
+            }
+        })
+    } else {
+        deleteAdminCompanyRow(ele);
+    }
+}
+
+function deleteAdminCompanyRow(delEl, hiddenId) {
+    // remove DOM
+    $(delEl).closest('tr.row-admin-company').remove();
+    if (hiddenId) {
+        // case: remove hidden id field of record exists in database
+        $(`#guild-admin-company-id-${hiddenId}`).remove();
+    }
+    data.adminCompanyCounter--;
+    var idFields = $('.guild-admin-company-id').find('input');
+    var $container = $('#admin-company-container');
+    var rows = $('#admin-company-container > tr');
+    var inputFields = $container.find('.form-control');
+
+    if (rows.length >= 1) {
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].id = `row-admin-company-${i}`;
+            if (hiddenId) {
+                $('.guild-admin-company-id')[i].id = `guild-admin-company-id-${i}`;
+                idFields[i].name = `admin_companies[${i}][_joinData][id]`;
+            }
+        }
+    }
+
+    for (var i = 0; i < inputFields.length; i++) {
+        inputFields[i].name = inputFields[i].name.replace(/(?<=\[)\d+(?=\])/g, Math.floor(i / 5));
+    }
+}
+
+function toggleModal(id) {
+    $(`#${id}`).modal('toggle');
 }

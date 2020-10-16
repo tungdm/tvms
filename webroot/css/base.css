@@ -223,7 +223,7 @@ blockquote {
 }
 
 label.optional {
-    font-weight: 500;
+    font-weight: 400;
     font-style: italic;
 }
 
@@ -467,6 +467,10 @@ label.optional {
 
 .fit-div {
     height: auto;
+}
+
+.fit-form-group {
+    margin-bottom: auto;
 }
 
 .login-input {

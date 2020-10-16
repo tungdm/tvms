@@ -49,6 +49,12 @@ class GuildsTable extends Table
             'targetForeignKey' => 'company_id',
             'joinTable' => 'guilds_companies',
         ]);
+        
+        $this->belongsToMany('AdminCompanies', [
+            'foreignKey' => 'guild_id',
+            'targetForeignKey' => 'admin_company_id',
+            'joinTable' => 'guilds_admin_companies',
+        ]);
 
         $this->belongsTo('CreatedByUsers', [
             'foreignKey' => 'created_by',
