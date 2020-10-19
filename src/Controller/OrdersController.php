@@ -2745,8 +2745,7 @@ class OrdersController extends AppController
             $this->tbs->VarRef['givenMiddleNames'] = $studentGivenMiddleNames;
             $this->tbs->VarRef['bd'] = $student->birthday->i18nFormat('dd/MM/yyyy');
             $this->tbs->VarRef['householdAddress'] = $this->convertAddressToEng($householdAddress->city, 'city') . ', VIETNAM';
-            $this->tbs->VarRef['currentAddress'] = trim(Text::insert(':street, :ward, :district, :city', [
-                'street' => $this->convertAddressToEng($currentAddress->street, 'street'),
+            $this->tbs->VarRef['currentAddress'] = trim(Text::insert(':ward, :district, :city', [
                 'ward' => $this->convertAddressToEng($currentAddress->ward, 'ward'),
                 'district' => $this->convertAddressToEng($currentAddress->district, 'district'),
                 'city' => $this->convertAddressToEng($currentAddress->city, 'city')
