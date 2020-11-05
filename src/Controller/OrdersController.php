@@ -2687,10 +2687,13 @@ class OrdersController extends AppController
             $studentNameVN = mb_strtoupper($student->fullname);
             $studentNameEN = $this->Util->convertV2E($studentNameVN);
             $studentName = explode(' ', $studentNameEN);
-            $studentFirstName = array_pop($studentName);
-            $studentGivenMiddleNames = trim(str_replace($studentFirstName, '', $studentNameEN));
+            
+            $surname = array_shift($studentName);
+            $firstName = end($studentName);
+            $studentGivenMiddleNames = trim(str_replace($surname, '', $studentNameEN));
+            
             $outputFileName = Text::insert($config['filename'], [
-                'firstName' => $studentFirstName, 
+                'firstName' => $firstName, 
             ]);
 
             $male = $female = $folderImgTemplate . DS . 'no_check.png';
@@ -2722,8 +2725,6 @@ class OrdersController extends AppController
                 }
             }
             
-            $this->checkData($householdAddress->street, 'Hộ khẩu thường trú: Số nhà - Đường');
-            $this->checkData($currentAddress->street, 'Nơi ở hiện tại: Số nhà - Đường');
             $this->checkData($currentAddress->ward_id, 'Nơi ở hiện tại: Phường/Xã');
             $this->checkData($currentAddress->district_id, 'Nơi ở hiện tại: Quận/Huyện');
             $this->checkData($currentAddress->city_id, 'Nơi ở hiện tại: Tỉnh/Thành phố');
@@ -2741,7 +2742,7 @@ class OrdersController extends AppController
             $template = WWW_ROOT . 'document' . DS . $config['template'];
             $this->tbs->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
 
-            $this->tbs->VarRef['firstName'] = $studentFirstName;
+            $this->tbs->VarRef['firstName'] = $surname;
             $this->tbs->VarRef['givenMiddleNames'] = $studentGivenMiddleNames;
             $this->tbs->VarRef['bd'] = $student->birthday->i18nFormat('dd/MM/yyyy');
             $this->tbs->VarRef['householdAddress'] = $this->convertAddressToEng($householdAddress->city, 'city') . ', VIETNAM';

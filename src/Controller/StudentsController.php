@@ -1368,11 +1368,13 @@ class StudentsController extends AppController
             $signingDate = '';
             if (!empty($guild->admin_companies)) {
                 foreach ($guild->admin_companies as $value) {
-                    $subsidy = $value->_joinData->subsidy;
-                    $signingDate = $value->_joinData->signing_date;
+                    if ($value->id == $adminCompany->id) {
+                        $subsidy = $value->_joinData->subsidy;
+                        $signingDate = $value->_joinData->signing_date;
+                    }
                 }
             }
-            $subsidy = $subsidy ? Number::format($order->guild->subsidy, ['locale' => 'ja_JP']) : '';
+            $subsidy = $subsidy ? Number::format($subsidy, ['locale' => 'ja_JP']) : '';
             $studentName_VN = mb_strtoupper($student->fullname);
             $studentName_EN = $this->Util->convertV2E($studentName_VN);
             $studentNameArr = explode(' ', $studentName_EN);
