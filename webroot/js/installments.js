@@ -263,7 +263,6 @@ function renderInstallmentChart() {
     }
 }
 
-var defaultLegendClickHandler = Chart.defaults.global.legend.onClick;
 var newLegendClickHandler = function (e, legendItem) {
     var index = legendItem.datasetIndex;
     let ci = this.chart;
@@ -479,6 +478,9 @@ function deleteFeeRow(delEl, hiddenId) {
 
     if (rows.length > 1) {
         for (var i = 0; i < rows.length; i++) {
+            if ($(rows[i]).hasClass('summary')) {
+                continue;
+            }
             rows[i].id = `row-fee-${i}`;
             if (hiddenId) {
                 $('.installment-fee-id')[i].id = `installment-fee-id-${i}`;
@@ -488,7 +490,7 @@ function deleteFeeRow(delEl, hiddenId) {
     }
 
     for (var i = 0; i < inputFields.length; i++) {
-        inputFields[i].name = inputFields[i].name.replace(/(?<=\[)\d+(?=\])/g, Math.floor(i / 11));
+        inputFields[i].name = inputFields[i].name.replace(/(\[\d+\])/g, `[${Math.floor(i / 11)}]`);
     }
     calSum();
 }

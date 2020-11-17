@@ -44,7 +44,7 @@
 .custom-table>tbody>tr>td {
     position: relative;
     vertical-align: middle;
-    /* white-space: unset !important; */
+    white-space: unset !important;
 }
 /* .custom-table>tbody>tr>td span {
     line-height: unset;

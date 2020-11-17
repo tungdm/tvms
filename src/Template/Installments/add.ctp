@@ -430,7 +430,7 @@ $quarters = Configure::read('quarters');
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="management-fee"><?= __('Phí quản lý') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-6" style="padding-left: 0px">
+                        <div class="col-md-6 col-sm-6 col-xs-6" style="padding-left: 0px">
                             <?= $this->Form->control('modal.management_fee_txt', [
                                 'label' => false,
                                 'type' => 'text',
@@ -448,7 +448,7 @@ $quarters = Configure::read('quarters');
                                 'class' => 'form-control col-md-7 col-xs-12 hidden', 
                                 ]) ?>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-sm-6 col-xs-6">
                             <div class="form-control form-control-view">đơn vị: ¥</div>
                         </div>
                     </div>
@@ -456,7 +456,7 @@ $quarters = Configure::read('quarters');
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="air-ticket-fee"><?= __('Vé máy bay') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-6" style="padding-left: 0px">
+                        <div class="col-md-6 col-sm-6 col-xs-6" style="padding-left: 0px">
                             <?= $this->Form->control('modal.air_ticket_fee_txt', [
                                 'label' => false,
                                 'type' => 'text',
@@ -474,7 +474,7 @@ $quarters = Configure::read('quarters');
                                 'class' => 'form-control col-md-7 col-xs-12 hidden', 
                                 ]) ?>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-sm-6 col-xs-6">
                             <div class="form-control form-control-view">đơn vị: ¥</div>
                         </div>
                     </div>
@@ -482,7 +482,7 @@ $quarters = Configure::read('quarters');
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="training_fee"><?= __('Phí đào tạo') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-6" style="padding-left: 0px">
+                        <div class="col-md-6 col-sm-6 col-xs-6" style="padding-left: 0px">
                             <?= $this->Form->control('modal.training_fee_txt', [
                                 'label' => false,
                                 'type' => 'text',
@@ -500,7 +500,7 @@ $quarters = Configure::read('quarters');
                                 'class' => 'form-control col-md-7 col-xs-12 hidden', 
                                 ]) ?>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-sm-6 col-xs-6">
                             <div class="form-control form-control-view">đơn vị: ¥</div>
                         </div>
                     </div>
@@ -508,7 +508,7 @@ $quarters = Configure::read('quarters');
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="other_fees"><?= __('Các khoản phí khác') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-6" style="padding-left: 0px">
+                        <div class="col-md-6 col-sm-6 col-xs-6" style="padding-left: 0px">
                             <?= $this->Form->control('modal.other_fees_txt', [
                                 'label' => false,
                                 'type' => 'text',
@@ -526,7 +526,7 @@ $quarters = Configure::read('quarters');
                                 'class' => 'form-control col-md-7 col-xs-12 hidden', 
                                 ]) ?>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-sm-6 col-xs-6">
                             <div class="form-control form-control-view">đơn vị: ¥</div>
                         </div>
                     </div>
@@ -534,7 +534,7 @@ $quarters = Configure::read('quarters');
                 <div class="form-group">
                     <label class="control-label col-md-3 col-sm-3 col-xs-12 optional" for="total-vn"><?= __('Tổng tiền vào tài khoản') ?></label>
                     <div class="col-md-7 col-sm-7 col-xs-12">
-                        <div class="col-md-6" style="padding-left: 0px">
+                        <div class="col-md-6 col-sm-6 col-xs-6" style="padding-left: 0px">
                             <?= $this->Form->control('modal.total_vn_txt', [
                                 'label' => false,
                                 'type' => 'text',
@@ -551,7 +551,7 @@ $quarters = Configure::read('quarters');
                                 'class' => 'form-control col-md-7 col-xs-12 hidden', 
                                 ]) ?>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-sm-6 col-xs-6">
                             <div class="form-control form-control-view">đơn vị: ₫</div>
                         </div>
                     </div>
