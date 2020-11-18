@@ -596,6 +596,16 @@ class GeneralReportsController extends AppController
                             }
                             if (isset($data['additional']) && !empty($data['additional'])) {
                                 $additionalData = $data['additional'];
+                                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
+                                    $jlesson = '';
+                                    if ($student->status == 4 && $student->last_lesson != NULL) {
+                                        # lao dong da dau pv
+                                        $jlesson = $jLessons[$student->last_lesson];
+                                    } else {
+                                        $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
+                                    }
+                                    array_push($studentData, $jlesson);
+                                }
                                 if (isset($additionalData['deposit_chk']) && $additionalData['deposit_chk'] == 'on') {
                                     $deposit = '';
                                     if (!empty($student->interview_deposit) && !empty($student->interview_deposit->status)) {
@@ -613,16 +623,6 @@ class GeneralReportsController extends AppController
                                         $result = $physResult[$student->physical_exams[0]->result];
                                     }
                                     array_push($studentData, $result);
-                                }
-                                if (isset($additionalData['lesson_chk']) && $additionalData['lesson_chk'] == 'on') {
-                                    $jlesson = '';
-                                    if ($student->status == 4 && $student->last_lesson != NULL) {
-                                        # lao dong da dau pv
-                                        $jlesson = $jLessons[$student->last_lesson];
-                                    } else {
-                                        $jlesson = !empty($student->jclasses) ? $jLessons[$student->jclasses[0]->current_lesson] : '';
-                                    }
-                                    array_push($studentData, $jlesson);
                                 }
                             }
                             array_push($listStudents, $studentData);
@@ -668,7 +668,8 @@ class GeneralReportsController extends AppController
                 }
                 if (isset($condition['company_chk']) && $condition['company_chk'] == 'on') {
                     $ccol = $this->nextChar($ccol);
-                    $activeSheet->mergeCells($ccol.$start.':'.$ccol.$end)->setCellValue($ccol.$start, $order->company->name_romaji);
+                    $companyName = $order->company ? $order->company->name_romaji : '';
+                    $activeSheet->mergeCells($ccol.$start.':'.$ccol.$end)->setCellValue($ccol.$start, $companyName);
                 }
                 if (isset($condition['guild_chk']) && $condition['guild_chk'] == 'on') {
                     $ccol = $this->nextChar($ccol);

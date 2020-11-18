@@ -153,11 +153,10 @@ class OrdersController extends AppController
 
         $orders = $this->paginate($allOrders);
         
-        $jobs = $this->Orders->Jobs->find('list');
-        $companies = $this->Orders->Companies->find('list');
-        $guilds = $this->Orders->Companies->Guilds->find('list');
+        $jobs = $this->Orders->Jobs->find('list')->where(['del_flag' => FALSE]);
+        $guilds = $this->Orders->Companies->Guilds->find('list')->where(['del_flag' => FALSE]);
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
-        $this->set(compact('orders', 'jobs', 'companies', 'guilds', 'query', 'adminCompanies'));
+        $this->set(compact('orders', 'jobs', 'guilds', 'query', 'adminCompanies'));
     }
 
     /**
@@ -229,7 +228,7 @@ class OrdersController extends AppController
         $guilds = $companies = [];
         $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
-        $jobs = $this->Orders->Jobs->find('list');
+        $jobs = $this->Orders->Jobs->find('list')->where(['del_flag' => FALSE]);
         $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs', 'adminCompanies'));
     }
 
@@ -327,7 +326,7 @@ class OrdersController extends AppController
         }
         $companies = $guilds = $disCompanies = [];
         if (!empty($order->guild_id) && !$order->guild->del_flag) {
-            $guilds = $this->Orders->Guilds->find('list');
+            $guilds = $this->Orders->Guilds->find('list')->where(['del_flag' => FALSE]);
             $companies = $this->Orders->Companies->find('list')
                 ->where(['Companies.del_flag' => FALSE])
                 ->matching('Guilds', function ($q) use ($order) {
@@ -335,7 +334,7 @@ class OrdersController extends AppController
                 });
         }
         $disCompanies = $this->Orders->Companies->find('list')->where(['type' => '1', 'del_flag' => FALSE]);
-        $jobs = $this->Orders->Jobs->find('list');
+        $jobs = $this->Orders->Jobs->find('list')->where(['del_flag' => FALSE]);
         $adminCompanies = TableRegistry::get('AdminCompanies')->find('list')->where(['deleted' => FALSE])->toArray();
         $this->set(compact('order', 'guilds', 'companies', 'disCompanies', 'jobs', 'adminCompanies'));
         $this->render('/Orders/add');
