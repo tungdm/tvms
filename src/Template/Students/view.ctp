@@ -1071,11 +1071,11 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4 col-xs-12">
-                                            <canvas id="total-radar-chart" height="300"></canvas>
+                                        <div class="col-md-4 col-xs-12" style="height: 400px">
+                                            <canvas id="total-radar-chart"></canvas>
                                         </div>
-                                        <div class="col-md-8 col-xs-12">
-                                            <canvas id="jtest-score-line-chart" height="300"></canvas>
+                                        <div class="col-md-8 col-xs-12" style="height: 400px">
+                                            <canvas id="jtest-score-line-chart"></canvas>
                                         </div>
                                     </div>
                                 </div>
@@ -1599,15 +1599,15 @@ $this->assign('title', $student->fullname . ' - Thông tin chi tiết');
                                         <div id="iqtest-tabs-content" class="tab-content">
                                             <div class="tab-pane fade in active" id="iq-vn">
                                                 <div class="row">
-                                                    <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                        <canvas id="iq-vn-line-chart" height="300"></canvas>
+                                                    <div class="col-md-12 col-sm-12 col-xs-12" style="height:300px;">
+                                                        <canvas id="iq-vn-line-chart"></canvas>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="tab-pane fade" id="iq-jp">
                                                 <div class="row">
-                                                    <div class="col-md-12 col-sm-12 col-xs-12" style="width:75%;">
-                                                        <canvas id="iq-jp-line-chart" height="300"></canvas>
+                                                    <div class="col-md-12 col-sm-12 col-xs-12" style="height:300px;">
+                                                        <canvas id="iq-jp-line-chart"></canvas>
                                                     </div>
                                                 </div>
                                             </div>

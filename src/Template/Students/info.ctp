@@ -2502,6 +2502,7 @@ $this->Html->script('student.js', ['block' => 'scriptBottom']);
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="crop-btn" data-dismiss="modal">Cắt ảnh</button>
+                <button type="button" class="btn btn-info" id="reset-btn">Reset</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Đóng</button>
             </div>
         </div>

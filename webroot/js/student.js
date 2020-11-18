@@ -21,6 +21,7 @@ if (typeof studentName !== 'undefined') {
 function generateChartOptions(title, maximum) {
     return {
         responsive: true,
+        maintainAspectRatio: false,
         title: {
             display: true,
             text: title,
@@ -1652,7 +1653,8 @@ function renderRadarChart(chartId, title, label, datasets) {
             title: {
                 display: true,
                 text: title
-            }
+            },
+            maintainAspectRatio: false
         },
     };
 
@@ -1910,5 +1912,9 @@ function initCropper2() {
         img.className = 'zoom-able';
         $('#' + croppedIdGlobal).empty().append(img);
         $('input[name="' + croppedIdGlobal + '"]').val(imgurl);
+    });
+
+    $('#reset-btn').click(function () {
+        imgCropper.cropper('reset')
     });
 }
