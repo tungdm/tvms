@@ -1396,11 +1396,20 @@ class OrdersController extends AppController
 
                 $studentJP = [
                     'no' => $key + 1,
-                    'studentName' => $studentName_EN,
-                    'birthday' => $student->birthday->i18nFormat('yyyy年M月d日'),
-                    'gender' => $genderJP[$student->gender],
-                    'job' => $order->job->job_name_jp,
-                    'departureDate' => date('Y年n月', $departureDate)
+                    'studentNameJP' => $studentName_EN,
+                    'studentNameVN' => $studentName_VN,
+
+                    'birthdayJP' => $student->birthday->i18nFormat('yyyy年M月d日'),
+                    'birthdayVN' => $student->birthday->i18nFormat('dd/MM/yyyy'),
+
+                    'genderJP' => $genderJP[$student->gender],
+                    'genderVN' => $gender[$student->gender],
+
+                    'jobJP' => $order->job->job_name_jp,
+                    'jobVN' => $order->job->job_name,
+
+                    'departureDateJP' => date('Y年n月', $departureDate),
+                    'departureDateVN' => date('m/Y', $departureDate)
                 ];
                 $studentVN = [
                     'no' => $key + 1,
