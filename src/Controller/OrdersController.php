@@ -99,7 +99,7 @@ class OrdersController extends AppController
                 $allOrders->where(['admin_company_id' => $query['ad_comp_id']]);
             }
             if (isset($query['guild_id']) && !empty($query['guild_id'])) {
-                $allOrders->where(['Companies.guild_id' => $query['guild_id']]);
+                $allOrders->where(['guild_id' => $query['guild_id']]);
             }
             if (isset($query['departure_month']) && !empty($query['departure_month'])) {
                 $from = new Time('01-' . $query['departure_month']);
